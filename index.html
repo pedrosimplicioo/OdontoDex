@@ -1,0 +1,1877 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#2563EB">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<title>Guia Odonto</title>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,sans-serif;background:#F1F5F9;min-height:100vh;max-width:430px;margin:0 auto;position:relative;overscroll-behavior:none;transition:background 0.2s,color 0.2s;}
+body.dark{background:#0F172A;color:#F1F5F9;}
+body.dark .hdr,body.dark .fav-box,body.dark .quick-card,body.dark .stats-card,body.dark .list-btn,body.dark .proto-hdr,body.dark .sec,body.dark .top-bar,body.dark .result-card,body.dark .adm-row,body.dark .adm-sec,body.dark .adm-panel,body.dark .login-card{background:#1E293B;border-color:#475569;}
+body.dark .hdr{border-bottom-color:#475569;}
+body.dark .app-name,body.dark .list-txt,body.dark .proto-title,body.dark .step-txt,body.dark .err-txt,body.dark .dec-then,body.dark .panic-sol,body.dark .top-title{color:#F1F5F9;}
+body.dark .app-sub,body.dark .sec-title,body.dark .dec-if-lbl,body.dark .dec-if{color:#94A3B8;}
+body.dark .search-bar{background:#334155;border-color:#475569;}
+body.dark .search-bar span,body.dark .search-input-real{color:#F1F5F9;}
+body.dark .chip{background:#334155;border-color:#475569;color:#60A5FA;}
+body.dark .adm-hdr{background:#020617;}
+body.dark .adm-row{background:#1E293B;border-color:#475569;}
+body.dark .adm-row-title{color:#F1F5F9;}
+body.dark .adm-inp{background:#334155;border-color:#475569;color:#F1F5F9;}
+body.dark .modal{background:#1E293B;}
+body.dark .modal-title{color:#F1F5F9;}
+body.dark .modal-sub{color:#94A3B8;}
+body.dark .modal-features{background:#334155;}
+body.dark .feature{color:#E2E8F0;}
+body.dark .confirm-box{background:#1E293B;}
+body.dark .quick-card{background:#1E293B;}
+body.dark .stats-card{background:#1E293B;}
+body.dark .input-field{background:#334155;border-color:#475569;color:#F1F5F9;}
+body.dark .badge{background:#334155;color:#94A3B8;}
+body.dark .sec{background:#1E293B;border-color:#475569;}
+body.dark .sec-title{color:#94A3B8;}
+body.dark .step-num{background:#3B82F6;}
+body.dark .dec-row{border-bottom-color:#334155;}
+body.dark .dec-arr,body.dark .dec-then{color:#60A5FA;}
+body.dark .panic-card{background:#2D1A0E;border-left-color:#EA580C;}
+body.dark .panic-sol{color:#E2E8F0;}
+body.dark .fav-box{background:#1E293B;border-color:#475569;}
+body.dark .proto-hdr{background:#1E293B;border-color:#475569;}
+body.dark .search-input-real{color:#F1F5F9;}
+body.dark .adm-sec{background:#1E293B;border-color:#475569;}
+body.dark .confirm-box{background:#1E293B;}
+body.dark .login-card{background:#1E293B;border-color:#475569;}
+body.dark .logout-btn{background:#334155;}
+body.dark .screen{background:#0F172A;}
+body.dark .stat-item{background:#1E293B;}
+body.dark .stat-item-name{color:#F1F5F9;}
+body.dark .list-btn{background:#1E293B;border-color:#475569;}
+body.dark .result-card{background:#1E293B;border-color:#475569;}
+body.dark .result-title{color:#F1F5F9;}
+body.dark .cat-horizontal{background:#1E293B;border-color:#475569;}
+body.dark .cat-horizontal-label{color:#F1F5F9;}
+body.dark .categories-wrapper::after{background:linear-gradient(to right,transparent,#0F172A);}
+
+button{font-family:inherit;cursor:pointer;border:none;background:none;transition:all 0.1s ease;}
+button:active{transform:scale(0.97);opacity:0.8;}
+input,select,textarea{font-family:inherit;}
+
+.screen{display:none;flex-direction:column;min-height:100vh;background:#F1F5F9;}
+.screen.active{display:flex;}
+
+/* HEADER */
+.hdr{background:#fff;padding:12px 16px 14px;border-bottom:1px solid #E2E8F0;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.hdr-saudacao{font-size:12px;color:#94A3B8;margin-bottom:2px;display:flex;align-items:center;gap:6px;}
+.hdr-dot{width:7px;height:7px;border-radius:50%;background:#22C55E;flex-shrink:0;}
+.hdr-nome{font-size:22px;font-weight:800;color:#0F172A;letter-spacing:-0.5px;margin-bottom:1px;line-height:1.2;}
+.hdr-pergunta{font-size:14px;color:#64748B;margin-bottom:10px;}
+body.dark .hdr-nome{color:#F1F5F9;}
+body.dark .hdr-pergunta{color:#94A3B8;}
+body.dark .hdr-saudacao{color:#64748B;}
+.logo-area{display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.main-logo{font-size:40px;cursor:pointer;user-select:none;background:#F1F5F9;width:56px;height:56px;border-radius:28px;display:flex;align-items:center;justify-content:center;}
+.main-logo:active{transform:scale(0.95);}
+.title-area{flex:1;}
+.app-name{font-size:22px;font-weight:800;color:#0F172A;letter-spacing:-0.5px;}
+.app-sub{font-size:11px;color:#64748B;letter-spacing:0.5px;margin-top:2px;}
+.user-email{font-size:11px;color:#94A3B8;margin-top:1px;}
+.search-bar{display:flex;align-items:center;gap:8px;background:#F1F5F9;border-radius:20px;padding:12px 16px;border:1px solid #E2E8F0;cursor:text;margin-top:8px;}
+.search-bar span{font-size:14px;color:#94A3B8;}
+
+/* CATEGORIES */
+.section-label{font-size:11px;font-weight:800;color:#94A3B8;letter-spacing:1px;margin-bottom:10px;padding-left:2px;}
+.categories-scroll{overflow-x:auto;overflow-y:hidden;white-space:nowrap;scrollbar-width:none;padding-bottom:6px;}
+.categories-scroll::-webkit-scrollbar{display:none;}
+.categories-flex{display:inline-flex;gap:12px;padding:2px 16px 2px 2px;}
+.categories-wrapper{position:relative;}
+.categories-wrapper::after{content:'';position:absolute;top:0;right:0;width:40px;height:100%;background:linear-gradient(to right,transparent,#F1F5F9);pointer-events:none;}
+.cat-horizontal{display:inline-flex;flex-direction:column;align-items:center;gap:8px;background:#fff;border-radius:20px;padding:14px 16px;border:1px solid #E2E8F0;cursor:pointer;min-width:82px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
+.cat-horizontal:active{transform:scale(0.96);}
+.cat-horizontal-icon{font-size:34px;}
+.cat-horizontal-label{font-size:12px;font-weight:700;color:#0F172A;white-space:normal;word-break:keep-all;line-height:1.3;}
+
+/* BODY */
+.body{flex:1;padding:14px;overflow-y:auto;padding-bottom:80px;display:flex;flex-direction:column;gap:12px;}
+
+/* CARDS HOME */
+.quick-card{background:#fff;border-radius:20px;padding:14px;border:1px solid #E2E8F0;}
+.quick-title{font-size:12px;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
+.quick-buttons{display:flex;gap:10px;flex-wrap:wrap;}
+.quick-btn{flex:1;background:#FEF2F2;border:1px solid #FECACA;border-radius:16px;padding:12px 8px;text-align:center;cursor:pointer;min-width:72px;}
+.quick-btn:active{transform:scale(0.96);background:#FEE2E2;}
+.quick-btn-icon{font-size:22px;display:block;margin-bottom:4px;}
+.quick-btn-label{font-size:11px;font-weight:700;color:#991B1B;}
+body.dark .quick-btn{background:#2D1A0E;border-color:#7F1D1D;}
+body.dark .quick-btn-label{color:#FCA5A5;}
+.stats-card{background:#fff;border-radius:20px;padding:14px;border:1px solid #E2E8F0;}
+.stats-title{font-size:12px;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
+.stat-item{display:flex;align-items:center;justify-content:space-between;padding:8px;background:#F8FAFC;border-radius:12px;cursor:pointer;margin-bottom:6px;}
+.stat-item:active{transform:scale(0.98);}
+.stat-item-left{display:flex;align-items:center;gap:10px;}
+.stat-item-num{font-size:15px;font-weight:800;color:#F59E0B;}
+.stat-item-name{font-size:13px;font-weight:600;color:#0F172A;}
+.stat-item-count{font-size:12px;color:#F59E0B;font-weight:700;}
+.fav-box{background:#fff;border-radius:20px;padding:14px;border:1px solid #E2E8F0;}
+.fav-chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;scrollbar-width:none;}
+.fav-chips::-webkit-scrollbar{display:none;}
+.chip{white-space:nowrap;background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;border-radius:30px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;flex-shrink:0;}
+.chip:active{transform:scale(0.96);background:#DBEAFE;}
+
+/* TOP BAR */
+.top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;border-bottom:1px solid #E2E8F0;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
+.back-btn{font-size:26px;color:#2563EB;font-weight:700;padding:8px 10px;min-width:48px;min-height:48px;display:flex;align-items:center;}
+.back-btn:active{transform:scale(0.95);}
+.top-title{font-size:17px;font-weight:700;color:#0F172A;}
+
+/* LIST */
+.list-btn{display:flex;align-items:center;gap:10px;background:#fff;border-radius:18px;padding:16px;border:1px solid #E2E8F0;cursor:pointer;text-align:left;width:100%;min-height:60px;}
+.list-btn:active{transform:scale(0.98);background:#F8FAFC;}
+.list-txt{flex:1;font-size:15px;font-weight:600;color:#0F172A;}
+.list-time{font-size:11px;color:#94A3B8;margin-right:6px;}
+.prem-tag{font-size:11px;background:#FEF9C3;color:#92400E;padding:4px 10px;border-radius:30px;font-weight:700;white-space:nowrap;}
+.seen-badge{font-size:11px;background:#DCFCE7;color:#166534;padding:4px 10px;border-radius:30px;font-weight:700;white-space:nowrap;}
+.arr{font-size:20px;color:#CBD5E1;margin-left:auto;}
+
+/* PROTOCOL */
+.proto-hdr{display:flex;align-items:flex-start;gap:12px;margin-bottom:10px;background:#fff;border-radius:20px;padding:16px;border:1px solid #E2E8F0;}
+.proto-title{font-size:21px;font-weight:800;color:#0F172A;line-height:1.3;}
+.meta-row{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap;}
+.badge{font-size:12px;background:#F1F5F9;color:#475569;padding:5px 11px;border-radius:30px;font-weight:600;}
+.fav-btn{font-size:30px;background:none;border:none;cursor:pointer;padding:0;line-height:1;color:#D1D5DB;min-width:48px;min-height:48px;display:flex;align-items:center;justify-content:center;transition:color 0.15s,transform 0.1s;}
+.fav-btn:active{transform:scale(0.92);}
+.fav-btn.active{color:#F59E0B;}
+.sec{background:#fff;border-radius:18px;padding:16px;margin-bottom:10px;border:1px solid #E2E8F0;}
+.sec-title{font-size:11px;font-weight:800;color:#64748B;margin:0 0 12px;text-transform:uppercase;letter-spacing:1px;}
+.step-row{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px;}
+.step-num{min-width:26px;height:26px;background:#2563EB;color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+.step-txt{font-size:14px;color:#1E293B;line-height:1.6;padding-top:2px;flex:1;}
+.err-row{display:flex;gap:10px;align-items:flex-start;margin-bottom:8px;}
+.err-dot{color:#DC2626;font-weight:800;font-size:15px;line-height:1.5;}
+.err-txt{font-size:14px;color:#1E293B;line-height:1.5;}
+.dec-row{padding:8px 0;border-bottom:1px solid #F1F5F9;display:flex;gap:6px;flex-wrap:wrap;align-items:flex-start;}
+.dec-if-lbl{font-size:11px;color:#64748B;font-weight:700;text-transform:uppercase;padding-top:2px;}
+.dec-if{font-size:13px;font-weight:700;color:#0F172A;}
+.dec-arr{font-size:14px;color:#2563EB;font-weight:800;}
+.dec-then{font-size:13px;color:#2563EB;font-weight:600;flex:1;}
+.panic-card{background:#FFF7ED;border-radius:14px;padding:12px 14px;border-left:4px solid #F97316;margin-bottom:8px;}
+.panic-prob{font-size:13px;font-weight:800;color:#C2410C;margin-bottom:4px;}
+.panic-sol{font-size:13px;color:#1E293B;line-height:1.5;}
+.clinical-note{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:12px 14px;font-size:12px;color:#166534;line-height:1.6;margin-bottom:10px;}
+.copy-proto-btn{width:100%;background:#0F172A;color:#fff;border:none;border-radius:16px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;}
+.copy-proto-btn:active{opacity:0.8;}
+
+/* OVERLAYS / MODALS */
+.overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:flex-end;justify-content:center;z-index:200;}
+.overlay.active{display:flex;}
+.modal{background:#fff;border-radius:28px 28px 0 0;padding:24px 20px 32px;width:100%;max-width:430px;display:flex;flex-direction:column;align-items:center;gap:10px;max-height:90vh;overflow-y:auto;}
+.modal-icon{font-size:44px;}
+.modal-title{font-size:21px;font-weight:800;color:#0F172A;margin:0;text-align:center;}
+.modal-sub{font-size:14px;color:#64748B;text-align:center;margin:0;}
+.modal-features{width:100%;background:#F8FAFC;border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.feature{font-size:14px;color:#0F172A;font-weight:600;}
+.btn-primary{width:100%;background:#2563EB;color:#fff;border:none;border-radius:24px;padding:15px;font-size:16px;font-weight:800;cursor:pointer;margin-bottom:4px;}
+.btn-primary:active{transform:scale(0.97);background:#1D4ED8;}
+.btn-ghost{background:none;border:none;font-size:14px;color:#94A3B8;cursor:pointer;font-weight:600;padding:8px;}
+.btn-cancel-sm{background:none;border:none;font-size:14px;color:#94A3B8;cursor:pointer;font-weight:600;margin-top:8px;}
+.crise-option{width:100%;background:#FEF2F2;border:1px solid #FECACA;border-radius:18px;padding:14px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;}
+.crise-option:active{transform:scale(0.97);}
+.crise-option-icon{font-size:26px;}
+.crise-option-title{font-size:15px;font-weight:800;color:#991B1B;margin-bottom:2px;}
+.crise-option-sub{font-size:12px;color:#7F1D1D;opacity:0.8;}
+body.dark .crise-option{background:#2D1A0E;border-color:#7F1D1D;}
+body.dark .crise-option-title{color:#FCA5A5;}
+
+/* TOAST */
+.toast{position:fixed;top:16px;left:50%;transform:translateX(-50%);color:#fff;padding:11px 20px;border-radius:60px;font-size:13px;font-weight:700;z-index:999;white-space:nowrap;display:none;box-shadow:0 4px 16px rgba(0,0,0,0.2);}
+.toast.active{display:block;}
+
+/* LOADING */
+.loading-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);display:none;align-items:center;justify-content:center;z-index:300;}
+.loading-overlay.active{display:flex;}
+.spinner{width:40px;height:40px;border:3px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* MISC */
+.link-btn{font-size:12px;color:#2563EB;background:none;border:none;cursor:pointer;font-weight:700;padding:4px 8px;}
+.tap-hint{font-size:10px;color:#94A3B8;margin-top:4px;text-align:center;}
+.empty-msg{color:#9CA3AF;text-align:center;margin-top:40px;font-size:14px;}
+.search-input-real{width:100%;border:none;outline:none;font-size:16px;background:transparent;color:#0F172A;padding:4px 0;}
+.home-result-card{display:flex;flex-direction:column;gap:4px;background:#fff;border-radius:16px;padding:14px 16px;border:1px solid #E2E8F0;cursor:pointer;text-align:left;width:100%;margin-bottom:8px;}
+.home-result-card:active{transform:scale(0.98);background:#F8FAFC;}
+body.dark .home-result-card{background:#1E293B;border-color:#475569;}
+.result-card{display:flex;flex-direction:column;gap:4px;background:#fff;border-radius:18px;padding:14px 16px;border:1px solid #E2E8F0;cursor:pointer;text-align:left;width:100%;min-height:60px;}
+.result-card:active{transform:scale(0.98);}
+.result-title{font-size:15px;font-weight:700;color:#0F172A;}
+.result-meta{font-size:12px;color:#64748B;}
+.dark-toggle{background:#F1F5F9;border:none;border-radius:40px;width:38px;height:38px;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+body.dark .dark-toggle{background:#334155;color:#FBBF24;}
+.share-btn{background:#F1F5F9;border:none;border-radius:40px;font-size:18px;cursor:pointer;padding:8px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;}
+body.dark .share-btn{background:#334155;}
+.scroll-top-btn{position:fixed;bottom:90px;right:calc(50% - 215px + 12px);background:#2563EB;color:#fff;border:none;border-radius:60px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;z-index:98;display:none;align-items:center;gap:6px;}
+.scroll-top-btn.visible{display:flex;}
+.spacer{height:20px;}
+.logout-btn{background:#F1F5F9;border:none;border-radius:30px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;color:#DC2626;}
+.gear-btn{background:#F1F5F9;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+body.dark .gear-btn{background:#334155;}
+.cfg-section{background:#fff;border-radius:20px;border:1px solid #E2E8F0;overflow:hidden;margin-bottom:12px;}
+body.dark .cfg-section{background:#1E293B;border-color:#475569;}
+.cfg-row{display:flex;align-items:center;gap:14px;padding:16px;border-bottom:1px solid #F1F5F9;cursor:pointer;}
+body.dark .cfg-row{border-bottom-color:#334155;}
+.cfg-row:last-child{border-bottom:none;}
+.cfg-row:active{background:#F8FAFC;}
+body.dark .cfg-row:active{background:#334155;}
+.cfg-icon{font-size:22px;width:36px;height:36px;background:#F1F5F9;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+body.dark .cfg-icon{background:#334155;}
+.cfg-label{flex:1;font-size:15px;font-weight:600;color:#0F172A;}
+body.dark .cfg-label{color:#F1F5F9;}
+.cfg-value{font-size:13px;color:#94A3B8;}
+.cfg-arr{font-size:20px;color:#CBD5E1;}
+.cfg-avatar{width:64px;height:64px;border-radius:32px;background:#EFF6FF;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:800;color:#2563EB;margin:0 auto 8px;}
+.cfg-user-name{font-size:18px;font-weight:800;color:#0F172A;text-align:center;}
+body.dark .cfg-user-name{color:#F1F5F9;}
+.cfg-user-email{font-size:13px;color:#94A3B8;text-align:center;margin-top:2px;}
+.cfg-edit-inp{width:100%;border:1px solid #E2E8F0;border-radius:14px;padding:12px 14px;font-size:15px;outline:none;font-family:inherit;background:#fff;color:#0F172A;}
+body.dark .cfg-edit-inp{background:#334155;border-color:#475569;color:#F1F5F9;}
+.cfg-select-row{display:flex;gap:8px;margin-top:8px;}
+.cfg-sel-btn{flex:1;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:10px 6px;font-size:13px;font-weight:600;color:#64748B;cursor:pointer;text-align:center;}
+.cfg-sel-btn.selected{background:#EFF6FF;border-color:#2563EB;color:#2563EB;}
+
+/* LOGIN */
+.login-screen{display:flex;flex-direction:column;justify-content:center;min-height:100vh;padding:40px 24px;background:#F1F5F9;}
+body.dark .login-screen{background:#0F172A;}
+.login-logo{text-align:center;margin-bottom:40px;}
+.login-logo .logo-icon{font-size:60px;background:#fff;width:96px;height:96px;border-radius:48px;display:inline-flex;align-items:center;justify-content:center;margin-bottom:16px;box-shadow:0 4px 16px rgba(0,0,0,0.1);}
+.login-logo h1{font-size:26px;font-weight:800;color:#0F172A;}
+body.dark .login-logo h1{color:#F1F5F9;}
+.login-logo p{font-size:13px;color:#64748B;margin-top:6px;}
+.login-card{background:#fff;border-radius:24px;padding:28px 22px;border:1px solid #E2E8F0;}
+.input-group{margin-bottom:18px;}
+.input-label{font-size:13px;font-weight:600;margin-bottom:7px;display:block;color:#475569;}
+.input-field{width:100%;padding:13px 15px;border:1px solid #E2E8F0;border-radius:14px;font-size:15px;background:#fff;outline:none;}
+.input-field:focus{border-color:#2563EB;}
+.btn{width:100%;padding:14px;border-radius:30px;font-size:16px;font-weight:700;cursor:pointer;text-align:center;}
+.btn-secondary{background:transparent;color:#2563EB;border:1px solid #2563EB;}
+.btn-text{background:none;color:#64748B;font-size:14px;font-weight:600;}
+.link-text{color:#2563EB;font-weight:600;cursor:pointer;}
+.error-message{color:#DC2626;font-size:13px;margin-top:8px;display:none;}
+.select-group{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
+.select-btn{background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:14px;padding:12px 8px;font-size:13px;font-weight:600;color:#64748B;cursor:pointer;text-align:center;transition:all 0.15s;}
+.select-btn.selected{background:#EFF6FF;border-color:#2563EB;color:#2563EB;}
+.select-group-label{font-size:13px;font-weight:600;color:#475569;margin-bottom:8px;display:block;}
+.success-message{color:#059669;font-size:13px;margin-top:8px;display:none;}
+.divider{text-align:center;margin:18px 0;color:#94A3B8;font-size:12px;}
+
+/* ADMIN */
+.adm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;display:none;}
+.adm-overlay.active{display:flex;}
+.adm-panel{width:100%;max-width:430px;margin:0 auto;background:#fff;display:flex;flex-direction:column;max-height:100vh;}
+body.dark .adm-panel{background:#1E293B;}
+.adm-hdr{display:flex;justify-content:space-between;align-items:center;padding:16px;background:#0F172A;}
+.adm-hdr-title{font-size:16px;font-weight:800;color:#fff;}
+.adm-hdr-sub{font-size:11px;color:#94A3B8;margin-top:2px;}
+.adm-breadcrumb{display:flex;align-items:center;gap:6px;padding:8px 14px;background:#F1F5F9;border-bottom:1px solid #E2E8F0;font-size:12px;flex-wrap:wrap;}
+body.dark .adm-breadcrumb{background:#0F172A;border-bottom-color:#334155;}
+.adm-back-btn{background:#334155;color:#fff;border:none;border-radius:30px;padding:5px 12px;font-size:12px;cursor:pointer;}
+.adm-body{flex:1;overflow-y:auto;padding:12px 14px;padding-bottom:40px;}
+.adm-add-btn{width:100%;background:#EFF6FF;color:#2563EB;border:1px dashed #BFDBFE;border-radius:18px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;}
+.adm-row{display:flex;align-items:center;gap:8px;background:#F8FAFC;border-radius:16px;padding:11px 13px;border:1px solid #E2E8F0;margin-bottom:6px;}
+.adm-row.clickable{cursor:pointer;}
+.adm-row.clickable:active{background:#EFF6FF;}
+.adm-row-title{font-size:14px;font-weight:600;color:#0F172A;}
+.adm-row-sub{font-size:11px;color:#94A3B8;margin-top:2px;}
+.adm-edit-btn{background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;border-radius:30px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.adm-del-btn{background:#FFF1F2;color:#DC2626;border:1px solid #FECDD3;border-radius:30px;padding:5px 10px;font-size:12px;cursor:pointer;}
+.adm-inp{width:100%;border:1px solid #E2E8F0;border-radius:14px;padding:9px 12px;font-size:13px;color:#0F172A;background:#fff;outline:none;box-sizing:border-box;font-family:inherit;}
+.adm-lbl{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;display:block;}
+.adm-field{margin-bottom:10px;}
+.adm-sec{margin-bottom:14px;background:#F8FAFC;border-radius:16px;padding:11px 13px;border:1px solid #E2E8F0;}
+.adm-sec-lbl{font-size:12px;font-weight:800;color:#0F172A;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;}
+.adm-item-row{display:flex;gap:6px;margin-bottom:6px;align-items:center;}
+.adm-rm-btn{background:#FFF1F2;color:#DC2626;border:none;border-radius:30px;padding:7px 11px;font-size:12px;cursor:pointer;flex-shrink:0;}
+.adm-add-small{background:#EFF6FF;color:#2563EB;border:1px dashed #BFDBFE;border-radius:30px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px;}
+.adm-save-btn{flex:1;background:#2563EB;color:#fff;border:none;border-radius:30px;padding:11px;font-size:14px;font-weight:800;cursor:pointer;}
+.adm-cancel-btn{flex:1;background:#F1F5F9;color:#64748B;border:none;border-radius:30px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;}
+.adm-btn-row{display:flex;gap:8px;margin-top:12px;}
+.adm-flex{display:flex;gap:8px;}
+.pwd-input{width:100%;border:1px solid #E2E8F0;border-radius:18px;padding:14px;font-size:20px;text-align:center;letter-spacing:8px;outline:none;background:#fff;}
+.pwd-input.error{border-color:#DC2626;background:#FFF1F2;}
+.pwd-error{font-size:13px;color:#DC2626;font-weight:700;}
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;display:none;align-items:center;justify-content:center;padding:20px;}
+.confirm-overlay.active{display:flex;}
+.confirm-box{background:#fff;border-radius:24px;padding:24px 20px;text-align:center;max-width:300px;width:100%;}
+body.dark .search-bar-proc {
+  background:#334155 !important;
+  border-color:#475569 !important;
+}
+body.dark .search-bar-proc input {
+  color:#F1F5F9;
+}
+</style>
+</head>
+<body>
+
+<div class="toast" id="toast"></div>
+<div class="loading-overlay" id="loading-overlay"><div class="spinner"></div></div>
+<button class="scroll-top-btn" id="scroll-top-btn" onclick="scrollToTop()">⬆ Topo</button>
+
+<!-- LOGIN -->
+<div class="screen active" id="screen-login">
+  <div class="login-screen">
+    <div class="login-logo">
+      <div class="logo-icon">🦷</div>
+      <h1>GUIA ODONTO</h1>
+      <p>Seu guia clínico na palma da mão</p>
+    </div>
+    <div class="login-card">
+      <div id="login-form">
+        <div class="input-group"><label class="input-label">Email</label><input type="email" id="login-email" class="input-field" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <div class="input-group"><label class="input-label">Senha</label><input type="password" id="login-password" class="input-field" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <div id="login-error" class="error-message"></div>
+        <button class="btn btn-primary" onclick="doLogin()" style="margin-bottom:12px">Entrar</button>
+        <div class="divider">ou</div>
+        <button class="btn btn-secondary" onclick="showRegister()">Criar conta</button>
+        <div style="text-align:center;margin-top:18px"><span class="link-text" onclick="showReset()">Esqueceu a senha?</span></div>
+      </div>
+      <div id="register-form" style="display:none">
+        <div class="input-group"><label class="input-label">Nome completo</label><input type="text" id="register-name" class="input-field" placeholder="Seu nome"></div>
+        <div class="input-group"><label class="input-label">Email</label><input type="email" id="register-email" class="input-field" placeholder="seu@email.com"></div>
+        <div class="input-group"><label class="input-label">Senha</label><input type="password" id="register-password" class="input-field" placeholder="mínimo 6 caracteres"></div>
+        <div style="margin-bottom:16px">
+          <span class="select-group-label">Como quer ser chamado?</span>
+          <div class="select-group">
+            <button type="button" class="select-btn selected" id="btn-dr" onclick="selectTratamento('Dr.')">👨‍⚕️ Dr.</button>
+            <button type="button" class="select-btn" id="btn-dra" onclick="selectTratamento('Dra.')">👩‍⚕️ Dra.</button>
+          </div>
+        </div>
+        <div style="margin-bottom:16px">
+          <span class="select-group-label">Qual é o seu perfil?</span>
+          <div class="select-group">
+            <button type="button" class="select-btn selected" id="btn-dentista" onclick="selectPerfil('dentista')">🦷 Dentista formado</button>
+            <button type="button" class="select-btn" id="btn-estudante" onclick="selectPerfil('estudante')">📚 Estudante</button>
+          </div>
+        </div>
+        <div id="register-error" class="error-message"></div>
+        <button class="btn btn-primary" onclick="doRegister()" style="margin-bottom:12px">Criar conta</button>
+        <div class="divider">ou</div>
+        <button class="btn btn-text" onclick="showLogin()">Voltar para login</button>
+      </div>
+      <div id="reset-form" style="display:none">
+        <div class="input-group"><label class="input-label">Email para recuperação</label><input type="email" id="reset-email" class="input-field" placeholder="seu@email.com"></div>
+        <div id="reset-error" class="error-message"></div>
+        <div id="reset-success" class="success-message"></div>
+        <button class="btn btn-primary" onclick="doReset()" style="margin-bottom:12px">Enviar email</button>
+        <button class="btn btn-text" onclick="showLogin()">Voltar para login</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN APP -->
+<div class="screen" id="screen-app">
+  <div class="hdr" id="main-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+      <div class="hdr-saudacao"><span class="hdr-dot"></span><span id="hdr-periodo">Disponível agora</span></div>
+      <div style="display:flex;gap:6px;align-items:center">
+        <button class="gear-btn" onclick="goScreen('settings')" title="Configurações">⚙️</button>
+      </div>
+    </div>
+    <div id="logo-tap" style="position:absolute;left:-9999px;opacity:0;pointer-events:auto;width:1px;height:1px"></div>
+    <div class="hdr-nome" id="hdr-nome">Olá!</div>
+    <div class="hdr-pergunta">Como posso te ajudar hoje?</div>
+    <div class="search-bar" onclick="document.getElementById('home-search-input').focus()">
+      <span style="font-size:16px">🔍</span>
+      <input class="search-input-real" id="home-search-input" placeholder="Digite sua dúvida clínica..." oninput="doHomeSearch(this.value)" onfocus="showHomeResults()" autocomplete="off">
+      <button id="home-search-clear" onclick="clearHomeSearch()" style="display:none;background:none;border:none;cursor:pointer;font-size:16px;color:#94A3B8;padding:0;line-height:1;">✕</button>
+    </div>
+  </div>
+  <div id="home-search-results" style="display:none;padding:0 14px 8px;"></div>
+  <div class="body" id="home-body">
+    <div>
+      <div class="section-label">CATEGORIAS</div>
+      <div class="categories-wrapper">
+        <div class="categories-scroll" id="categories-scroll"></div>
+      </div>
+    </div>
+    <div class="quick-card">
+      <div class="quick-title">🚨 ACESSO RÁPIDO</div>
+      <div class="quick-buttons">
+        <div class="quick-btn" onclick="openProto('sincope-protocolo')"><span class="quick-btn-icon">😰</span><span class="quick-btn-label">Desmaio</span></div>
+        <div class="quick-btn" onclick="openProto('alergia-protocolo')"><span class="quick-btn-icon">🩺</span><span class="quick-btn-label">Alergia</span></div>
+        <div class="quick-btn" onclick="openProto('infarto-protocolo')"><span class="quick-btn-icon">💔</span><span class="quick-btn-label">Infarto</span></div>
+      </div>
+    </div>
+    <div id="favs-box" class="fav-box">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+        <span style="font-weight:800;font-size:13px;color:#F59E0B">⭐ FAVORITOS</span>
+        <button class="link-btn" onclick="goScreen('favorites')">Ver todos</button>
+      </div>
+      <div class="fav-chips" id="fav-chips"></div>
+    </div>
+    <div class="stats-card" id="most-used-card">
+      <div class="stats-title">📊 MAIS USADOS</div>
+      <div id="most-used-list"></div>
+    </div>
+    <div class="spacer"></div>
+  </div>
+</div>
+
+<!-- SEARCH -->
+<div class="screen" id="screen-search">
+  <div class="hdr"><div style="display:flex;align-items:center;gap:8px"><button class="back-btn" onclick="goBackToLastScreen()">←</button><input class="search-input-real" id="search-input" placeholder="pino, extração, abscesso..." oninput="doSearch(this.value)"></div></div>
+  <div class="body" id="search-results"><p class="empty-msg">Digite pelo menos 2 letras</p></div>
+</div>
+
+<!-- FAVORITES -->
+<div class="screen" id="screen-favorites">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goBackToLastScreen()">←</button>
+    <span class="top-title">⭐ Favoritos</span>
+    <div style="width:48px"></div>
+  </div>
+  <div class="body" id="favs-list"></div>
+</div>
+
+<!-- SETTINGS -->
+<div class="screen" id="screen-settings">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goBackToLastScreen()">←</button>
+    <span class="top-title">Configurações</span>
+    <div style="width:36px"></div>
+  </div>
+  <div class="body" id="settings-body">
+    <div style="padding:8px 0 20px;text-align:center">
+      <div class="cfg-avatar" id="cfg-avatar">?</div>
+      <div class="cfg-user-name" id="cfg-user-name">—</div>
+      <div class="cfg-user-email" id="cfg-user-email">—</div>
+    </div>
+    <!-- Perfil -->
+    <div class="cfg-section">
+      <div class="cfg-row" onclick="openEditName()">
+        <div class="cfg-icon">✏️</div>
+        <span class="cfg-label">Editar nome</span>
+        <span class="cfg-value" id="cfg-nome-val">—</span>
+        <span class="cfg-arr">›</span>
+      </div>
+      <div class="cfg-row" onclick="openEditTratamento()">
+        <div class="cfg-icon">🪪</div>
+        <span class="cfg-label">Tratamento</span>
+        <span class="cfg-value" id="cfg-trat-val">Dr.</span>
+        <span class="cfg-arr">›</span>
+      </div>
+    </div>
+    <!-- Aparência -->
+    <div class="cfg-section">
+      <div class="cfg-row" onclick="toggleDarkMode();renderSettings()">
+        <div class="cfg-icon">🌙</div>
+        <span class="cfg-label">Modo escuro</span>
+        <span class="cfg-value" id="cfg-dark-val">Desligado</span>
+        <span class="cfg-arr">›</span>
+      </div>
+    </div>
+    <!-- Conta -->
+    <div class="cfg-section">
+      <div class="cfg-row" onclick="logout()" style="cursor:pointer">
+        <div class="cfg-icon">🚪</div>
+        <span class="cfg-label" style="color:#DC2626">Sair da conta</span>
+      </div>
+    </div>
+    <div style="text-align:center;font-size:11px;color:#94A3B8;margin-top:8px">Guia Odonto · Versão 1.0</div>
+    <div class="spacer"></div>
+  </div>
+</div>
+
+<!-- EDIT NAME MODAL -->
+<div class="overlay" id="edit-name-overlay" onclick="hideOverlay('edit-name-overlay')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div style="font-size:36px">✏️</div>
+    <h2 class="modal-title" style="font-size:18px">Editar nome</h2>
+    <input class="cfg-edit-inp" id="edit-name-input" type="text" placeholder="Seu nome completo">
+    <div style="display:flex;gap:8px;width:100%;margin-top:8px">
+      <button class="adm-cancel-btn" onclick="hideOverlay('edit-name-overlay')">Cancelar</button>
+      <button class="adm-save-btn" onclick="saveEditName()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT TRATAMENTO MODAL -->
+<div class="overlay" id="edit-trat-overlay" onclick="hideOverlay('edit-trat-overlay')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div style="font-size:36px">🪪</div>
+    <h2 class="modal-title" style="font-size:18px">Tratamento</h2>
+    <p class="modal-sub">Como quer ser chamado no app?</p>
+    <div class="cfg-select-row" style="width:100%">
+      <button class="cfg-sel-btn" id="trat-dr" onclick="selectTratEdit('Dr.')">👨‍⚕️ Dr.</button>
+      <button class="cfg-sel-btn" id="trat-dra" onclick="selectTratEdit('Dra.')">👩‍⚕️ Dra.</button>
+      <button class="cfg-sel-btn" id="trat-none" onclick="selectTratEdit('')">Sem título</button>
+    </div>
+    <div style="display:flex;gap:8px;width:100%;margin-top:16px">
+      <button class="adm-cancel-btn" onclick="hideOverlay('edit-trat-overlay')">Cancelar</button>
+      <button class="adm-save-btn" onclick="saveEditTratamento()">Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- SITUATIONS -->
+<div class="screen" id="screen-situations">
+  <div class="top-bar"><button class="back-btn" onclick="goBackToLastScreen()">←</button><span class="top-title" id="sit-title"></span><div style="width:36px"></div></div>
+  <div class="body"><div class="section-label">QUAL É A SITUAÇÃO?</div><div id="situations-list"></div></div>
+</div>
+
+<!-- PROCEDURES -->
+<div class="screen" id="screen-procedures">
+  <div class="top-bar"><button class="back-btn" onclick="goBackToLastScreen()">←</button><span class="top-title">O que fazer?</span><div style="width:36px"></div></div>
+  <div class="body">
+    <div class="search-bar-proc" style="background:#F1F5F9; border-radius:20px; padding:10px 16px; margin-bottom:12px; display:flex; align-items:center; gap:8px; border:1px solid #E2E8F0;">
+      <span>🔍</span>
+      <input type="text" id="proc-search-input" placeholder="Filtrar procedimento..." style="flex:1; border:none; outline:none; background:transparent; font-size:14px;" oninput="filterProceduresList(this.value)">
+      <button id="proc-search-clear" onclick="clearProcSearch()" style="background:none; border:none; font-size:16px; cursor:pointer; display:none;">✕</button>
+    </div>
+    <div class="section-label">ESCOLHA O PROCEDIMENTO</div>
+    <div id="procedures-list"></div>
+  </div>
+</div>
+
+<!-- PROTOCOL -->
+<div class="screen" id="screen-protocol">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goBackToLastScreen()">←</button>
+    <span class="top-title"></span>
+    <div style="display:flex;gap:8px">
+     
+      <div style="width:36px"></div>
+    </div>
+  </div>
+  <div class="body" id="protocol-body" onscroll="checkScrollTop()"><div class="spacer"></div></div>
+</div>
+
+
+<!-- PREMIUM MODAL -->
+<div class="overlay" id="premium-overlay" onclick="hideOverlay('premium-overlay')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-icon">👑</div>
+    <h2 class="modal-title">Guia Odonto Premium</h2>
+    <p class="modal-sub" id="premium-sub">Desbloqueie todos os protocolos</p>
+    <div class="modal-features">
+      <div class="feature">✅ Todos os protocolos clínicos</div>
+      <div class="feature">✅ 6 especialidades cobertas</div>
+      <div class="feature">✅ Modo Pânico completo</div>
+      <div class="feature">✅ Funciona offline</div>
+      <div class="feature">✅ Atualizações mensais</div>
+      <div class="feature">✅ Busca por qualquer termo</div>
+    </div>
+    <div style="width:100%">
+      <button class="btn-primary" onclick="window.open('LINK_HOTMART_AQUI','_blank')">Assinar por R$29,90/mês</button>
+      <div style="text-align:center;font-size:12px;color:#94A3B8;margin-top:6px">Cancele quando quiser · Sem fidelidade</div>
+    </div>
+    <button class="btn-ghost" onclick="hideOverlay('premium-overlay')">Continuar com versão gratuita</button>
+  </div>
+</div>
+
+<!-- CRISE MODAL (sem o botão externo, mantido para contexto interno) -->
+<div class="overlay" id="crise-overlay" onclick="hideOverlay('crise-overlay')">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div style="font-size:44px">⚡</div>
+    <h2 class="modal-title" style="color:#DC2626">DEU ERRADO?</h2>
+    <p class="modal-sub">Toque no problema para ver a solução</p>
+    <div style="width:100%;margin-top:8px" id="crise-options-list"></div>
+    <button class="btn-cancel-sm" onclick="hideOverlay('crise-overlay')">Fechar</button>
+  </div>
+</div>
+
+<!-- PASSWORD MODAL -->
+<div class="overlay" id="pwd-overlay" onclick="hidePwdModal()">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div style="font-size:40px">🔐</div>
+    <h2 class="modal-title" style="font-size:20px">Acesso Restrito</h2>
+    <p class="modal-sub">Digite a senha de administrador</p>
+    <input class="pwd-input" id="pwd-input" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')checkPwd()">
+    <div class="pwd-error" id="pwd-error" style="display:none">❌ Senha incorreta</div>
+    <div style="display:flex;gap:8px;width:100%;margin-top:8px">
+      <button class="adm-cancel-btn" onclick="hidePwdModal()">Cancelar</button>
+      <button class="adm-save-btn" onclick="checkPwd()">Entrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADMIN OVERLAY -->
+<div class="adm-overlay" id="adm-overlay">
+  <div class="adm-panel">
+    <div class="adm-hdr">
+      <div>
+        <div class="adm-hdr-title">⚙️ Painel Administrador</div>
+        <div class="adm-hdr-sub" id="adm-sub"></div>
+      </div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button style="background:#DC2626;border:none;color:#fff;font-size:11px;border-radius:30px;padding:5px 11px;cursor:pointer;font-weight:700" onclick="resetData()">Reset</button>
+        <button style="background:none;border:none;color:#94A3B8;font-size:20px;cursor:pointer" onclick="closeAdmin()">✕</button>
+      </div>
+    </div>
+    <div class="adm-breadcrumb" id="adm-breadcrumb" style="display:flex; gap:8px; flex-wrap:wrap; padding:8px 14px;"></div>
+    <div class="adm-body" id="adm-body"></div>
+  </div>
+</div>
+
+<!-- CONFIRM DELETE -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <div style="font-size:36px;margin-bottom:8px">🗑️</div>
+    <div style="font-size:17px;font-weight:800;margin-bottom:4px">Excluir?</div>
+    <div style="font-size:13px;color:#64748B;margin-bottom:16px" id="confirm-name"></div>
+    <div style="display:flex;gap:8px">
+      <button class="adm-cancel-btn" onclick="hideConfirm()">Cancelar</button>
+      <button style="flex:1;background:#DC2626;color:#fff;border:none;border-radius:30px;padding:10px;font-size:14px;font-weight:800;cursor:pointer" id="confirm-del-btn">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ==================== DADOS ====================
+const INITIAL_DATA = {
+  categories:[
+    {id:"dentistica",label:"Dentística",icon:"🦷"},
+    {id:"protese",label:"Prótese",icon:"👑"},
+    {id:"endodontia",label:"Endodontia",icon:"🔬"},
+    {id:"cirurgia",label:"Cirurgia",icon:"⚕️"},
+    {id:"perio",label:"Periodontia",icon:"🪥"},
+    {id:"emergencia",label:"Emergência",icon:"⚡"},
+    {id:"implantodontia",label:"Implantodontia",icon:"🔩"}
+  ],
+  situations:{
+    dentistica:[{id:"d1",label:"Cárie profunda"},{id:"d2",label:"Fratura de dente"},{id:"d3",label:"Restauração solta"},{id:"d4",label:"Dente sensível"},{id:"d5",label:"Troca de amálgama"},{id:"d6",label:"Clareamento dental"}],
+    protese:[{id:"p1",label:"Dente com pouca estrutura"},{id:"p2",label:"Preciso de provisório"},{id:"p3",label:"Coroa solta"},{id:"p4",label:"Dente fraturado"},{id:"p5",label:"Ajuste oclusal"}],
+    endodontia:[{id:"e1",label:"Dor aguda no dente"},{id:"e2",label:"Canal já tratado com dor"},{id:"e3",label:"Instrumento fraturado"},{id:"e4",label:"Sangramento no canal"},{id:"e5",label:"Canal calcificado"}],
+    cirurgia:[{id:"c1",label:"Extração simples"},{id:"c2",label:"Dente impactado / siso"},{id:"c3",label:"Sangramento pós-extração"},{id:"c4",label:"Alveolite"},{id:"c5",label:"Sutura"}],
+    perio:[{id:"pe1",label:"Sangramento gengival"},{id:"pe2",label:"Bolsa periodontal profunda"},{id:"pe3",label:"Abscesso periodontal"},{id:"pe4",label:"Gengivite aguda (GUNA)"}],
+    emergencia:[{id:"em1",label:"Reação alérgica / Anafilaxia"},{id:"em2",label:"Síncope (desmaio)"},{id:"em3",label:"Infarto / Dor no peito"},{id:"em4",label:"Hipoglicemia"},{id:"em5",label:"Crise hipertensiva"},{id:"em6",label:"Engoliu instrumento"},{id:"em7",label:"Crise epiléptica"}],
+    implantodontia:[{id: "imp_pilar", label: "Escolher o pilar certo"}, {id: "imp_provisorio", label: "Provisório sobre implante"}, {id: "imp_moldagem_aberta", label: "Moldagem aberta"}, {id: "imp_moldagem_fechada", label: "Moldagem fechada"}, {id: "imp_instalar_coroa", label: "Instalar coroa unitária"}, {id: "imp_carga_imediata", label: "Captura de PT para Protocolo Carga Imediata Provisória"}, {id: "imp_afrouxamento", label: "Afrouxamento de parafuso"}, {id: "imp_parafuso_fraturado", label: "Parafuso fraturado"}, {id: "imp_fratura_dente", label: "Fratura de dente em protocolo"}, {id: "imp_cimento_extravasado", label: "Remoção de cimento extravasado"}]
+  },
+  procedures:{
+    d1:[{id:"restauracao-carie",label:"Restauração Direta",free:true},{id:"capeamento",label:"Capeamento Pulpar",free:true},{id:"endodontia-ind",label:"Indicar Endodontia",free:false}],
+    d2:[{id:"restauracao-fratura",label:"Restauração Direta",free:true},{id:"pino-fratura",label:"Pino + Restauração",free:false}],
+    d3:[{id:"trocar-rest",label:"Trocar Restauração",free:true}],
+    d4:[{id:"dessensibilizante",label:"Dessensibilizante",free:true}],
+    d5:[{id:"resina-comp",label:"Resina Composta",free:true}],
+    d6:[{id:"clareamento-consultorio",label:"Clareamento em Consultório",free:false}],
+    p1:[{id:"pino-nucleo",label:"Pino + Núcleo",free:true},{id:"apenas-nucleo",label:"Apenas Núcleo",free:true},{id:"coroa-direta",label:"Coroa Direta",free:false}],
+    p2:[{id:"provisorio-resina",label:"Provisório em Resina",free:true},{id:"provisorio-bisacril",label:"Bis-acryl direto",free:false}],
+    p3:[{id:"recimentar-coroa",label:"Recimentar Coroa",free:true},{id:"nova-coroa",label:"Planejar Nova Coroa",free:false}],
+    p4:[{id:"restauracao-direta-prot",label:"Restauração Direta",free:true}],
+    p5:[{id:"ajuste-oclusal",label:"Ajuste Oclusal",free:true}],
+    e1:[{id:"endo-urgencia",label:"Endodontia de Urgência",free:true},{id:"medicacao",label:"Medicação + Retorno",free:true}],
+    e2:[{id:"retratamento",label:"Retratamento Endodôntico",free:false}],
+    e3:[{id:"bypassar",label:"Tentar Bypassar",free:true}],
+    e4:[{id:"controle-sangramento-endo",label:"Controle de Sangramento",free:true}],
+    e5:[{id:"canal-calcificado",label:"Canal Calcificado",free:false}],
+    c1:[{id:"extracao-simples",label:"Extração Simples",free:true}],
+    c2:[{id:"extracao-cirurgica",label:"Extração Cirúrgica",free:false}],
+    c3:[{id:"hemostasia",label:"Hemostasia de Urgência",free:true}],
+    c4:[{id:"alveolite-tto",label:"Tratamento de Alveolite",free:true}],
+    c5:[{id:"sutura-tecnica",label:"Técnica de Sutura",free:true}],
+    pe1:[{id:"raspagem-supragengival",label:"Raspagem Supragengival",free:true}],
+    pe2:[{id:"raspagem-subgengival",label:"Raspagem Subgengival",free:false}],
+    pe3:[{id:"abscesso-perio",label:"Abscesso Periodontal",free:true}],
+    pe4:[{id:"guna",label:"Gengivite Ulcerativa (GUNA)",free:true}],
+    em1:[{id:"alergia-protocolo",label:"Protocolo Alergia",free:true}],
+    em2:[{id:"sincope-protocolo",label:"Protocolo Síncope",free:true}],
+    em3:[{id:"infarto-protocolo",label:"Protocolo Infarto",free:true}],
+    em4:[{id:"hipoglicemia-protocolo",label:"Protocolo Hipoglicemia",free:true}],
+    em5:[{id:"hipertensao-protocolo",label:"Protocolo Hipertensão",free:true}],
+    em6:[{id:"corpo-estranho",label:"Corpo Estranho Engolido",free:true}],
+    em7:[{id:"epilepsia-protocolo",label:"Protocolo Epilepsia",free:true}],
+    imp_pilar:[{id: "imp_pilar_protocolo", label: "Escolher o pilar certo", free: false}],
+    imp_provisorio:[{id: "imp_provisorio_protocolo", label: "Provisório sobre implante", free: false}],
+    imp_moldagem_aberta:[{id: "imp_moldagem_aberta_protocolo", label: "Moldagem aberta", free: false}],
+    imp_moldagem_fechada:[{id: "imp_moldagem_fechada_protocolo", label: "Moldagem fechada", free: false}],
+    imp_instalar_coroa:[{id: "imp_instalar_coroa_protocolo", label: "Instalar coroa unitária", free: false}],
+    imp_carga_imediata:[{id: "imp_carga_imediata_protocolo", label: "Captura de PT para Protocolo Carga Imediata Provisória", free: false}],
+    imp_afrouxamento:[{id: "imp_afrouxamento_protocolo", label: "Afrouxamento de parafuso", free: false}],
+    imp_parafuso_fraturado:[{id: "imp_parafuso_fraturado_protocolo", label: "Parafuso fraturado", free: false}],
+    imp_fratura_dente:[{id: "imp_fratura_dente_protocolo", label: "Fratura de dente em protocolo", free: false}],
+    imp_cimento_extravasado:[{id: "imp_cimento_extravasado_protocolo", label: "Remoção de cimento extravasado", free: false}]
+  },
+  protocols:{
+    "pino-nucleo":{title:"Pino + Núcleo",time:"40 min",level:"médio",free:true,steps:["Remover guta preservando 4mm apical","Selecionar o pino (teste de tamanho)","Prova do pino — deve assentar passivamente","Lavar canal com NaOCl + EDTA 17%","Secar com cones de papel","Tratar o pino: jateamento + silano + adesivo","Cimentar com resina dual","Remover excessos imediatamente","Fotopolimerizar 40s por face","Construir o núcleo em resina composta"],errors:["Remover os 4mm de vedamento apical","Não tratar a superfície do pino (falha adesiva)","Usar cimento de fosfato de zinco (incorreto)","Forçar pino sem calibrar"],decisions:[{if:"Canal largo",then:"Reembasar o pino com resina antes de cimentar"},{if:"Pouca retenção (<2mm)",then:"Núcleo reforçado + coroa obrigatória"},{if:"Menos de 1mm de estrutura",then:"Avaliar prognóstico — pode ser exodontia"}],panic:[{problem:"Pino soltou logo",solution:"Remover, limpar, secar bem e recimentar"},{problem:"Pino não entra até o comprimento",solution:"Ajustar com broca calibrada — nunca forçar"},{problem:"Bolha no cimento",solution:"Remover o pino, eliminar a bolha e recimentar"}],crises:[{label:"Pino soltou",target:"pino-nucleo"}]},
+    "apenas-nucleo":{title:"Apenas Núcleo",time:"20 min",level:"fácil",free:true,steps:["Avaliar estrutura remanescente (mínimo 2 paredes)","Criar retenção: caixas ou pins","Isolamento absoluto rigoroso","Condicionamento ácido (30s esmalte / 15s dentina)","Lavar 30s, secar levemente","Aplicar adesivo + fotopolimerizar 20s","Inserir resina em incrementos ≤2mm","Modelar o núcleo no formato do preparo","Fotopolimerizar cada incremento 40s","Checar oclusão e ajustar"],errors:["Fazer núcleo sem retenção mecânica","Não usar isolamento absoluto","Incrementos grossos >2mm","Não verificar oclusão ao final"],decisions:[{if:"Estrutura < 50% da coroa",then:"Considerar pino intrarradicular"},{if:"Dente vital com risco de exposição",then:"Capeamento pulpar antes do núcleo"}],panic:[{problem:"Núcleo fraturou logo",solution:"Refazer com pino para maior retenção"},{problem:"Contaminação salival",solution:"Lavar, resecar e reaplicar adesivo por completo"}],crises:[]},
+    "coroa-direta":{title:"Coroa Direta (Resina)",time:"60 min",level:"difícil",free:false,steps:["Avaliar redução oclusal necessária (1,5–2mm)","Preparo com broca tronco-cônica","Linha de terminação: chanfro ou ombro","Afastamento gengival com fio retrator 00 e 0","Moldagem com PVS","Seleção de cor em luz natural","Provisório em bis-acryl","Cimentação definitiva com cimento resinoso","Checagem oclusal em todos os movimentos"],errors:["Não afastar gengiva — moldagem imprecisa","Provisório mal adaptado","Não verificar contatos em lateralidade"],decisions:[{if:"Pouca estrutura",then:"Núcleo ou pino antes do preparo"},{if:"Gengiva inflamada",then:"Tratar periodontalmente antes"}],panic:[{problem:"Provisório soltou",solution:"Recimentar com TempBond"},{problem:"Coroa não assenta completamente",solution:"Verificar ponto proximal com fio dental abrasivo"}],crises:[]},
+    "provisorio-resina":{title:"Provisório em Resina",time:"20 min",level:"fácil",free:true,steps:["Pegar molde antes do preparo (alginato ou PVS)","Executar o preparo do dente","Preencher o molde com bis-acryl","Levar ao dente no início da presa","Remover na fase borrachosa (1,5–2 min)","Aguardar polimerização fora da boca","Ajustar com broca multilaminada","Polir com disco de feltro + pasta","Cimentar com TempBond"],errors:["Não pegar molde antes do preparo","Deixar resina endurecer dentro da boca","Não polir — provisório rugoso acumula placa"],decisions:[{if:"Sem molde prévio",then:"Usar matriz de cera ou modelar manualmente"},{if:"Baixa retenção",then:"Usar cimento mais resistente (Freegenol)"}],panic:[{problem:"Provisório soltou no mesmo dia",solution:"Ajustar retenção, limpar e recimentar"}],crises:[]},
+    "provisorio-bisacril":{title:"Bis-acryl Direto",time:"15 min",level:"fácil",free:false,steps:["Selecionar cor do bis-acryl","Preencher matriz/molde","Posicionar sobre o preparo","Remover na fase borrachosa (~1,5 min)","Aguardar cura completa fora da boca","Ajustar oclusão e contatos proximais","Polir levemente","Cimentar com TempBond"],errors:["Deixar endurecer completamente na boca","Não verificar contatos proximais"],decisions:[{if:"Múltiplos dentes",then:"Usar matriz em segmentos separados"}],panic:[{problem:"Material ficou retido no dente",solution:"Usar alavanca pequena lateralmente — nunca puxar"}],crises:[]},
+    "recimentar-coroa":{title:"Recimentar Coroa",time:"20 min",level:"fácil",free:true,steps:["Remover coroa com remoedor ou fio de pesca","Limpar cimento antigo do dente e da coroa","Verificar integridade da coroa e do remanescente","Testar adaptação antes de cimentar","Secar dente e coroa","Aplicar cimento adequado","Assentar com pressão digital + rolete de gaze","Remover excessos com fio dental","Checar oclusão"],errors:["Cimentar com resíduos antigos — falha garantida","Usar cimento definitivo em coroa provisória","Não checar oclusão após cimentação"],decisions:[{if:"Soltou mais de 2 vezes",then:"Avaliar preparo — pode precisar de novo"},{if:"Cárie no remanescente",then:"Tratar cárie antes de recimentar"}],panic:[{problem:"Coroa não assenta completamente",solution:"Verificar cárie, cálculo ou ponto proximal"},{problem:"Cimento endureceu com excesso",solution:"Remover com ultrassom — não force"}],crises:[]},
+    "nova-coroa":{title:"Planejar Nova Coroa",time:"Planejamento",level:"médio",free:false,steps:["RX periapical: avaliar raiz, osso, lesão apical","Avaliar vitalidade pulpar","Checar espaço oclusal (mínimo 1,5mm)","Definir material: metal-cerâmica, zircônia ou disilicato","Preparar dente conforme material","Moldagem de precisão + registro oclusal","Seleção de cor em luz natural","Provisório adequado","Instalação: prova, ajuste e cimentação definitiva"],errors:["Não avaliar espaço oclusal antes do preparo","Cor selecionada com luz artificial"],decisions:[{if:"Dente sem vitalidade",then:"Endodontia + pino + núcleo antes"},{if:"Espaço insuficiente",then:"Desgastar antagonista ou avaliação ortodôntica"}],panic:[{problem:"Coroa com oclusão alta",solution:"Ajuste seletivo imediato"},{problem:"Cor errada",solution:"Devolver ao laboratório para requeimar"}],crises:[]},
+    "ajuste-oclusal":{title:"Ajuste Oclusal",time:"30 min",level:"médio",free:true,steps:["Anamnese: dor, clique, travamento, desgaste","Papel carbono fino (8µ) em máxima intercuspidação","Marcar contatos e identificar pontos altos","Desgaste seletivo com broca multilaminada esférica","Papel carbono em lateralidade e protrusão","Ajustar guia canino e anterior","Polir todos os desgastes com borracha abrasiva","Reavaliar em 7–15 dias"],errors:["Desgastar sem papel carbono","Não polir após desgaste","Ajustar sem avaliar DTM associada"],decisions:[{if:"DTM associada",then:"Placa estabilizadora antes do ajuste definitivo"},{if:"Desgaste generalizado",then:"Avaliar bruxismo — placa + reabilitação"}],panic:[{problem:"Dor muscular pós-ajuste",solution:"Anti-inflamatório + reavaliação em 48h"},{problem:"Desgastou demais um dente",solution:"Restauração direta para recompor a cúspide"}],crises:[]},
+    "restauracao-carie":{title:"Restauração Direta (Cárie)",time:"30 min",level:"fácil",free:true,steps:["Isolamento absoluto","Remoção de cárie com curetas + brocas carbide","Avaliar proximidade pulpar","Proteção pulpar: Ca(OH)₂ + base de ionômero se profunda","Condicionamento ácido: 30s esmalte / 15s dentina","Lavar 30s — secar levemente (dentina levemente úmida)","Aplicar primer + bond — fotopolimerizar 20s","Resina em incrementos ≤2mm — fotopolimerizar 40s cada","Acabamento e polimento","Verificar oclusão"],errors:["Não remover toda a cárie","Ressecar a dentina — colapso de colágeno","Incrementos grossos — contração de polimerização","Esquecer de checar oclusão"],decisions:[{if:"Cárie próxima à polpa",then:"Capeamento pulpar indireto com Ca(OH)₂"},{if:"Polpa exposta por cárie",then:"Pulpotomia ou endodontia — não cape"},{if:"Cavidade muito grande",then:"Avaliar coroa ou onlay"}],panic:[{problem:"Adesivo não polimerizou",solution:"Remover tudo com broca e reaplicar"},{problem:"Resina soltou em dias",solution:"Verificar contaminação — refazer"},{problem:"Sensibilidade intensa",solution:"Verificar oclusão — ponto alto é causa frequente"}],crises:[{label:"Restauração soltou",target:"restauracao-carie"},{label:"Contaminou o adesivo",target:"restauracao-carie"}]},
+    "capeamento":{title:"Capeamento Pulpar",time:"30 min",level:"médio",free:true,steps:["Isolamento absoluto rigoroso","Remover cárie sem expor a polpa","Lavar com NaOCl 0,5% + soro fisiológico","Secar com bola de algodão — não use ar","Aplicar MTA ou Ca(OH)₂ puro sobre a polpa","Cimento de base de ionômero de vidro","Restauração definitiva em resina","RX de controle + retorno 30 e 90 dias"],errors:["Capeamento em exposição por cárie com sangramento — indica endo","Não usar isolamento absoluto","Aplicar adesivo diretamente sobre a polpa"],decisions:[{if:"Exposição acidental por trauma",then:"Capeamento com MTA — bom prognóstico"},{if:"Exposição por cárie",then:"Pulpotomia ou endodontia"},{if:"Sangramento não controlado em 5 min",then:"Endodontia obrigatória"}],panic:[{problem:"Exposição pulpar inesperada",solution:"Calma. Avalie: trauma ou cárie? Controle sangramento e decida"},{problem:"Sangramento intenso",solution:"Não capeie — indique endodontia"}],crises:[]},
+    "endodontia-ind":{title:"Indicação de Endodontia",time:"Diagnóstico",level:"fácil",free:false,steps:["Teste de frio: Endo-Ice ou algodão com cloretila","Teste elétrico se disponível","Percussão vertical e horizontal","Sondagem periodontal","RX periapical","Diagnóstico pulpar + periapical","Explicar ao paciente e agendar"],errors:["Restaurar dente com pulpite irreversível","Não fazer RX antes","Confundir pulpite reversível com irreversível"],decisions:[{if:"Dor cessa logo após o estímulo",then:"Pulpite reversível — restaurar"},{if:"Dor persiste > 30s após estímulo",then:"Pulpite irreversível — endodontia"},{if:"Sem vitalidade + lesão apical",then:"Necrose — endodontia obrigatória"}],panic:[{problem:"Diagnóstico incerto",solution:"Encaminhe ao endodontista — não arrisque"}],crises:[]},
+    "restauracao-fratura":{title:"Restauração em Fratura",time:"40 min",level:"médio",free:true,steps:["Classificar fratura: Ellis I (esmalte), II (dentina), III (polpa)","Teste de vitalidade pulpar","RX periapical","Isolamento absoluto","Bisel em esmalte 45° para maior área adesiva","Condicionamento ácido + adesivo","Técnica de estratificação: dentina opaca + esmalte","Polimento final"],errors:["Restaurar sem testar vitalidade","Não fazer bisel — restauração visível e frágil","Não estratificar cores em fratura anterior"],decisions:[{if:"Ellis III (exposição pulpar)",then:"Capeamento ou endodontia — nunca restaure direto"},{if:"Ellis IV (fratura radicular)",then:"Endodontia ou extração"}],panic:[{problem:"Fragmento fraturado disponível",solution:"Recimentação com adesivo — resultado estético excelente"}],crises:[]},
+    "pino-fratura":{title:"Pino + Restauração em Fratura",time:"60 min",level:"difícil",free:false,steps:["Confirmar necrose pulpar","Endodontia completa + medicação","Remoção de guta preservando 4mm apical","Selecionar pino de fibra compatível","Tratar pino: jateamento + silano","Cimentação com resina dual","Núcleo em resina","Restauração direta ou coroa conforme estrutura"],errors:["Pino em dente vital sem endodontia","Não manter vedamento apical","Não tratar superfície do pino"],decisions:[{if:"Raiz curta ou fina",then:"Pino de fibra de vidro fino"}],panic:[{problem:"Pino não cimentou",solution:"Remover, limpar canal, secar e recimentar"}],crises:[]},
+    "trocar-rest":{title:"Troca de Restauração",time:"30 min",level:"fácil",free:true,steps:["Avaliar motivo: cárie secundária, fratura, estética","RX periapical pré-operatório","Isolamento absoluto","Remover restauração com broca em baixa rotação","Verificar cárie secundária — remover completamente","Avaliar vitalidade se cavidade profunda","Restaurar conforme protocolo padrão"],errors:["Remover sem RX prévio","Deixar cárie secundária — erro grave","Não testar vitalidade em cavidade profunda"],decisions:[{if:"Cárie secundária extensa",then:"Pode necessitar pino ou coroa"},{if:"Sensibilidade ao remover",then:"Capeamento antes de restaurar"}],panic:[{problem:"Expôs polpa ao remover",solution:"Avalie sangramento: capeamento (sem cárie) ou endodontia (com cárie)"}],crises:[]},
+    "dessensibilizante":{title:"Dessensibilizante",time:"15 min",level:"fácil",free:true,steps:["Identificar origem: cervical, pós-restauração ou generalizado","Verificar recessão gengival e cárie cervical","Polir com taça de borracha + pasta profilática","Aplicar verniz de flúor 5% OU dessensibilizante (Gluma, Admira Protect)","Fotopolimerizar se necessário","Orientar: evitar ácido e frio por 24h","Reavaliar em 14 dias"],errors:["Não identificar a causa real","Usar sobre cárie não tratada","Não orientar dieta"],decisions:[{if:"Sensibilidade pós-restauração",then:"Verificar ponto alto primeiro — ajuste oclusal"},{if:"Sem melhora em 30 dias",then:"Avaliar pulpite — endodontia pode ser necessária"}],panic:[{problem:"Dor intensa ao aplicar",solution:"Pare imediatamente. Verificar se há exposição pulpar"}],crises:[]},
+    "resina-comp":{title:"Resina Composta (Troca de Amálgama)",time:"40 min",level:"médio",free:true,steps:["RX pré-operatório","Ventilação do consultório — mercúrio!","Isolamento absoluto","Remover amálgama em bloco (broca multilaminada, alta rotação)","Irrigação abundante e constante","Verificar e remover cárie secundária","Proteção pulpar se necessário","Condicionamento ácido + adesivo","Resina em incrementos ≤2mm","Acabamento e polimento"],errors:["Trabalhar sem ventilação — risco de mercúrio","Não usar isolamento absoluto","Deixar fragmento de amálgama"],decisions:[{if:"Cavidade grande",then:"Avaliar inlay/onlay"},{if:"Amálgama profundo próximo à polpa",then:"Capeamento antes da resina"}],panic:[{problem:"Fragmento de amálgama no sulco",solution:"Remover com sonda e irrigar abundantemente"}],crises:[]},
+    "clareamento-consultorio":{title:"Clareamento em Consultório",time:"60–90 min",level:"médio",free:false,steps:["Avaliar cor atual com escala Vita (fotografia)","Verificar restaurações anteriores (não clareiam)","Profilaxia prévia","Proteção gengival com barreira fotopolimerizável","Aplicar peróxido de hidrogênio 35–40%","3 sessões de 15 min cada","Remover com sugador e gaze","Aplicar flúor neutro ao final","Orientar: sem corantes por 48h"],errors:["Não proteger a gengiva","Aplicar em dentes com cárie","Não orientar sobre sensibilidade"],decisions:[{if:"Dentes vitais e saudáveis",then:"Clareamento convencional"},{if:"Dente escurecido por trauma/endo",then:"Clareamento interno (walking bleach)"},{if:"Restaurações antigas no sorriso",then:"Trocar restaurações APÓS o clareamento"}],panic:[{problem:"Queimou a gengiva",solution:"Irrigar com água. Analgésico. Verificar em 48h"},{problem:"Sensibilidade intensa",solution:"Interromper. Flúor + potássio. Menor concentração na próxima"}],crises:[]},
+    "endo-urgencia":{title:"Endodontia de Urgência",time:"45–60 min",level:"médio",free:true,steps:["Anamnese rápida + RX periapical","Anestesia infiltrativa; intrapulpar se necessário","Isolamento absoluto","Acesso com broca esférica 1014 + endo-z","Odontometria eletrônica","Lima K #15 como exploratória","Instrumentação crown-down: limas maiores primeiro","Irrigação: NaOCl 2,5% entre cada lima (mínimo 2ml)","EDTA 17% por 3 min + irrigação final","Secagem com cones de papel #30","Curativo: Ca(OH)₂ ou pellet de algodão seco","Selamento duplo: Cavit interno + IRM externo","Prescrição analgésica obrigatória"],errors:["Não fazer RX antes","Perfurar câmara por excesso de broca","Instrumentar sem irrigação","Selar canal com abscesso aberto","Não prescrever analgésico"],decisions:[{if:"Necrose + abscesso flutuante",then:"Abrir para drenagem — NÃO sele"},{if:"Flare-up (dor intensa após sessão)",then:"Ibuprofeno 600mg 8/8h + retorno em 48h"},{if:"Canal calcificado",then:"Não force — encaminhe especialista"}],panic:[{problem:"Lima fraturou no canal",solution:"Não panique. Tente bypass com K#6. Se não conseguir — encaminhe"},{problem:"Perfurou a câmara pulpar",solution:"MTA na perfuração + encaminhar especialista imediatamente"},{problem:"Dor intensa pós-sessão",solution:"Ibuprofeno 600mg + verificar selamento"},{problem:"Sangramento incontrolável",solution:"NaOCl 5,25% + pressão prolongada com cones — não sele"}],crises:[{label:"Lima fraturou no canal",target:"bypassar"},{label:"Sangramento não para",target:"controle-sangramento-endo"}]},
+    "medicacao":{title:"Medicação + Retorno",time:"10 min",level:"fácil",free:true,steps:["Confirmar: dor sem abscesso visível ou fístula","Ibuprofeno 600mg de 8/8h por 3 dias","Se infecção evidente: amoxicilina 500mg 8/8h por 7 dias","Se alergia à penicilina: clindamicina 300mg 8/8h","Se dor muito intensa: adicionar dipirona 1g 6/6h","Agendar endodontia em 24–48h","Orientar: gelo, dieta mole, não morder no dente"],errors:["Antibiótico sem infecção","Não agendar retorno","Dipirona isolada em dor pulpar — insuficiente"],decisions:[{if:"Febre + trismo + edema",then:"Urgência — drenagem cirúrgica ou UPA"},{if:"Paciente grávida",then:"Paracetamol — ibuprofeno contraindicado"}],panic:[{problem:"Edema crescendo rapidamente",solution:"Não espere — encaminhe para drenagem cirúrgica"}],crises:[]},
+    "retratamento":{title:"Retratamento Endodôntico",time:"60–90 min",level:"difícil",free:false,steps:["RX periapical + tomografia se disponível","Avaliar: qualidade da obturação, lesão apical, sintomas","Remover restauração coronária","Dissolver guta com solvente (eucaliptol)","Instrumentar com limas de retratamento","Reodontometria eletrônica","Reinstrumentar todo o canal","Irrigação agressiva: NaOCl + EDTA","Medicação: Ca(OH)₂ por 30 dias","Obturação na sessão seguinte"],errors:["Sem tomografia em casos complexos","Forçar instrumentos — cria degrau ou perfura","Obturar na mesma sessão sem medicação"],decisions:[{if:"Lesão > 5mm",then:"Retratamento + aguardar 6 meses; se persistir — cirurgia"},{if:"Lima fraturada",then:"Encaminhar especialista"}],panic:[{problem:"Canal não localizado",solution:"Pare. Use magnificação. Não perfure"},{problem:"Sangramento intenso",solution:"NaOCl + reavaliação do comprimento de trabalho"}],crises:[]},
+    "bypassar":{title:"Bypass de Lima Fraturada",time:"30 min",level:"difícil",free:true,steps:["RX para localizar fragmento","NÃO tente remover com força","Use lima K #6 ou #8 lateralmente ao fragmento","Movimentos de cateterismo suave + NaOCl","Avance gradualmente com limas crescentes","Se passou: instrumente além normalmente","Se não passou: documente e encaminhe"],errors:["Forçar — piora a situação","Usar torque excessivo","Não informar o paciente"],decisions:[{if:"Fragmento terço apical + canal instrumentado",then:"Obture incluindo o fragmento — prognóstico similar"},{if:"Fragmento terço coronal",then:"Ultrassom pode remover — encaminhe especialista"}],panic:[{problem:"Fragmento se aprofundou mais",solution:"Pare. Documente. Encaminhe especialista imediatamente"}],crises:[]},
+    "controle-sangramento-endo":{title:"Controle de Sangramento Endodôntico",time:"15 min",level:"médio",free:true,steps:["Irrigação com NaOCl 5,25%","Pressão com cone de papel por 2 min","Verificar comprimento — sangramento por perfuração?","Normal: Ca(OH)₂ + selamento","Perfuração suspeita: RX + MTA","Nunca sele se sangramento ativo"],errors:["Selar com sangramento ativo","Não investigar causa","Epinefrina no canal — contraindicado"],decisions:[{if:"Polpa vital",then:"Pulpotomia ou endodontia completa"},{if:"Perfuração",then:"MTA + encaminhar"}],panic:[{problem:"Sangramento não cede",solution:"Ca(OH)₂ + curativo seco + retorno em 7 dias"}],crises:[]},
+    "canal-calcificado":{title:"Canal Calcificado",time:"60–90 min",level:"difícil",free:false,steps:["Tomografia cone beam obrigatória","Acesso ampliado para visualização","Lupa ou microscópio cirúrgico","Lima K #6 ou #8 com EDTA 17%","Cateterismo ultrassônico","Odontometria + RX de confirmação","Instrumentação cuidadosa","NaOCl + EDTA + ativação sônica"],errors:["Sem magnificação","Forçar — perfura","Sem EDTA"],decisions:[{if:"Canal não localizado",then:"Pause. Tomografia. Encaminhe"},{if:"Calcificação parcial",then:"Trabalhe no trecho desobstruído"}],panic:[{problem:"Perfurou o assoalho",solution:"MTA imediato + encaminhar especialista"}],crises:[]},
+    "extracao-simples":{title:"Extração Simples",time:"20–40 min",level:"fácil",free:true,steps:["Anamnese: anticoagulantes, HAS, diabetes, bisfosfonatos","Aferir PA antes de iniciar","Anestesia infiltrativa + bloqueio se necessário","Aguardar 3–5 min","Sindesmotomia com descolador","Luxação: movimentos vestíbulo-linguais progressivos","Rotação suave em raízes cônicas","Avulsão controlada — não torça com fórceps","Curetagem alveolar","Comprimir corticais com os dedos","Compressa de gaze por 30 min","Orientações por escrito"],errors:["Não fazer sindesmotomia","Forçar sem luxar","Ignorar anticoagulante","Não orientar pós-operatório","Não curetejar o alvéolo"],decisions:[{if:"Paciente anticoagulado",then:"Contato com médico — protocolo local de hemostasia"},{if:"Raiz fraturada",then:"Converter para cirúrgica com retalho"},{if:"PA > 180/110",then:"Adiar — controlar PA antes"}],panic:[{problem:"Raiz partiu",solution:"Luxador apical + alavanca Potts; se não conseguir em 10 min — retalho"},{problem:"Sangramento não cede",solution:"Sutura em X + Gelfoam + curativo compressivo"},{problem:"Dente errado",solution:"Reimplante imediato se <5 min. Informe o paciente. Documente tudo"}],crises:[{label:"Raiz partiu na extração",target:"extracao-simples"},{label:"Sangramento não para",target:"hemostasia"}]},
+    "extracao-cirurgica":{title:"Extração Cirúrgica",time:"45–90 min",level:"difícil",free:false,steps:["RX panorâmica + periapical","Anamnese completa + PA","Anestesia: bloqueio + infiltrativa","Incisão: envelope ou triangular","Descolamento mucoperiosteal","Osteotomia com broca cirúrgica COM irrigação","Odontosecção se raízes divergentes","Luxação e extração por partes","Curetagem + irrigação abundante com SF","Sutura: pontos simples ou em X","Compressa + orientações","Prescrição: amoxicilina 500mg + ibuprofeno 600mg"],errors:["RX insuficiente","Retalho mal planejado","Osteotomia sem irrigação — osteonecrose","Não suturar"],decisions:[{if:"Siso vertical",then:"Muitas vezes extração simples"},{if:"Siso horizontal/mesioangular",then:"Cirúrgica com odontosecção"},{if:"Próximo ao nervo alveolar inferior",then:"Tomografia + discutir risco de parestesia"}],panic:[{problem:"Raiz foi para o seio maxilar",solution:"Pare. RX. Encaminhe bucomaxilo imediatamente"},{problem:"Sangramento incoercível",solution:"Sutura + Gelfoam + encaminhar UPA"}],crises:[]},
+    "hemostasia":{title:"Hemostasia de Urgência",time:"10–20 min",level:"médio",free:true,steps:["Compressão com gaze SECA por 5 min ininterruptos","Avaliar: alvéolo ou tecido mole?","Irrigar com SF para visualizar","Se alvéolo: Gelfoam ou Surgicel dentro + sutura em X","Ácido tranexâmico tópico se disponível","Morder por 30 min sem parar","Verificar histórico de anticoagulante","Não use enxágue quente nem álcool"],errors:["Trocar gaze a cada minuto — remove o coágulo","Não verificar anticoagulante","Não suturar quando o alvéolo exige","Bochechar com líquido quente"],decisions:[{if:"Sangramento não cede em 30 min",then:"Sutura + encaminhar UPA"},{if:"Anticoagulante oral",then:"Ácido tranexâmico + contato médico"},{if:"Hemofilia",then:"UPA imediatamente"}],panic:[{problem:"Sangramento intenso pulsátil",solution:"Pressão digital forte + SAMU se não ceder em 5 min"},{problem:"Paciente com tontura/palidez",solution:"Deitar, elevar pernas, monitorar PA, chamar socorro"}],crises:[{label:"Sangramento não para",target:"hemostasia"}]},
+    "alveolite-tto":{title:"Tratamento de Alveolite",time:"20 min",level:"fácil",free:true,steps:["Diagnóstico: alvéolo exposto, dor intensa, halitose — 2–4 dias após extração","Anestesia local (obrigatória — muito doloroso)","Irrigação abundante: SF + clorexidina 0,12%","Curetagem SUAVE — estimular sangramento","Curativo: Alvogyl ou gaze iodofórmio","Trocar a cada 2–3 dias por 1–2 semanas","Ibuprofeno 600mg 8/8h","Orientar: não fumar, não canudo, higiene suave"],errors:["Curetagem agressiva","Não trocar curativo","Não orientar sobre cigarro"],decisions:[{if:"Sem melhora em 7 dias",then:"RX para descartar fragmento ósseo"},{if:"Febre associada",then:"Antibiótico sistêmico"}],panic:[{problem:"Dor ao remover curativo",solution:"Anestesiar antes de remover sempre"},{problem:"Pus no alvéolo",solution:"Pode ser osteomielite — encaminhe"}],crises:[]},
+    "sutura-tecnica":{title:"Técnica de Sutura",time:"10–20 min",level:"médio",free:true,steps:["Fio: nylon 4-0 (anterior), seda 3-0 (posterior/gengiva)","Porta-agulha no 1/3 posterior da agulha","Entrar perpendicular ao tecido a 3mm da borda","Passar pela borda oposta de dentro para fora","Nó cirúrgico: 2 laçadas + 1 + 1","Bordas coaptadas sem tensão","Ponto em X: alvéolo com sangramento","Remoção: 7 dias anterior, 10 dias posterior"],errors:["Suturar sob tensão — deiscência certa","Nó frouxo — abre no 1° dia","Pontos muito apertados — isquemia"],decisions:[{if:"Retalho tenso",then:"Incisão de alívio periosteal antes de suturar"}],panic:[{problem:"Tecido rasgou",solution:"Ampliar ponto para tecido íntegro adjacente"}],crises:[]},
+    "raspagem-supragengival":{title:"Raspagem Supragengival",time:"45–60 min",level:"fácil",free:true,steps:["Sondagem periodontal completa (6 pontos por dente)","Índice de sangramento à sondagem","RX periapicais se indicado","Ultrassom: ponta supragengival (Cavitron P10)","Curetas Gracey para acabamento","Polimento com taça de borracha + pasta profilática","Aplicação de flúor","Instrução de higiene personalizada","Retorno em 45–60 dias para reavaliação"],errors:["Não fazer sondagem pré-raspagem","Não reinstruir sobre higiene","Raspagem sem polimento"],decisions:[{if:"Bolsa > 4mm",then:"Indicar raspagem subgengival"},{if:"Sangramento generalizado",then:"Intensificar higiene + controle semanal"}],panic:[{problem:"Dor intensa após raspagem",solution:"Anti-inflamatório + enxaguante clorexidina 0,12% por 7 dias"}],crises:[]},
+    "raspagem-subgengival":{title:"Raspagem Subgengival (RAR)",time:"60–90 min / quadrante",level:"difícil",free:false,steps:["Sondagem completa pré-tratamento","Anestesia local por quadrante","Cureta Gracey 5-6 (anterior) / 11-12 e 13-14 (posterior)","Movimentos de tração controlados — 45° à parede radicular","Alisamento radicular: superfície lisa e dura ao toque","Ultrassom subgengival com ponta fina","Irrigação subgengival com clorexidina","Reavaliação em 6–8 semanas"],errors:["Não anestesiar","Cureta errada para o sítio","Não alisar a raiz","Não reavaliar em 6–8 semanas"],decisions:[{if:"Bolsa > 6mm persistente após RAR",then:"Indicar cirurgia periodontal"},{if:"Furcação grau III",then:"Encaminhar periodontista"}],panic:[{problem:"Sangramento excessivo pós-RAR",solution:"Clorexidina 0,12% + compressão + retorno em 48h"}],crises:[]},
+    "abscesso-perio":{title:"Abscesso Periodontal",time:"20 min",level:"médio",free:true,steps:["Identificar: bolsa periodontal + flutuação + dor à palpação","RX periapical","Anestesia a distância","Drenagem pela bolsa ou incisão se necessário","Irrigação com clorexidina 0,12%","Raspagem subgengival do sítio","Amoxicilina 500mg 8/8h + ibuprofeno 600mg por 5 dias","Retorno em 48h"],errors:["Confundir com abscesso periapical","Não drenar","Não associar antibiótico"],decisions:[{if:"Dente com vitalidade + bolsa",then:"Abscesso periodontal"},{if:"Dente sem vitalidade + lesão apical",then:"Abscesso periapical — endo"}],panic:[{problem:"Febre + edema difuso",solution:"Antibiótico IV + encaminhar hospital"}],crises:[{label:"Abscesso crescendo",target:"abscesso-perio"}]},
+    "guna":{title:"Gengivite Ulcerativa (GUNA)",time:"30 min",level:"médio",free:true,steps:["Diagnóstico: úlceras em papilas, dor intensa, halitose, pseudomembrana","Amoxicilina 500mg 8/8h + metronidazol 250mg 8/8h por 7 dias","Ibuprofeno 600mg 8/8h","Enxaguante clorexidina 0,12% 2x/dia","Higiene suave com escova macia","Raspagem supragengival SUAVE após melhora inicial (48–72h)","Orientar: parar de fumar, sono, alimentação","Retorno em 7 dias"],errors:["Raspagem agressiva no início","Não associar antibiótico + metronidazol","Não investigar imunossupressão"],decisions:[{if:"Sem melhora em 48h",then:"Suspeitar de imunossupressão — HIV, leucemia"}],panic:[{problem:"Lesões extensas + febre alta",solution:"Encaminhar hospital"}],crises:[]},
+    "alergia-protocolo":{title:"Reação Alérgica / Anafilaxia",time:"Emergência",level:"urgente",free:true,steps:["Interromper agente suspeito IMEDIATAMENTE","Avaliar: leve (urticária, prurido) ou grave (dispneia, edema, hipotensão)?","LEVE: prometazina 25mg IM + observar 30 min","GRAVE — ANAFILAXIA: chamar SAMU 192 AGORA","Adrenalina 1:1000 — 0,3–0,5ml IM na coxa lateral","Deitar com pernas elevadas","O₂ por máscara 5–8 L/min","Repetir adrenalina a cada 5–15 min se não melhorar","Monitorar sinais vitais continuamente"],errors:["Aguardar em anafilaxia — risco de morte","Não ter adrenalina no kit de emergência","Não chamar SAMU"],decisions:[{if:"Urticária localizada sem dispneia",then:"Anti-histamínico IM + observar 30 min"},{if:"Edema de laringe / broncoespasmo",then:"Adrenalina IM + SAMU 192"},{if:"Hipotensão + perda de consciência",then:"Anafilaxia — RCP se necessário + SAMU"}],panic:[{problem:"Parou de respirar",solution:"RCP + SAMU 192 imediatamente"},{problem:"Sem adrenalina no consultório",solution:"SAMU agora — não há substituto. Deixe SEMPRE no kit"}],crises:[{label:"Reação alérgica no consultório",target:"alergia-protocolo"}]},
+    "sincope-protocolo":{title:"Síncope (Desmaio)",time:"Emergência",level:"urgente",free:true,steps:["Interromper o procedimento","Deitar em posição supina","Elevar pernas acima do coração (Trendelenburg)","Afrouxar roupas","Verificar respiração e pulso","O₂ por máscara (5 L/min)","Amoníaco aromático se disponível","Aguardar recuperação 1–3 min","SAMU 192 se não recuperar em 3 min"],errors:["Sentar o paciente — piora perfusão cerebral","Dar líquido com paciente inconsciente","Não acionar emergência"],decisions:[{if:"Recuperou em < 3 min",then:"Monitorar 15 min — não continuar procedimento"},{if:"Não recuperou em 3 min",then:"SAMU 192"},{if:"Dor no peito + síncope",then:"IAM suspeito — SAMU + iniciar RCP se necessário"}],panic:[{problem:"Parou de respirar",solution:"RCP 30:2 + SAMU 192"},{problem:"Convulsão associada",solution:"Proteger cabeça, não segurar, não coloque nada na boca, SAMU"}],crises:[{label:"Paciente desmaiou",target:"sincope-protocolo"}]},
+    "infarto-protocolo":{title:"Infarto / Dor no Peito",time:"Emergência",level:"urgente",free:true,steps:["Interromper procedimento imediatamente","SAMU 192 IMEDIATAMENTE","Posição semi-sentada (Fowler)","O₂ por máscara 5–8 L/min","AAS 300mg mastigado (se disponível e sem contraindicação)","Monitorar pulso e respiração a cada 2 min","RCP se parada cardíaca","DEA se disponível","Não deixar o paciente sozinho"],errors:["Não chamar SAMU imediatamente","Deitar paciente com insuficiência respiratória","Não iniciar RCP em parada cardíaca"],decisions:[{if:"Dor típica + sudorese + náusea",then:"IAM provável — SAMU 192 sem hesitar"},{if:"Parada cardíaca",then:"RCP 30:2 + DEA + SAMU"}],panic:[{problem:"Parou de respirar/pulso",solution:"RCP 30:2 + chamar socorro + DEA se disponível"}],crises:[{label:"Dor no peito / Infarto",target:"infarto-protocolo"}]},
+    "hipoglicemia-protocolo":{title:"Hipoglicemia",time:"Emergência",level:"urgente",free:true,steps:["Reconhecer: sudorese, palidez, tremor, confusão, taquicardia","Perguntar: diabético? Comeu antes? Tomou insulina?","Consciente: suco de laranja, refrigerante, sachê de mel","Repetir em 15 min se não melhorar","Inconsciente: NÃO dê nada pela boca","Gel de glicose na mucosa gengival","SAMU 192","Glucagon 1mg IM se disponível"],errors:["Dar açúcar a paciente inconsciente — aspiração","Não reconhecer os sinais","Não chamar socorro grave"],decisions:[{if:"Consciente + glicemia > 70",then:"Glicose oral + observar"},{if:"Inconsciente ou < 50",then:"SAMU + glucagon IM"}],panic:[{problem:"Paciente inconsciente diabético",solution:"Gel de glicose gengival + SAMU 192"}],crises:[{label:"Paciente em hipoglicemia",target:"hipoglicemia-protocolo"}]},
+    "hipertensao-protocolo":{title:"Crise Hipertensiva",time:"Emergência",level:"urgente",free:true,steps:["Sempre aferir PA antes de iniciar","PA > 180/110: suspender procedimento eletivo","Ambiente calmo, paciente sentado confortavelmente","Identificar causa: dor, ansiedade, medicação esquecida","Analgesia se dor for causa","PA > 180/110 sem melhora em 15 min: SAMU 192","Não use vasoconstritor se PA > 200/120"],errors:["Não aferir PA","Usar vasoconstritor em PA muito alta","Cirurgia eletiva em hipertenso descompensado"],decisions:[{if:"PA 140–180 / 90–110",then:"Vasoconstritor com cautela — máx 2 tubetes"},{if:"PA > 180/110",then:"Adiar + encaminhar médico"},{if:"PA > 200/120 + cefaleia intensa",then:"SAMU — urgência hipertensiva"}],panic:[{problem:"AVC suspeito (face, braço, fala)",solution:"SAMU 192 imediatamente — janela terapêutica é 4,5h"}],crises:[{label:"Crise hipertensiva",target:"hipertensao-protocolo"}]},
+    "corpo-estranho":{title:"Corpo Estranho Engolido",time:"Emergência",level:"urgente",free:true,steps:["Manter calma — maioria passa espontaneamente","Diferenciar: deglutiu (esôfago) ou aspirou (pulmão)?","SE ASPIROU: tosse, cianose, dispneia — SAMU 192","SE deglutiu e assintomático: pronto-socorro para RX","Documentar: objeto, tamanho, material, bordas","Objetos pontiagudos ou > 2,5cm: endoscopia urgente","Orientar: observar fezes 4–7 dias","NÃO induza vômito"],errors:["Confundir deglutição com aspiração","Não encaminhar para imagem","Induzir vômito"],decisions:[{if:"Aspirou (tosse + dispneia)",then:"SAMU — emergência respiratória"},{if:"Lima endodôntica deglutida",then:"RX + gastroenterologista urgente"}],panic:[{problem:"Cianose após engolir",solution:"ASPIRAÇÃO — Heimlich + SAMU 192"}],crises:[{label:"Paciente engoliu instrumento",target:"corpo-estranho"}]},
+    "epilepsia-protocolo":{title:"Crise Epiléptica",time:"Emergência",level:"urgente",free:true,steps:["Interromper procedimento","Afastar instrumentos e mobiliário","Deitar no chão com proteção para a cabeça","NÃO segurar o paciente","NÃO coloque nada na boca","Posição lateral de recuperação após a crise","Cronometrar duração da crise","Se > 5 min: SAMU 192 — status epiléptico"],errors:["Segurar o paciente — fraturas","Colocar objeto na boca — mito, causa lesão","Não chamar socorro se > 5 min"],decisions:[{if:"Crise < 5 min e autolimitada",then:"Posição lateral + observar"},{if:"> 5 min",then:"Midazolam IM + SAMU 192"}],panic:[{problem:"Apneia durante a crise",solution:"SAMU 192 + posição lateral + O₂ se disponível"}],crises:[{label:"Paciente com convulsão",target:"epilepsia-protocolo"}]},
+    "restauracao-direta-prot":{title:"Restauração Direta (Prótese)",time:"40 min",level:"médio",free:true,steps:["Isolamento absoluto rigoroso","Preparo cavitário com extensão preventiva mínima","Proteção pulpar com Ca(OH)₂ + cimento de base","Condicionamento ácido: 30s esmalte / 15s dentina","Lavar 30s, secar levemente","Aplicar adesivo — ativar 20s — fotopolimerizar","Inserir resina em incrementos oblíquos ≤2mm","Fotopolimerizar cada camada 40s","Acabamento com brocas multilaminadas","Polimento com discos Sof-Lex e pasta diamantada"],errors:["Não isolar corretamente","Dentina ressecada — colapso de colágeno","Camadas grossas — contração excessiva","Não verificar contatos proximais"],decisions:[{if:"Cavidade classe II proximal",then:"Usar matriz seccionada (TDV) + cunha"},{if:"Margem subgengival",then:"Afastamento gengival antes"}],panic:[{problem:"Restauração soltou em dias",solution:"Verificar umidade — refazer com isolamento correto"},{problem:"Ponto alto oclusal",solution:"Papel carbono + desgaste seletivo"}],crises:[]},
+    "abscesso-drenagem":{title:"Drenagem de Abscesso",time:"20 min",level:"médio",free:true,steps:["Avaliar: flutuação presente?","RX periapical","Anestesia a distância (nunca no centro do abscesso)","Incisão na região de maior flutuação (bisturi lâmina 15)","Drenagem por pressão digital","Irrigar com NaOCl 0,5% ou SF","Antibiótico: amoxicilina 500mg 8/8h + anti-inflamatório","Retorno em 48h"],errors:["Anestesiar no centro do abscesso — não funciona","Incisar sem flutuação","Não associar antibiótico","Selar o canal nessa sessão"],decisions:[{if:"Sem flutuação",then:"Antibiótico + retorno em 48h quando flutuar"},{if:"Edema difuso + febre + trismo",then:"UPA ou hospital — risco de angina de Ludwig"}],panic:[{problem:"Trismo intenso + febre + edema difuso",solution:"ENCAMINHAR URGENTE — risco de vida"}],crises:[{label:"Abscesso com inchaço crescendo",target:"abscesso-drenagem"}]}
+  },
+  panicItems:[
+    {id:"pi1",label:"Pino soltou",protocol:"pino-nucleo"},
+    {id:"pi2",label:"Restauração fraturou",protocol:"restauracao-carie"},
+    {id:"pi3",label:"Contaminou o adesivo",protocol:"restauracao-carie"},
+    {id:"pi4",label:"Sangramento não para",protocol:"hemostasia"},
+    {id:"pi5",label:"Paciente desmaiou",protocol:"sincope-protocolo"},
+    {id:"pi6",label:"Lima fraturou no canal",protocol:"bypassar"},
+    {id:"pi7",label:"Raiz partiu na extração",protocol:"extracao-simples"},
+    {id:"pi8",label:"Crise alérgica no consultório",protocol:"alergia-protocolo"},
+    {id:"pi9",label:"Paciente engoliu instrumento",protocol:"corpo-estranho"},
+    {id:"pi10",label:"Crise hipertensiva",protocol:"hipertensao-protocolo"},
+    {id:"pi11",label:"Dente errado extraído",protocol:"extracao-simples"},
+    {id:"pi12",label:"Abscesso crescendo rápido",protocol:"abscesso-drenagem"},
+    {id:"pi13",label:"Crise epiléptica",protocol:"epilepsia-protocolo"},
+    {id:"pi14",label:"Dor no peito / Infarto",protocol:"infarto-protocolo"}
+  ]
+};
+
+// ==================== FIREBASE ====================
+const firebaseConfig = {
+  apiKey:"AIzaSyBGYluL3f0yuaZnpc-fX8sIQhlCeVo6bwk",
+  authDomain:"guia-odonto-a24ed.firebaseapp.com",
+  projectId:"guia-odonto-a24ed",
+  storageBucket:"guia-odonto-a24ed.firebasestorage.app",
+  messagingSenderId:"822223061470",
+  appId:"1:822223061470:web:8b1447dcfb37e7eeda1d4f"
+};
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+// ==================== VARIÁVEIS GLOBAIS ====================
+let currentUser = null;
+let DATA = null;
+let FAVS = [];
+let HISTORY = [];
+let USAGE_COUNT = {};
+let selCat = null;
+let selSit = null;
+let currentProtoId = '';
+let navigationHistory = [];
+let confirmDelId = null;
+let confirmDelType = null;
+let admNav = {level:"categories", catId:null, sitId:null, procId:null};
+let admEditing = null;
+let currentProceduresList = [];
+const ADMIN_HASH = "99c0da2781edd45cd6040e48b6e1ee7b5a253068ea54470f6c4444227dcb6a73"; // senha: 301195
+
+// ==================== STORAGE ====================
+function initData(){
+  DATA = loadData();
+  FAVS = loadFavs();
+  HISTORY = loadHistory();
+  USAGE_COUNT = loadUsageCount();
+}
+function loadData(){try{const s=localStorage.getItem("guiaOdontoV3");return s?JSON.parse(s):JSON.parse(JSON.stringify(INITIAL_DATA));}catch{return JSON.parse(JSON.stringify(INITIAL_DATA));}}
+function saveData(){try{localStorage.setItem("guiaOdontoV3",JSON.stringify(DATA));}catch{}}
+function loadFavs(){try{return JSON.parse(localStorage.getItem("guiaOdontoFavs")||'[]');}catch{return[];}}
+function saveFavs(){try{localStorage.setItem("guiaOdontoFavs",JSON.stringify(FAVS));}catch{}}
+function loadHistory(){try{return JSON.parse(localStorage.getItem("guiaOdontoHistory")||'[]');}catch{return[];}}
+function saveHistory(){try{localStorage.setItem("guiaOdontoHistory",JSON.stringify(HISTORY.slice(0,20)));}catch{}}
+function loadUsageCount(){try{return JSON.parse(localStorage.getItem("guiaOdontoUsage")||'{}');}catch{return{};}}
+function saveUsageCount(){try{localStorage.setItem("guiaOdontoUsage",JSON.stringify(USAGE_COUNT));}catch{}}
+
+// ==================== UTILS ====================
+function showToast(msg,type){
+  const t=document.getElementById("toast");
+  if(!t)return;
+  t.textContent=msg;
+  t.style.backgroundColor=type==="success"?"#059669":"#DC2626";
+  t.classList.add("active");
+  setTimeout(()=>t.classList.remove("active"),2500);
+}
+function showLoading(){const el=document.getElementById("loading-overlay");if(el)el.classList.add("active");}
+function hideLoading(){const el=document.getElementById("loading-overlay");if(el)el.classList.remove("active");}
+// ── CONFIGURAÇÕES ──────────────────────────────────────────────────────────
+let editTratSelected = '';
+
+function atualizarSaudacao(){
+  var nomeEl=document.getElementById('hdr-nome');
+  if(!nomeEl)return;
+  var nome=localStorage.getItem('guiaNome')||'';
+  var trat=localStorage.getItem('guiaTratamento')||'';
+  if(nome){
+    var t=trat?trat+' ':'';
+    nomeEl.textContent='Ola, '+t+nome+'!';
+  }else{
+    nomeEl.textContent='Ola, Dr(a)!';
+  }
+}
+
+function renderSettings(){
+  if(!currentUser) return;
+  const dn = currentUser.displayName || currentUser.email.split('@')[0] || 'Doutor';
+  const dnFmt = dn.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1);}).join(' ');
+  // Avatar com iniciais
+  const partes = dnFmt.split(' ').filter(function(p){return p.length>1;});
+  const iniciais = partes.length>=2 ? partes[0][0]+partes[partes.length-1][0] : dnFmt.slice(0,2);
+  const av = document.getElementById('cfg-avatar');
+  if(av) av.textContent = iniciais.toUpperCase();
+  const cn = document.getElementById('cfg-user-name');
+  if(cn) cn.textContent = dnFmt;
+  const ce = document.getElementById('cfg-user-email');
+  if(ce) ce.textContent = currentUser.email;
+  const cv = document.getElementById('cfg-nome-val');
+  if(cv) cv.textContent = localStorage.getItem('guiaNome') || 'Nao definido';
+  // Tratamento salvo
+  const tratSalvo = localStorage.getItem('guiaTratamento') || 'Dr.';
+  const ctv = document.getElementById('cfg-trat-val');
+  if(ctv) ctv.textContent = tratSalvo || 'Sem título';
+  // Dark mode
+  const cdv = document.getElementById('cfg-dark-val');
+  if(cdv) cdv.textContent = document.body.classList.contains('dark') ? 'Ligado' : 'Desligado';
+}
+
+function openEditName(){
+  const inp = document.getElementById('edit-name-input');
+  if(inp && currentUser){
+    const dn = currentUser.displayName || '';
+    inp.value = localStorage.getItem('guiaNome') || '';
+  }
+  showOverlay('edit-name-overlay');
+  setTimeout(function(){document.getElementById('edit-name-input').focus();}, 100);
+}
+
+function saveEditName(){
+  var val = document.getElementById('edit-name-input').value.trim();
+  if(!val){showToast('Digite um nome','error');return;}
+  var primeiro = val.charAt(0).toUpperCase()+val.slice(1).toLowerCase().split(' ')[0];
+  localStorage.setItem('guiaNome', primeiro);
+  hideOverlay('edit-name-overlay');
+  atualizarSaudacao();
+  showToast('Nome atualizado!','success');
+  renderSettings();
+}
+
+function openEditTratamento(){
+  const trat = localStorage.getItem('guiaTratamento') || 'Dr.';
+  editTratSelected = trat;
+  document.getElementById('trat-dr').className = 'cfg-sel-btn'+(trat==='Dr.'?' selected':'');
+  document.getElementById('trat-dra').className = 'cfg-sel-btn'+(trat==='Dra.'?' selected':'');
+  document.getElementById('trat-none').className = 'cfg-sel-btn'+(trat===''?' selected':'');
+  showOverlay('edit-trat-overlay');
+}
+
+function selectTratEdit(t){
+  editTratSelected = t;
+  document.getElementById('trat-dr').className = 'cfg-sel-btn'+(t==='Dr.'?' selected':'');
+  document.getElementById('trat-dra').className = 'cfg-sel-btn'+(t==='Dra.'?' selected':'');
+  document.getElementById('trat-none').className = 'cfg-sel-btn'+(t===''?' selected':'');
+}
+
+async function saveEditTratamento(){
+  localStorage.setItem('guiaTratamento', editTratSelected);
+  // Atualiza displayName no Firebase
+  if(currentUser){
+    try{
+      const dn = currentUser.displayName || '';
+      const partes = dn.split(' ');
+      // Pega o primeiro nome (ignora tratamento antigo)
+      const semTrat = partes.filter(function(p){return p!=='Dr.'&&p!=='Dra.';}).join(' ');
+      const primeiro = semTrat.split(' ')[0] || semTrat;
+      const novoDisplay = editTratSelected ? editTratSelected+' '+primeiro : primeiro;
+      await currentUser.updateProfile({displayName: novoDisplay});
+      // Atualiza saudação
+      const nomeEl = document.getElementById('hdr-nome');
+      if(nomeEl){
+        const dnFmt = novoDisplay.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1);}).join(' ');
+        nomeEl.textContent = 'Olá, '+dnFmt+'!';
+      }
+    }catch(e){console.log(e);}
+  }
+  hideOverlay('edit-trat-overlay');
+  atualizarSaudacao();
+  showToast('Tratamento atualizado!','success');
+  renderSettings();
+}
+
+function toggleDarkMode(){document.body.classList.toggle("dark");const btn=document.getElementById("dark-toggle");if(btn)btn.textContent=document.body.classList.contains("dark")?"☀️":"🌙";localStorage.setItem("darkMode",document.body.classList.contains("dark"));}
+function initDarkMode(){if(localStorage.getItem("darkMode")==="true"){document.body.classList.add("dark");const btn=document.getElementById("dark-toggle");if(btn)btn.textContent="☀️";}}
+function hideOverlay(id){const el=document.getElementById(id);if(el)el.classList.remove("active");}
+function showOverlay(id){const el=document.getElementById(id);if(el)el.classList.add("active");}
+function uid(){return Math.random().toString(36).slice(2,8);}
+
+// =================== NAVEGAÇÃO ====================
+// Lógica única e definitiva: goScreen empilha, goBack desempilha.
+// Cada tela sabe de onde voltou. Sem race condition, sem tela branca.
+
+function _activateScreen(id) {
+  // "home" vive dentro de "screen-app"
+  const screenId = (id === "home") ? "app" : id;  // settings, search, etc. mapeiam direto
+  document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
+  const sc = document.getElementById("screen-" + screenId);
+  if(sc) { sc.classList.add("active"); const b=sc.querySelector(".body"); if(b) b.scrollTop=0; }
+  // Nav tabs — usa "home" para marcar o botão correto
+  document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
+  const nav = document.getElementById("nav-" + id);
+  if(nav) nav.classList.add("active");
+}
+
+function _renderScreen(id) {
+  if(id === "home")        { if(!document.getElementById("categories-scroll")) { setTimeout(()=>_renderScreen("home"),80); return; } renderHome(); }
+  if(id === "settings")    { renderSettings(); }
+  if(id === "favorites")   renderFavs();
+  if(id === "situations")  renderSituations();
+  if(id === "procedures")  renderProcedures();
+  if(id === "protocol" && currentProtoId) renderProtocol(currentProtoId);
+  if(id === "search") {
+    const si=document.getElementById("search-input"); if(si) si.value="";
+    const res=document.getElementById("search-results");
+    if(res) res.innerHTML='<p class="empty-msg">Digite pelo menos 2 letras</p>';
+  }
+}
+
+// Navega para uma tela empilhando a atual
+function goScreen(id) {
+  // "screen-app" é a home — normaliza para "home" antes de empilhar
+  const rawCurrent = document.querySelector(".screen.active")?.id?.replace("screen-","");
+  const current = (rawCurrent === "app") ? "home" : rawCurrent;
+  if(current && current !== id && current !== "login") {
+    navigationHistory.push(current);
+  }
+  _activateScreen(id);
+  _renderScreen(id);
+}
+
+// Volta para a tela anterior da pilha
+function goBackToLastScreen() {
+  if(navigationHistory.length > 0) {
+    const last = navigationHistory.pop();
+    // "home" e "app" são a mesma tela
+    const target = (last === "app") ? "home" : last;
+    _activateScreen(target);
+    _renderScreen(target);
+  } else {
+    _activateScreen("home");
+    _renderScreen("home");
+  }
+}
+
+// Atalho usado por botões da bottom nav e links internos
+function voltarParaHome() {
+  navigationHistory = [];
+  _activateScreen("home");
+  _renderScreen("home");
+}
+
+// ==================== RENDERIZAÇÃO ====================
+function renderHome(){
+  clearHomeSearch();
+  if(!DATA) return;
+  // Categories
+  const cs=document.getElementById("categories-scroll");
+  if(cs){
+    cs.innerHTML='<div class="categories-flex" id="categories-flex"></div>';
+    const fd=document.getElementById("categories-flex");
+    if(fd){
+      DATA.categories.forEach(cat=>{
+        const btn=document.createElement("button");
+        btn.className="cat-horizontal";
+        btn.innerHTML=`<span class="cat-horizontal-icon">${cat.icon}</span><span class="cat-horizontal-label">${cat.label}</span>`;
+        btn.onclick=()=>{
+          selCat=cat.id;
+          const st=document.getElementById("sit-title");if(st)st.textContent=cat.label;
+          renderSituations();
+          goScreen("situations");
+        };
+        fd.appendChild(btn);
+      });
+    }
+  }
+  // Favoritos — sempre visível
+  const fb=document.getElementById("favs-box");
+  const fc=document.getElementById("fav-chips");
+  const vf=FAVS.filter(f=>DATA.protocols[f]);
+  if(fb&&fc){
+    fb.style.display="block";
+    fc.innerHTML="";
+    if(vf.length>0){
+      vf.slice(0,8).forEach(fid=>{
+        const p=DATA.protocols[fid];
+        const btn=document.createElement("button");
+        btn.className="chip";
+        btn.textContent=p?.title||fid;
+        btn.onclick=()=>openProto(fid);
+        fc.appendChild(btn);
+      });
+    } else {
+      fc.innerHTML='<span style="font-size:13px;color:#94A3B8">Toque em ★ em qualquer protocolo para salvar aqui</span>';
+    }
+  }
+  // Mais usados — sempre visível
+  const muCard=document.getElementById("most-used-card");
+  const muList=document.getElementById("most-used-list");
+  if(muCard&&muList){
+    muCard.style.display="block";
+    const sorted=Object.entries(USAGE_COUNT)
+      .filter(([id])=>DATA.protocols[id])
+      .sort((a,b)=>b[1]-a[1])
+      .slice(0,3);
+    muList.innerHTML="";
+    if(sorted.length>0){
+      sorted.forEach(([id,count],idx)=>{
+        const p=DATA.protocols[id];
+        if(!p)return;
+        const item=document.createElement("div");
+        item.className="stat-item";
+        item.onclick=()=>openProto(id);
+        item.innerHTML=`<div class="stat-item-left"><span class="stat-item-num">${idx+1}</span><span class="stat-item-name">${p.title}</span></div><span class="stat-item-count">🔥 ${count}x</span>`;
+        muList.appendChild(item);
+      });
+    } else {
+      muList.innerHTML='<span style="font-size:13px;color:#94A3B8">Os protocolos que você mais abre aparecem aqui</span>';
+    }
+  }
+}
+
+function renderSituations(){
+  if(!DATA||!selCat)return;
+  const list=document.getElementById("situations-list");
+  if(!list)return;
+  list.innerHTML="";
+  const sits=DATA.situations[selCat]||[];
+  if(sits.length===0){list.innerHTML='<p class="empty-msg">Nenhuma situação cadastrada.</p>';return;}
+  sits.forEach(sit=>{
+    const btn=document.createElement("button");
+    btn.className="list-btn";
+    btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="arr">›</span>`;
+    btn.onclick=()=>{selSit=sit.id;renderProcedures();goScreen("procedures");};
+    list.appendChild(btn);
+  });
+}
+
+function renderProcedures() {
+  if(!DATA || !selSit) return;
+  const list = document.getElementById("procedures-list");
+  if(!list) return;
+  
+  const procs = DATA.procedures[selSit] || [];
+  currentProceduresList = procs;
+  
+  // Limpa o campo de busca ao entrar na tela
+  const searchInput = document.getElementById("proc-search-input");
+  if(searchInput) searchInput.value = "";
+  const clearBtn = document.getElementById("proc-search-clear");
+  if(clearBtn) clearBtn.style.display = "none";
+  
+  renderProceduresList(procs);
+}
+
+function renderProceduresList(procs) {
+  const list = document.getElementById("procedures-list");
+  if(!list) return;
+  list.innerHTML = "";
+  
+  if(procs.length === 0) {
+    list.innerHTML = '<p class="empty-msg">Nenhum procedimento encontrado.</p>';
+    return;
+  }
+  
+  procs.forEach(proc => {
+    const p = DATA.protocols[proc.id];
+    const timeHtml = p ? `<span class="list-time">⏱ ${p.time}</span>` : '';
+    const seenHtml = HISTORY.includes(proc.id) ? '<span class="seen-badge">✓ Visto</span>' : '';
+    const btn = document.createElement("button");
+    btn.className = "list-btn";
+    if(proc.free) {
+      btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}${seenHtml}<span class="arr">›</span>`;
+    } else {
+      btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}<span class="prem-tag">👑 Premium</span>`;
+    }
+    btn.onclick = () => openProto(proc.id);
+    list.appendChild(btn);
+  });
+}
+
+function filterProceduresList(query) {
+  const searchInput = document.getElementById("proc-search-input");
+  const clearBtn = document.getElementById("proc-search-clear");
+  
+  if(clearBtn) {
+    clearBtn.style.display = query.length > 0 ? "block" : "none";
+  }
+  
+  if(!query || query.length === 0) {
+    renderProceduresList(currentProceduresList);
+    return;
+  }
+  
+  const ql = query.toLowerCase();
+  const filtered = currentProceduresList.filter(proc => 
+    proc.label.toLowerCase().includes(ql)
+  );
+  
+  renderProceduresList(filtered);
+}
+
+function clearProcSearch() {
+  const searchInput = document.getElementById("proc-search-input");
+  if(searchInput) {
+    searchInput.value = "";
+    filterProceduresList("");
+    searchInput.focus();
+  }
+}
+function openProto(id){
+  if(!DATA) return;
+  const p = DATA.protocols[id];
+  if(!p){
+    showToast("Protocolo não disponível","error");
+    return;
+  }
+  
+  // Se for premium e usuário NÃO for premium, bloqueia
+  if(!p.free && !window.userIsPremium){
+    showOverlay("premium-overlay");
+    return;
+  }
+  
+  currentProtoId = id;
+  HISTORY = [id, ...HISTORY.filter(h => h !== id)].slice(0,20);
+  saveHistory();
+  USAGE_COUNT[id] = (USAGE_COUNT[id] || 0) + 1;
+  saveUsageCount();
+  renderProtocol(id);
+  goScreen("protocol");
+}
+function renderProtocol(id){
+  if(!DATA)return;
+  const p=DATA.protocols[id];
+  if(!p)return;
+  const isFav=FAVS.includes(id);
+  const lc={fácil:"#059669",médio:"#D97706",difícil:"#DC2626",urgente:"#DC2626"}[p.level]||"#6B7280";
+  const li={fácil:"🟢",médio:"🟡",difícil:"🔴",urgente:"🚨"}[p.level]||"";
+  const body=document.getElementById("protocol-body");
+  if(!body)return;
+  body.innerHTML=`
+    <div class="clinical-note">⚕️ Este protocolo é um guia de apoio clínico. Adapte conforme a condição do paciente. A responsabilidade pela decisão clínica é exclusivamente do profissional habilitado.</div>
+    <div class="proto-hdr">
+      <div style="flex:1">
+        <div class="proto-title">${p.title}</div>
+        <div class="meta-row">
+          <span class="badge">⏱ ${p.time}</span>
+          <span class="badge" style="background:${lc}22;color:${lc}">${li} ${p.level}</span>
+          ${!p.free?'<span class="prem-tag">👑 Premium</span>':''}
+        </div>
+      </div>
+      <button class="fav-btn ${isFav?'active':''}" id="fav-btn-proto" onclick="toggleFav('${id}')">${isFav?'★':'☆'}</button>
+    </div>
+    <div class="sec">
+      <div class="sec-title">📋 Passo a Passo</div>
+      ${(p.steps||[]).map((s,i)=>`<div class="step-row"><div class="step-num">${i+1}</div><div class="step-txt">${s}</div></div>`).join("")}
+    </div>
+    <div class="sec">
+      <div class="sec-title">⚠️ Erros que Ferram</div>
+      ${(p.errors||[]).map(e=>`<div class="err-row"><span class="err-dot">✗</span><span class="err-txt">${e}</span></div>`).join("")}
+    </div>
+    <div class="sec">
+      <div class="sec-title">🔀 Decisão Rápida</div>
+      ${(p.decisions||[]).map(d=>`<div class="dec-row"><span class="dec-if-lbl">Se</span><span class="dec-if">${d.if}</span><span class="dec-arr">→</span><span class="dec-then">${d.then||''}</span></div>`).join("")}
+    </div>
+    <div class="sec">
+      <div class="sec-title">🚨 Modo Pânico</div>
+      ${(p.panic||[]).map(item=>`<div class="panic-card"><div class="panic-prob">⚡ ${item.problem}</div><div class="panic-sol">${item.solution||''}</div></div>`).join("")}
+    </div>
+    <div class="spacer"></div>`;
+  const sb=document.getElementById("share-proto-btn");
+  if(sb)sb.style.display="flex";
+}
+
+function toggleFav(id){
+  const isFavNow = FAVS.includes(id);
+  if(isFavNow){
+    FAVS = FAVS.filter(f => f !== id);
+    showToast("Removido dos favoritos","error");
+  } else {
+    FAVS = [id, ...FAVS];
+    showToast("Adicionado aos favoritos!","success");
+  }
+  saveFavs();
+  // Atualiza o botão imediatamente
+  const btn = document.getElementById("fav-btn-proto");
+  if(btn){
+    const nowFav = FAVS.includes(id);
+    btn.textContent = nowFav ? '★' : '☆';
+    btn.className = nowFav ? 'fav-btn active' : 'fav-btn';
+  }
+}
+
+function renderFavs(){
+  if(!DATA)return;
+  const list=document.getElementById("favs-list");
+  if(!list)return;
+  list.innerHTML="";
+  const vf=FAVS.filter(f=>DATA.protocols[f]);
+  if(vf.length===0){list.innerHTML='<p class="empty-msg">Use ★ em qualquer protocolo para salvar.</p>';return;}
+  vf.forEach(fid=>{
+    const p=DATA.protocols[fid];
+    const lc={fácil:"#059669",médio:"#D97706",difícil:"#DC2626",urgente:"#DC2626"}[p.level]||"#6B7280";
+    const li={fácil:"🟢",médio:"🟡",difícil:"🔴",urgente:"🚨"}[p.level]||"";
+    const btn=document.createElement("button");
+    btn.className="result-card";
+    btn.innerHTML=`<span class="result-title">${p.title}</span><span class="result-meta">${p.time} · <span style="color:${lc}">${li} ${p.level}</span></span>`;
+    btn.onclick=()=>openProto(fid);
+    list.appendChild(btn);
+  });
+}
+
+// BUSCA
+function doHomeSearch(q){
+  const resDiv=document.getElementById("home-search-results");
+  const homeBody=document.getElementById("home-body");
+  const clearBtn=document.getElementById("home-search-clear");
+  if(!resDiv||!DATA)return;
+  if(clearBtn)clearBtn.style.display=q.length>0?"block":"none";
+  if(q.length<2){
+    resDiv.style.display="none";
+    if(homeBody)homeBody.style.display="flex";
+    return;
+  }
+  // Esconde o corpo da home e mostra resultados inline
+  if(homeBody)homeBody.style.display="none";
+  resDiv.style.display="block";
+  resDiv.innerHTML="";
+  const ql=q.toLowerCase();
+  const all=Object.entries(DATA.protocols).map(([id,p])=>({id,...p}));
+  const found=all.filter(p=>
+    p.title?.toLowerCase().includes(ql)||
+    p.steps?.some(s=>s.toLowerCase().includes(ql))||
+    p.errors?.some(e=>e.toLowerCase().includes(ql))||
+    p.decisions?.some(d=>((d.if||"")+(d.then||"")).toLowerCase().includes(ql))
+  );
+  if(found.length===0){
+    resDiv.innerHTML='<p class="empty-msg" style="margin-top:20px">Nenhum resultado para "'+q+'"</p>';
+    return;
+  }
+  const lcs={fácil:"#059669",médio:"#D97706",difícil:"#DC2626",urgente:"#DC2626"};
+  const lis={fácil:"🟢",médio:"🟡",difícil:"🔴",urgente:"🚨"};
+  found.forEach(p=>{
+    const btn=document.createElement("button");
+    btn.className="home-result-card";
+    btn.innerHTML='<div style="display:flex;align-items:center;gap:6px"><span class="result-title">'+p.title+'</span>'+(!p.free?'<span class="prem-tag">👑</span>':'')+'</div><span class="result-meta">'+p.time+' · <span style="color:'+(lcs[p.level]||"#6B7280")+'">'+(lis[p.level]||"")+" "+p.level+'</span></span>';
+    btn.onclick=()=>{clearHomeSearch();openProto(p.id);};
+    resDiv.appendChild(btn);
+  });
+}
+
+function showHomeResults(){
+  const inp=document.getElementById("home-search-input");
+  if(inp&&inp.value.length>=2)doHomeSearch(inp.value);
+}
+
+function clearHomeSearch(){
+  const inp=document.getElementById("home-search-input");
+  const resDiv=document.getElementById("home-search-results");
+  const homeBody=document.getElementById("home-body");
+  const clearBtn=document.getElementById("home-search-clear");
+  if(inp)inp.value="";
+  if(resDiv)resDiv.style.display="none";
+  if(homeBody)homeBody.style.display="flex";
+  if(clearBtn)clearBtn.style.display="none";
+}
+
+function doSearch(q){
+  if(!DATA)return;
+  const res=document.getElementById("search-results");
+  if(!res)return;
+  if(q.length<2){res.innerHTML='<p class="empty-msg">Digite pelo menos 2 letras</p>';return;}
+  const ql=q.toLowerCase();
+  const all=Object.entries(DATA.protocols).map(([id,p])=>({id,...p}));
+  const found=all.filter(p=>
+    p.title?.toLowerCase().includes(ql)||
+    p.steps?.some(s=>s.toLowerCase().includes(ql))||
+    p.errors?.some(e=>e.toLowerCase().includes(ql))||
+    p.decisions?.some(d=>(d.if||'').toLowerCase().includes(ql)||(d.then||'').toLowerCase().includes(ql))
+  );
+  if(found.length===0){res.innerHTML=`<p class="empty-msg">Nenhum resultado para "${q}"</p>`;return;}
+  res.innerHTML="";
+  found.forEach(p=>{
+    const lc={fácil:"#059669",médio:"#D97706",difícil:"#DC2626",urgente:"#DC2626"}[p.level]||"#6B7280";
+    const li={fácil:"🟢",médio:"🟡",difícil:"🔴",urgente:"🚨"}[p.level]||"";
+    const btn=document.createElement("button");
+    btn.className="result-card";
+    btn.innerHTML=`<div style="display:flex;align-items:center;gap:6px"><span class="result-title">${p.title}</span>${!p.free?'<span class="prem-tag">👑</span>':''}</div><span class="result-meta">${p.time} · <span style="color:${lc}">${li} ${p.level}</span></span>`;
+    btn.onclick=()=>openProto(p.id);
+    res.appendChild(btn);
+  });
+}
+
+// SHARE
+
+function scrollToTop(){const b=document.querySelector("#screen-protocol .body");if(b)b.scrollTo({top:0,behavior:"smooth"});}
+function checkScrollTop(){const b=document.querySelector("#screen-protocol .body");const btn=document.getElementById("scroll-top-btn");if(b&&btn){if(b.scrollTop>300)btn.classList.add("visible");else btn.classList.remove("visible");}}
+
+// CRISE/DEU ERRADO - modal mantido, sem botão externo
+function abrirModalCrise(){
+  if(!DATA)return;
+  const opt=document.getElementById("crise-options-list");
+  if(!opt)return;
+  opt.innerHTML="";
+  const items=DATA.panicItems||[];
+  if(items.length===0){opt.innerHTML='<p class="empty-msg">Nenhuma crise configurada.</p>';}
+  else{
+    items.forEach(item=>{
+      const proto=DATA.protocols[item.protocol];
+      const btn=document.createElement("button");
+      btn.className="crise-option";
+      btn.innerHTML=`<span class="crise-option-icon">⚡</span><div class="crise-option-text"><div class="crise-option-title">${item.label}</div><div class="crise-option-sub">→ ${proto?proto.title:item.protocol}</div></div>`;
+      btn.onclick=()=>{hideOverlay("crise-overlay");openProto(item.protocol);};
+      opt.appendChild(btn);
+    });
+  }
+  showOverlay("crise-overlay");
+}
+
+// ==================== LOGIN ====================
+function showLoginScreen(){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById("screen-login").classList.add("active");
+  showLogin();
+}
+
+function showAppScreen(){
+  navigationHistory = [];
+  _activateScreen("home");
+  // RAF duplo garante que display:flex foi aplicado antes de renderizar
+  requestAnimationFrame(()=>{
+    requestAnimationFrame(()=>{
+      if(DATA && typeof renderHome === "function") renderHome();
+    });
+  });
+}
+
+function showLogin(){
+  document.getElementById("login-form").style.display="block";
+  document.getElementById("register-form").style.display="none";
+  document.getElementById("reset-form").style.display="none";
+}
+function showRegister(){
+  document.getElementById("login-form").style.display="none";
+  document.getElementById("register-form").style.display="block";
+  document.getElementById("reset-form").style.display="none";
+}
+function showReset(){
+  document.getElementById("login-form").style.display="none";
+  document.getElementById("register-form").style.display="none";
+  document.getElementById("reset-form").style.display="block";
+}
+
+async function doLogin(){
+  const email=document.getElementById("login-email")?.value?.trim();
+  const pwd=document.getElementById("login-password")?.value;
+  const err=document.getElementById("login-error");
+  if(!email||!pwd){if(err){err.textContent="Preencha todos os campos";err.style.display="block";}return;}
+  showLoading();
+  try{
+    const res=await auth.signInWithEmailAndPassword(email,pwd);
+    currentUser=res.user;
+    const em=document.getElementById("user-email-display");if(em)em.textContent=currentUser.email;
+    const periodoEl=document.getElementById("hdr-periodo");
+    if(periodoEl)periodoEl.textContent="Disponivel agora";
+    atualizarSaudacao();
+    hideLoading();
+    showToast("Login realizado!","success");
+    showAppScreen();
+  }catch(e){
+    hideLoading();
+    if(err){
+      const msgs={"auth/user-not-found":"Usuário não encontrado","auth/wrong-password":"Senha incorreta","auth/invalid-email":"Email inválido","auth/too-many-requests":"Muitas tentativas. Aguarde um momento."};
+      err.textContent=msgs[e.code]||"Erro ao entrar. Verifique suas credenciais.";
+      err.style.display="block";
+    }
+  }
+}
+
+// Variáveis de seleção do cadastro
+let selectedTratamento = 'Dr.';
+let selectedPerfil = 'dentista';
+
+function selectTratamento(t){
+  selectedTratamento=t;
+  document.getElementById('btn-dr').className='select-btn'+(t==='Dr.'?' selected':'');
+  document.getElementById('btn-dra').className='select-btn'+(t==='Dra.'?' selected':'');
+}
+function selectPerfil(p){
+  selectedPerfil=p;
+  document.getElementById('btn-dentista').className='select-btn'+(p==='dentista'?' selected':'');
+  document.getElementById('btn-estudante').className='select-btn'+(p==='estudante'?' selected':'');
+}
+
+async function doRegister(){
+  const name=document.getElementById("register-name")?.value?.trim();
+  const email=document.getElementById("register-email")?.value?.trim();
+  const pwd=document.getElementById("register-password")?.value;
+  const err=document.getElementById("register-error");
+  if(!name||!email||!pwd){if(err){err.textContent="Preencha todos os campos";err.style.display="block";}return;}
+  if(pwd.length<6){if(err){err.textContent="Mínimo 6 caracteres";err.style.display="block";}return;}
+  showLoading();
+  try{
+    const res=await auth.createUserWithEmailAndPassword(email,pwd);
+    // Salva nome com tratamento no displayName
+    const primeiroNome=name.split(' ')[0];
+    const displayName=(selectedPerfil==='estudante')?primeiroNome:selectedTratamento+' '+primeiroNome;
+    await res.user.updateProfile({displayName});
+    // Salva perfil no Firestore para uso futuro (plano estudante)
+    try{
+      await db.collection('users').doc(res.user.uid).set({
+        nome:name,
+        tratamento:selectedTratamento,
+        perfil:selectedPerfil,
+        email:email,
+        criadoEm:new Date().toISOString()
+      });
+    }catch(e){console.log('Firestore indisponível',e);}
+    currentUser=res.user;
+    const em=document.getElementById('user-email-display');if(em)em.textContent=currentUser.email;
+    hideLoading();
+    showToast('Conta criada com sucesso!','success');
+    showAppScreen();
+  }catch(e){
+    hideLoading();
+    if(err){
+      const msgs={"auth/email-already-in-use":"Este email já está cadastrado","auth/invalid-email":"Email inválido","auth/weak-password":"Senha muito fraca"};
+      err.textContent=msgs[e.code]||"Erro ao criar conta. Tente novamente.";
+      err.style.display="block";
+    }
+  }
+}
+
+async function doReset(){
+  const email=document.getElementById("reset-email")?.value?.trim();
+  const err=document.getElementById("reset-error");
+  const suc=document.getElementById("reset-success");
+  if(!email){if(err){err.textContent="Digite seu email";err.style.display="block";}return;}
+  try{
+    await auth.sendPasswordResetEmail(email);
+    if(suc){suc.textContent="Email de recuperação enviado!";suc.style.display="block";}
+    if(err)err.style.display="none";
+  }catch(e){
+    if(err){err.textContent="Erro ao enviar email. Verifique o endereço.";err.style.display="block";}
+  }
+}
+
+async function logout(){
+  showLoading();
+  await auth.signOut();
+  currentUser=null;
+  hideLoading();
+  showToast("Logout realizado","success");
+  showLoginScreen();
+}
+// ==================== ADMIN ACESSO ====================
+function initAdminAccess(){
+  const logo=document.getElementById("logo-tap");
+  if(!logo)return;
+  let count=0,timer=null;
+  const hint=document.createElement("div");
+  hint.className="tap-hint";
+  hint.style.display="none";
+  logo.parentElement?.appendChild(hint);
+  logo.addEventListener("click",()=>{
+    count++;
+    hint.style.display="block";
+    hint.textContent=`${count}/5 🔓`;
+    clearTimeout(timer);
+    if(count>=5){
+      count=0;hint.style.display="none";
+      showOverlay("pwd-overlay");
+      setTimeout(()=>document.getElementById("pwd-input")?.focus(),100);
+    } else {
+      timer=setTimeout(()=>{count=0;hint.style.display="none";},2000);
+    }
+  });
+}
+
+async function checkPwd(){
+  const val=document.getElementById("pwd-input")?.value;
+  if(!val)return;
+  const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(val));
+  const hash=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
+  if(hash===ADMIN_HASH){
+    hideOverlay("pwd-overlay");
+    document.getElementById("pwd-input").value="";
+    openAdmin();
+  } else {
+    const inp=document.getElementById("pwd-input");
+    const err=document.getElementById("pwd-error");
+    if(inp)inp.classList.add("error");
+    if(err)err.style.display="block";
+    if(inp)inp.value="";
+    setTimeout(()=>{if(inp)inp.classList.remove("error");if(err)err.style.display="none";},2000);
+  }
+}
+
+function hidePwdModal(){
+  hideOverlay("pwd-overlay");
+  const inp=document.getElementById("pwd-input");if(inp)inp.value="";
+  const err=document.getElementById("pwd-error");if(err)err.style.display="none";
+}
+
+// ==================== ADMIN COMPLETO ====================
+function openAdmin(){
+  admNav={level:"categories",catId:null,sitId:null,procId:null};
+  admEditing=null;
+  document.getElementById("adm-sub").textContent=`${Object.keys(DATA.protocols).length} protocolos · ${DATA.categories.length} categorias`;
+  showOverlay("adm-overlay");
+  renderAdminBreadcrumb();
+  renderAdminContent();
+}
+function closeAdmin(){hideOverlay("adm-overlay");admEditing=null;}
+function resetData(){if(confirm("Resetar para o padrão? Todas as edições serão perdidas.")){DATA=JSON.parse(JSON.stringify(INITIAL_DATA));saveData();showToast("Dados resetados!","success");renderHome();closeAdmin();}}
+
+function renderAdminBreadcrumb(){
+  const bc=document.getElementById("adm-breadcrumb");
+  if(!bc)return;
+  bc.innerHTML='';
+  const root=document.createElement("button");root.className="adm-back-btn";root.textContent="📁 Categorias";
+  root.onclick=()=>navigateAdmin("categories",null,null,null);bc.appendChild(root);
+  if(admNav.catId){
+    const cat=DATA.categories.find(c=>c.id===admNav.catId);
+    bc.innerHTML+=`<span style="color:#94A3B8">›</span>`;
+    const sb=document.createElement("button");sb.className="adm-back-btn";sb.textContent=`📋 ${cat?.label||"Situações"}`;
+    sb.onclick=()=>navigateAdmin("situations",admNav.catId,null,null);bc.appendChild(sb);
+  }
+  if(admNav.sitId){
+    bc.innerHTML+=`<span style="color:#94A3B8">›</span>`;
+    const sb=document.createElement("button");sb.className="adm-back-btn";sb.textContent="🔧 Procedimentos";
+    sb.onclick=()=>navigateAdmin("procedures",admNav.catId,admNav.sitId,null);bc.appendChild(sb);
+  }
+  if(admNav.procId){
+    bc.innerHTML+=`<span style="color:#94A3B8">›</span>`;
+    const proc=DATA.procedures[admNav.sitId]?.find(p=>p.id===admNav.procId);
+    const sp=document.createElement("span");sp.style.cssText="font-weight:700;color:#2563EB";sp.textContent=`📄 ${proc?.label||"Protocolo"}`;
+    bc.appendChild(sp);
+  }
+}
+
+function navigateAdmin(level,catId,sitId,procId){
+  admNav={level,catId,sitId,procId};admEditing=null;
+  renderAdminBreadcrumb();renderAdminContent();
+}
+
+function renderAdminContent(){
+  const body=document.getElementById("adm-body");if(!body)return;
+  body.innerHTML="";
+  if(admEditing){renderProtoEditor(body);}
+  else if(admNav.level==="categories"){renderAdminCategories(body);}
+  else if(admNav.level==="situations"){renderAdminSituations(body);}
+  else if(admNav.level==="procedures"){renderAdminProcedures(body);}
+  // Backup buttons
+  const bkDiv=document.createElement("div");
+  bkDiv.style.cssText="margin-top:16px;padding-top:12px;border-top:1px solid #E2E8F0;display:flex;gap:8px";
+  bkDiv.innerHTML=`<button class="adm-edit-btn" style="flex:1" onclick="exportBackup()">📤 Exportar Backup</button><label class="adm-edit-btn" style="flex:1;text-align:center;cursor:pointer">📥 Importar Backup<input type="file" accept=".json" style="display:none" onchange="importBackup(this.files[0])"></label>`;
+  body.appendChild(bkDiv);
+}
+
+
+function renderAdminCategories(body){
+  const addBtn=document.createElement("button");addBtn.className="adm-add-btn";addBtn.textContent="+ Nova Categoria";
+  addBtn.onclick=()=>{
+    const label=prompt("Nome da categoria:");if(!label)return;
+    const icon=prompt("Emoji (ex: 🦷):","📁")||"📁";
+    const id="cat-"+uid();
+    DATA.categories.push({id,label:label.trim(),icon});
+    DATA.situations[id]=[];saveData();showToast("Categoria criada!","success");renderAdminContent();
+  };
+  body.appendChild(addBtn);
+  DATA.categories.forEach((cat,idx)=>{
+    const row=document.createElement("div");row.className="adm-row clickable";
+    row.onclick=()=>navigateAdmin("situations",cat.id,null,null);
+    row.innerHTML=`<span style="font-size:26px">${cat.icon}</span><div style="flex:1;margin-left:8px"><div class="adm-row-title">${cat.label}</div><div class="adm-row-sub">${(DATA.situations[cat.id]||[]).length} situações</div></div>`;
+    const acts=document.createElement("div");acts.style.cssText="display:flex;gap:5px";
+    const eb=document.createElement("button");eb.className="adm-edit-btn";eb.textContent="✏️";
+    eb.onclick=(e)=>{e.stopPropagation();const nl=prompt("Novo nome:",cat.label);if(nl&&nl.trim()){DATA.categories[idx].label=nl.trim();saveData();showToast("Salvo!","success");renderAdminContent();}};
+    const db=document.createElement("button");db.className="adm-del-btn";db.textContent="✕";
+    db.onclick=(e)=>{e.stopPropagation();showConfirm("category",cat.id,cat.label);};
+    acts.appendChild(eb);acts.appendChild(db);row.appendChild(acts);body.appendChild(row);
+  });
+}
+
+function renderAdminSituations(body){
+  const cat=DATA.categories.find(c=>c.id===admNav.catId);
+  if(!cat){body.innerHTML='<p class="empty-msg">Categoria não encontrada</p>';return;}
+  body.innerHTML=`<div style="margin-bottom:8px;font-weight:700">${cat.icon} ${cat.label}</div>`;
+  const addBtn=document.createElement("button");addBtn.className="adm-add-btn";addBtn.textContent="+ Nova Situação";
+  addBtn.onclick=()=>{
+    const label=prompt("Nome da situação:");if(!label)return;
+    if(!DATA.situations[admNav.catId])DATA.situations[admNav.catId]=[];
+    DATA.situations[admNav.catId].push({id:"sit-"+uid(),label:label.trim()});
+    saveData();showToast("Situação adicionada!","success");renderAdminContent();
+  };
+  body.appendChild(addBtn);
+  const sits=DATA.situations[admNav.catId]||[];
+  sits.forEach((sit,idx)=>{
+    const row=document.createElement("div");row.className="adm-row clickable";
+    row.onclick=()=>navigateAdmin("procedures",admNav.catId,sit.id,null);
+    row.innerHTML=`<span style="font-size:18px">📋</span><div style="flex:1"><div class="adm-row-title">${sit.label}</div><div class="adm-row-sub">${(DATA.procedures[sit.id]||[]).length} procedimentos</div></div>`;
+    const acts=document.createElement("div");acts.style.cssText="display:flex;gap:5px";
+    const eb=document.createElement("button");eb.className="adm-edit-btn";eb.textContent="✏️";
+    eb.onclick=(e)=>{e.stopPropagation();const nl=prompt("Novo nome:",sit.label);if(nl&&nl.trim()){DATA.situations[admNav.catId][idx].label=nl.trim();saveData();showToast("Salvo!","success");renderAdminContent();}};
+    const db=document.createElement("button");db.className="adm-del-btn";db.textContent="✕";
+    db.onclick=(e)=>{e.stopPropagation();showConfirm("situation",sit.id,sit.label);};
+    acts.appendChild(eb);acts.appendChild(db);row.appendChild(acts);body.appendChild(row);
+  });
+}
+
+function renderAdminProcedures(body){
+  const cat=DATA.categories.find(c=>c.id===admNav.catId);
+  const sit=DATA.situations[admNav.catId]?.find(s=>s.id===admNav.sitId);
+  if(!cat||!sit){body.innerHTML='<p class="empty-msg">Não encontrado</p>';return;}
+  body.innerHTML=`<div style="margin-bottom:8px;font-weight:700">${cat.icon} ${cat.label} › ${sit.label}</div>`;
+  const addBtn=document.createElement("button");addBtn.className="adm-add-btn";addBtn.textContent="+ Novo Procedimento";
+  addBtn.onclick=()=>{
+    const label=prompt("Nome do procedimento:");if(!label)return;
+    const free=confirm("É gratuito? (OK = Grátis, Cancelar = Premium)");
+    const id="proc-"+uid();
+    if(!DATA.procedures[admNav.sitId])DATA.procedures[admNav.sitId]=[];
+    DATA.procedures[admNav.sitId].push({id,label:label.trim(),free});
+    DATA.protocols[id]={title:label.trim(),time:"30 min",level:"fácil",free,steps:["Passo 1"],errors:["Erro 1"],decisions:[{if:"Se X",then:"Faça Y"}],panic:[{problem:"Problema",solution:"Solução"}],crises:[]};
+    saveData();showToast("Procedimento criado!","success");renderAdminContent();
+  };
+  body.appendChild(addBtn);
+  const procs=DATA.procedures[admNav.sitId]||[];
+  procs.forEach((proc,idx)=>{
+    const p=DATA.protocols[proc.id];
+    const row=document.createElement("div");row.className="adm-row";
+    row.innerHTML=`<div style="flex:1"><div class="adm-row-title">${proc.label}</div><div class="adm-row-sub">${proc.free?"✅ Grátis":"👑 Premium"} ${p?`· ${p.time} · ${p.level}`:""}</div></div>`;
+    const acts=document.createElement("div");acts.style.cssText="display:flex;gap:5px;flex-shrink:0";
+    const eb=document.createElement("button");eb.className="adm-edit-btn";eb.textContent="✏️ Editar";
+    eb.onclick=()=>{
+      admEditing={id:proc.id,proto:p?JSON.parse(JSON.stringify(p)):{title:proc.label,time:"30 min",level:"fácil",free:proc.free,steps:[],errors:[],decisions:[],panic:[],crises:[]}};
+      admNav.procId=proc.id;renderAdminBreadcrumb();renderAdminContent();
+    };
+    const tb=document.createElement("button");tb.className="adm-edit-btn";tb.style.cssText="background:#F0FDF4;color:#059669;border-color:#BBF7D0";
+    tb.textContent=proc.free?"→👑":"→✅";
+    tb.onclick=()=>{DATA.procedures[admNav.sitId][idx].free=!proc.free;if(DATA.protocols[proc.id])DATA.protocols[proc.id].free=!proc.free;saveData();showToast("Atualizado!","success");renderAdminContent();};
+    const db=document.createElement("button");db.className="adm-del-btn";db.textContent="✕";
+    db.onclick=()=>showConfirm("procedure",proc.id,proc.label);
+    acts.appendChild(eb);acts.appendChild(tb);acts.appendChild(db);row.appendChild(acts);body.appendChild(row);
+  });
+}
+
+function renderProtoEditor(body){
+  const e=admEditing;const p=e.proto;
+  body.innerHTML=`
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #E2E8F0">
+      <div style="font-size:15px;font-weight:800;color:#0F172A">Editar: ${p.title}</div>
+      <div style="font-size:10px;color:#94A3B8">ID: ${e.id}</div>
+    </div>
+    <div class="adm-field"><label class="adm-lbl">Título</label><input class="adm-inp" id="f-title" value="${esc(p.title)}"></div>
+    <div class="adm-flex">
+      <div class="adm-field" style="flex:1"><label class="adm-lbl">Tempo</label><input class="adm-inp" id="f-time" value="${esc(p.time)}"></div>
+      <div class="adm-field" style="flex:1"><label class="adm-lbl">Nível</label>
+        <select class="adm-inp" id="f-level">
+          <option value="fácil" ${p.level==="fácil"?"selected":""}>🟢 Fácil</option>
+          <option value="médio" ${p.level==="médio"?"selected":""}>🟡 Médio</option>
+          <option value="difícil" ${p.level==="difícil"?"selected":""}>🔴 Difícil</option>
+          <option value="urgente" ${p.level==="urgente"?"selected":""}>🚨 Urgente</option>
+        </select>
+      </div>
+      <div class="adm-field" style="flex:1"><label class="adm-lbl">Acesso</label>
+        <select class="adm-inp" id="f-free">
+          <option value="true" ${p.free?"selected":""}>✅ Grátis</option>
+          <option value="false" ${!p.free?"selected":""}>👑 Premium</option>
+        </select>
+      </div>
+    </div>
+    <div id="f-steps-sec"></div>
+    <div id="f-errors-sec"></div>
+    <div id="f-decisions-sec"></div>
+    <div id="f-panic-sec"></div>
+    <div class="adm-btn-row">
+      <button class="adm-cancel-btn" onclick="admEditing=null;admNav.procId=null;renderAdminBreadcrumb();renderAdminContent()">Cancelar</button>
+      <button class="adm-save-btn" onclick="saveProtoAdmin()">💾 Salvar Protocolo</button>
+    </div>
+    <div style="height:20px"></div>
+  `;
+  renderListSecAdmin("f-steps-sec","📋 Passo a Passo","steps","Novo passo");
+  renderListSecAdmin("f-errors-sec","⚠️ Erros que Ferram","errors","Novo erro");
+  renderDecisionsSecAdmin();
+  renderPanicSecAdmin();
+}
+
+function esc(s){return String(s||"").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
+
+function renderListSecAdmin(containerId,label,key,emptyVal){
+  const sec=document.getElementById(containerId);if(!sec)return;
+  const p=admEditing.proto;
+  sec.innerHTML=`<div class="adm-sec"><div class="adm-sec-lbl">${label}</div><div id="${containerId}-items"></div><button class="adm-add-small" onclick="addListItemAdmin('${key}','${emptyVal}')">+ Adicionar</button></div>`;
+  const c=document.getElementById(containerId+"-items");
+  if(c){
+    (p[key]||[]).forEach((item,i)=>{
+      const row=document.createElement("div");row.className="adm-item-row";
+      const inp=document.createElement("input");inp.className="adm-inp";inp.style.flex="1";inp.value=item;
+      inp.oninput=ev=>{admEditing.proto[key][i]=ev.target.value;};
+      const rm=document.createElement("button");rm.className="adm-rm-btn";rm.textContent="✕";
+      rm.onclick=()=>{admEditing.proto[key].splice(i,1);renderListSecAdmin(containerId,label,key,emptyVal);};
+      row.appendChild(inp);row.appendChild(rm);c.appendChild(row);
+    });
+  }
+}
+function addListItemAdmin(key,val){if(!admEditing.proto[key])admEditing.proto[key]=[];admEditing.proto[key].push(val);renderAdminContent();}
+
+function renderDecisionsSecAdmin(){
+  const sec=document.getElementById("f-decisions-sec");if(!sec)return;
+  const p=admEditing.proto;
+  sec.innerHTML=`<div class="adm-sec"><div class="adm-sec-lbl">🔀 Decisão Rápida</div><div id="f-dec-items"></div><button class="adm-add-small" onclick="addDecisionAdmin()">+ Adicionar</button></div>`;
+  const c=document.getElementById("f-dec-items");
+  if(c){(p.decisions||[]).forEach((d,i)=>{
+    const row=document.createElement("div");row.className="adm-item-row";
+    const i1=document.createElement("input");i1.className="adm-inp";i1.style.flex="1";i1.placeholder="Se...";i1.value=d.if;
+    i1.oninput=ev=>{admEditing.proto.decisions[i].if=ev.target.value;};
+    const i2=document.createElement("input");i2.className="adm-inp";i2.style.flex="1";i2.placeholder="→ Faça...";i2.value=d.then||"";
+    i2.oninput=ev=>{admEditing.proto.decisions[i].then=ev.target.value;};
+    const rm=document.createElement("button");rm.className="adm-rm-btn";rm.textContent="✕";
+    rm.onclick=()=>{admEditing.proto.decisions.splice(i,1);renderAdminContent();};
+    row.appendChild(i1);row.appendChild(i2);row.appendChild(rm);c.appendChild(row);
+  });}
+}
+function addDecisionAdmin(){if(!admEditing.proto.decisions)admEditing.proto.decisions=[];admEditing.proto.decisions.push({if:"",then:""});renderAdminContent();}
+
+function renderPanicSecAdmin(){
+  const sec=document.getElementById("f-panic-sec");if(!sec)return;
+  const p=admEditing.proto;
+  sec.innerHTML=`<div class="adm-sec"><div class="adm-sec-lbl">🚨 Modo Pânico</div><div id="f-panic-items"></div><button class="adm-add-small" onclick="addPanicAdmin()">+ Adicionar</button></div>`;
+  const c=document.getElementById("f-panic-items");
+  if(c){(p.panic||[]).forEach((d,i)=>{
+    const row=document.createElement("div");row.className="adm-item-row";
+    const i1=document.createElement("input");i1.className="adm-inp";i1.style.flex="1";i1.placeholder="Problema...";i1.value=d.problem;
+    i1.oninput=ev=>{admEditing.proto.panic[i].problem=ev.target.value;};
+    const i2=document.createElement("input");i2.className="adm-inp";i2.style.flex="1";i2.placeholder="Solução...";i2.value=d.solution||"";
+    i2.oninput=ev=>{admEditing.proto.panic[i].solution=ev.target.value;};
+    const rm=document.createElement("button");rm.className="adm-rm-btn";rm.textContent="✕";
+    rm.onclick=()=>{admEditing.proto.panic.splice(i,1);renderAdminContent();};
+    row.appendChild(i1);row.appendChild(i2);row.appendChild(rm);c.appendChild(row);
+  });}
+}
+function addPanicAdmin(){if(!admEditing.proto.panic)admEditing.proto.panic=[];admEditing.proto.panic.push({problem:"",solution:""});renderAdminContent();}
+
+function saveProtoAdmin(){
+  const titulo=document.getElementById("f-title")?.value?.trim();
+  if(!titulo){showToast("Título não pode ficar vazio","error");return;}
+  admEditing.proto.title=titulo;
+  admEditing.proto.time=document.getElementById("f-time")?.value||"30 min";
+  admEditing.proto.level=document.getElementById("f-level")?.value||"fácil";
+  admEditing.proto.free=document.getElementById("f-free")?.value==="true";
+  DATA.protocols[admEditing.id]=admEditing.proto;
+  // Sync label back to procedure entry
+  const proc=DATA.procedures[admNav.sitId]?.find(p=>p.id===admEditing.id);
+  if(proc){proc.label=titulo;proc.free=admEditing.proto.free;}
+  saveData();showToast("Protocolo salvo!","success");
+  document.getElementById("adm-sub").textContent=`${Object.keys(DATA.protocols).length} protocolos · ${DATA.categories.length} categorias`;
+  admEditing=null;admNav.procId=null;renderAdminBreadcrumb();renderAdminContent();
+}
+
+function showConfirm(type,id,name){
+  confirmDelId=id;confirmDelType=type;
+  document.getElementById("confirm-name").textContent=`"${name}"`;
+  document.getElementById("confirm-del-btn").onclick=()=>{
+    if(confirmDelType==="category"){
+      const idx=DATA.categories.findIndex(c=>c.id===confirmDelId);
+      if(idx!==-1){DATA.categories.splice(idx,1);delete DATA.situations[confirmDelId];}
+    } else if(confirmDelType==="situation"){
+      const sits=DATA.situations[admNav.catId];
+      const idx=sits?.findIndex(s=>s.id===confirmDelId);
+      if(idx!==-1){sits.splice(idx,1);delete DATA.procedures[confirmDelId];}
+    } else if(confirmDelType==="procedure"){
+      const procs=DATA.procedures[admNav.sitId];
+      const idx=procs?.findIndex(p=>p.id===confirmDelId);
+      if(idx!==-1){procs.splice(idx,1);delete DATA.protocols[confirmDelId];}
+    }
+    saveData();showToast("Excluído","error");
+    hideConfirm();renderAdminContent();
+    document.getElementById("adm-sub").textContent=`${Object.keys(DATA.protocols).length} protocolos · ${DATA.categories.length} categorias`;
+  };
+  document.getElementById("confirm-overlay").classList.add("active");
+}
+function hideConfirm(){document.getElementById("confirm-overlay").classList.remove("active");confirmDelId=null;confirmDelType=null;}
+
+function exportBackup(){
+  try{
+    const dataStr=JSON.stringify(DATA,null,2);
+    const blob=new Blob([dataStr],{type:"application/json"});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement("a");a.href=url;a.download=`guia-odonto-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url);
+    showToast("Backup exportado!","success");
+  }catch{showToast("Erro ao exportar","error");}
+}
+function importBackup(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const imported=JSON.parse(e.target.result);
+      if(imported.categories && imported.protocols && imported.situations){
+        DATA = imported;
+        saveData();
+        showToast("Backup importado com sucesso!","success");
+        closeAdmin();
+        renderHome();
+      } else {
+        showToast("Arquivo inválido","error");
+      }
+    } catch(e) {
+      showToast("Erro ao ler arquivo","error");
+    }
+  };
+  reader.readAsText(file);
+}
+
+// ==================== INICIALIZAÇÃO ====================
+document.addEventListener("DOMContentLoaded", () => {
+  initData();
+  initDarkMode();
+  initAdminAccess();
+
+  auth.onAuthStateChanged(async(user) => {
+    if(user) {
+      currentUser = user;
+      const em = document.getElementById("user-email-display");
+      if(em) em.textContent = user.email;
+      try {
+        const doc = await db.collection("users").doc(user.uid).get();
+        window.userIsPremium = doc.exists && doc.data().premium === true;
+      } catch(e) {
+        window.userIsPremium = false;
+      }
+      showAppScreen();
+    } else {
+      showLoginScreen();
+    }
+  });
+});
+</script>
+</body>
+</html>
