@@ -14,23 +14,18 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,sans-serif;background:#F1F5F9;min-height:100vh;max-width:430px;margin:0 auto;position:relative;overscroll-behavior:none;transition:background 0.2s,color 0.2s;}
 body.dark{background:#0F172A;color:#F1F5F9;}
-body.dark .hdr,body.dark .fav-box,body.dark .quick-card,body.dark .stats-card,body.dark .list-btn,body.dark .proto-hdr,body.dark .sec,body.dark .top-bar,body.dark .result-card,body.dark .adm-row,body.dark .adm-sec,body.dark .adm-panel,body.dark .login-card{background:#1E293B;border-color:#475569;}
-body.dark .hdr{border-bottom-color:#475569;}
-body.dark .app-name,body.dark .list-txt,body.dark .proto-title,body.dark .step-txt,body.dark .err-txt,body.dark .dec-then,body.dark .panic-sol,body.dark .top-title{color:#F1F5F9;}
+body.dark .hdr{background:#1E293B;border-bottom-color:#475569;}
+body.dark .app-name,body.dark .list-txt,body.dark .proto-title,body.dark .step-txt,body.dark .err-txt,body.dark .dec-then,body.dark .panic-sol,body.dark .top-title,body.dark .sit-title{color:#F1F5F9;}
 body.dark .app-sub,body.dark .sec-title,body.dark .dec-if-lbl,body.dark .dec-if{color:#94A3B8;}
 body.dark .search-bar{background:#334155;border-color:#475569;}
+body.dark .search-row{color:#94A3B8;}
 body.dark .search-bar span,body.dark .search-input-real{color:#F1F5F9;}
 body.dark .chip{background:#334155;border-color:#475569;color:#60A5FA;}
-body.dark .adm-hdr{background:#020617;}
-body.dark .adm-row{background:#1E293B;border-color:#475569;}
-body.dark .adm-row-title{color:#F1F5F9;}
-body.dark .adm-inp{background:#334155;border-color:#475569;color:#F1F5F9;}
 body.dark .modal{background:#1E293B;}
 body.dark .modal-title{color:#F1F5F9;}
 body.dark .modal-sub{color:#94A3B8;}
 body.dark .modal-features{background:#334155;}
 body.dark .feature{color:#E2E8F0;}
-body.dark .confirm-box{background:#1E293B;}
 body.dark .quick-card{background:#1E293B;}
 body.dark .stats-card{background:#1E293B;}
 body.dark .input-field{background:#334155;border-color:#475569;color:#F1F5F9;}
@@ -45,8 +40,6 @@ body.dark .panic-sol{color:#E2E8F0;}
 body.dark .fav-box{background:#1E293B;border-color:#475569;}
 body.dark .proto-hdr{background:#1E293B;border-color:#475569;}
 body.dark .search-input-real{color:#F1F5F9;}
-body.dark .adm-sec{background:#1E293B;border-color:#475569;}
-body.dark .confirm-box{background:#1E293B;}
 body.dark .login-card{background:#1E293B;border-color:#475569;}
 body.dark .logout-btn{background:#334155;}
 body.dark .screen{background:#0F172A;}
@@ -101,10 +94,14 @@ body.dark .hdr-saudacao{color:#64748B;}
 .body{flex:1;padding:14px;overflow-y:auto;padding-bottom:80px;display:flex;flex-direction:column;gap:12px;}
 
 /* CARDS HOME */
-.quick-card{background:#fff;border-radius:20px;padding:14px;border:1px solid #E2E8F0;}
+.quick-card{background:#fff;border-radius:20px;padding:14px;border:1px solid #E2E8F0;overflow:hidden;}
 .quick-title{font-size:12px;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;display:flex;align-items:center;gap:6px;}
-.quick-buttons{display:flex;gap:10px;flex-wrap:wrap;}
-.quick-btn{flex:1;background:#FEF2F2;border:1px solid #FECACA;border-radius:16px;padding:12px 8px;text-align:center;cursor:pointer;min-width:72px;}
+.quick-buttons-wrap{position:relative;}
+.quick-buttons-wrap::after{content:'';position:absolute;top:0;right:0;width:52px;height:100%;background:linear-gradient(to right,transparent,#fff);pointer-events:none;z-index:1;}
+body.dark .quick-buttons-wrap::after{background:linear-gradient(to right,transparent,#1E293B);}
+.quick-buttons{display:flex;gap:10px;overflow-x:auto;padding-bottom:4px;padding-right:44px;scrollbar-width:none;}
+.quick-buttons::-webkit-scrollbar{display:none;}
+.quick-btn{flex-shrink:0;background:#FEF2F2;border:1px solid #FECACA;border-radius:16px;padding:12px 14px;text-align:center;cursor:pointer;min-width:80px;}
 .quick-btn:active{transform:scale(0.96);background:#FEE2E2;}
 .quick-btn-icon{font-size:22px;display:block;margin-bottom:4px;}
 .quick-btn-label{font-size:11px;font-weight:700;color:#991B1B;}
@@ -126,6 +123,9 @@ body.dark .quick-btn-label{color:#FCA5A5;}
 
 /* TOP BAR */
 .top-bar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:#fff;border-bottom:1px solid #E2E8F0;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
+body.dark .top-bar{background:#1E293B;border-bottom-color:#475569;}
+body.dark .back-btn{color:#F1F5F9;}
+body.dark .sec-label,body.dark .section-label{color:#64748B;}
 .back-btn{font-size:26px;color:#2563EB;font-weight:700;padding:8px 10px;min-width:48px;min-height:48px;display:flex;align-items:center;}
 .back-btn:active{transform:scale(0.95);}
 .top-title{font-size:17px;font-weight:700;color:#0F172A;}
@@ -216,7 +216,64 @@ body.dark .dark-toggle{background:#334155;color:#FBBF24;}
 body.dark .share-btn{background:#334155;}
 .scroll-top-btn{position:fixed;bottom:90px;right:calc(50% - 215px + 12px);background:#2563EB;color:#fff;border:none;border-radius:60px;padding:10px 14px;font-size:13px;font-weight:700;cursor:pointer;z-index:98;display:none;align-items:center;gap:6px;}
 .scroll-top-btn.visible{display:flex;}
+
+.proto-hdr-new{background:#fff;padding:14px 16px 12px;border-bottom:0.5px solid #E2E8F0;}
+body.dark .proto-hdr-new{background:#1E293B;border-bottom-color:#475569;}
+.proto-hdr-top{display:flex;align-items:flex-start;gap:10px;}
+.proto-hdr-back{font-size:22px;color:#0F172A;font-weight:700;background:none;border:none;cursor:pointer;flex-shrink:0;padding:0;line-height:1;margin-top:2px;}
+body.dark .proto-hdr-back{color:#F1F5F9;}
+.proto-hdr-info{flex:1;}
+.proto-hdr-cat{font-size:10px;color:#94A3B8;margin-bottom:4px;letter-spacing:0.3px;}
+.proto-hdr-title{font-size:17px;font-weight:800;color:#0F172A;line-height:1.3;margin-bottom:8px;}
+body.dark .proto-hdr-title{color:#F1F5F9;}
+.proto-hdr-badges{display:flex;align-items:center;gap:6px;}
+.proto-hdr-badge{background:#F8F9FB;border:0.5px solid #E2E8F0;border-radius:30px;padding:3px 10px;font-size:10px;font-weight:600;color:#64748B;}
+body.dark .proto-hdr-badge{background:#334155;border-color:#475569;color:#94A3B8;}
+.proto-hdr-fav{font-size:22px;background:none;border:none;cursor:pointer;color:#D1D5DB;padding:0;flex-shrink:0;margin-top:2px;}
+.proto-hdr-fav.active{color:#F59E0B;}
+.step-num{min-width:22px;height:22px;background:#0F172A;color:#fff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;}
+body.dark .step-num{background:#334155;}
+
+
+.fw-widget{background:#fff;border-bottom:0.5px solid #E2E8F0;padding:12px 14px;}
+.fw-widget-label{font-size:10px;font-weight:700;color:#94A3B8;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.fw-widget-input{width:100%;border:1.5px solid #E2E8F0;border-radius:12px;padding:10px 14px;font-size:18px;font-weight:700;text-align:center;outline:none;color:#0F172A;background:#fff;font-family:inherit;-moz-appearance:textfield;appearance:textfield;}
+.fw-widget-input::-webkit-outer-spin-button,.fw-widget-input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0;}
+.fw-widget-input:focus{border-color:#2563EB;}
+.fw-confirm{display:none;align-items:center;gap:6px;margin:8px 0 0;padding:6px 10px;background:#F8F9FB;border-radius:10px;border:0.5px solid #E2E8F0;}
+.fw-confirm.show{display:flex;}
+.fw-confirm-txt{font-size:12px;font-weight:700;color:#0F172A;flex:1;}
+.fw-confirm-ok{font-size:10px;color:#059669;font-weight:700;}
+.fw-result{display:none;border-radius:12px;border:0.5px solid #E2E8F0;background:#F8F9FB;margin-top:8px;overflow:hidden;}
+.fw-result.show{display:block;}
+.fw-sec{padding:10px 14px;border-bottom:0.5px solid #E2E8F0;}
+.fw-sec:last-child{border-bottom:none;}
+.fw-sec-label{font-size:9px;font-weight:700;color:#94A3B8;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px;}
+.fw-sec-value{font-size:13px;font-weight:700;color:#0F172A;line-height:1.4;}
+.fw-sec-sub{font-size:11px;color:#64748B;margin-top:2px;line-height:1.4;}
+.fw-tecnica-tag{display:inline-block;background:#EFF6FF;color:#1D4ED8;border-radius:30px;padding:4px 10px;font-size:10px;font-weight:700;margin-top:4px;}
+.fw-corte-visual{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.fw-corte-card{flex:1;min-width:80px;background:#fff;border:0.5px solid #E2E8F0;border-radius:8px;padding:8px;text-align:center;}
+.fw-corte-card .fw-corte-icon{font-size:18px;margin-bottom:3px;}
+.fw-corte-card .fw-corte-label{font-size:10px;font-weight:700;color:#0F172A;}
+.fw-corte-card .fw-corte-sub{font-size:9px;color:#64748B;margin-top:2px;}
+.fw-corte-card.active{border-color:#2563EB;background:#EFF6FF;}
+.fw-corte-card.active .fw-corte-label{color:#1D4ED8;}
+.fw-widget-alert{background:#FEE2E2;color:#DC2626;border:0.5px solid #FECACA;border-radius:10px;padding:8px 12px;font-size:11px;font-weight:700;margin-top:8px;display:none;}
+.fw-widget-alert.show{display:block;}
+body.dark .fw-widget{background:#1E293B;border-bottom-color:#475569;}
+body.dark .fw-widget-input{background:#334155;border-color:#475569;color:#F1F5F9;}
+body.dark .fw-confirm{background:#0F172A;border-color:#334155;}
+body.dark .fw-confirm-txt{color:#F1F5F9;}
+body.dark .fw-result{background:#0F172A;border-color:#334155;}
+body.dark .fw-sec{border-bottom-color:#334155;}
+body.dark .fw-sec-value{color:#F1F5F9;}
+body.dark .fw-corte-card{background:#1E293B;border-color:#334155;}
+body.dark .fw-corte-card .fw-corte-label{color:#F1F5F9;}
+
 .spacer{height:20px;}
+.btn-save{flex:1;background:#2563EB;color:#fff;border:none;border-radius:30px;padding:11px;font-size:14px;font-weight:800;cursor:pointer;}
+.btn-cancel{flex:1;background:#F1F5F9;color:#64748B;border:none;border-radius:30px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;}
 .logout-btn{background:#F1F5F9;border:none;border-radius:30px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;color:#DC2626;}
 .gear-btn{background:#F1F5F9;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 body.dark .gear-btn{background:#334155;}
@@ -268,44 +325,6 @@ body.dark .login-logo h1{color:#F1F5F9;}
 .success-message{color:#059669;font-size:13px;margin-top:8px;display:none;}
 .divider{text-align:center;margin:18px 0;color:#94A3B8;font-size:12px;}
 
-/* ADMIN */
-.adm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);z-index:500;display:none;}
-.adm-overlay.active{display:flex;}
-.adm-panel{width:100%;max-width:430px;margin:0 auto;background:#fff;display:flex;flex-direction:column;max-height:100vh;}
-body.dark .adm-panel{background:#1E293B;}
-.adm-hdr{display:flex;justify-content:space-between;align-items:center;padding:16px;background:#0F172A;}
-.adm-hdr-title{font-size:16px;font-weight:800;color:#fff;}
-.adm-hdr-sub{font-size:11px;color:#94A3B8;margin-top:2px;}
-.adm-breadcrumb{display:flex;align-items:center;gap:6px;padding:8px 14px;background:#F1F5F9;border-bottom:1px solid #E2E8F0;font-size:12px;flex-wrap:wrap;}
-body.dark .adm-breadcrumb{background:#0F172A;border-bottom-color:#334155;}
-.adm-back-btn{background:#334155;color:#fff;border:none;border-radius:30px;padding:5px 12px;font-size:12px;cursor:pointer;}
-.adm-body{flex:1;overflow-y:auto;padding:12px 14px;padding-bottom:40px;}
-.adm-add-btn{width:100%;background:#EFF6FF;color:#2563EB;border:1px dashed #BFDBFE;border-radius:18px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:10px;}
-.adm-row{display:flex;align-items:center;gap:8px;background:#F8FAFC;border-radius:16px;padding:11px 13px;border:1px solid #E2E8F0;margin-bottom:6px;}
-.adm-row.clickable{cursor:pointer;}
-.adm-row.clickable:active{background:#EFF6FF;}
-.adm-row-title{font-size:14px;font-weight:600;color:#0F172A;}
-.adm-row-sub{font-size:11px;color:#94A3B8;margin-top:2px;}
-.adm-edit-btn{background:#EFF6FF;color:#2563EB;border:1px solid #BFDBFE;border-radius:30px;padding:5px 11px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;}
-.adm-del-btn{background:#FFF1F2;color:#DC2626;border:1px solid #FECDD3;border-radius:30px;padding:5px 10px;font-size:12px;cursor:pointer;}
-.adm-inp{width:100%;border:1px solid #E2E8F0;border-radius:14px;padding:9px 12px;font-size:13px;color:#0F172A;background:#fff;outline:none;box-sizing:border-box;font-family:inherit;}
-.adm-lbl{font-size:11px;font-weight:700;color:#64748B;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;display:block;}
-.adm-field{margin-bottom:10px;}
-.adm-sec{margin-bottom:14px;background:#F8FAFC;border-radius:16px;padding:11px 13px;border:1px solid #E2E8F0;}
-.adm-sec-lbl{font-size:12px;font-weight:800;color:#0F172A;margin-bottom:8px;text-transform:uppercase;letter-spacing:0.5px;}
-.adm-item-row{display:flex;gap:6px;margin-bottom:6px;align-items:center;}
-.adm-rm-btn{background:#FFF1F2;color:#DC2626;border:none;border-radius:30px;padding:7px 11px;font-size:12px;cursor:pointer;flex-shrink:0;}
-.adm-add-small{background:#EFF6FF;color:#2563EB;border:1px dashed #BFDBFE;border-radius:30px;padding:7px 14px;font-size:12px;font-weight:700;cursor:pointer;margin-top:4px;}
-.adm-save-btn{flex:1;background:#2563EB;color:#fff;border:none;border-radius:30px;padding:11px;font-size:14px;font-weight:800;cursor:pointer;}
-.adm-cancel-btn{flex:1;background:#F1F5F9;color:#64748B;border:none;border-radius:30px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;}
-.adm-btn-row{display:flex;gap:8px;margin-top:12px;}
-.adm-flex{display:flex;gap:8px;}
-.pwd-input{width:100%;border:1px solid #E2E8F0;border-radius:18px;padding:14px;font-size:20px;text-align:center;letter-spacing:8px;outline:none;background:#fff;}
-.pwd-input.error{border-color:#DC2626;background:#FFF1F2;}
-.pwd-error{font-size:13px;color:#DC2626;font-weight:700;}
-.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:600;display:none;align-items:center;justify-content:center;padding:20px;}
-.confirm-overlay.active{display:flex;}
-.confirm-box{background:#fff;border-radius:24px;padding:24px 20px;text-align:center;max-width:300px;width:100%;}
 body.dark .search-bar-proc {
   background:#334155 !important;
   border-color:#475569 !important;
@@ -400,12 +419,16 @@ body.dark .search-bar-proc input {
       </div>
     </div>
     <div class="quick-card">
-      <div class="quick-title">🚨 ACESSO RÁPIDO</div>
+      <div class="quick-title">🆘 S.O.S. CLÍNICO</div>
+      <div class="quick-buttons-wrap">
       <div class="quick-buttons">
         <div class="quick-btn" onclick="openProto('sincope-protocolo')"><span class="quick-btn-icon">😰</span><span class="quick-btn-label">Desmaio</span></div>
-        <div class="quick-btn" onclick="openProto('alergia-protocolo')"><span class="quick-btn-icon">🩺</span><span class="quick-btn-label">Alergia</span></div>
         <div class="quick-btn" onclick="openProto('infarto-protocolo')"><span class="quick-btn-icon">💔</span><span class="quick-btn-label">Infarto</span></div>
+        <div class="quick-btn" onclick="openProto('epilepsia-protocolo')"><span class="quick-btn-icon">⚡</span><span class="quick-btn-label">Epilepsia</span></div>
+        <div class="quick-btn" onclick="openProto('hemostasia')"><span class="quick-btn-icon">🩸</span><span class="quick-btn-label">Sangramento</span></div>
+        <div class="quick-btn" onclick="openProto('ansiedade-protocolo')"><span class="quick-btn-icon">😨</span><span class="quick-btn-label">Ansiedade</span></div>
       </div>
+      </div><!-- /quick-buttons-wrap -->
     </div>
     <div id="favs-box" class="fav-box">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
@@ -459,7 +482,7 @@ body.dark .search-bar-proc input {
         <span class="cfg-value" id="cfg-nome-val">—</span>
         <span class="cfg-arr">›</span>
       </div>
-      <div class="cfg-row" onclick="openEditTratamento()">
+      <div class="cfg-row" id="cfg-trat-row" onclick="openEditTratamento()">
         <div class="cfg-icon">🪪</div>
         <span class="cfg-label">Tratamento</span>
         <span class="cfg-value" id="cfg-trat-val">Dr.</span>
@@ -494,8 +517,8 @@ body.dark .search-bar-proc input {
     <h2 class="modal-title" style="font-size:18px">Editar nome</h2>
     <input class="cfg-edit-inp" id="edit-name-input" type="text" placeholder="Seu nome completo">
     <div style="display:flex;gap:8px;width:100%;margin-top:8px">
-      <button class="adm-cancel-btn" onclick="hideOverlay('edit-name-overlay')">Cancelar</button>
-      <button class="adm-save-btn" onclick="saveEditName()">Salvar</button>
+      <button class="btn-cancel" onclick="hideOverlay('edit-name-overlay')">Cancelar</button>
+      <button class="btn-save" onclick="saveEditName()">Salvar</button>
     </div>
   </div>
 </div>
@@ -512,8 +535,8 @@ body.dark .search-bar-proc input {
       <button class="cfg-sel-btn" id="trat-none" onclick="selectTratEdit('')">Sem título</button>
     </div>
     <div style="display:flex;gap:8px;width:100%;margin-top:16px">
-      <button class="adm-cancel-btn" onclick="hideOverlay('edit-trat-overlay')">Cancelar</button>
-      <button class="adm-save-btn" onclick="saveEditTratamento()">Salvar</button>
+      <button class="btn-cancel" onclick="hideOverlay('edit-trat-overlay')">Cancelar</button>
+      <button class="btn-save" onclick="saveEditTratamento()">Salvar</button>
     </div>
   </div>
 </div>
@@ -540,14 +563,6 @@ body.dark .search-bar-proc input {
 
 <!-- PROTOCOL -->
 <div class="screen" id="screen-protocol">
-  <div class="top-bar">
-    <button class="back-btn" onclick="goBackToLastScreen()">←</button>
-    <span class="top-title"></span>
-    <div style="display:flex;gap:8px">
-     
-      <div style="width:36px"></div>
-    </div>
-  </div>
   <div class="body" id="protocol-body" onscroll="checkScrollTop()"><div class="spacer"></div></div>
 </div>
 
@@ -586,51 +601,6 @@ body.dark .search-bar-proc input {
 </div>
 
 <!-- PASSWORD MODAL -->
-<div class="overlay" id="pwd-overlay" onclick="hidePwdModal()">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div style="font-size:40px">🔐</div>
-    <h2 class="modal-title" style="font-size:20px">Acesso Restrito</h2>
-    <p class="modal-sub">Digite a senha de administrador</p>
-    <input class="pwd-input" id="pwd-input" type="password" placeholder="••••••" onkeydown="if(event.key==='Enter')checkPwd()">
-    <div class="pwd-error" id="pwd-error" style="display:none">❌ Senha incorreta</div>
-    <div style="display:flex;gap:8px;width:100%;margin-top:8px">
-      <button class="adm-cancel-btn" onclick="hidePwdModal()">Cancelar</button>
-      <button class="adm-save-btn" onclick="checkPwd()">Entrar</button>
-    </div>
-  </div>
-</div>
-
-<!-- ADMIN OVERLAY -->
-<div class="adm-overlay" id="adm-overlay">
-  <div class="adm-panel">
-    <div class="adm-hdr">
-      <div>
-        <div class="adm-hdr-title">⚙️ Painel Administrador</div>
-        <div class="adm-hdr-sub" id="adm-sub"></div>
-      </div>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button style="background:#DC2626;border:none;color:#fff;font-size:11px;border-radius:30px;padding:5px 11px;cursor:pointer;font-weight:700" onclick="resetData()">Reset</button>
-        <button style="background:none;border:none;color:#94A3B8;font-size:20px;cursor:pointer" onclick="closeAdmin()">✕</button>
-      </div>
-    </div>
-    <div class="adm-breadcrumb" id="adm-breadcrumb" style="display:flex; gap:8px; flex-wrap:wrap; padding:8px 14px;"></div>
-    <div class="adm-body" id="adm-body"></div>
-  </div>
-</div>
-
-<!-- CONFIRM DELETE -->
-<div class="confirm-overlay" id="confirm-overlay">
-  <div class="confirm-box">
-    <div style="font-size:36px;margin-bottom:8px">🗑️</div>
-    <div style="font-size:17px;font-weight:800;margin-bottom:4px">Excluir?</div>
-    <div style="font-size:13px;color:#64748B;margin-bottom:16px" id="confirm-name"></div>
-    <div style="display:flex;gap:8px">
-      <button class="adm-cancel-btn" onclick="hideConfirm()">Cancelar</button>
-      <button style="flex:1;background:#DC2626;color:#fff;border:none;border-radius:30px;padding:10px;font-size:14px;font-weight:800;cursor:pointer" id="confirm-del-btn">Excluir</button>
-    </div>
-  </div>
-</div>
-
 <script>
 // ==================== DADOS ====================
 const INITIAL_DATA = {
@@ -737,7 +707,8 @@ const INITIAL_DATA = {
     "corpo-estranho":{title:"Corpo Estranho Engolido",time:"Emergência",level:"urgente",free:true,steps:["Manter calma — maioria passa espontaneamente","Diferenciar: deglutiu (esôfago) ou aspirou (pulmão)?","SE ASPIROU: tosse, cianose, dispneia — SAMU 192","SE deglutiu e assintomático: pronto-socorro para RX","Documentar: objeto, tamanho, material, bordas","Objetos pontiagudos ou > 2,5cm: endoscopia urgente","Orientar: observar fezes 4–7 dias","NÃO induza vômito"],errors:["Confundir deglutição com aspiração","Não encaminhar para imagem","Induzir vômito"],decisions:[{if:"Aspirou (tosse + dispneia)",then:"SAMU — emergência respiratória"},{if:"Lima endodôntica deglutida",then:"RX + gastroenterologista urgente"}],panic:[{problem:"Cianose após engolir",solution:"ASPIRAÇÃO — Heimlich + SAMU 192"}],crises:[{label:"Paciente engoliu instrumento",target:"corpo-estranho"}]},
     "epilepsia-protocolo":{title:"Crise Epiléptica",time:"Emergência",level:"urgente",free:true,steps:["Interromper procedimento","Afastar instrumentos e mobiliário","Deitar no chão com proteção para a cabeça","NÃO segurar o paciente","NÃO coloque nada na boca","Posição lateral de recuperação após a crise","Cronometrar duração da crise","Se > 5 min: SAMU 192 — status epiléptico"],errors:["Segurar o paciente — fraturas","Colocar objeto na boca — mito, causa lesão","Não chamar socorro se > 5 min"],decisions:[{if:"Crise < 5 min e autolimitada",then:"Posição lateral + observar"},{if:"> 5 min",then:"Midazolam IM + SAMU 192"}],panic:[{problem:"Apneia durante a crise",solution:"SAMU 192 + posição lateral + O₂ se disponível"}],crises:[{label:"Paciente com convulsão",target:"epilepsia-protocolo"}]},
     "restauracao-direta-prot":{title:"Restauração Direta (Prótese)",time:"40 min",level:"médio",free:true,steps:["Isolamento absoluto rigoroso","Preparo cavitário com extensão preventiva mínima","Proteção pulpar com Ca(OH)₂ + cimento de base","Condicionamento ácido: 30s esmalte / 15s dentina","Lavar 30s, secar levemente","Aplicar adesivo — ativar 20s — fotopolimerizar","Inserir resina em incrementos oblíquos ≤2mm","Fotopolimerizar cada camada 40s","Acabamento com brocas multilaminadas","Polimento com discos Sof-Lex e pasta diamantada"],errors:["Não isolar corretamente","Dentina ressecada — colapso de colágeno","Camadas grossas — contração excessiva","Não verificar contatos proximais"],decisions:[{if:"Cavidade classe II proximal",then:"Usar matriz seccionada (TDV) + cunha"},{if:"Margem subgengival",then:"Afastamento gengival antes"}],panic:[{problem:"Restauração soltou em dias",solution:"Verificar umidade — refazer com isolamento correto"},{problem:"Ponto alto oclusal",solution:"Papel carbono + desgaste seletivo"}],crises:[]},
-    "abscesso-drenagem":{title:"Drenagem de Abscesso",time:"20 min",level:"médio",free:true,steps:["Avaliar: flutuação presente?","RX periapical","Anestesia a distância (nunca no centro do abscesso)","Incisão na região de maior flutuação (bisturi lâmina 15)","Drenagem por pressão digital","Irrigar com NaOCl 0,5% ou SF","Antibiótico: amoxicilina 500mg 8/8h + anti-inflamatório","Retorno em 48h"],errors:["Anestesiar no centro do abscesso — não funciona","Incisar sem flutuação","Não associar antibiótico","Selar o canal nessa sessão"],decisions:[{if:"Sem flutuação",then:"Antibiótico + retorno em 48h quando flutuar"},{if:"Edema difuso + febre + trismo",then:"UPA ou hospital — risco de angina de Ludwig"}],panic:[{problem:"Trismo intenso + febre + edema difuso",solution:"ENCAMINHAR URGENTE — risco de vida"}],crises:[{label:"Abscesso com inchaço crescendo",target:"abscesso-drenagem"}]}
+    "abscesso-drenagem":{title:"Drenagem de Abscesso",time:"20 min",level:"médio",free:true,steps:["Avaliar: flutuação presente?","RX periapical","Anestesia a distância (nunca no centro do abscesso)","Incisão na região de maior flutuação (bisturi lâmina 15)","Drenagem por pressão digital","Irrigar com NaOCl 0,5% ou SF","Antibiótico: amoxicilina 500mg 8/8h + anti-inflamatório","Retorno em 48h"],errors:["Anestesiar no centro do abscesso — não funciona","Incisar sem flutuação","Não associar antibiótico","Selar o canal nessa sessão"],decisions:[{if:"Sem flutuação",then:"Antibiótico + retorno em 48h quando flutuar"},{if:"Edema difuso + febre + trismo",then:"UPA ou hospital — risco de angina de Ludwig"}],panic:[{problem:"Trismo intenso + febre + edema difuso",solution:"ENCAMINHAR URGENTE — risco de vida"}],crises:[{label:"Abscesso com inchaço crescendo",target:"abscesso-drenagem"}]},
+    "ansiedade-protocolo":{title:"Crise de Ansiedade",time:"10-20 min",level:"urgente",free:true,steps:["Interromper o procedimento imediatamente","Falar com calma e voz firme: 'Você está seguro, estou aqui'","Reclinar a cadeira levemente — não deite completamente","Pedir para respirar devagar: inspirar 4s, segurar 4s, expirar 4s","Afrouxar roupas e dar espaço — não segurar o paciente","Ambiente calmo: reduzir luz, sons e movimento","Oferecer água fresca se consciente e sem náusea","Monitorar: PA, FC e nível de consciência","Se não melhorar em 5 min: SAMU 192"],errors:["Continuar o procedimento — piora imediata","Falar alto ou expressar urgência — aumenta o pânico","Forçar respiração rápida — pode causar hiperventilação","Deixar o paciente sozinho"],decisions:[{if:"Hiperventilação (respiração muito rápida)",then:"Respirar em saco de papel por 1 min"},{if:"Dor no peito + formigamento",then:"Descartar infarto — SAMU se não ceder em 2 min"},{if:"Perda de consciência",then:"Protocolo de síncope — deitar + elevar pernas"},{if:"Recorrente (2ª vez ou mais)",then:"Indicar ansiolítico oral antes das próximas consultas"}],panic:[{problem:"Paciente em pânico total — gritando ou chorando",solution:"Voz firme e calma: 'Respira comigo. Você está bem.' Não entre em pânico junto."},{problem:"Formigamento nas mãos e rosto",solution:"Hiperventilação — respirar em saco de papel ou técnica 4-4-4"},{problem:"Não melhora após 5 min",solution:"SAMU 192 — pode ser outra emergência associada"}],crises:[]}
   },
   panicItems:[
     {id:"pi1",label:"Pino soltou",protocol:"pino-nucleo"},
@@ -780,12 +751,6 @@ let selCat = null;
 let selSit = null;
 let currentProtoId = '';
 let navigationHistory = [];
-let confirmDelId = null;
-let confirmDelType = null;
-let admNav = {level:"categories", catId:null, sitId:null, procId:null};
-let admEditing = null;
-let currentProceduresList = [];
-const ADMIN_HASH = "99c0da2781edd45cd6040e48b6e1ee7b5a253068ea54470f6c4444227dcb6a73"; // senha: 301195
 
 // ==================== STORAGE ====================
 function initData(){
@@ -822,15 +787,25 @@ function atualizarSaudacao(){
   if(!nomeEl)return;
   var nome=localStorage.getItem('guiaNome')||'';
   var trat=localStorage.getItem('guiaTratamento')||'';
+  var perfil=localStorage.getItem('guiaPerfil')||'dentista';
   if(nome){
-    var t=trat?trat+' ':'';
-    nomeEl.textContent='Ola, '+t+nome+'!';
-  }else{
-    nomeEl.textContent='Ola, Dr(a)!';
+    if(perfil==='estudante'){
+      nomeEl.textContent='Olá, '+nome+'!';
+    } else {
+      var t=trat?trat+' ':'';
+      nomeEl.textContent='Olá, '+t+nome+'!';
+    }
+  } else {
+    nomeEl.textContent = perfil==='estudante' ? 'Olá!' : 'Olá, Dr(a)!';
   }
 }
 
 function renderSettings(){
+  // Esconde linha de tratamento se for estudante
+  var perfil = localStorage.getItem('guiaPerfil') || 'dentista';
+  var tratRow = document.getElementById('cfg-trat-row');
+  if(tratRow) tratRow.style.display = perfil==='estudante' ? 'none' : 'flex';
+
   if(!currentUser) return;
   const dn = currentUser.displayName || currentUser.email.split('@')[0] || 'Doutor';
   const dnFmt = dn.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1);}).join(' ');
@@ -984,6 +959,137 @@ function voltarParaHome() {
   navigationHistory = [];
   _activateScreen("home");
   _renderScreen("home");
+}
+
+
+// ── DADOS FÓRCEPS E ODONTOSECÇÃO ──────────────────────────────────────────
+const FORCEPS_DB = {
+  11:{nome:'Incisivo central superior',forceps:'Fórceps nº 1',tipo:'Reto',tecnica:'Rotação + tração',alerta:null},
+  12:{nome:'Incisivo lateral superior',forceps:'Fórceps nº 1',tipo:'Reto',tecnica:'Rotação + tração',alerta:null},
+  13:{nome:'Canino superior',forceps:'Fórceps nº 1',tipo:'Reto',tecnica:'Luxação V-L prolongada',alerta:'Raiz longa — luxar bastante antes de traccionar'},
+  14:{nome:'Pré-molar superior',forceps:'Fórceps nº 2',tipo:'Baionetado',tecnica:'Movimentos V-L suaves',alerta:'Raiz frágil — alto risco de fratura'},
+  15:{nome:'Pré-molar superior',forceps:'Fórceps nº 2',tipo:'Baionetado',tecnica:'Movimentos V-L suaves',alerta:'Raiz frágil — alto risco de fratura'},
+  16:{nome:'Molar superior direito',forceps:'Fórceps nº 17',tipo:'Cowhorn superior',tecnica:'Posicionar pontas nas furças',alerta:'3 raízes — risco elevado de fratura radicular'},
+  17:{nome:'Molar superior direito',forceps:'Fórceps nº 17',tipo:'Cowhorn superior',tecnica:'Posicionar pontas nas furças',alerta:'3 raízes — risco elevado de fratura radicular'},
+  18:{nome:'Siso superior direito',forceps:'Fórceps nº 65 ou 79N',tipo:'Baionetado especial',tecnica:'Acesso limitado — cuidado redobrado',alerta:'⚠️ Avaliar indicação cirúrgica antes'},
+  21:{nome:'Incisivo central superior',forceps:'Fórceps nº 1',tipo:'Reto',tecnica:'Rotação + tração',alerta:null},
+  22:{nome:'Incisivo lateral superior',forceps:'Fórceps nº 1',tipo:'Reto',tecnica:'Rotação + tração',alerta:null},
+  23:{nome:'Canino superior',forceps:'Fórceps nº 1',tipo:'Reto',tecnica:'Luxação V-L prolongada',alerta:'Raiz longa — luxar bastante antes de traccionar'},
+  24:{nome:'Pré-molar superior',forceps:'Fórceps nº 2',tipo:'Baionetado',tecnica:'Movimentos V-L suaves',alerta:'Raiz frágil — alto risco de fratura'},
+  25:{nome:'Pré-molar superior',forceps:'Fórceps nº 2',tipo:'Baionetado',tecnica:'Movimentos V-L suaves',alerta:'Raiz frágil — alto risco de fratura'},
+  26:{nome:'Molar superior esquerdo',forceps:'Fórceps nº 18',tipo:'Cowhorn superior',tecnica:'Posicionar pontas nas furças',alerta:'3 raízes — risco elevado de fratura radicular'},
+  27:{nome:'Molar superior esquerdo',forceps:'Fórceps nº 18',tipo:'Cowhorn superior',tecnica:'Posicionar pontas nas furças',alerta:'3 raízes — risco elevado de fratura radicular'},
+  28:{nome:'Siso superior esquerdo',forceps:'Fórceps nº 65 ou 79N',tipo:'Baionetado especial',tecnica:'Acesso limitado — cuidado redobrado',alerta:'⚠️ Avaliar indicação cirúrgica antes'},
+  31:{nome:'Incisivo inferior',forceps:'Fórceps nº 16',tipo:'Reto inferior',tecnica:'Movimentos V-L + leve rotação',alerta:null},
+  32:{nome:'Incisivo inferior',forceps:'Fórceps nº 16',tipo:'Reto inferior',tecnica:'Movimentos V-L + leve rotação',alerta:null},
+  33:{nome:'Canino inferior',forceps:'Fórceps nº 16',tipo:'Reto inferior',tecnica:'Luxação V-L intensa',alerta:'Raiz longa e cônica — luxar com calma'},
+  34:{nome:'Pré-molar inferior',forceps:'Fórceps nº 16',tipo:'Reto inferior',tecnica:'Movimentos V-L',alerta:null},
+  35:{nome:'Pré-molar inferior',forceps:'Fórceps nº 16',tipo:'Reto inferior',tecnica:'Movimentos V-L',alerta:null},
+  36:{nome:'Molar inferior',forceps:'Fórceps nº 22 (Cowhorn)',tipo:'Cowhorn inferior',tecnica:'Encaixar pontas nas furças — balanço M-D',alerta:'2 raízes divergentes — risco de fratura'},
+  37:{nome:'Molar inferior',forceps:'Fórceps nº 22 (Cowhorn)',tipo:'Cowhorn inferior',tecnica:'Encaixar pontas nas furças — balanço M-D',alerta:'2 raízes divergentes — risco de fratura'},
+  38:{nome:'Siso inferior',forceps:'Fórceps nº 65 ou 79N',tipo:'Reto adaptado',tecnica:'Acesso limitado',alerta:'⚠️ Avaliar indicação cirúrgica antes'},
+  41:{nome:'Incisivo inferior',forceps:'Fórceps nº 16',tipo:'Reto inferior',tecnica:'Movimentos V-L + leve rotação',alerta:null},
+  42:{nome:'Incisivo inferior',forceps:'Fórceps nº 16',tipo:'Reto inferior',tecnica:'Movimentos V-L + leve rotação',alerta:null},
+  43:{nome:'Canino inferior',forceps:'Fórceps nº 16',tipo:'Reto inferior',tecnica:'Luxação V-L intensa',alerta:'Raiz longa e cônica — luxar com calma'},
+  44:{nome:'Pré-molar inferior',forceps:'Fórceps nº 16',tipo:'Reto inferior',tecnica:'Movimentos V-L',alerta:null},
+  45:{nome:'Pré-molar inferior',forceps:'Fórceps nº 16',tipo:'Reto inferior',tecnica:'Movimentos V-L',alerta:null},
+  46:{nome:'Molar inferior',forceps:'Fórceps nº 22 (Cowhorn)',tipo:'Cowhorn inferior',tecnica:'Encaixar pontas nas furças — balanço M-D',alerta:'2 raízes divergentes — risco de fratura'},
+  47:{nome:'Molar inferior',forceps:'Fórceps nº 22 (Cowhorn)',tipo:'Cowhorn inferior',tecnica:'Encaixar pontas nas furças — balanço M-D',alerta:'2 raízes divergentes — risco de fratura'},
+  48:{nome:'Siso inferior',forceps:'Fórceps nº 65 ou 79N',tipo:'Reto adaptado',tecnica:'Acesso limitado',alerta:'⚠️ Avaliar indicação cirúrgica antes'},
+};
+
+const ODONTO_DB = {
+  11:{nome:'Incisivo central superior',raizes:'1 raiz cônica',raizesSub:'Raiz única, trajetória reta',tecnica:'Sem odontosecção',corte:[{icon:'➡️',label:'Extração direta',sub:'Sem corte necessário',active:true}],forceps:'Fórceps nº 1',alerta:null},
+  12:{nome:'Incisivo lateral superior',raizes:'1 raiz cônica',raizesSub:'Pode ter curvatura apical',tecnica:'Sem odontosecção',corte:[{icon:'➡️',label:'Extração direta',sub:'Sem corte necessário',active:true}],forceps:'Fórceps nº 1',alerta:'Verificar curvatura apical no RX'},
+  13:{nome:'Canino superior',raizes:'1 raiz longa',raizesSub:'Raiz mais longa da arcada',tecnica:'Sem odontosecção — luxação intensa',corte:[{icon:'➡️',label:'Extração direta',sub:'Luxação prolongada V-L',active:true}],forceps:'Fórceps nº 1',alerta:'Raiz muito longa — risco de fratura do processo alveolar'},
+  14:{nome:'Pré-molar superior',raizes:'1-2 raízes',raizesSub:'Pode ter bifurcação no terço médio',tecnica:'Secção V-L se 2 raízes',corte:[{icon:'✂️',label:'Corte V-L',sub:'Separa raiz V e palatina',active:true},{icon:'➡️',label:'Direto',sub:'Se raiz única no RX',active:false}],forceps:'Fórceps nº 2 por fragmento',alerta:'Confirmar nº de raízes no RX antes'},
+  15:{nome:'Pré-molar superior',raizes:'1-2 raízes',raizesSub:'Pode ter bifurcação no terço médio',tecnica:'Secção V-L se 2 raízes',corte:[{icon:'✂️',label:'Corte V-L',sub:'Separa raiz V e palatina',active:true},{icon:'➡️',label:'Direto',sub:'Se raiz única no RX',active:false}],forceps:'Fórceps nº 2 por fragmento',alerta:'Confirmar nº de raízes no RX antes'},
+  16:{nome:'Molar superior direito',raizes:'3 raízes',raizesSub:'MV, DV e palatina — divergentes',tecnica:'Trisecção: separar MV + DV + palatina',corte:[{icon:'✂️',label:'Corte M-D',sub:'Separa MV da DV',active:true},{icon:'✂️',label:'Corte V-P',sub:'Isola palatina',active:true},{icon:'🔧',label:'3 fragmentos',sub:'Cada raiz separada',active:false}],forceps:'Alavanca + fórceps nº 17 por fragmento',alerta:'3 raízes divergentes — trisecção obrigatória'},
+  17:{nome:'Molar superior direito',raizes:'3 raízes',raizesSub:'MV, DV e palatina — divergentes',tecnica:'Trisecção: separar MV + DV + palatina',corte:[{icon:'✂️',label:'Corte M-D',sub:'Separa MV da DV',active:true},{icon:'✂️',label:'Corte V-P',sub:'Isola palatina',active:true},{icon:'🔧',label:'3 fragmentos',sub:'Cada raiz separada',active:false}],forceps:'Alavanca + fórceps nº 17 por fragmento',alerta:'3 raízes divergentes — trisecção obrigatória'},
+  18:{nome:'Siso superior',raizes:'1-3 raízes fundidas',raizesSub:'Geralmente fundidas — mais simples',tecnica:'Secção coronal se necessário',corte:[{icon:'➡️',label:'Direto',sub:'Frequentemente sem secção',active:true},{icon:'✂️',label:'Corte se necessário',sub:'Raízes divergentes no RX',active:false}],forceps:'Fórceps nº 65 ou 79N',alerta:'Acesso limitado — verificar espaço antes'},
+  21:{nome:'Incisivo central superior',raizes:'1 raiz cônica',raizesSub:'Raiz única, trajetória reta',tecnica:'Sem odontosecção',corte:[{icon:'➡️',label:'Extração direta',sub:'Sem corte necessário',active:true}],forceps:'Fórceps nº 1',alerta:null},
+  22:{nome:'Incisivo lateral superior',raizes:'1 raiz cônica',raizesSub:'Pode ter curvatura apical',tecnica:'Sem odontosecção',corte:[{icon:'➡️',label:'Extração direta',sub:'Sem corte necessário',active:true}],forceps:'Fórceps nº 1',alerta:'Verificar curvatura apical no RX'},
+  23:{nome:'Canino superior',raizes:'1 raiz longa',raizesSub:'Raiz mais longa da arcada',tecnica:'Sem odontosecção — luxação intensa',corte:[{icon:'➡️',label:'Extração direta',sub:'Luxação prolongada V-L',active:true}],forceps:'Fórceps nº 1',alerta:'Raiz muito longa — risco de fratura do processo alveolar'},
+  24:{nome:'Pré-molar superior',raizes:'1-2 raízes',raizesSub:'Pode ter bifurcação no terço médio',tecnica:'Secção V-L se 2 raízes',corte:[{icon:'✂️',label:'Corte V-L',sub:'Separa raiz V e palatina',active:true},{icon:'➡️',label:'Direto',sub:'Se raiz única no RX',active:false}],forceps:'Fórceps nº 2 por fragmento',alerta:'Confirmar nº de raízes no RX antes'},
+  25:{nome:'Pré-molar superior',raizes:'1-2 raízes',raizesSub:'Pode ter bifurcação no terço médio',tecnica:'Secção V-L se 2 raízes',corte:[{icon:'✂️',label:'Corte V-L',sub:'Separa raiz V e palatina',active:true},{icon:'➡️',label:'Direto',sub:'Se raiz única no RX',active:false}],forceps:'Fórceps nº 2 por fragmento',alerta:'Confirmar nº de raízes no RX antes'},
+  26:{nome:'Molar superior esquerdo',raizes:'3 raízes',raizesSub:'MV, DV e palatina — divergentes',tecnica:'Trisecção: separar MV + DV + palatina',corte:[{icon:'✂️',label:'Corte M-D',sub:'Separa MV da DV',active:true},{icon:'✂️',label:'Corte V-P',sub:'Isola palatina',active:true},{icon:'🔧',label:'3 fragmentos',sub:'Cada raiz separada',active:false}],forceps:'Alavanca + fórceps nº 18 por fragmento',alerta:'3 raízes divergentes — trisecção obrigatória'},
+  27:{nome:'Molar superior esquerdo',raizes:'3 raízes',raizesSub:'MV, DV e palatina — divergentes',tecnica:'Trisecção: separar MV + DV + palatina',corte:[{icon:'✂️',label:'Corte M-D',sub:'Separa MV da DV',active:true},{icon:'✂️',label:'Corte V-P',sub:'Isola palatina',active:true},{icon:'🔧',label:'3 fragmentos',sub:'Cada raiz separada',active:false}],forceps:'Alavanca + fórceps nº 18 por fragmento',alerta:'3 raízes divergentes — trisecção obrigatória'},
+  28:{nome:'Siso superior',raizes:'1-3 raízes fundidas',raizesSub:'Geralmente fundidas — mais simples',tecnica:'Secção coronal se necessário',corte:[{icon:'➡️',label:'Direto',sub:'Frequentemente sem secção',active:true},{icon:'✂️',label:'Corte se necessário',sub:'Raízes divergentes no RX',active:false}],forceps:'Fórceps nº 65 ou 79N',alerta:'Acesso limitado — verificar espaço antes'},
+  31:{nome:'Incisivo inferior',raizes:'1 raiz',raizesSub:'Raiz única achatada M-D',tecnica:'Sem odontosecção',corte:[{icon:'➡️',label:'Extração direta',sub:'Sem corte necessário',active:true}],forceps:'Fórceps nº 16',alerta:null},
+  32:{nome:'Incisivo inferior',raizes:'1 raiz',raizesSub:'Raiz única achatada M-D',tecnica:'Sem odontosecção',corte:[{icon:'➡️',label:'Extração direta',sub:'Sem corte necessário',active:true}],forceps:'Fórceps nº 16',alerta:null},
+  33:{nome:'Canino inferior',raizes:'1 raiz longa',raizesSub:'Raiz longa e cônica',tecnica:'Sem odontosecção — luxação intensa',corte:[{icon:'➡️',label:'Extração direta',sub:'Luxação V-L prolongada',active:true}],forceps:'Fórceps nº 16',alerta:'Raiz longa e cônica — luxar com calma'},
+  34:{nome:'Pré-molar inferior',raizes:'1 raiz',raizesSub:'Raiz única — trajetória variável',tecnica:'Sem odontosecção',corte:[{icon:'➡️',label:'Extração direta',sub:'Sem corte necessário',active:true}],forceps:'Fórceps nº 16',alerta:null},
+  35:{nome:'Pré-molar inferior',raizes:'1 raiz',raizesSub:'Raiz única — trajetória variável',tecnica:'Sem odontosecção',corte:[{icon:'➡️',label:'Extração direta',sub:'Sem corte necessário',active:true}],forceps:'Fórceps nº 16',alerta:null},
+  36:{nome:'Molar inferior',raizes:'2 raízes',raizesSub:'Mesial e distal — divergentes',tecnica:'Bissecção M-D na furca',corte:[{icon:'✂️',label:'Corte M-D',sub:'Corta na furca',active:true},{icon:'🔧',label:'2 fragmentos',sub:'Mesial e distal separados',active:false}],forceps:'Cowhorn nº 22 ou alavanca por fragmento',alerta:'Raízes divergentes — bissecção reduz risco de fratura mandibular'},
+  37:{nome:'Molar inferior',raizes:'2 raízes',raizesSub:'Mesial e distal — divergentes',tecnica:'Bissecção M-D na furca',corte:[{icon:'✂️',label:'Corte M-D',sub:'Corta na furca',active:true},{icon:'🔧',label:'2 fragmentos',sub:'Mesial e distal separados',active:false}],forceps:'Cowhorn nº 22 ou alavanca por fragmento',alerta:'Raízes divergentes — bissecção reduz risco de fratura mandibular'},
+  38:{nome:'Siso inferior',raizes:'2-3 raízes variáveis',raizesSub:'Anatomia imprevisível — avaliar RX',tecnica:'Depende da posição e angulação',corte:[{icon:'📐',label:'Vertical',sub:'Corte M-D',active:true},{icon:'📐',label:'Mesioangular',sub:'Corte da coroa primeiro',active:false},{icon:'📐',label:'Horizontal',sub:'Corte em L',active:false}],forceps:'Alavanca Potts — evitar fórceps',alerta:'Tomografia recomendada — próximo ao nervo alveolar inferior'},
+  41:{nome:'Incisivo inferior',raizes:'1 raiz',raizesSub:'Raiz única achatada M-D',tecnica:'Sem odontosecção',corte:[{icon:'➡️',label:'Extração direta',sub:'Sem corte necessário',active:true}],forceps:'Fórceps nº 16',alerta:null},
+  42:{nome:'Incisivo inferior',raizes:'1 raiz',raizesSub:'Raiz única achatada M-D',tecnica:'Sem odontosecção',corte:[{icon:'➡️',label:'Extração direta',sub:'Sem corte necessário',active:true}],forceps:'Fórceps nº 16',alerta:null},
+  43:{nome:'Canino inferior',raizes:'1 raiz longa',raizesSub:'Raiz longa e cônica',tecnica:'Sem odontosecção — luxação intensa',corte:[{icon:'➡️',label:'Extração direta',sub:'Luxação V-L prolongada',active:true}],forceps:'Fórceps nº 16',alerta:'Raiz longa e cônica — luxar com calma'},
+  44:{nome:'Pré-molar inferior',raizes:'1 raiz',raizesSub:'Raiz única — trajetória variável',tecnica:'Sem odontosecção',corte:[{icon:'➡️',label:'Extração direta',sub:'Sem corte necessário',active:true}],forceps:'Fórceps nº 16',alerta:null},
+  45:{nome:'Pré-molar inferior',raizes:'1 raiz',raizesSub:'Raiz única — trajetória variável',tecnica:'Sem odontosecção',corte:[{icon:'➡️',label:'Extração direta',sub:'Sem corte necessário',active:true}],forceps:'Fórceps nº 16',alerta:null},
+  46:{nome:'Molar inferior',raizes:'2 raízes',raizesSub:'Mesial e distal — divergentes',tecnica:'Bissecção M-D na furca',corte:[{icon:'✂️',label:'Corte M-D',sub:'Corta na furca',active:true},{icon:'🔧',label:'2 fragmentos',sub:'Mesial e distal separados',active:false}],forceps:'Cowhorn nº 22 ou alavanca por fragmento',alerta:'Raízes divergentes — bissecção reduz risco de fratura mandibular'},
+  47:{nome:'Molar inferior',raizes:'2 raízes',raizesSub:'Mesial e distal — divergentes',tecnica:'Bissecção M-D na furca',corte:[{icon:'✂️',label:'Corte M-D',sub:'Corta na furca',active:true},{icon:'🔧',label:'2 fragmentos',sub:'Mesial e distal separados',active:false}],forceps:'Cowhorn nº 22 ou alavanca por fragmento',alerta:'Raízes divergentes — bissecção reduz risco de fratura mandibular'},
+  48:{nome:'Siso inferior',raizes:'2-3 raízes variáveis',raizesSub:'Anatomia imprevisível — avaliar RX',tecnica:'Depende da posição e angulação',corte:[{icon:'📐',label:'Vertical',sub:'Corte M-D',active:true},{icon:'📐',label:'Mesioangular',sub:'Corte da coroa primeiro',active:false},{icon:'📐',label:'Horizontal',sub:'Corte em L',active:false}],forceps:'Alavanca Potts — evitar fórceps',alerta:'Tomografia recomendada — próximo ao nervo alveolar inferior'},
+};
+
+function renderForcepsWidget(inputId, confirmId, resultId, alertId, passo6Id){
+  var val = document.getElementById(inputId).value.replace(/[^0-9]/g,'');
+  var n = parseInt(val);
+  var confirm = document.getElementById(confirmId);
+  var result = document.getElementById(resultId);
+  var p6 = document.getElementById(passo6Id);
+
+  if(!n || n < 11 || n > 48){
+    confirm.classList.remove('show');
+    result.classList.remove('show');
+    if(p6){ p6.className='step-txt'; p6.textContent='Selecione o dente acima para ver o fórceps indicado'; }
+    return;
+  }
+  var f = FORCEPS_DB[n];
+  if(!f){ confirm.classList.remove('show'); result.classList.remove('show'); return; }
+
+  document.getElementById(confirmId+'-txt').textContent = 'Dente ' + n + ' — ' + f.nome;
+  confirm.classList.add('show');
+  result.innerHTML =
+    '<div class="fw-sec"><div class="fw-sec-label">Fórceps indicado</div><div class="fw-sec-value">' + f.forceps + '</div><div class="fw-sec-sub">' + f.tipo + '</div><span class="fw-tecnica-tag">' + f.tecnica + '</span></div>' +
+    (f.alerta ? '<div class="fw-widget-alert show">⚠️ ' + f.alerta + '</div>' : '');
+  result.classList.add('show');
+
+  if(p6){ p6.className='step-txt'; p6.style.color='#1D4ED8'; p6.style.fontWeight='700'; p6.textContent='🎯 Usar ' + f.forceps + ' — ' + f.tecnica; }
+}
+
+function renderOdontoWidget(inputId, confirmId, resultId, passo7Id){
+  var val = document.getElementById(inputId).value.replace(/[^0-9]/g,'');
+  var n = parseInt(val);
+  var confirm = document.getElementById(confirmId);
+  var result = document.getElementById(resultId);
+  var p7 = document.getElementById(passo7Id);
+
+  if(!n || n < 11 || n > 48){
+    confirm.classList.remove('show');
+    result.classList.remove('show');
+    if(p7){ p7.className='step-txt'; p7.textContent='Digite o número do dente para ver a odontosecção'; }
+    return;
+  }
+  var f = ODONTO_DB[n];
+  if(!f){ confirm.classList.remove('show'); result.classList.remove('show'); return; }
+
+  document.getElementById(confirmId+'-txt').textContent = 'Dente ' + n + ' — ' + f.nome;
+  confirm.classList.add('show');
+
+  var cortesHtml = f.corte.map(function(c){
+    return '<div class="fw-corte-card' + (c.active?' active':'') + '"><div class="fw-corte-icon">' + c.icon + '</div><div class="fw-corte-label">' + c.label + '</div><div class="fw-corte-sub">' + c.sub + '</div></div>';
+  }).join('');
+
+  result.innerHTML =
+    '<div class="fw-sec"><div class="fw-sec-label">Anatomia radicular</div><div class="fw-sec-value">' + f.raizes + '</div><div class="fw-sec-sub">' + f.raizesSub + '</div></div>' +
+    '<div class="fw-sec"><div class="fw-sec-label">Técnica de odontosecção</div><div class="fw-sec-value">' + f.tecnica + '</div><div class="fw-corte-visual">' + cortesHtml + '</div></div>' +
+    '<div class="fw-sec"><div class="fw-sec-label">Fórceps após secção</div><div class="fw-sec-value">' + f.forceps + '</div></div>' +
+    (f.alerta ? '<div class="fw-widget-alert show">⚠️ ' + f.alerta + '</div>' : '');
+  result.classList.add('show');
+
+  if(p7){ p7.className='step-txt'; p7.style.color='#1D4ED8'; p7.style.fontWeight='700'; p7.textContent='✂️ ' + f.tecnica; }
 }
 
 // ==================== RENDERIZAÇÃO ====================
@@ -1175,22 +1281,49 @@ function renderProtocol(id){
   const li={fácil:"🟢",médio:"🟡",difícil:"🔴",urgente:"🚨"}[p.level]||"";
   const body=document.getElementById("protocol-body");
   if(!body)return;
+  // Monta breadcrumb da categoria e situação
+  const catData = DATA.categories.find(c=>c.id===selCat);
+  const sitData = selCat && DATA.situations[selCat] ? DATA.situations[selCat].find(s=>s.id===selSit) : null;
+  const breadcrumb = [catData?catData.label:'', sitData?sitData.label:''].filter(Boolean).join(' › ');
+
   body.innerHTML=`
-    <div class="clinical-note">⚕️ Este protocolo é um guia de apoio clínico. Adapte conforme a condição do paciente. A responsabilidade pela decisão clínica é exclusivamente do profissional habilitado.</div>
-    <div class="proto-hdr">
-      <div style="flex:1">
-        <div class="proto-title">${p.title}</div>
-        <div class="meta-row">
-          <span class="badge">⏱ ${p.time}</span>
-          <span class="badge" style="background:${lc}22;color:${lc}">${li} ${p.level}</span>
-          ${!p.free?'<span class="prem-tag">👑 Premium</span>':''}
+    <div class="proto-hdr-new">
+      <div class="proto-hdr-top">
+        <button class="proto-hdr-back" onclick="goBackToLastScreen()">←</button>
+        <div class="proto-hdr-info">
+          ${breadcrumb?`<div class="proto-hdr-cat">${breadcrumb}</div>`:''}
+          <div class="proto-hdr-title">${p.title}</div>
+          <div class="proto-hdr-badges">
+            <span class="proto-hdr-badge">⏱ ${p.time}</span>
+            <span class="proto-hdr-badge">${li} ${p.level}</span>
+            ${!p.free?'<span class="prem-tag">👑 Premium</span>':''}
+            <button class="proto-hdr-fav ${isFav?'active':''}" id="fav-btn-proto" onclick="toggleFav('${id}')" style="margin-left:auto">${isFav?'★':'☆'}</button>
+          </div>
         </div>
       </div>
-      <button class="fav-btn ${isFav?'active':''}" id="fav-btn-proto" onclick="toggleFav('${id}')">${isFav?'★':'☆'}</button>
     </div>
+    <div class="clinical-note">⚕️ Este protocolo é um guia de apoio clínico. Adapte conforme a condição do paciente. A responsabilidade pela decisão clínica é exclusivamente do profissional habilitado.</div>
+    ${id==='extracao-simples'?`
+    <div class="fw-widget">
+      <div class="fw-widget-label">🎯 Fórceps Dinâmico</div>
+      <input class="fw-widget-input" id="fw-es-input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="Digite o nº do dente" oninput="renderForcepsWidget('fw-es-input','fw-es-confirm','fw-es-result','fw-es-alert','fw-es-p6')">
+      <div class="fw-confirm" id="fw-es-confirm"><span>🦷</span><span class="fw-confirm-txt" id="fw-es-confirm-txt"></span><span class="fw-confirm-ok">✓</span></div>
+      <div class="fw-result" id="fw-es-result"></div>
+    </div>`:''}
+    ${id==='extracao-cirurgica'?`
+    <div class="fw-widget">
+      <div class="fw-widget-label">✂️ Odontosecção Dinâmica</div>
+      <input class="fw-widget-input" id="fw-ec-input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="Digite o nº do dente" oninput="renderOdontoWidget('fw-ec-input','fw-ec-confirm','fw-ec-result','fw-ec-p7')">
+      <div class="fw-confirm" id="fw-ec-confirm"><span>🦷</span><span class="fw-confirm-txt" id="fw-ec-confirm-txt"></span><span class="fw-confirm-ok">✓</span></div>
+      <div class="fw-result" id="fw-ec-result"></div>
+    </div>`:''}
     <div class="sec">
       <div class="sec-title">📋 Passo a Passo</div>
-      ${(p.steps||[]).map((s,i)=>`<div class="step-row"><div class="step-num">${i+1}</div><div class="step-txt">${s}</div></div>`).join("")}
+      ${(p.steps||[]).map((s,i)=>{
+        if(id==='extracao-simples' && i===5) return '<div class="step-row"><div class="step-num">'+(i+1)+'</div><div class="step-txt" id="fw-es-p6">'+s+'</div></div>';
+        if(id==='extracao-cirurgica' && i===6) return '<div class="step-row"><div class="step-num">'+(i+1)+'</div><div class="step-txt" id="fw-ec-p7">'+s+'</div></div>';
+        return '<div class="step-row"><div class="step-num">'+(i+1)+'</div><div class="step-txt">'+s+'</div></div>';
+      }).join("")}
     </div>
     <div class="sec">
       <div class="sec-title">⚠️ Erros que Ferram</div>
@@ -1224,7 +1357,7 @@ function toggleFav(id){
   if(btn){
     const nowFav = FAVS.includes(id);
     btn.textContent = nowFav ? '★' : '☆';
-    btn.className = nowFav ? 'fav-btn active' : 'fav-btn';
+    btn.className = nowFav ? 'proto-hdr-fav active' : 'proto-hdr-fav';
   }
 }
 
@@ -1368,6 +1501,7 @@ function showAppScreen(){
   requestAnimationFrame(()=>{
     requestAnimationFrame(()=>{
       if(DATA && typeof renderHome === "function") renderHome();
+      atualizarSaudacao();
     });
   });
 }
@@ -1453,6 +1587,9 @@ async function doRegister(){
         criadoEm:new Date().toISOString()
       });
     }catch(e){console.log('Firestore indisponível',e);}
+    // Salva perfil e tratamento no localStorage
+    localStorage.setItem('guiaPerfil', selectedPerfil);
+    if(selectedPerfil==='dentista') localStorage.setItem('guiaTratamento', selectedTratamento);
     currentUser=res.user;
     const em=document.getElementById('user-email-display');if(em)em.textContent=currentUser.email;
     hideLoading();
@@ -1490,370 +1627,10 @@ async function logout(){
   showToast("Logout realizado","success");
   showLoginScreen();
 }
-// ==================== ADMIN ACESSO ====================
-function initAdminAccess(){
-  const logo=document.getElementById("logo-tap");
-  if(!logo)return;
-  let count=0,timer=null;
-  const hint=document.createElement("div");
-  hint.className="tap-hint";
-  hint.style.display="none";
-  logo.parentElement?.appendChild(hint);
-  logo.addEventListener("click",()=>{
-    count++;
-    hint.style.display="block";
-    hint.textContent=`${count}/5 🔓`;
-    clearTimeout(timer);
-    if(count>=5){
-      count=0;hint.style.display="none";
-      showOverlay("pwd-overlay");
-      setTimeout(()=>document.getElementById("pwd-input")?.focus(),100);
-    } else {
-      timer=setTimeout(()=>{count=0;hint.style.display="none";},2000);
-    }
-  });
-}
-
-async function checkPwd(){
-  const val=document.getElementById("pwd-input")?.value;
-  if(!val)return;
-  const buf=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(val));
-  const hash=Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,"0")).join("");
-  if(hash===ADMIN_HASH){
-    hideOverlay("pwd-overlay");
-    document.getElementById("pwd-input").value="";
-    openAdmin();
-  } else {
-    const inp=document.getElementById("pwd-input");
-    const err=document.getElementById("pwd-error");
-    if(inp)inp.classList.add("error");
-    if(err)err.style.display="block";
-    if(inp)inp.value="";
-    setTimeout(()=>{if(inp)inp.classList.remove("error");if(err)err.style.display="none";},2000);
-  }
-}
-
-function hidePwdModal(){
-  hideOverlay("pwd-overlay");
-  const inp=document.getElementById("pwd-input");if(inp)inp.value="";
-  const err=document.getElementById("pwd-error");if(err)err.style.display="none";
-}
-
-// ==================== ADMIN COMPLETO ====================
-function openAdmin(){
-  admNav={level:"categories",catId:null,sitId:null,procId:null};
-  admEditing=null;
-  document.getElementById("adm-sub").textContent=`${Object.keys(DATA.protocols).length} protocolos · ${DATA.categories.length} categorias`;
-  showOverlay("adm-overlay");
-  renderAdminBreadcrumb();
-  renderAdminContent();
-}
-function closeAdmin(){hideOverlay("adm-overlay");admEditing=null;}
-function resetData(){if(confirm("Resetar para o padrão? Todas as edições serão perdidas.")){DATA=JSON.parse(JSON.stringify(INITIAL_DATA));saveData();showToast("Dados resetados!","success");renderHome();closeAdmin();}}
-
-function renderAdminBreadcrumb(){
-  const bc=document.getElementById("adm-breadcrumb");
-  if(!bc)return;
-  bc.innerHTML='';
-  const root=document.createElement("button");root.className="adm-back-btn";root.textContent="📁 Categorias";
-  root.onclick=()=>navigateAdmin("categories",null,null,null);bc.appendChild(root);
-  if(admNav.catId){
-    const cat=DATA.categories.find(c=>c.id===admNav.catId);
-    bc.innerHTML+=`<span style="color:#94A3B8">›</span>`;
-    const sb=document.createElement("button");sb.className="adm-back-btn";sb.textContent=`📋 ${cat?.label||"Situações"}`;
-    sb.onclick=()=>navigateAdmin("situations",admNav.catId,null,null);bc.appendChild(sb);
-  }
-  if(admNav.sitId){
-    bc.innerHTML+=`<span style="color:#94A3B8">›</span>`;
-    const sb=document.createElement("button");sb.className="adm-back-btn";sb.textContent="🔧 Procedimentos";
-    sb.onclick=()=>navigateAdmin("procedures",admNav.catId,admNav.sitId,null);bc.appendChild(sb);
-  }
-  if(admNav.procId){
-    bc.innerHTML+=`<span style="color:#94A3B8">›</span>`;
-    const proc=DATA.procedures[admNav.sitId]?.find(p=>p.id===admNav.procId);
-    const sp=document.createElement("span");sp.style.cssText="font-weight:700;color:#2563EB";sp.textContent=`📄 ${proc?.label||"Protocolo"}`;
-    bc.appendChild(sp);
-  }
-}
-
-function navigateAdmin(level,catId,sitId,procId){
-  admNav={level,catId,sitId,procId};admEditing=null;
-  renderAdminBreadcrumb();renderAdminContent();
-}
-
-function renderAdminContent(){
-  const body=document.getElementById("adm-body");if(!body)return;
-  body.innerHTML="";
-  if(admEditing){renderProtoEditor(body);}
-  else if(admNav.level==="categories"){renderAdminCategories(body);}
-  else if(admNav.level==="situations"){renderAdminSituations(body);}
-  else if(admNav.level==="procedures"){renderAdminProcedures(body);}
-  // Backup buttons
-  const bkDiv=document.createElement("div");
-  bkDiv.style.cssText="margin-top:16px;padding-top:12px;border-top:1px solid #E2E8F0;display:flex;gap:8px";
-  bkDiv.innerHTML=`<button class="adm-edit-btn" style="flex:1" onclick="exportBackup()">📤 Exportar Backup</button><label class="adm-edit-btn" style="flex:1;text-align:center;cursor:pointer">📥 Importar Backup<input type="file" accept=".json" style="display:none" onchange="importBackup(this.files[0])"></label>`;
-  body.appendChild(bkDiv);
-}
-
-
-function renderAdminCategories(body){
-  const addBtn=document.createElement("button");addBtn.className="adm-add-btn";addBtn.textContent="+ Nova Categoria";
-  addBtn.onclick=()=>{
-    const label=prompt("Nome da categoria:");if(!label)return;
-    const icon=prompt("Emoji (ex: 🦷):","📁")||"📁";
-    const id="cat-"+uid();
-    DATA.categories.push({id,label:label.trim(),icon});
-    DATA.situations[id]=[];saveData();showToast("Categoria criada!","success");renderAdminContent();
-  };
-  body.appendChild(addBtn);
-  DATA.categories.forEach((cat,idx)=>{
-    const row=document.createElement("div");row.className="adm-row clickable";
-    row.onclick=()=>navigateAdmin("situations",cat.id,null,null);
-    row.innerHTML=`<span style="font-size:26px">${cat.icon}</span><div style="flex:1;margin-left:8px"><div class="adm-row-title">${cat.label}</div><div class="adm-row-sub">${(DATA.situations[cat.id]||[]).length} situações</div></div>`;
-    const acts=document.createElement("div");acts.style.cssText="display:flex;gap:5px";
-    const eb=document.createElement("button");eb.className="adm-edit-btn";eb.textContent="✏️";
-    eb.onclick=(e)=>{e.stopPropagation();const nl=prompt("Novo nome:",cat.label);if(nl&&nl.trim()){DATA.categories[idx].label=nl.trim();saveData();showToast("Salvo!","success");renderAdminContent();}};
-    const db=document.createElement("button");db.className="adm-del-btn";db.textContent="✕";
-    db.onclick=(e)=>{e.stopPropagation();showConfirm("category",cat.id,cat.label);};
-    acts.appendChild(eb);acts.appendChild(db);row.appendChild(acts);body.appendChild(row);
-  });
-}
-
-function renderAdminSituations(body){
-  const cat=DATA.categories.find(c=>c.id===admNav.catId);
-  if(!cat){body.innerHTML='<p class="empty-msg">Categoria não encontrada</p>';return;}
-  body.innerHTML=`<div style="margin-bottom:8px;font-weight:700">${cat.icon} ${cat.label}</div>`;
-  const addBtn=document.createElement("button");addBtn.className="adm-add-btn";addBtn.textContent="+ Nova Situação";
-  addBtn.onclick=()=>{
-    const label=prompt("Nome da situação:");if(!label)return;
-    if(!DATA.situations[admNav.catId])DATA.situations[admNav.catId]=[];
-    DATA.situations[admNav.catId].push({id:"sit-"+uid(),label:label.trim()});
-    saveData();showToast("Situação adicionada!","success");renderAdminContent();
-  };
-  body.appendChild(addBtn);
-  const sits=DATA.situations[admNav.catId]||[];
-  sits.forEach((sit,idx)=>{
-    const row=document.createElement("div");row.className="adm-row clickable";
-    row.onclick=()=>navigateAdmin("procedures",admNav.catId,sit.id,null);
-    row.innerHTML=`<span style="font-size:18px">📋</span><div style="flex:1"><div class="adm-row-title">${sit.label}</div><div class="adm-row-sub">${(DATA.procedures[sit.id]||[]).length} procedimentos</div></div>`;
-    const acts=document.createElement("div");acts.style.cssText="display:flex;gap:5px";
-    const eb=document.createElement("button");eb.className="adm-edit-btn";eb.textContent="✏️";
-    eb.onclick=(e)=>{e.stopPropagation();const nl=prompt("Novo nome:",sit.label);if(nl&&nl.trim()){DATA.situations[admNav.catId][idx].label=nl.trim();saveData();showToast("Salvo!","success");renderAdminContent();}};
-    const db=document.createElement("button");db.className="adm-del-btn";db.textContent="✕";
-    db.onclick=(e)=>{e.stopPropagation();showConfirm("situation",sit.id,sit.label);};
-    acts.appendChild(eb);acts.appendChild(db);row.appendChild(acts);body.appendChild(row);
-  });
-}
-
-function renderAdminProcedures(body){
-  const cat=DATA.categories.find(c=>c.id===admNav.catId);
-  const sit=DATA.situations[admNav.catId]?.find(s=>s.id===admNav.sitId);
-  if(!cat||!sit){body.innerHTML='<p class="empty-msg">Não encontrado</p>';return;}
-  body.innerHTML=`<div style="margin-bottom:8px;font-weight:700">${cat.icon} ${cat.label} › ${sit.label}</div>`;
-  const addBtn=document.createElement("button");addBtn.className="adm-add-btn";addBtn.textContent="+ Novo Procedimento";
-  addBtn.onclick=()=>{
-    const label=prompt("Nome do procedimento:");if(!label)return;
-    const free=confirm("É gratuito? (OK = Grátis, Cancelar = Premium)");
-    const id="proc-"+uid();
-    if(!DATA.procedures[admNav.sitId])DATA.procedures[admNav.sitId]=[];
-    DATA.procedures[admNav.sitId].push({id,label:label.trim(),free});
-    DATA.protocols[id]={title:label.trim(),time:"30 min",level:"fácil",free,steps:["Passo 1"],errors:["Erro 1"],decisions:[{if:"Se X",then:"Faça Y"}],panic:[{problem:"Problema",solution:"Solução"}],crises:[]};
-    saveData();showToast("Procedimento criado!","success");renderAdminContent();
-  };
-  body.appendChild(addBtn);
-  const procs=DATA.procedures[admNav.sitId]||[];
-  procs.forEach((proc,idx)=>{
-    const p=DATA.protocols[proc.id];
-    const row=document.createElement("div");row.className="adm-row";
-    row.innerHTML=`<div style="flex:1"><div class="adm-row-title">${proc.label}</div><div class="adm-row-sub">${proc.free?"✅ Grátis":"👑 Premium"} ${p?`· ${p.time} · ${p.level}`:""}</div></div>`;
-    const acts=document.createElement("div");acts.style.cssText="display:flex;gap:5px;flex-shrink:0";
-    const eb=document.createElement("button");eb.className="adm-edit-btn";eb.textContent="✏️ Editar";
-    eb.onclick=()=>{
-      admEditing={id:proc.id,proto:p?JSON.parse(JSON.stringify(p)):{title:proc.label,time:"30 min",level:"fácil",free:proc.free,steps:[],errors:[],decisions:[],panic:[],crises:[]}};
-      admNav.procId=proc.id;renderAdminBreadcrumb();renderAdminContent();
-    };
-    const tb=document.createElement("button");tb.className="adm-edit-btn";tb.style.cssText="background:#F0FDF4;color:#059669;border-color:#BBF7D0";
-    tb.textContent=proc.free?"→👑":"→✅";
-    tb.onclick=()=>{DATA.procedures[admNav.sitId][idx].free=!proc.free;if(DATA.protocols[proc.id])DATA.protocols[proc.id].free=!proc.free;saveData();showToast("Atualizado!","success");renderAdminContent();};
-    const db=document.createElement("button");db.className="adm-del-btn";db.textContent="✕";
-    db.onclick=()=>showConfirm("procedure",proc.id,proc.label);
-    acts.appendChild(eb);acts.appendChild(tb);acts.appendChild(db);row.appendChild(acts);body.appendChild(row);
-  });
-}
-
-function renderProtoEditor(body){
-  const e=admEditing;const p=e.proto;
-  body.innerHTML=`
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid #E2E8F0">
-      <div style="font-size:15px;font-weight:800;color:#0F172A">Editar: ${p.title}</div>
-      <div style="font-size:10px;color:#94A3B8">ID: ${e.id}</div>
-    </div>
-    <div class="adm-field"><label class="adm-lbl">Título</label><input class="adm-inp" id="f-title" value="${esc(p.title)}"></div>
-    <div class="adm-flex">
-      <div class="adm-field" style="flex:1"><label class="adm-lbl">Tempo</label><input class="adm-inp" id="f-time" value="${esc(p.time)}"></div>
-      <div class="adm-field" style="flex:1"><label class="adm-lbl">Nível</label>
-        <select class="adm-inp" id="f-level">
-          <option value="fácil" ${p.level==="fácil"?"selected":""}>🟢 Fácil</option>
-          <option value="médio" ${p.level==="médio"?"selected":""}>🟡 Médio</option>
-          <option value="difícil" ${p.level==="difícil"?"selected":""}>🔴 Difícil</option>
-          <option value="urgente" ${p.level==="urgente"?"selected":""}>🚨 Urgente</option>
-        </select>
-      </div>
-      <div class="adm-field" style="flex:1"><label class="adm-lbl">Acesso</label>
-        <select class="adm-inp" id="f-free">
-          <option value="true" ${p.free?"selected":""}>✅ Grátis</option>
-          <option value="false" ${!p.free?"selected":""}>👑 Premium</option>
-        </select>
-      </div>
-    </div>
-    <div id="f-steps-sec"></div>
-    <div id="f-errors-sec"></div>
-    <div id="f-decisions-sec"></div>
-    <div id="f-panic-sec"></div>
-    <div class="adm-btn-row">
-      <button class="adm-cancel-btn" onclick="admEditing=null;admNav.procId=null;renderAdminBreadcrumb();renderAdminContent()">Cancelar</button>
-      <button class="adm-save-btn" onclick="saveProtoAdmin()">💾 Salvar Protocolo</button>
-    </div>
-    <div style="height:20px"></div>
-  `;
-  renderListSecAdmin("f-steps-sec","📋 Passo a Passo","steps","Novo passo");
-  renderListSecAdmin("f-errors-sec","⚠️ Erros que Ferram","errors","Novo erro");
-  renderDecisionsSecAdmin();
-  renderPanicSecAdmin();
-}
-
-function esc(s){return String(s||"").replace(/"/g,"&quot;").replace(/</g,"&lt;").replace(/>/g,"&gt;");}
-
-function renderListSecAdmin(containerId,label,key,emptyVal){
-  const sec=document.getElementById(containerId);if(!sec)return;
-  const p=admEditing.proto;
-  sec.innerHTML=`<div class="adm-sec"><div class="adm-sec-lbl">${label}</div><div id="${containerId}-items"></div><button class="adm-add-small" onclick="addListItemAdmin('${key}','${emptyVal}')">+ Adicionar</button></div>`;
-  const c=document.getElementById(containerId+"-items");
-  if(c){
-    (p[key]||[]).forEach((item,i)=>{
-      const row=document.createElement("div");row.className="adm-item-row";
-      const inp=document.createElement("input");inp.className="adm-inp";inp.style.flex="1";inp.value=item;
-      inp.oninput=ev=>{admEditing.proto[key][i]=ev.target.value;};
-      const rm=document.createElement("button");rm.className="adm-rm-btn";rm.textContent="✕";
-      rm.onclick=()=>{admEditing.proto[key].splice(i,1);renderListSecAdmin(containerId,label,key,emptyVal);};
-      row.appendChild(inp);row.appendChild(rm);c.appendChild(row);
-    });
-  }
-}
-function addListItemAdmin(key,val){if(!admEditing.proto[key])admEditing.proto[key]=[];admEditing.proto[key].push(val);renderAdminContent();}
-
-function renderDecisionsSecAdmin(){
-  const sec=document.getElementById("f-decisions-sec");if(!sec)return;
-  const p=admEditing.proto;
-  sec.innerHTML=`<div class="adm-sec"><div class="adm-sec-lbl">🔀 Decisão Rápida</div><div id="f-dec-items"></div><button class="adm-add-small" onclick="addDecisionAdmin()">+ Adicionar</button></div>`;
-  const c=document.getElementById("f-dec-items");
-  if(c){(p.decisions||[]).forEach((d,i)=>{
-    const row=document.createElement("div");row.className="adm-item-row";
-    const i1=document.createElement("input");i1.className="adm-inp";i1.style.flex="1";i1.placeholder="Se...";i1.value=d.if;
-    i1.oninput=ev=>{admEditing.proto.decisions[i].if=ev.target.value;};
-    const i2=document.createElement("input");i2.className="adm-inp";i2.style.flex="1";i2.placeholder="→ Faça...";i2.value=d.then||"";
-    i2.oninput=ev=>{admEditing.proto.decisions[i].then=ev.target.value;};
-    const rm=document.createElement("button");rm.className="adm-rm-btn";rm.textContent="✕";
-    rm.onclick=()=>{admEditing.proto.decisions.splice(i,1);renderAdminContent();};
-    row.appendChild(i1);row.appendChild(i2);row.appendChild(rm);c.appendChild(row);
-  });}
-}
-function addDecisionAdmin(){if(!admEditing.proto.decisions)admEditing.proto.decisions=[];admEditing.proto.decisions.push({if:"",then:""});renderAdminContent();}
-
-function renderPanicSecAdmin(){
-  const sec=document.getElementById("f-panic-sec");if(!sec)return;
-  const p=admEditing.proto;
-  sec.innerHTML=`<div class="adm-sec"><div class="adm-sec-lbl">🚨 Modo Pânico</div><div id="f-panic-items"></div><button class="adm-add-small" onclick="addPanicAdmin()">+ Adicionar</button></div>`;
-  const c=document.getElementById("f-panic-items");
-  if(c){(p.panic||[]).forEach((d,i)=>{
-    const row=document.createElement("div");row.className="adm-item-row";
-    const i1=document.createElement("input");i1.className="adm-inp";i1.style.flex="1";i1.placeholder="Problema...";i1.value=d.problem;
-    i1.oninput=ev=>{admEditing.proto.panic[i].problem=ev.target.value;};
-    const i2=document.createElement("input");i2.className="adm-inp";i2.style.flex="1";i2.placeholder="Solução...";i2.value=d.solution||"";
-    i2.oninput=ev=>{admEditing.proto.panic[i].solution=ev.target.value;};
-    const rm=document.createElement("button");rm.className="adm-rm-btn";rm.textContent="✕";
-    rm.onclick=()=>{admEditing.proto.panic.splice(i,1);renderAdminContent();};
-    row.appendChild(i1);row.appendChild(i2);row.appendChild(rm);c.appendChild(row);
-  });}
-}
-function addPanicAdmin(){if(!admEditing.proto.panic)admEditing.proto.panic=[];admEditing.proto.panic.push({problem:"",solution:""});renderAdminContent();}
-
-function saveProtoAdmin(){
-  const titulo=document.getElementById("f-title")?.value?.trim();
-  if(!titulo){showToast("Título não pode ficar vazio","error");return;}
-  admEditing.proto.title=titulo;
-  admEditing.proto.time=document.getElementById("f-time")?.value||"30 min";
-  admEditing.proto.level=document.getElementById("f-level")?.value||"fácil";
-  admEditing.proto.free=document.getElementById("f-free")?.value==="true";
-  DATA.protocols[admEditing.id]=admEditing.proto;
-  // Sync label back to procedure entry
-  const proc=DATA.procedures[admNav.sitId]?.find(p=>p.id===admEditing.id);
-  if(proc){proc.label=titulo;proc.free=admEditing.proto.free;}
-  saveData();showToast("Protocolo salvo!","success");
-  document.getElementById("adm-sub").textContent=`${Object.keys(DATA.protocols).length} protocolos · ${DATA.categories.length} categorias`;
-  admEditing=null;admNav.procId=null;renderAdminBreadcrumb();renderAdminContent();
-}
-
-function showConfirm(type,id,name){
-  confirmDelId=id;confirmDelType=type;
-  document.getElementById("confirm-name").textContent=`"${name}"`;
-  document.getElementById("confirm-del-btn").onclick=()=>{
-    if(confirmDelType==="category"){
-      const idx=DATA.categories.findIndex(c=>c.id===confirmDelId);
-      if(idx!==-1){DATA.categories.splice(idx,1);delete DATA.situations[confirmDelId];}
-    } else if(confirmDelType==="situation"){
-      const sits=DATA.situations[admNav.catId];
-      const idx=sits?.findIndex(s=>s.id===confirmDelId);
-      if(idx!==-1){sits.splice(idx,1);delete DATA.procedures[confirmDelId];}
-    } else if(confirmDelType==="procedure"){
-      const procs=DATA.procedures[admNav.sitId];
-      const idx=procs?.findIndex(p=>p.id===confirmDelId);
-      if(idx!==-1){procs.splice(idx,1);delete DATA.protocols[confirmDelId];}
-    }
-    saveData();showToast("Excluído","error");
-    hideConfirm();renderAdminContent();
-    document.getElementById("adm-sub").textContent=`${Object.keys(DATA.protocols).length} protocolos · ${DATA.categories.length} categorias`;
-  };
-  document.getElementById("confirm-overlay").classList.add("active");
-}
-function hideConfirm(){document.getElementById("confirm-overlay").classList.remove("active");confirmDelId=null;confirmDelType=null;}
-
-function exportBackup(){
-  try{
-    const dataStr=JSON.stringify(DATA,null,2);
-    const blob=new Blob([dataStr],{type:"application/json"});
-    const url=URL.createObjectURL(blob);
-    const a=document.createElement("a");a.href=url;a.download=`guia-odonto-backup-${new Date().toISOString().slice(0,10)}.json`;a.click();URL.revokeObjectURL(url);
-    showToast("Backup exportado!","success");
-  }catch{showToast("Erro ao exportar","error");}
-}
-function importBackup(file){
-  if(!file)return;
-  const reader=new FileReader();
-  reader.onload=e=>{
-    try{
-      const imported=JSON.parse(e.target.result);
-      if(imported.categories && imported.protocols && imported.situations){
-        DATA = imported;
-        saveData();
-        showToast("Backup importado com sucesso!","success");
-        closeAdmin();
-        renderHome();
-      } else {
-        showToast("Arquivo inválido","error");
-      }
-    } catch(e) {
-      showToast("Erro ao ler arquivo","error");
-    }
-  };
-  reader.readAsText(file);
-}
-
 // ==================== INICIALIZAÇÃO ====================
 document.addEventListener("DOMContentLoaded", () => {
   initData();
   initDarkMode();
-  initAdminAccess();
 
   auth.onAuthStateChanged(async(user) => {
     if(user) {
