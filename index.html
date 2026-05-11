@@ -325,6 +325,78 @@ body.dark .login-logo h1{color:#F1F5F9;}
 .success-message{color:#059669;font-size:13px;margin-top:8px;display:none;}
 .divider{text-align:center;margin:18px 0;color:#94A3B8;font-size:12px;}
 
+.sos-locked{position:relative;opacity:0.72;}
+.sos-crown{position:absolute;top:5px;right:5px;font-size:10px;line-height:1;}
+.cat-locked{opacity:0.7;position:relative;}
+
+/* ══════════════ PREMIUM MODAL ══════════════ */
+#premium-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.72);display:none;align-items:flex-end;justify-content:center;z-index:200;}
+#premium-overlay.active{display:flex;}
+.prem-modal{background:#0F0A1A;width:100%;max-width:430px;border-radius:28px 28px 0 0;overflow-y:auto;overflow-x:hidden;max-height:92vh;scrollbar-width:none;-webkit-overflow-scrolling:touch;}
+.prem-modal::-webkit-scrollbar{display:none;}
+
+/* Hero */
+.prem-hero{background:linear-gradient(160deg,#1A0533 0%,#3D1260 45%,#6B2FA0 100%);padding:20px 20px 28px;position:relative;overflow:hidden;text-align:center;}
+.prem-hero-orb{position:absolute;border-radius:50%;pointer-events:none;}
+.prem-orb1{width:200px;height:200px;background:radial-gradient(circle,rgba(167,112,255,0.25) 0%,transparent 70%);top:-60px;right:-60px;}
+.prem-orb2{width:150px;height:150px;background:radial-gradient(circle,rgba(251,191,36,0.15) 0%,transparent 70%);bottom:-40px;left:-30px;}
+.prem-orb3{width:120px;height:120px;background:radial-gradient(circle,rgba(236,72,153,0.12) 0%,transparent 70%);top:40px;left:-20px;}
+.prem-close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.6);font-size:14px;width:30px;height:30px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;}
+.prem-badge-top{display:inline-block;background:rgba(251,191,36,0.2);border:1px solid rgba(251,191,36,0.4);color:#FCD34D;font-size:10px;font-weight:800;letter-spacing:2px;padding:4px 12px;border-radius:30px;margin-bottom:14px;}
+.prem-crown{font-size:52px;line-height:1;margin-bottom:12px;filter:drop-shadow(0 0 20px rgba(251,191,36,0.5));}
+.prem-hero-title{font-size:24px;font-weight:900;color:#fff;line-height:1.25;letter-spacing:-0.5px;margin-bottom:8px;}
+.prem-hero-sub{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.5;font-weight:400;}
+
+/* Prova social */
+.prem-social{display:flex;align-items:center;gap:10px;padding:14px 20px;background:#150D24;border-bottom:1px solid rgba(255,255,255,0.06);}
+.prem-social-avatars{display:flex;}
+.prem-social-avatars span{font-size:20px;margin-left:-4px;filter:drop-shadow(0 1px 2px rgba(0,0,0,0.4));}
+.prem-social-avatars span:first-child{margin-left:0;}
+.prem-social-txt{font-size:12px;color:rgba(255,255,255,0.55);font-weight:500;flex:1;}
+
+/* Seções */
+.prem-section-label{font-size:10px;font-weight:800;color:rgba(255,255,255,0.3);letter-spacing:2px;padding:18px 20px 10px;}
+
+/* Grid de bloqueados */
+.prem-locked-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 20px;}
+.prem-locked-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:12px 10px;text-align:center;position:relative;overflow:hidden;}
+.prem-locked-card::before{content:'🔒';position:absolute;top:5px;right:7px;font-size:10px;opacity:0.5;}
+.prem-locked-icon{font-size:22px;margin-bottom:6px;}
+.prem-locked-name{font-size:11px;font-weight:700;color:rgba(255,255,255,0.8);line-height:1.3;margin-bottom:3px;}
+.prem-locked-count{font-size:10px;color:rgba(255,255,255,0.35);font-weight:500;}
+
+/* Benefícios */
+.prem-benefits{display:flex;flex-direction:column;gap:0;padding:0 20px;}
+.prem-benefit{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
+.prem-benefit:last-child{border-bottom:none;}
+.prem-benefit-icon{font-size:22px;flex-shrink:0;width:34px;height:34px;background:rgba(124,63,160,0.25);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.prem-benefit-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;}
+.prem-benefit-sub{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5;}
+
+/* Preço */
+.prem-price-wrap{padding:18px 20px 0;}
+.prem-price-inner{background:linear-gradient(135deg,rgba(251,191,36,0.12),rgba(251,191,36,0.06));border:1.5px solid rgba(251,191,36,0.3);border-radius:20px;padding:18px 20px;text-align:center;}
+.prem-price-tag{font-size:10px;font-weight:800;color:#FCD34D;letter-spacing:2px;margin-bottom:10px;}
+.prem-price-row{display:flex;align-items:center;justify-content:center;gap:12px;margin-bottom:6px;}
+.prem-price-main{display:flex;align-items:baseline;gap:0;color:#fff;line-height:1;}
+.prem-price-num{font-size:52px;font-weight:900;letter-spacing:-3px;color:#fff;}
+.prem-price-cents{font-size:24px;font-weight:800;color:#fff;}
+.prem-price-aside{display:flex;flex-direction:column;gap:2px;}
+.prem-price-period{font-size:13px;color:rgba(255,255,255,0.5);font-weight:600;}
+.prem-price-day{background:rgba(251,191,36,0.2);color:#FCD34D;font-size:11px;font-weight:800;padding:3px 8px;border-radius:20px;}
+.prem-price-compare{font-size:12px;color:rgba(255,255,255,0.35);}
+
+/* CTA */
+.prem-cta-wrap{padding:16px 20px 32px;display:flex;flex-direction:column;gap:8px;}
+.prem-cta-btn{width:100%;background:linear-gradient(135deg,#8B2FC9,#6B1FA0);color:#fff;border:none;border-radius:20px;padding:17px 20px;font-size:16px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:-0.2px;box-shadow:0 6px 24px rgba(107,31,160,0.5),0 0 0 1px rgba(255,255,255,0.08) inset;}
+.prem-cta-btn:active{transform:scale(0.97);}
+.prem-cta-arrow{font-size:18px;transition:transform 0.2s;}
+.prem-cta-btn:active .prem-cta-arrow{transform:translateX(3px);}
+.prem-cta-fine{text-align:center;font-size:11px;color:rgba(255,255,255,0.3);font-weight:500;}
+.prem-skip-btn{background:none;border:none;color:rgba(255,255,255,0.25);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:4px;}
+.cat-crown{position:absolute;top:6px;right:6px;font-size:12px;line-height:1;}
+.cat-horizontal{position:relative;}
+
 body.dark .search-bar-proc {
   background:#334155 !important;
   border-color:#475569 !important;
@@ -421,10 +493,10 @@ body.dark .search-bar-proc input {
       <div class="quick-buttons-wrap">
       <div class="quick-buttons">
         <div class="quick-btn" onclick="openProto('sincope-protocolo')"><span class="quick-btn-icon">😰</span><span class="quick-btn-label">Desmaio</span></div>
-        <div class="quick-btn" onclick="openProto('infarto-protocolo')"><span class="quick-btn-icon">💔</span><span class="quick-btn-label">Infarto</span></div>
-        <div class="quick-btn" onclick="openProto('epilepsia-protocolo')"><span class="quick-btn-icon">⚡</span><span class="quick-btn-label">Epilepsia</span></div>
-        <div class="quick-btn" onclick="openProto('hemostasia')"><span class="quick-btn-icon">🩸</span><span class="quick-btn-label">Sangramento</span></div>
-        <div class="quick-btn" onclick="openProto('ansiedade-protocolo')"><span class="quick-btn-icon">😨</span><span class="quick-btn-label">Ansiedade</span></div>
+        <div class="quick-btn sos-locked" onclick="!window.userIsPremium?showUpgradeModal(null):openProto('infarto-protocolo')"><span class="quick-btn-icon">💔</span><span class="quick-btn-label">Infarto</span><span class="sos-crown">👑</span></div>
+        <div class="quick-btn sos-locked" onclick="!window.userIsPremium?showUpgradeModal(null):openProto('epilepsia-protocolo')"><span class="quick-btn-icon">⚡</span><span class="quick-btn-label">Epilepsia</span><span class="sos-crown">👑</span></div>
+        <div class="quick-btn sos-locked" onclick="!window.userIsPremium?showUpgradeModal(null):openProto('hemostasia')"><span class="quick-btn-icon">🩸</span><span class="quick-btn-label">Sangramento</span><span class="sos-crown">👑</span></div>
+        <div class="quick-btn sos-locked" onclick="!window.userIsPremium?showUpgradeModal(null):openProto('ansiedade-protocolo')"><span class="quick-btn-icon">😨</span><span class="quick-btn-label">Ansiedade</span><span class="sos-crown">👑</span></div>
       </div>
       </div><!-- /quick-buttons-wrap -->
     </div>
@@ -567,23 +639,112 @@ body.dark .search-bar-proc input {
 
 <!-- PREMIUM MODAL -->
 <div class="overlay" id="premium-overlay" onclick="hideOverlay('premium-overlay')">
-  <div class="modal" onclick="event.stopPropagation()">
-    <div class="modal-icon">👑</div>
-    <h2 class="modal-title">OdontoDesk Premium</h2>
-    <p class="modal-sub" id="premium-sub">Desbloqueie todos os protocolos</p>
-    <div class="modal-features">
-      <div class="feature">✅ Todos os protocolos clínicos</div>
-      <div class="feature">✅ 6 especialidades cobertas</div>
-      <div class="feature">✅ Modo Pânico completo</div>
-      <div class="feature">✅ Funciona offline</div>
-      <div class="feature">✅ Atualizações mensais</div>
-      <div class="feature">✅ Busca por qualquer termo</div>
+  <div class="prem-modal" onclick="event.stopPropagation()">
+
+    <!-- Hero -->
+    <div class="prem-hero">
+      <div class="prem-hero-orb prem-orb1"></div>
+      <div class="prem-hero-orb prem-orb2"></div>
+      <div class="prem-hero-orb prem-orb3"></div>
+      <button class="prem-close" onclick="hideOverlay('premium-overlay')">✕</button>
+      <div class="prem-badge-top">MODO PREMIUM</div>
+      <div class="prem-crown">👑</div>
+      <div class="prem-hero-title">Atenda com mais<br>segurança e velocidade</div>
+      <div class="prem-hero-sub">38 protocolos clínicos prontos para usar.<br>Decisão certa na hora certa.</div>
     </div>
-    <div style="width:100%">
-      <button class="btn-primary" onclick="window.open('LINK_HOTMART_AQUI','_blank')">Assinar por R$29,90/mês</button>
-      <div style="text-align:center;font-size:12px;color:#94A3B8;margin-top:6px">Cancele quando quiser · Sem fidelidade</div>
+
+    <!-- O que está bloqueado -->
+    <div class="prem-section-label">O QUE VOCÊ ESTÁ PERDENDO</div>
+    <div class="prem-locked-grid">
+      <div class="prem-locked-card">
+        <div class="prem-locked-icon">💎</div>
+        <div class="prem-locked-name">Prótese completa</div>
+        <div class="prem-locked-count">20 protocolos</div>
+      </div>
+      <div class="prem-locked-card">
+        <div class="prem-locked-icon">🔬</div>
+        <div class="prem-locked-name">Endodontia</div>
+        <div class="prem-locked-count">Diagnóstico guiado</div>
+      </div>
+      <div class="prem-locked-card">
+        <div class="prem-locked-icon">⚕️</div>
+        <div class="prem-locked-name">Cirurgia</div>
+        <div class="prem-locked-count">Siso + alveolite</div>
+      </div>
+      <div class="prem-locked-card">
+        <div class="prem-locked-icon">🪥</div>
+        <div class="prem-locked-name">Periodontia</div>
+        <div class="prem-locked-count">Abscesso perio</div>
+      </div>
+      <div class="prem-locked-card">
+        <div class="prem-locked-icon">🆘</div>
+        <div class="prem-locked-name">S.O.S. completo</div>
+        <div class="prem-locked-count">Infarto, epilepsia…</div>
+      </div>
+      <div class="prem-locked-card">
+        <div class="prem-locked-icon">✨</div>
+        <div class="prem-locked-name">Clareamento</div>
+        <div class="prem-locked-count">Consultório + caseiro</div>
+      </div>
     </div>
-    <button class="btn-ghost" onclick="hideOverlay('premium-overlay')">Continuar com versão gratuita</button>
+
+    <!-- Benefícios -->
+    <div class="prem-section-label">POR QUE VALE CADA CENTAVO</div>
+    <div class="prem-benefits">
+      <div class="prem-benefit">
+        <div class="prem-benefit-icon">⚡</div>
+        <div>
+          <div class="prem-benefit-title">Decisão em segundos</div>
+          <div class="prem-benefit-sub">Sem abrir livro. Sem consultar o colega. O protocolo certo na sua mão.</div>
+        </div>
+      </div>
+      <div class="prem-benefit">
+        <div class="prem-benefit-icon">🚨</div>
+        <div>
+          <div class="prem-benefit-title">Modo Pânico incluído</div>
+          <div class="prem-benefit-sub">Deu errado? O app te guia passo a passo na emergência.</div>
+        </div>
+      </div>
+      <div class="prem-benefit">
+        <div class="prem-benefit-icon">📴</div>
+        <div>
+          <div class="prem-benefit-title">Funciona offline</div>
+          <div class="prem-benefit-sub">Sem internet no consultório? Não importa. Tudo disponível.</div>
+        </div>
+      </div>
+      <div class="prem-benefit">
+        <div class="prem-benefit-icon">🔄</div>
+        <div>
+          <div class="prem-benefit-title">Atualizado mensalmente</div>
+          <div class="prem-benefit-sub">Novos protocolos toda mês. Você sempre à frente.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Preço -->
+    <div class="prem-price-wrap">
+      <div class="prem-price-inner">
+        <div class="prem-price-tag">ACESSO TOTAL</div>
+        <div class="prem-price-row">
+          <div class="prem-price-main">R$<span class="prem-price-num">29</span><span class="prem-price-cents">,90</span></div>
+          <div class="prem-price-aside">
+            <div class="prem-price-period">por mês</div>
+            <div class="prem-price-day">≈ R$1/dia</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <div class="prem-cta-wrap">
+      <button class="prem-cta-btn" onclick="window.open('LINK_HOTMART_AQUI','_blank')">
+        <span>Quero acesso completo</span>
+        <span class="prem-cta-arrow">→</span>
+      </button>
+      <div class="prem-cta-fine">7 dias grátis · Cancele quando quiser · Sem fidelidade</div>
+      <button class="prem-skip-btn" onclick="hideOverlay('premium-overlay')">Continuar com versão gratuita</button>
+    </div>
+
   </div>
 </div>
 
@@ -601,10 +762,30 @@ body.dark .search-bar-proc input {
 <!-- PASSWORD MODAL -->
 <script>
 // ==================== DADOS ====================
+const PREMIUM_CATEGORIES = ["protese","endodontia","cirurgia","perio"];
+
+// Situações exibidas no modal de upgrade por categoria
+const PREMIUM_CATEGORY_PREVIEW = {
+  protese: ["Dente com pouca estrutura","Coroa solta","Cimentação definitiva","Prótese folgada","Moldagem aberta","Instalar coroa unitária","Carga imediata","+ muito mais"],
+  endodontia: ["Urgência endodôntica","Medicação e retorno","Diagnóstico de pulpite guiado"],
+  cirurgia: ["Dente impactado / siso","Extração cirúrgica","Alveolite","Sutura"],
+  perio: ["Sangramento gengival","Abscesso periodontal"]
+};
+
+const PREMIUM_CATEGORY_LABELS = {
+  protese: "Prótese",
+  endodontia: "Endodontia",
+  cirurgia: "Cirurgia",
+  perio: "Periodontia"
+};
+
+// Situações de Emergência free
+const EMERGENCY_FREE = ["em1","em2"];
+
 const INITIAL_DATA = {
   categories:[
     {id:"dentistica",label:"Dentística",icon:"🦷"},
-    {id:"protese",label:"Prótese",icon:"👑"},
+    {id:"protese",label:"Prótese",icon:"💎"},
     {id:"endodontia",label:"Endodontia",icon:"🔬"},
     {id:"cirurgia",label:"Cirurgia",icon:"⚕️"},
     {id:"perio",label:"Periodontia",icon:"🪥"}
@@ -776,7 +957,7 @@ let navigationHistory = [];
 
 // ==================== STORAGE ====================
 function initData(){
-  const DATA_VERSION = "v17";
+  const DATA_VERSION = "v21";
   const storedVersion = localStorage.getItem("guiaOdontoDataVersion");
   if(storedVersion !== DATA_VERSION){
     localStorage.clear();
@@ -1154,10 +1335,15 @@ function renderHome(){
     const fd=document.getElementById("categories-flex");
     if(fd){
       DATA.categories.forEach(cat=>{
+        const isPremiumCat = PREMIUM_CATEGORIES.includes(cat.id) && !window.userIsPremium;
         const btn=document.createElement("button");
-        btn.className="cat-horizontal";
-        btn.innerHTML=`<span class="cat-horizontal-icon">${cat.icon}</span><span class="cat-horizontal-label">${cat.label}</span>`;
+        btn.className="cat-horizontal" + (isPremiumCat ? " cat-locked" : "");
+        btn.innerHTML=`<span class="cat-horizontal-icon">${cat.icon}</span><span class="cat-horizontal-label">${cat.label}</span>${isPremiumCat ? '<span class="cat-crown">👑</span>' : ''}`;
         btn.onclick=()=>{
+          if(isPremiumCat){
+            showUpgradeModal(cat.id);
+            return;
+          }
           selCat=cat.id;
           const st=document.getElementById("sit-title");if(st)st.textContent=cat.label;
           renderSituations();
@@ -1223,35 +1409,37 @@ function renderSituations(){
   if(selCat==="endodontia"){
     const widgetDiv = document.createElement("div");
     widgetDiv.innerHTML = `
-      <div style="background:#fff;border:1px solid #E2E8F0;border-radius:20px;overflow:hidden;margin-bottom:12px;box-shadow:0 2px 8px rgba(0,0,0,0.06);">
-        <div style="padding:14px 16px;display:flex;align-items:center;justify-content:space-between;background:#F5EEFB;">
-          <div style="display:flex;align-items:center;gap:10px;">
-            <div style="width:34px;height:34px;background:#7C3FA0;border-radius:10px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:16px;flex-shrink:0;">🔍</div>
-            <div>
-              <div style="font-size:14px;font-weight:700;color:#0F172A;">Diagnóstico de pulpite</div>
-              <div style="font-size:12px;color:#64748B;margin-top:1px;">Responda 4 perguntas rápidas</div>
-            </div>
-          </div>
-          <button onclick="togglePulpiteSit()" id="pulpite-sit-toggle" style="background:#7C3FA0;border:none;border-radius:30px;padding:7px 16px;font-size:12px;font-weight:700;color:#fff;cursor:pointer;font-family:inherit;">Usar</button>
+      <div class="fw-widget">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
+          <div class="fw-widget-label" style="margin-bottom:0;">🔍 Não sabe o diagnóstico? Comece aqui</div>
+          <button onclick="togglePulpiteSit()" id="pulpite-sit-toggle" style="background:none;border:0.5px solid #D9B8F0;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#7C3FA0;cursor:pointer;font-family:inherit;">Usar</button>
         </div>
         <div id="pulpite-sit-content" style="display:none;">
-          <div id="pulpite-sit-quiz" style="padding:16px;">
-            <div style="display:flex;gap:6px;margin-bottom:14px;" id="pulpite-sit-progress"></div>
-            <div style="font-size:11px;color:#94A3B8;margin-bottom:6px;font-weight:600;letter-spacing:0.3px;" id="pulpite-sit-perg-num"></div>
-            <div style="font-size:15px;font-weight:700;color:#0F172A;margin-bottom:14px;line-height:1.4;" id="pulpite-sit-perg-text"></div>
-            <div style="display:flex;flex-direction:column;gap:8px;" id="pulpite-sit-opcoes"></div>
+          <div id="pulpite-sit-quiz">
+            <div style="display:flex;gap:4px;margin-bottom:8px;" id="pulpite-sit-progress"></div>
+            <div class="fw-confirm show" style="margin-bottom:8px;">
+              <span class="fw-confirm-txt" id="pulpite-sit-perg-num" style="font-size:10px;letter-spacing:0.5px;"></span>
+            </div>
+            <div style="font-size:14px;font-weight:700;color:var(--color-text-primary);margin-bottom:10px;line-height:1.4;" id="pulpite-sit-perg-text"></div>
+            <div style="display:flex;flex-direction:column;gap:6px;" id="pulpite-sit-opcoes"></div>
           </div>
-          <div id="pulpite-sit-resultado" style="display:none;padding:16px;">
-            <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px;">
-              <div id="pulpite-sit-icon" style="width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;"></div>
-              <div>
-                <div id="pulpite-sit-badge" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:30px;display:inline-block;margin-bottom:5px;"></div>
-                <div id="pulpite-sit-title" style="font-size:15px;font-weight:700;"></div>
+          <div id="pulpite-sit-resultado" style="display:none;">
+            <div class="fw-result show">
+              <div class="fw-sec" style="display:flex;align-items:center;gap:10px;padding:10px 12px;">
+                <div id="pulpite-sit-icon" style="width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;font-weight:800;flex-shrink:0;"></div>
+                <div>
+                  <div id="pulpite-sit-badge" style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:4px;letter-spacing:0.3px;"></div>
+                  <div class="fw-sec-value" id="pulpite-sit-title" style="font-size:13px;"></div>
+                </div>
+              </div>
+              <div style="padding:0 12px 10px;">
+                <div class="fw-sec-sub" id="pulpite-sit-body" style="color:#0F172A;line-height:1.5;"></div>
+              </div>
+              <div style="padding:0 12px 12px;display:flex;flex-direction:column;gap:6px;">
+                <button id="pulpite-sit-cta" style="width:100%;border:none;border-radius:20px;padding:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;"></button>
+                <button onclick="resetPulpiteSit()" style="width:100%;background:none;border:0.5px solid #E2E8F0;border-radius:20px;padding:8px;font-size:11px;font-weight:700;color:#94A3B8;cursor:pointer;font-family:inherit;letter-spacing:0.3px;text-transform:uppercase;">Recomeçar</button>
               </div>
             </div>
-            <div id="pulpite-sit-body" style="font-size:13px;line-height:1.6;margin-bottom:14px;color:#1E293B;"></div>
-            <button id="pulpite-sit-cta" style="width:100%;border:none;border-radius:30px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:8px;font-family:inherit;"></button>
-            <button onclick="resetPulpiteSit()" style="width:100%;background:none;border:1px solid #E2E8F0;border-radius:30px;padding:10px;font-size:13px;font-weight:600;color:#64748B;cursor:pointer;font-family:inherit;">Recomeçar diagnóstico</button>
           </div>
         </div>
       </div>`;
@@ -1269,10 +1457,23 @@ function renderSituations(){
       list.appendChild(hdr);
       return;
     }
+    // Lógica de bloqueio por situação
+    let isLocked = false;
+    if(selCat === "dentistica" && sit.id === "d6" && !window.userIsPremium) {
+      isLocked = true;
+    }
+    if(selCat === "emergencia" && !EMERGENCY_FREE.includes(sit.id) && !window.userIsPremium) {
+      isLocked = true;
+    }
     const btn=document.createElement("button");
     btn.className="list-btn";
-    btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="arr">›</span>`;
-    btn.onclick=()=>{selSit=sit.id;renderProcedures();goScreen("procedures");};
+    if(isLocked){
+      btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="prem-tag">👑 Premium</span>`;
+      btn.onclick=()=>showUpgradeModal(null);
+    } else {
+      btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="arr">›</span>`;
+      btn.onclick=()=>{selSit=sit.id;renderProcedures();goScreen("procedures");};
+    }
     list.appendChild(btn);
   });
 }
@@ -1349,6 +1550,31 @@ function clearProcSearch() {
     searchInput.focus();
   }
 }
+function showUpgradeModal(catId){
+  const titleEl = document.getElementById('premium-modal-title');
+  const subEl = document.getElementById('premium-modal-sub');
+  const sitsEl = document.getElementById('premium-modal-sits');
+
+  // Categorias completas bloqueadas
+  if(PREMIUM_CATEGORY_PREVIEW[catId]){
+    const label = PREMIUM_CATEGORY_LABELS[catId];
+    if(titleEl) titleEl.textContent = label + ' — Premium';
+    if(subEl) subEl.textContent = 'Desbloqueie todos os protocolos de ' + label + ':';
+    if(sitsEl){
+      sitsEl.style.display = 'flex';
+      sitsEl.innerHTML = PREMIUM_CATEGORY_PREVIEW[catId].map(s =>
+        `<div style="font-size:13px;font-weight:600;color:#92400E;display:flex;align-items:center;gap:6px">🔒 ${s}</div>`
+      ).join('');
+    }
+  } else {
+    // Situação individual bloqueada (ex: Clareamento, emergências)
+    if(titleEl) titleEl.textContent = 'Conteúdo Premium';
+    if(subEl) subEl.textContent = 'Esta situação está disponível no plano Premium.';
+    if(sitsEl) sitsEl.style.display = 'none';
+  }
+  showOverlay('premium-overlay');
+}
+
 function openProto(id){
   if(!DATA) return;
   const p = DATA.protocols[id];
@@ -1359,7 +1585,7 @@ function openProto(id){
   
   // Se for premium e usuário NÃO for premium, bloqueia
   if(!p.free && !window.userIsPremium){
-    showOverlay("premium-overlay");
+    showUpgradeModal(null);
     return;
   }
   
@@ -1412,7 +1638,7 @@ function renderProtocol(id){
     ${id==='endo-urgencia'?`
     <div class="fw-widget" id="pulpite-widget-box">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div class="fw-widget-label">🔍 Diagnóstico de Pulpite</div>
+        <div class="fw-widget-label">🔍 Não sabe o diagnóstico? Comece aqui</div>
         <button onclick="togglePulpiteWidget()" id="pulpite-toggle-btn" style="background:none;border:0.5px solid var(--color-border-tertiary);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:#7C3FA0;cursor:pointer;">Usar</button>
       </div>
       <div id="pulpite-widget-content" style="display:none;">
@@ -1615,22 +1841,21 @@ function renderPulpiteSitPergunta(){
   const opcoesEl=document.getElementById('pulpite-sit-opcoes');
   const progEl=document.getElementById('pulpite-sit-progress');
   if(!numEl||!textEl||!opcoesEl||!progEl)return;
-  numEl.textContent='Pergunta '+(pulpiteSitAtual+1)+' de '+PULPITE_PERGUNTAS.length;
+  numEl.textContent='PERGUNTA '+(pulpiteSitAtual+1)+' DE '+PULPITE_PERGUNTAS.length;
   textEl.textContent=p.texto;
   opcoesEl.innerHTML='';
   p.opcoes.forEach(op=>{
     const btn=document.createElement('button');
-    btn.style.cssText='background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:12px 14px;font-size:13px;font-weight:600;color:#0F172A;cursor:pointer;text-align:left;width:100%;display:flex;align-items:center;gap:10px;font-family:inherit;transition:all 0.1s;';
-    btn.innerHTML='<div style="width:18px;height:18px;border-radius:50%;border:2px solid #D9B8F0;flex-shrink:0;"></div><span>'+op.label+'</span>';
-    btn.onmouseover=()=>{btn.style.background='#F5EEFB';btn.style.borderColor='#D9B8F0';};
-    btn.onmouseout=()=>{btn.style.background='#F8FAFC';btn.style.borderColor='#E2E8F0';};
+    btn.className='fw-confirm show';
+    btn.style.cssText='cursor:pointer;width:100%;text-align:left;border:0.5px solid #475569;border-radius:10px;background:none;padding:6px 10px;font-family:inherit;margin-bottom:2px;';
+    btn.innerHTML='<span>🦷</span><span class="fw-confirm-txt" style="font-size:13px;">'+op.label+'</span><span class="fw-confirm-ok">›</span>';
     btn.onclick=()=>responderPulpiteSit(op.valor);
     opcoesEl.appendChild(btn);
   });
   progEl.innerHTML='';
   for(let i=0;i<PULPITE_PERGUNTAS.length;i++){
     const d=document.createElement('div');
-    d.style.cssText='height:4px;flex:1;border-radius:4px;background:'+(i<pulpiteSitAtual?'#7C3FA0':i===pulpiteSitAtual?'#D9B8F0':'#E2E8F0')+';transition:background 0.2s;';
+    d.style.cssText='height:3px;flex:1;border-radius:3px;background:'+(i<pulpiteSitAtual?'#7C3FA0':i===pulpiteSitAtual?'#D9B8F0':'#E2E8F0')+';';
     progEl.appendChild(d);
   }
 }
@@ -1693,10 +1918,10 @@ function togglePulpiteWidget(){
 }
 
 const PULPITE_PERGUNTAS = [
-  {texto:"Como é a dor?",opcoes:[{label:"Provocada — só dói com estímulo (frio, doce)",valor:"provocada"},{label:"Espontânea — dói sem motivo aparente",valor:"espontanea"},{label:"Sem dor",valor:"semDor"}]},
-  {texto:"Qual a duração da dor após o estímulo?",opcoes:[{label:"Cessa rapidamente (segundos)",valor:"curta"},{label:"Persiste por mais de 30 segundos",valor:"longa"},{label:"Dor pulsátil e contínua",valor:"pulsatil"}]},
-  {texto:"Como responde ao frio?",opcoes:[{label:"Dói com frio mas passa rápido",valor:"frioCurto"},{label:"Alívio temporário com frio",valor:"frioAlivio"},{label:"Piora muito com frio",valor:"frioPiora"}]},
-  {texto:"Há dor irradiada ou piora à noite?",opcoes:[{label:"Não — dor localizada",valor:"nao"},{label:"Sim — irradia para orelha, olho ou pescoço",valor:"sim"},{label:"Piora muito à noite",valor:"noite"}]}
+  {texto:"A dor aparece sem nenhum estímulo?",opcoes:[{label:"Não — só dói quando tem estímulo (frio, doce, pressão)",valor:"provocada"},{label:"Sim — dói sozinha, sem motivo aparente",valor:"espontanea"},{label:"Dor pulsátil e contínua",valor:"pulsatil"}]},
+  {texto:"Quanto tempo a dor dura após o estímulo?",opcoes:[{label:"Cessa em segundos",valor:"curta"},{label:"Persiste por mais de 30 segundos",valor:"longa"},{label:"Não cessa — dor constante",valor:"pulsatil"}]},
+  {texto:"Como o paciente responde ao frio?",opcoes:[{label:"Dói com frio mas passa rápido",valor:"frioCurto"},{label:"O frio alivia a dor temporariamente",valor:"frioAlivio"},{label:"Piora muito com frio",valor:"frioPiora"}]},
+  {texto:"Há dor irradiada ou piora à noite?",opcoes:[{label:"Não — dor bem localizada",valor:"nao"},{label:"Sim — irradia para orelha, olho ou pescoço",valor:"sim"},{label:"Piora muito à noite",valor:"noite"}]}
 ];
 
 let pulpiteRespostas = [];
