@@ -491,13 +491,7 @@ body.dark .search-bar-proc input {
     <div class="quick-card">
       <div class="quick-title">🆘 S.O.S. CLÍNICO</div>
       <div class="quick-buttons-wrap">
-      <div class="quick-buttons">
-        <div class="quick-btn" onclick="openProto('sincope-protocolo')"><span class="quick-btn-icon">😰</span><span class="quick-btn-label">Desmaio</span></div>
-        <div class="quick-btn sos-locked" onclick="!window.userIsPremium?showUpgradeModal(null):openProto('infarto-protocolo')"><span class="quick-btn-icon">💔</span><span class="quick-btn-label">Infarto</span><span class="sos-crown">👑</span></div>
-        <div class="quick-btn sos-locked" onclick="!window.userIsPremium?showUpgradeModal(null):openProto('epilepsia-protocolo')"><span class="quick-btn-icon">⚡</span><span class="quick-btn-label">Epilepsia</span><span class="sos-crown">👑</span></div>
-        <div class="quick-btn sos-locked" onclick="!window.userIsPremium?showUpgradeModal(null):openProto('hemostasia')"><span class="quick-btn-icon">🩸</span><span class="quick-btn-label">Sangramento</span><span class="sos-crown">👑</span></div>
-        <div class="quick-btn sos-locked" onclick="!window.userIsPremium?showUpgradeModal(null):openProto('ansiedade-protocolo')"><span class="quick-btn-icon">😨</span><span class="quick-btn-label">Ansiedade</span><span class="sos-crown">👑</span></div>
-      </div>
+      <div class="quick-buttons" id="sos-buttons"></div>
       </div><!-- /quick-buttons-wrap -->
     </div>
     <div id="favs-box" class="fav-box">
@@ -1328,6 +1322,7 @@ function renderOdontoWidget(inputId, confirmId, resultId, passo7Id){
 function renderHome(){
   clearHomeSearch();
   if(!DATA) return;
+  renderSOSButtons();
   // Categories
   const cs=document.getElementById("categories-scroll");
   if(cs){
@@ -1550,6 +1545,27 @@ function clearProcSearch() {
     searchInput.focus();
   }
 }
+function renderSOSButtons(){
+  const SOS_ITEMS = [
+    {icon:"😰", label:"Desmaio",  proto:"sincope-protocolo",  free:true},
+    {icon:"💔", label:"Infarto",  proto:"infarto-protocolo",  free:false},
+    {icon:"⚡", label:"Epilepsia",proto:"epilepsia-protocolo",free:false},
+    {icon:"🩸", label:"Sangramento",proto:"hemostasia",       free:false},
+    {icon:"😨", label:"Ansiedade",proto:"ansiedade-protocolo",free:false},
+  ];
+  const container = document.getElementById("sos-buttons");
+  if(!container) return;
+  container.innerHTML = "";
+  SOS_ITEMS.forEach(item => {
+    const locked = !item.free && !window.userIsPremium;
+    const btn = document.createElement("div");
+    btn.className = "quick-btn" + (locked ? " sos-locked" : "");
+    btn.innerHTML = `<span class="quick-btn-icon">${item.icon}</span><span class="quick-btn-label">${item.label}</span>${locked ? '<span class="sos-crown">👑</span>' : ''}`;
+    btn.onclick = () => locked ? showUpgradeModal(null) : openProto(item.proto);
+    container.appendChild(btn);
+  });
+}
+
 function showUpgradeModal(catId){
   const titleEl = document.getElementById('premium-modal-title');
   const subEl = document.getElementById('premium-modal-sub');
