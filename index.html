@@ -533,10 +533,17 @@ body.dark .search-bar-proc input {
     <div style="width:36px"></div>
   </div>
   <div class="body" id="settings-body">
-    <div style="padding:8px 0 20px;text-align:center">
-      <div class="cfg-avatar" id="cfg-avatar">?</div>
-      <div class="cfg-user-name" id="cfg-user-name">—</div>
-      <div class="cfg-user-email" id="cfg-user-email">—</div>
+    <div style="margin:-14px -14px 16px;border-radius:20px 20px 0 0;overflow:hidden;">
+      <div style="height:72px;background:linear-gradient(135deg,#3D1260,#7C3FA0);position:relative;">
+        <div id="cfg-avatar" style="position:absolute;bottom:-28px;left:20px;width:58px;height:58px;border-radius:50%;background:#F5EEFB;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#7C3FA0;">?</div>
+      </div>
+      <div style="background:var(--color-background-primary);padding:36px 20px 14px;border:0.5px solid var(--color-border-tertiary);border-top:none;display:flex;align-items:center;justify-content:space-between;">
+        <div>
+          <div class="cfg-user-name" id="cfg-user-name" style="text-align:left;font-size:17px;">—</div>
+          <div class="cfg-user-email" id="cfg-user-email" style="text-align:left;">—</div>
+        </div>
+        <span id="cfg-plan-badge" style="background:#F1F5F9;color:#64748B;font-size:11px;font-weight:700;padding:4px 12px;border-radius:30px;border:0.5px solid #E2E8F0;white-space:nowrap;">Gratuito</span>
+      </div>
     </div>
     <!-- Perfil -->
     <div class="cfg-section">
@@ -555,11 +562,12 @@ body.dark .search-bar-proc input {
     </div>
     <!-- Aparência -->
     <div class="cfg-section">
-      <div class="cfg-row" onclick="toggleDarkMode();renderSettings()">
-        <div class="cfg-icon">🌙</div>
-        <span class="cfg-label">Modo escuro</span>
-        <span class="cfg-value" id="cfg-dark-val">Desligado</span>
-        <span class="cfg-arr">›</span>
+      <div class="cfg-row" onclick="toggleDarkMode();renderSettings()" style="cursor:pointer;">
+        <div class="cfg-icon" id="cfg-dark-icon">🌙</div>
+        <span class="cfg-label" id="cfg-dark-label">Ativar modo escuro</span>
+        <div id="cfg-dark-toggle" style="width:44px;height:26px;border-radius:13px;background:#CBD5E1;position:relative;flex-shrink:0;transition:background .2s;">
+          <div id="cfg-dark-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s;"></div>
+        </div>
       </div>
     </div>
     <!-- Conta -->
@@ -989,7 +997,7 @@ function atualizarSaudacao(){
   var nomeEl=document.getElementById('hdr-nome');
   if(!nomeEl)return;
   var nome=localStorage.getItem('guiaNome')||'';
-  var trat=localStorage.getItem('guiaTratamento')||'';
+  var trat=localStorage.getItem('guiaTratamento')??'';
   var perfil=localStorage.getItem('guiaPerfil')||'dentista';
   if(nome){
     if(perfil==='estudante'){
@@ -999,7 +1007,7 @@ function atualizarSaudacao(){
       nomeEl.textContent='Olá, '+t+nome+'!';
     }
   } else {
-    nomeEl.textContent = perfil==='estudante' ? 'Olá!' : 'Olá, Dr(a)!';
+    nomeEl.textContent='Olá!';
   }
 }
 
@@ -1016,7 +1024,24 @@ function renderSettings(){
   const partes = dnFmt.split(' ').filter(function(p){return p.length>1;});
   const iniciais = partes.length>=2 ? partes[0][0]+partes[partes.length-1][0] : dnFmt.slice(0,2);
   const av = document.getElementById('cfg-avatar');
-  if(av) av.textContent = iniciais.toUpperCase();
+  if(av){
+    av.textContent = iniciais.toUpperCase();
+    av.style.borderColor = document.body.classList.contains('dark') ? '#1E293B' : '#fff';
+  }
+  const planBadge = document.getElementById('cfg-plan-badge');
+  if(planBadge){
+    if(window.userIsPremium){
+      planBadge.textContent = '👑 Premium';
+      planBadge.style.background = '#F5EEFB';
+      planBadge.style.color = '#7C3FA0';
+      planBadge.style.borderColor = '#D9B8F0';
+    } else {
+      planBadge.textContent = 'Gratuito';
+      planBadge.style.background = '#F1F5F9';
+      planBadge.style.color = '#64748B';
+      planBadge.style.borderColor = '#E2E8F0';
+    }
+  }
   const cn = document.getElementById('cfg-user-name');
   if(cn) cn.textContent = dnFmt;
   const ce = document.getElementById('cfg-user-email');
@@ -1024,12 +1049,19 @@ function renderSettings(){
   const cv = document.getElementById('cfg-nome-val');
   if(cv) cv.textContent = localStorage.getItem('guiaNome') || 'Nao definido';
   // Tratamento salvo
-  const tratSalvo = localStorage.getItem('guiaTratamento') || 'Dr.';
+  const tratSalvo = localStorage.getItem('guiaTratamento') ?? '';
   const ctv = document.getElementById('cfg-trat-val');
   if(ctv) ctv.textContent = tratSalvo || 'Sem título';
   // Dark mode
-  const cdv = document.getElementById('cfg-dark-val');
-  if(cdv) cdv.textContent = document.body.classList.contains('dark') ? 'Ligado' : 'Desligado';
+  const isDark = document.body.classList.contains('dark');
+  const darkIcon = document.getElementById('cfg-dark-icon');
+  const darkLabel = document.getElementById('cfg-dark-label');
+  const darkToggle = document.getElementById('cfg-dark-toggle');
+  const darkKnob = document.getElementById('cfg-dark-knob');
+  if(darkIcon) darkIcon.textContent = isDark ? '☀️' : '🌙';
+  if(darkLabel) darkLabel.textContent = isDark ? 'Ativar modo claro' : 'Ativar modo escuro';
+  if(darkToggle) darkToggle.style.background = isDark ? '#7C3FA0' : '#CBD5E1';
+  if(darkKnob) darkKnob.style.left = isDark ? '21px' : '3px';
 }
 
 function openEditName(){
@@ -1054,7 +1086,7 @@ function saveEditName(){
 }
 
 function openEditTratamento(){
-  const trat = localStorage.getItem('guiaTratamento') || 'Dr.';
+  const trat = localStorage.getItem('guiaTratamento') ?? 'Dr.';
   editTratSelected = trat;
   document.getElementById('trat-dr').className = 'cfg-sel-btn'+(trat==='Dr.'?' selected':'');
   document.getElementById('trat-dra').className = 'cfg-sel-btn'+(trat==='Dra.'?' selected':'');
@@ -1071,22 +1103,11 @@ function selectTratEdit(t){
 
 async function saveEditTratamento(){
   localStorage.setItem('guiaTratamento', editTratSelected);
-  // Atualiza displayName no Firebase
   if(currentUser){
     try{
-      const dn = currentUser.displayName || '';
-      const partes = dn.split(' ');
-      // Pega o primeiro nome (ignora tratamento antigo)
-      const semTrat = partes.filter(function(p){return p!=='Dr.'&&p!=='Dra.';}).join(' ');
-      const primeiro = semTrat.split(' ')[0] || semTrat;
-      const novoDisplay = editTratSelected ? editTratSelected+' '+primeiro : primeiro;
+      const nome = localStorage.getItem('guiaNome') || (currentUser.displayName||'').split(' ').filter(function(p){return p!=='Dr.'&&p!=='Dra.';}).join(' ').split(' ')[0] || '';
+      const novoDisplay = editTratSelected ? editTratSelected+' '+nome : nome;
       await currentUser.updateProfile({displayName: novoDisplay});
-      // Atualiza saudação
-      const nomeEl = document.getElementById('hdr-nome');
-      if(nomeEl){
-        const dnFmt = novoDisplay.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1);}).join(' ');
-        nomeEl.textContent = 'Olá, '+dnFmt+'!';
-      }
     }catch(e){console.log(e);}
   }
   hideOverlay('edit-trat-overlay');
@@ -1889,8 +1910,8 @@ function responderPulpiteSit(valor){
 function mostrarResultadoPulpiteSit(){
   const r=pulpiteSitRespostas;
   let tipo='reversivel';
-  if(r[0]==='espontanea'||r[1]==='pulsatil'||r[2]==='frioAlivio'||r[3]==='sim'||r[3]==='noite')tipo='irreversivel';
-  else if(r[1]==='longa'||r[2]==='frioPiora')tipo='transicao';
+  if(r[0]==='espontanea' || r[2]==='frioAlivio' || r[3]==='sim') tipo='irreversivel';
+  else if(r[1]==='longa' || r[2]==='frioPiora') tipo='transicao';
   const dk=document.body.classList.contains('dark');
   const configs={
     reversivel:{icon:'✓',iconBg:dk?'#1A3A0A':'#EAF3DE',iconColor:dk?'#9FE1CB':'#27500A',badge:'Pulpite reversível',badgeBg:dk?'#27500A':'#C0DD97',badgeColor:dk?'#C0DD97':'#27500A',title:'Polpa com potencial de recuperação',titleColor:dk?'#C0DD97':'#27500A',body:'Remover fator causal + proteção pulpar. Não indica endodontia agora — acompanhar em 1–2 semanas.',ctaText:'Ver protocolo',ctaBg:'#3B6D11',ctaColor:'#fff',proto:'pulpite-reversivel'},
@@ -1934,10 +1955,10 @@ function togglePulpiteWidget(){
 }
 
 const PULPITE_PERGUNTAS = [
-  {texto:"A dor aparece sem nenhum estímulo?",opcoes:[{label:"Não — só dói quando tem estímulo (frio, doce, pressão)",valor:"provocada"},{label:"Sim — dói sozinha, sem motivo aparente",valor:"espontanea"},{label:"Dor pulsátil e contínua",valor:"pulsatil"}]},
-  {texto:"Quanto tempo a dor dura após o estímulo?",opcoes:[{label:"Cessa em segundos",valor:"curta"},{label:"Persiste por mais de 30 segundos",valor:"longa"},{label:"Não cessa — dor constante",valor:"pulsatil"}]},
-  {texto:"Como o paciente responde ao frio?",opcoes:[{label:"Dói com frio mas passa rápido",valor:"frioCurto"},{label:"O frio alivia a dor temporariamente",valor:"frioAlivio"},{label:"Piora muito com frio",valor:"frioPiora"}]},
-  {texto:"Há dor irradiada ou piora à noite?",opcoes:[{label:"Não — dor bem localizada",valor:"nao"},{label:"Sim — irradia para orelha, olho ou pescoço",valor:"sim"},{label:"Piora muito à noite",valor:"noite"}]}
+  {texto:"A dor aparece sem estímulo?",opcoes:[{label:"Não — só dói com frio, doce ou pressão",valor:"provocada"},{label:"Sim — dói sozinha, sem motivo",valor:"espontanea"}]},
+  {texto:"Após o estímulo, a dor some rapidamente?",opcoes:[{label:"Sim — cessa em segundos",valor:"curta"},{label:"Não — persiste por mais de 30 segundos",valor:"longa"}]},
+  {texto:"Como o paciente reage ao frio?",opcoes:[{label:"Piora com frio",valor:"frioPiora"},{label:"O frio alivia a dor temporariamente",valor:"frioAlivio"},{label:"Não muda nada",valor:"frioNeutro"}]},
+  {texto:"A dor irradia ou piora à noite?",opcoes:[{label:"Não — dor bem localizada",valor:"nao"},{label:"Sim — irradia ou piora à noite",valor:"sim"}]}
 ];
 
 let pulpiteRespostas = [];
@@ -1991,8 +2012,8 @@ function responderPulpite(valor){
 function mostrarResultadoPulpite(){
   const r = pulpiteRespostas;
   let tipo = 'reversivel';
-  if(r[0]==='espontanea'||r[1]==='pulsatil'||r[2]==='frioAlivio'||r[3]==='sim'||r[3]==='noite') tipo='irreversivel';
-  else if(r[1]==='longa'||r[2]==='frioPiora') tipo='transicao';
+  if(r[0]==='espontanea' || r[2]==='frioAlivio' || r[3]==='sim') tipo='irreversivel';
+  else if(r[1]==='longa' || r[2]==='frioPiora') tipo='transicao';
 
   const configs = {
     reversivel:{badge:'Pulpite Reversível',title:'Polpa com potencial de recuperação',body:'Dor provocada e de curta duração. Remover fator causal + proteção pulpar. Não indica endodontia agora — acompanhar em 30 dias.',bg:'#EAF3DE',color:'#27500A',borderColor:'#97C459'},
