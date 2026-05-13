@@ -1713,10 +1713,6 @@ function renderProtocol(id){
   const li={fácil:"🟢",médio:"🟡",difícil:"🔴",urgente:"🚨"}[p.level]||"";
   const body=document.getElementById("protocol-body");
   if(!body)return;
-  body.scrollTop = 0;
-  const sb=document.getElementById("share-proto-btn");
-  if(sb)sb.style.display="flex";
-}
   // Monta breadcrumb da categoria e situação
   const catData = DATA.categories.find(c=>c.id===selCat);
   const sitData = selCat && DATA.situations[selCat] ? DATA.situations[selCat].find(s=>s.id===selSit) : null;
