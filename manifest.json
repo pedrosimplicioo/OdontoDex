@@ -3,7 +3,7 @@
   "short_name": "OdontoDex",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
+  "background_color": "#0F0A1A",
   "theme_color": "#7C3FA0",
   "icons": [
     {
