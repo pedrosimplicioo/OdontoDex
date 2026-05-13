@@ -1597,11 +1597,11 @@ function renderProceduresList(procs) {
     const seenHtml = HISTORY.includes(proc.id) ? '<span class="seen-badge">✓ Visto</span>' : '';
     const btn = document.createElement("button");
     btn.className = "list-btn";
-    if(proc.free) {
-      btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}${seenHtml}<span class="arr">›</span>`;
-    } else {
-      btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}<span class="prem-tag">👑 Premium</span>`;
-    }
+   if(proc.free || window.userIsPremium) {
+  btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}${seenHtml}<span class="arr">›</span>`;
+} else {
+  btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}<span class="prem-tag">👑 Premium</span>`;
+}
     btn.onclick = () => openProto(proc.id);
     list.appendChild(btn);
   });
