@@ -1793,6 +1793,7 @@ function renderProtocol(id){
       ${(p.panic||[]).map(item=>`<div class="panic-card"><div class="panic-prob">⚡ ${item.problem}</div><div class="panic-sol">${item.solution||''}</div></div>`).join("")}
     </div>
     <div class="spacer"></div>`;
+   body.scrollTop = 0;
   const sb=document.getElementById("share-proto-btn");
   if(sb)sb.style.display="flex";
 }
