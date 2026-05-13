@@ -2173,7 +2173,20 @@ function showReset(){
   document.getElementById("register-form").style.display="none";
   document.getElementById("reset-form").style.display="block";
 }
-
+async function doLoginGoogle(){
+  const provider = new firebase.auth.GoogleAuthProvider();
+  showLoading();
+  try {
+    const res = await auth.signInWithPopup(provider);
+    currentUser = res.user;
+    hideLoading();
+    showToast("Login realizado!", "success");
+    showAppScreen();
+  } catch(e) {
+    hideLoading();
+    showToast("Erro ao entrar com Google", "error");
+  }
+}
 async function doLogin(){
   const email=document.getElementById("login-email")?.value?.trim();
   const pwd=document.getElementById("login-password")?.value;
