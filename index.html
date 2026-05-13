@@ -724,7 +724,7 @@ body.dark .search-bar-proc input {
       <div class="prem-hero-orb prem-orb3"></div>
       <button class="prem-close" onclick="hideOverlay('premium-overlay')">✕</button>
       <div class="prem-badge-top">MODO PREMIUM</div>
-      <div class="prem-crown">👑</div>
+      <div class="prem-crown">🔒</div>
       <div class="prem-hero-title">Atenda com mais<br>segurança e velocidade</div>
       <div class="prem-hero-sub">38 protocolos clínicos prontos para usar.<br>Decisão certa na hora certa.</div>
     </div>
@@ -1105,7 +1105,7 @@ function renderSettings(){
   const planBadge = document.getElementById('cfg-plan-badge');
   if(planBadge){
     if(window.userIsPremium){
-      planBadge.textContent = '👑 Premium';
+      planBadge.textContent = '🔒 Premium';
       planBadge.style.background = '#F5EEFB';
       planBadge.style.color = '#7C3FA0';
       planBadge.style.borderColor = '#D9B8F0';
@@ -1428,7 +1428,7 @@ function renderHome(){
         const isPremiumCat = PREMIUM_CATEGORIES.includes(cat.id) && !window.userIsPremium;
         const btn=document.createElement("button");
         btn.className="cat-horizontal" + (isPremiumCat ? " cat-locked" : "");
-        btn.innerHTML=`<span class="cat-horizontal-icon">${cat.icon}</span><span class="cat-horizontal-label">${cat.label}</span>${isPremiumCat ? '<span class="cat-crown">👑</span>' : ''}`;
+        btn.innerHTML=`<span class="cat-horizontal-icon">${cat.icon}</span><span class="cat-horizontal-label">${cat.label}</span>${isPremiumCat ? '<span class="cat-crown">🔒</span>' : ''}`;
         btn.onclick=()=>{
           if(isPremiumCat){
             showUpgradeModal(cat.id);
@@ -1558,7 +1558,7 @@ function renderSituations(){
     const btn=document.createElement("button");
     btn.className="list-btn";
     if(isLocked){
-      btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="prem-tag">👑 Premium</span>`;
+      btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="prem-tag">🔒 Premium</span>`;
       btn.onclick=()=>showUpgradeModal(null);
     } else {
       btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="arr">›</span>`;
@@ -1604,7 +1604,7 @@ function renderProceduresList(procs) {
    if(proc.free || window.userIsPremium) {
   btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}${seenHtml}<span class="arr">›</span>`;
 } else {
-  btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}<span class="prem-tag">👑 Premium</span>`;
+  btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}<span class="prem-tag">🔒 Premium</span>`;
 }
     btn.onclick = () => openProto(proc.id);
     list.appendChild(btn);
@@ -1655,7 +1655,7 @@ function renderSOSButtons(){
     const locked = !item.free && !window.userIsPremium;
     const btn = document.createElement("div");
     btn.className = "quick-btn" + (locked ? " sos-locked" : "");
-    btn.innerHTML = `<span class="quick-btn-icon">${item.icon}</span><span class="quick-btn-label">${item.label}</span>${locked ? '<span class="sos-crown">👑</span>' : ''}`;
+    btn.innerHTML = `<span class="quick-btn-icon">${item.icon}</span><span class="quick-btn-label">${item.label}</span>${locked ? '<span class="sos-crown">🔒</span>' : ''}`;
     btn.onclick = () => locked ? showUpgradeModal(null) : openProto(item.proto);
     container.appendChild(btn);
   });
@@ -1732,7 +1732,7 @@ function renderProtocol(id){
           <div class="proto-hdr-badges">
             <span class="proto-hdr-badge">⏱ ${p.time}</span>
             <span class="proto-hdr-badge">${li} ${p.level}</span>
-            ${!p.free?'<span class="prem-tag">👑 Premium</span>':''}
+            ${!p.free?'<span class="prem-tag">🔒 Premium</span>':''}
             <button class="proto-hdr-fav ${isFav?'active':''}" id="fav-btn-proto" onclick="toggleFav('${id}')" style="margin-left:auto">${isFav?'★':'☆'}</button>
           </div>
         </div>
@@ -1873,7 +1873,7 @@ function doHomeSearch(q){
   found.forEach(p=>{
     const btn=document.createElement("button");
     btn.className="home-result-card";
-    btn.innerHTML='<div style="display:flex;align-items:center;gap:6px"><span class="result-title">'+p.title+'</span>'+(!p.free?'<span class="prem-tag">👑</span>':'')+'</div><span class="result-meta">'+p.time+' · <span style="color:'+(lcs[p.level]||"#6B7280")+'">'+(lis[p.level]||"")+" "+p.level+'</span></span>';
+    btn.innerHTML='<div style="display:flex;align-items:center;gap:6px"><span class="result-title">'+p.title+'</span>'+(!p.free?'<span class="prem-tag">🔒</span>':'')+'</div><span class="result-meta">'+p.time+' · <span style="color:'+(lcs[p.level]||"#6B7280")+'">'+(lis[p.level]||"")+" "+p.level+'</span></span>';
     btn.onclick=()=>{clearHomeSearch();openProto(p.id);};
     resDiv.appendChild(btn);
   });
@@ -1915,7 +1915,7 @@ function doSearch(q){
     const li={fácil:"🟢",médio:"🟡",difícil:"🔴",urgente:"🚨"}[p.level]||"";
     const btn=document.createElement("button");
     btn.className="result-card";
-    btn.innerHTML=`<div style="display:flex;align-items:center;gap:6px"><span class="result-title">${p.title}</span>${!p.free?'<span class="prem-tag">👑</span>':''}</div><span class="result-meta">${p.time} · <span style="color:${lc}">${li} ${p.level}</span></span>`;
+    btn.innerHTML=`<div style="display:flex;align-items:center;gap:6px"><span class="result-title">${p.title}</span>${!p.free?'<span class="prem-tag">🔒</span>':''}</div><span class="result-meta">${p.time} · <span style="color:${lc}">${li} ${p.level}</span></span>`;
     btn.onclick=()=>openProto(p.id);
     res.appendChild(btn);
   });
