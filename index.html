@@ -6,7 +6,11 @@
 <meta name="theme-color" content="#7C3FA0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
-<title>OdontoDesk</title>
+<meta name="apple-mobile-web-app-title" content="OdontoDex">
+<meta name="mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<title>OdontoDex</title>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -54,6 +58,37 @@ body.dark .categories-wrapper::after{background:linear-gradient(to right,transpa
 
 button{font-family:inherit;cursor:pointer;border:none;background:none;transition:all 0.1s ease;}
 button:active{transform:scale(0.97);opacity:0.8;}
+
+/* PWA INSTALL BANNER */
+#pwa-banner{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;background:#fff;border-top:1px solid #E2E8F0;box-shadow:0 -4px 24px rgba(0,0,0,0.12);padding:14px 16px 20px;z-index:999;display:none;align-items:center;gap:12px;animation:slideUp 0.35s ease;}
+#pwa-banner.show{display:flex;}
+body.dark #pwa-banner{background:#1E293B;border-top-color:#475569;}
+@keyframes slideUp{from{transform:translateX(-50%) translateY(100%);}to{transform:translateX(-50%) translateY(0);}}
+.pwa-icon{width:48px;height:48px;background:linear-gradient(135deg,#3D1260,#7C3FA0);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.pwa-text{flex:1;}
+.pwa-title{font-size:14px;font-weight:800;color:#0F172A;margin-bottom:2px;}
+body.dark .pwa-title{color:#F1F5F9;}
+.pwa-sub{font-size:12px;color:#64748B;}
+.pwa-actions{display:flex;flex-direction:column;gap:6px;flex-shrink:0;}
+.pwa-btn-install{background:#7C3FA0;color:#fff;border:none;border-radius:20px;padding:8px 16px;font-size:13px;font-weight:800;cursor:pointer;white-space:nowrap;}
+.pwa-btn-install:active{transform:scale(0.96);}
+.pwa-btn-dismiss{background:none;border:none;font-size:11px;color:#94A3B8;cursor:pointer;font-weight:600;text-align:center;}
+
+/* iOS INSTALL INSTRUCTIONS MODAL */
+#ios-install-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:flex-end;justify-content:center;z-index:1000;}
+#ios-install-overlay.show{display:flex;}
+.ios-install-modal{background:#fff;border-radius:28px 28px 0 0;padding:24px 20px 36px;width:100%;max-width:430px;}
+body.dark .ios-install-modal{background:#1E293B;}
+.ios-install-title{font-size:18px;font-weight:800;color:#0F172A;margin-bottom:6px;text-align:center;}
+body.dark .ios-install-title{color:#F1F5F9;}
+.ios-install-sub{font-size:13px;color:#64748B;text-align:center;margin-bottom:20px;}
+.ios-step{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.ios-step-num{min-width:28px;height:28px;background:#7C3FA0;color:#fff;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;flex-shrink:0;}
+.ios-step-txt{font-size:14px;color:#0F172A;line-height:1.5;}
+body.dark .ios-step-txt{color:#F1F5F9;}
+.ios-step-em{font-weight:800;color:#7C3FA0;}
+.ios-close-btn{width:100%;background:#F1F5F9;color:#64748B;border:none;border-radius:20px;padding:12px;font-size:14px;font-weight:700;cursor:pointer;margin-top:8px;}
+body.dark .ios-close-btn{background:#334155;color:#F1F5F9;}
 input,select,textarea{font-family:inherit;}
 
 .screen{display:none;flex-direction:column;min-height:100vh;background:#F1F5F9;}
@@ -459,6 +494,41 @@ body.dark .search-bar-proc input {
         <button class="btn btn-text" onclick="showLogin()">Voltar para login</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- PWA INSTALL BANNER (Android/Chrome) -->
+<div id="pwa-banner">
+  <div class="pwa-icon">🦷</div>
+  <div class="pwa-text">
+    <div class="pwa-title">Instalar OdontoDesk</div>
+    <div class="pwa-sub">Acesse offline como um app</div>
+  </div>
+  <div class="pwa-actions">
+    <button class="pwa-btn-install" id="pwa-install-btn">Instalar</button>
+    <button class="pwa-btn-dismiss" id="pwa-dismiss-btn">Agora não</button>
+  </div>
+</div>
+
+<!-- iOS INSTALL INSTRUCTIONS MODAL -->
+<div id="ios-install-overlay">
+  <div class="ios-install-modal">
+    <div style="text-align:center;font-size:40px;margin-bottom:10px">📲</div>
+    <div class="ios-install-title">Adicionar à Tela Inicial</div>
+    <div class="ios-install-sub">Siga os passos abaixo no Safari</div>
+    <div class="ios-step">
+      <div class="ios-step-num">1</div>
+      <div class="ios-step-txt">Toque no ícone <span class="ios-step-em">Compartilhar</span> (□↑) na barra inferior do Safari</div>
+    </div>
+    <div class="ios-step">
+      <div class="ios-step-num">2</div>
+      <div class="ios-step-txt">Role a lista e toque em <span class="ios-step-em">"Adicionar à Tela Inicial"</span></div>
+    </div>
+    <div class="ios-step">
+      <div class="ios-step-num">3</div>
+      <div class="ios-step-txt">Toque em <span class="ios-step-em">Adicionar</span> no canto superior direito</div>
+    </div>
+    <button class="ios-close-btn" id="ios-close-btn">Entendido</button>
   </div>
 </div>
 
@@ -2204,6 +2274,74 @@ async function logout(){
   showToast("Logout realizado","success");
   showLoginScreen();
 }
+// ==================== PWA INSTALL ====================
+let deferredPrompt = null;
+
+function isIOS(){
+  return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+}
+function isInStandaloneMode(){
+  return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+}
+function pwaAlreadyDismissed(){
+  return localStorage.getItem('pwaDismissed') === '1';
+}
+
+function showPwaBanner(){
+  if(isInStandaloneMode() || pwaAlreadyDismissed()) return;
+  const banner = document.getElementById('pwa-banner');
+  if(banner) setTimeout(()=>banner.classList.add('show'), 1200);
+}
+
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+  showPwaBanner();
+});
+
+window.addEventListener('appinstalled', () => {
+  const banner = document.getElementById('pwa-banner');
+  if(banner) banner.classList.remove('show');
+  deferredPrompt = null;
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+  // Register service worker
+  if('serviceWorker' in navigator){
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
+  }
+
+  // iOS: show modal automatically if not standalone and not dismissed
+  if(isIOS() && !isInStandaloneMode() && !pwaAlreadyDismissed()){
+    setTimeout(()=>{
+      document.getElementById('ios-install-overlay').classList.add('show');
+    }, 1500);
+  }
+
+  // Install button (Android/Chrome)
+  document.getElementById('pwa-install-btn')?.addEventListener('click', async () => {
+    if(!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const {outcome} = await deferredPrompt.userChoice;
+    if(outcome === 'accepted'){
+      document.getElementById('pwa-banner').classList.remove('show');
+    }
+    deferredPrompt = null;
+  });
+
+  // Dismiss banner
+  document.getElementById('pwa-dismiss-btn')?.addEventListener('click', () => {
+    document.getElementById('pwa-banner').classList.remove('show');
+    localStorage.setItem('pwaDismissed','1');
+  });
+
+  // Close iOS modal
+  document.getElementById('ios-close-btn')?.addEventListener('click', () => {
+    document.getElementById('ios-install-overlay').classList.remove('show');
+    localStorage.setItem('pwaDismissed','1');
+  });
+});
+
 // ==================== INICIALIZAÇÃO ====================
 document.addEventListener("DOMContentLoaded", () => {
   initData();
