@@ -480,6 +480,90 @@ body.dark .cancel-reason-btn.selected {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+  /* ========== BANNER PARA ESTUDANTES ========== */
+.student-banner {
+  background: #FEF3C7;
+  border-radius: 16px;
+  padding: 14px 16px;
+  margin: 12px 0 0 0;
+  border-left: 4px solid #F59E0B;
+  position: relative;
+}
+
+.student-banner-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.student-banner-icon {
+  font-size: 20px;
+}
+
+.student-banner-title {
+  font-weight: 800;
+  font-size: 13px;
+  color: #92400E;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.student-banner-content {
+  font-size: 12px;
+  color: #92400E;
+  line-height: 1.5;
+  margin-bottom: 6px;
+}
+
+.student-banner-warning {
+  font-size: 12px;
+  color: #92400E;
+  font-weight: 700;
+  margin-top: 6px;
+  padding-top: 6px;
+  border-top: 1px solid #FDE68A;
+}
+
+.student-banner-close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+  color: #92400E;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.student-banner-close:hover {
+  background: rgba(0,0,0,0.05);
+}
+
+body.dark .student-banner {
+  background: #2D1A0E;
+  border-left-color: #F59E0B;
+}
+
+body.dark .student-banner-title,
+body.dark .student-banner-content,
+body.dark .student-banner-warning {
+  color: #FCD34D;
+}
+
+body.dark .student-banner-close {
+  color: #FCD34D;
+}
+
+body.dark .student-banner-warning {
+  border-top-color: #78350F;
+}
 </style>
 </head>
 <body>
@@ -1172,6 +1256,18 @@ function atualizarSaudacao(){
     }
   } else {
     nomeEl.textContent='Olá!';
+  }
+}
+  if (perfil === 'estudante') {
+    const bannerFechado = localStorage.getItem('studentBannerDismissed');
+    if (bannerFechado === 'true') {
+      // Reset apenas se estiver na tela home e não tiver banner
+      const bannerExistente = document.getElementById('student-banner');
+      if (!bannerExistente && document.getElementById('screen-app').classList.contains('active')) {
+        localStorage.removeItem('studentBannerDismissed');
+        adicionarBannerEstudante();
+      }
+    }
   }
 }
 
@@ -2284,6 +2380,7 @@ function showAppScreen(){
     requestAnimationFrame(()=>{
       if(DATA && typeof renderHome === "function") renderHome();
       atualizarSaudacao();
+       adicionarBannerEstudante();
     });
   });
 }
@@ -2650,6 +2747,59 @@ function updatePremiumUI() {
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(setupCancelButtons, 500);
 });
+  // ==================== BANNER PARA ESTUDANTES ====================
+function adicionarBannerEstudante() {
+  const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
+  
+  // Remove banner antigo se existir
+  const bannerExistente = document.getElementById('student-banner');
+  if (bannerExistente) bannerExistente.remove();
+  
+  // Só mostra se for estudante
+  if (perfil !== 'estudante') return;
+  
+  // Verifica se o usuário já fechou o banner
+  const bannerFechado = localStorage.getItem('studentBannerDismissed');
+  if (bannerFechado === 'true') return;
+  
+  const header = document.getElementById('main-header');
+  if (!header) return;
+  
+  const banner = document.createElement('div');
+  banner.id = 'student-banner';
+  banner.className = 'student-banner';
+  banner.innerHTML = `
+    <button class="student-banner-close" onclick="fecharBannerEstudante()">✕</button>
+    <div class="student-banner-header">
+      <span class="student-banner-icon">🎓</span>
+      <span class="student-banner-title">ATENÇÃO: MODO ESTUDANTE</span>
+    </div>
+    <div class="student-banner-content">
+      Os protocolos clínicos exibidos neste app refletem práticas gerais da odontologia.
+      Cada faculdade ou universidade pode adotar técnicas, materiais ou fluxos diferentes.
+    </div>
+    <div class="student-banner-warning">
+      ⚠️ PORTANTO:<br>
+      • Este conteúdo NÃO substitui a orientação do seu professor<br>
+      • NÃO execute procedimentos sem supervisão adequada<br>
+      • Em caso de dúvida, CONSULTE seu supervisor
+    </div>
+  `;
+  
+  // Insere o banner após o .hdr-pergunta
+  const perguntaEl = header.querySelector('.hdr-pergunta');
+  if (perguntaEl && perguntaEl.nextSibling) {
+    header.insertBefore(banner, perguntaEl.nextSibling);
+  } else {
+    header.appendChild(banner);
+  }
+}
+
+function fecharBannerEstudante() {
+  const banner = document.getElementById('student-banner');
+  if (banner) banner.remove();
+  localStorage.setItem('studentBannerDismissed', 'true');
+}
 </script>
 </body>
 </html>
