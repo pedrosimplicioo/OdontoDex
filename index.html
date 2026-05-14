@@ -2710,6 +2710,78 @@ function updatePremiumUI() {
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(setupCancelButtons, 500);
 });
+  // ============================================================
+// ========== SWIPE BACK (arrastar para voltar) ==========
+// ============================================================
+
+let swipeStartX = 0;
+let swipeCurrentX = 0;
+let isSwiping = false;
+let swipeDistance = 0;
+const swipeThreshold = 80; // Distância mínima para voltar (80px)
+const swipeIndicator = document.getElementById('swipe-indicator');
+
+// Função que volta para a tela anterior
+function goBack() {
+  if (typeof goBackToLastScreen === 'function') {
+    goBackToLastScreen();
+  }
+}
+
+// ===== TOUCH START =====
+document.addEventListener('touchstart', (e) => {
+  // Só ativa se o toque começou na borda esquerda (até 30px)
+  const touchX = e.touches[0].clientX;
+  if (touchX <= 30) {
+    // Verifica se não está na tela de login
+    const activeScreen = document.querySelector('.screen.active')?.id;
+    if (activeScreen !== 'screen-login') {
+      swipeStartX = touchX;
+      isSwiping = true;
+      swipeDistance = 0;
+      if (swipeIndicator) swipeIndicator.classList.add('active');
+    }
+  }
+});
+
+// ===== TOUCH MOVE =====
+document.addEventListener('touchmove', (e) => {
+  if (!isSwiping) return;
+  
+  swipeCurrentX = e.touches[0].clientX;
+  swipeDistance = swipeCurrentX - swipeStartX;
+  
+  if (swipeDistance > 0) {
+    e.preventDefault();
+    
+    // Mostrar progresso (opcional)
+    const progress = Math.min((swipeDistance / swipeThreshold) * 100, 100);
+    if (swipeIndicator) {
+      swipeIndicator.style.opacity = 0.3 + (progress / 100) * 0.4;
+    }
+  }
+}, { passive: false });
+
+// ===== TOUCH END =====
+document.addEventListener('touchend', (e) => {
+  if (!isSwiping) return;
+  
+  if (swipeDistance >= swipeThreshold) {
+    // Voltar para tela anterior
+    goBack();
+    // Feedback tátil (opcional)
+    if (navigator.vibrate) navigator.vibrate(30);
+  }
+  
+  // Resetar
+  isSwiping = false;
+  swipeDistance = 0;
+  swipeStartX = 0;
+  if (swipeIndicator) {
+    swipeIndicator.classList.remove('active');
+    swipeIndicator.style.opacity = '';
+  }
+});
 </script>
 </body>
 </html>
