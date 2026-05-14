@@ -489,13 +489,39 @@ body.dark .cancel-reason-btn.selected {
 .ptr-indicator-show {
   transform: translateY(0) !important;
 }
+  /* Fundo roxo que aparece ao puxar (igual Instagram) */
+.screen.active {
+  background: #7C3FA0;
+}
+
+/* O conteúdo que vai descer junto */
+.screen.active .body {
+  background: #F1F5F9;
+  transition: transform 0.05s linear;
+  will-change: transform;
+  border-radius: 0;
+}
+
+/* Modo escuro */
+body.dark .screen.active {
+  background: #0F172A;
+}
+
+body.dark .screen.active .body {
+  background: #0F172A;
+}
+
+/* Animação do spinner */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
 </style>
 </head>
 <body>
-<!-- Indicador de Pull to Refresh (estilo Instagram) -->
-<div id="ptr-indicator" style="position: fixed; top: 0; left: 0; right: 0; background: #7C3FA0; display: flex; justify-content: center; align-items: center; padding: 12px; transform: translateY(-100%); transition: transform 0.2s; z-index: 9999;">
-  <div id="pull-icon" style="font-size: 20px; color: white; transition: transform 0.1s ease;">🔽</div>
-  <div id="pull-spinner" style="width: 20px; height: 20px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; display: none; animation: spin 0.6s linear infinite;"></div>
+<!-- Indicador de Pull to Refresh (com tela que desce) -->
+<div id="ptr-indicator" style="position: fixed; top: 0; left: 0; right: 0; display: flex; justify-content: center; align-items: center; padding: 12px; transform: translateY(-100%); transition: transform 0.02s linear; z-index: 9999; pointer-events: none;">
+  <div id="pull-icon" style="font-size: 24px; color: white; transition: transform 0.1s ease;">🔽</div>
+  <div id="pull-spinner" style="width: 24px; height: 24px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; display: none; animation: spin 0.6s linear infinite;"></div>
 </div>
 
 
@@ -2632,14 +2658,16 @@ document.addEventListener('DOMContentLoaded', function() {
   setTimeout(setupCancelButtons, 500);
 });
  // ============================================================
-// ========== PULL TO REFRESH (ESTILO INSTAGRAM) ==========
+// ========== PULL TO REFRESH (TELA DESCE JUNTO) ==========
 // ============================================================
 
 let pullStartY = 0;
 let pullDistance = 0;
 let isPulling = false;
 let shouldRefresh = false;
-const pullThreshold = 60;
+let activeBody = null;
+const pullThreshold = 70;
+const maxPullDistance = 100;
 
 const pullIndicator = document.getElementById('ptr-indicator');
 const pullIcon = document.getElementById('pull-icon');
@@ -2664,15 +2692,104 @@ function doRefresh() {
   
   // Finalizar
   setTimeout(() => {
-    if (pullSpinner) pullSpinner.style.display = 'none';
-    if (pullIcon) {
-      pullIcon.style.display = 'block';
-      pullIcon.style.transform = 'rotate(0deg)';
-    }
-    if (pullIndicator) pullIndicator.classList.remove('ptr-indicator-show');
+    resetPullToRefresh();
     showToast("✅ Dados atualizados!", "success");
   }, 600);
 }
+
+// Resetar tudo (esconder indicador e voltar tela)
+function resetPullToRefresh() {
+  // Esconder spinner, mostrar seta
+  if (pullSpinner) pullSpinner.style.display = 'none';
+  if (pullIcon) {
+    pullIcon.style.display = 'block';
+    pullIcon.style.transform = 'rotate(0deg)';
+  }
+  
+  // Esconder indicador
+  if (pullIndicator) pullIndicator.classList.remove('ptr-indicator-show');
+  
+  // Voltar a tela para o lugar
+  if (activeBody) {
+    activeBody.style.transition = 'transform 0.2s ease-out';
+    activeBody.style.transform = 'translateY(0px)';
+    setTimeout(() => {
+      if (activeBody) activeBody.style.transition = '';
+    }, 200);
+  }
+}
+
+// ===== TOUCH START =====
+document.addEventListener('touchstart', (e) => {
+  activeBody = document.querySelector('.screen.active .body');
+  if (!activeBody) return;
+  
+  // Só ativa se estiver no TOPO
+  if (activeBody.scrollTop <= 5) {
+    pullStartY = e.touches[0].clientY;
+    isPulling = true;
+    shouldRefresh = false;
+    pullDistance = 0;
+    activeBody.style.transition = ''; // remove transição durante o arrasto
+  } else {
+    isPulling = false;
+  }
+});
+
+// ===== TOUCH MOVE (A TELA DESCE JUNTO!) =====
+document.addEventListener('touchmove', (e) => {
+  if (!isPulling) return;
+  
+  const currentY = e.touches[0].clientY;
+  let newDistance = currentY - pullStartY;
+  
+  if (newDistance > 0) {
+    e.preventDefault();
+    
+    // Limitar o máximo de arrasto (efeito de "borracha")
+    if (newDistance > maxPullDistance) {
+      newDistance = maxPullDistance + (newDistance - maxPullDistance) * 0.3;
+    }
+    
+    pullDistance = newDistance;
+    
+    // ⭐ A TELA DESCE JUNTO COM O DEDO! ⭐
+    if (activeBody) {
+      activeBody.style.transform = `translateY(${pullDistance}px)`;
+    }
+    
+    // Mostrar indicador
+    if (pullIndicator) pullIndicator.classList.add('ptr-indicator-show');
+    
+    // Girar a seta conforme puxa
+    const rotate = Math.min((pullDistance / pullThreshold) * 180, 180);
+    if (pullIcon) pullIcon.style.transform = `rotate(${rotate}deg)`;
+    
+    // Se puxou o suficiente
+    if (pullDistance >= pullThreshold && !shouldRefresh) {
+      shouldRefresh = true;
+      if (pullIcon) pullIcon.style.transform = 'rotate(180deg)';
+      if (navigator.vibrate) navigator.vibrate(20);
+    }
+  }
+}, { passive: false });
+
+// ===== TOUCH END =====
+document.addEventListener('touchend', (e) => {
+  if (!isPulling) return;
+  
+  if (shouldRefresh) {
+    doRefresh();
+  } else {
+    resetPullToRefresh();
+  }
+  
+  isPulling = false;
+  shouldRefresh = false;
+  pullDistance = 0;
+  pullStartY = 0;
+  activeBody = null;
+});
 
 // ===== TOUCH START =====
 document.addEventListener('touchstart', (e) => {
