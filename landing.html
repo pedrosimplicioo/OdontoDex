@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OdontoDex — Seu assistente clínico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#7B3FA0;--brand-dark:#5E2D7A;--brand-light:#9B5FC0;
+  --gray:#8A8A8A;--dark:#1C1C1C;--dark2:#242424;--dark3:#2E2E2E;
+  --text:#F9FAFB;--muted:#9CA3AF;--green:#10B981;--red:#EF4444;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Sora',sans-serif;background:var(--dark);color:var(--text);overflow-x:hidden;}
+
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px 60px;text-align:center;position:relative;}
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(123,63,160,0.15);border:1px solid rgba(123,63,160,0.4);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:#C084E0;margin-bottom:32px;}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+.hero-title{font-size:clamp(36px,7vw,72px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:24px;}
+.hero-title em{font-style:normal;background:linear-gradient(135deg,#C084E0,#8A8A8A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;}
+.hero-sub{font-size:clamp(16px,2.5vw,20px);color:var(--muted);max-width:600px;line-height:1.7;margin:0 auto 48px;}
+.cta-group{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;}
+.btn-primary{background:var(--brand);color:#fff;border:none;border-radius:14px;padding:18px 36px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;display:inline-flex;align-items:center;gap:8px;text-decoration:none;}
+.btn-primary:hover{background:var(--brand-dark);transform:translateY(-2px);}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:18px 36px;font-size:16px;font-weight:600;cursor:pointer;text-decoration:none;}
+.hero-note{margin-top:24px;font-size:13px;color:var(--muted);}
+.hero-note span{color:var(--green);}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(28,28,28,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);}
+.navbar-cta{background:var(--brand);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;text-decoration:none;}
+footer{padding:40px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.07);}
+footer p{font-size:13px;color:var(--muted);}
+.stats{display:flex;justify-content:center;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,0.07);border-bottom:1px solid rgba(255,255,255,0.07);}
+.stat{flex:1;min-width:160px;padding:40px 24px;text-align:center;border-right:1px solid rgba(255,255,255,0.07);}
+.stat:last-child{border-right:none;}
+.stat-num{font-size:48px;font-weight:800;background:linear-gradient(135deg,#C084E0,#8A8A8A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;line-height:1;margin-bottom:8px;}
+.stat-label{font-size:13px;color:var(--muted);font-weight:500;}
+.section{padding:100px 24px;max-width:1100px;margin:0 auto;}
+.section-tag{display:block;text-align:center;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#C084E0;margin-bottom:16px;}
+.section-title{font-size:clamp(28px,5vw,48px);font-weight:800;letter-spacing:-1.5px;line-height:1.15;margin-bottom:20px;text-align:center;}
+.section-title em{font-style:normal;color:#C084E0;}
+.section-sub{font-size:18px;color:var(--muted);line-height:1.7;max-width:600px;text-align:center;margin:0 auto;}
+.pricing-section{padding:100px 24px;}
+.pricing-inner{max-width:900px;margin:0 auto;text-align:center;}
+.pricing-name{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;}
+.pricing-feature{display:flex;align-items:center;gap:12px;font-size:14px;margin-bottom:12px;}
+.pricing-feature-check{width:22px;height:22px;background:rgba(16,185,129,0.15);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.pricing-cta{width:100%;background:var(--brand);color:#fff;border:none;border-radius:16px;padding:18px;font-size:17px;font-weight:700;cursor:pointer;display:block;text-decoration:none;text-align:center;}
+.pricing-cta:hover{background:var(--brand-dark);}
+.objections{padding:80px 24px;max-width:700px;margin:0 auto;}
+.objection{border-bottom:1px solid rgba(255,255,255,0.07);padding:24px 0;cursor:pointer;}
+.objection-q{font-size:16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+.objection-icon{font-size:20px;transition:transform 0.2s;flex-shrink:0;}
+.objection-a{font-size:14px;color:var(--muted);line-height:1.7;margin-top:14px;display:none;}
+.objection.open .objection-icon{transform:rotate(45deg);}
+.objection.open .objection-a{display:block;}
+.final-cta{padding:120px 24px;text-align:center;}
+.final-cta-title{font-size:clamp(32px,6vw,56px);font-weight:800;letter-spacing:-2px;line-height:1.1;margin-bottom:20px;}
+.final-cta-sub{font-size:18px;color:var(--muted);margin-bottom:48px;line-height:1.6;}
+.plans-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:900px;margin:48px auto 0;}
+@media(max-width:640px){.plans-grid{grid-template-columns:1fr!important;}.stats{flex-direction:column;}.stat{border-right:none;border-bottom:1px solid rgba(255,255,255,0.07);}.navbar{padding:12px 20px;}}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-logo" style="font-size:24px;font-weight:800;background:linear-gradient(135deg,#C084E0,#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+    🦷 OdontoDex
+  </div>
+  <a href="#planos" class="navbar-cta">Começar grátis →</a>
+</nav>
+
+<section class="hero" style="padding-top:120px;">
+  <div class="hero-logo" style="margin-bottom:32px;">
+    <div style="font-size:64px;font-weight:800;background:linear-gradient(135deg,#C084E0,#fff);-webkit-background-clip:text;-webkit-text-fill-color:transparent;">
+      🦷 OdontoDex
+    </div>
+  </div>
+  <div class="badge"><span class="badge-dot"></span>LANÇAMENTO — OFERTA LIMITADA</div>
+  <h1 class="hero-title">Sua segunda opinião<br>clínica <em>na palma</em><br>da mão.</h1>
+  <p class="hero-sub">38+ protocolos clínicos. Fórceps dinâmico. Emergências. Modo pânico. Tudo o que você precisa no momento que mais importa — dentro do atendimento.</p>
+  <div class="cta-group">
+    <a href="https://odontodex.vercel.app/" class="btn-primary">🦷 Experimentar grátis</a>
+    <a href="#planos" class="btn-ghost">Ver planos →</a>
+  </div>
+  <p class="hero-note"><span>✓</span> Garantia de 7 dias &nbsp;&nbsp; <span>✓</span> Cancele sem justificar</p>
+</section>
+
+<div class="stats">
+  <div class="stat"><div class="stat-num">38+</div><div class="stat-label">Protocolos clínicos</div></div>
+  <div class="stat"><div class="stat-num">6</div><div class="stat-label">Especialidades cobertas</div></div>
+  <div class="stat"><div class="stat-num">3</div><div class="stat-label">Cliques até a solução</div></div>
+  <div class="stat"><div class="stat-num">24h</div><div class="stat-label">Disponível offline</div></div>
+</div>
+
+<!-- PRICING -->
+<section class="pricing-section" id="planos">
+  <div class="pricing-inner">
+    <p class="section-tag">PLANOS</p>
+    <h2 class="section-title">Invista menos que<br> <em>R$0,50 por dia</em>.</h2>
+    <p class="section-sub">Menos do que você gasta em um procedimento mal executado por falta de informação.</p>
+
+    <div class="plans-grid">
+
+      <div style="background:var(--dark2);border:1px solid rgba(255,255,255,0.07);border-radius:28px;padding:36px 28px;">
+        <div class="pricing-name">GRATUITO</div>
+        <div style="font-size:52px;font-weight:800;margin-bottom:8px;">R$0</div>
+        <div style="font-size:14px;color:var(--muted);margin-bottom:32px;">Para experimentar</div>
+        <div style="margin-bottom:32px;">
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>5 protocolos básicos</div>
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>2 protocolos S.O.S. Clínico</div>
+          <div class="pricing-feature"><div style="width:22px;height:22px;background:rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);">✕</div><span style="color:var(--muted);">Fórceps dinâmico</span></div>
+          <div class="pricing-feature"><div style="width:22px;height:22px;background:rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--muted);">✕</div><span style="color:var(--muted);">Modo pânico</span></div>
+        </div>
+        <a href="https://odontodex.vercel.app/" style="width:100%;background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:16px;font-size:15px;font-weight:700;display:block;text-align:center;text-decoration:none;">Começar grátis</a>
+      </div>
+
+      <div style="background:var(--dark2);border:1px solid rgba(123,63,160,0.4);border-radius:28px;padding:36px 28px;position:relative;">
+        <div style="position:absolute;top:16px;right:16px;background:linear-gradient(135deg,var(--brand),#8A8A8A);border-radius:100px;padding:4px 12px;font-size:11px;font-weight:700;">⭐ POPULAR</div>
+        <div class="pricing-name">PREMIUM</div>
+        <div style="font-size:13px;color:var(--red);font-weight:600;text-decoration:line-through;margin-bottom:4px;">R$29,90/mês</div>
+        <div style="font-size:52px;font-weight:800;margin-bottom:4px;"><span style="font-size:20px;font-weight:600;color:var(--muted);vertical-align:top;">R$</span>9<small style="font-size:16px;font-weight:500;color:var(--muted);">,90/mês</small></div>
+        <div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:6px;">✓ Você economiza R$20/mês</div>
+        <div style="font-size:14px;color:var(--muted);margin-bottom:32px;">Garantia de 7 dias · Cancele sem justificar</div>
+        <div style="margin-bottom:32px;">
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>Todos os 38+ protocolos</div>
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>Fórceps dinâmico</div>
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>S.O.S. Clínico completo</div>
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>Modo pânico</div>
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>Funciona offline</div>
+        </div>
+        <a href="https://pay.cakto.com.br/39mazes_884016" class="pricing-cta">Assinar agora →</a>
+        <div style="margin-top:14px;font-size:12px;color:var(--muted);text-align:center;">🔒 Garantia de 7 dias</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div style="background:var(--dark2);padding:80px 0;">
+<div class="objections">
+  <p class="section-tag" style="text-align:center;margin-bottom:32px;">DÚVIDAS FREQUENTES</p>
+  <div class="objection" onclick="toggleObj(this)"><div class="objection-q">Funciona sem internet? <span class="objection-icon">+</span></div><div class="objection-a">Sim. Todos os protocolos são salvos no seu dispositivo.</div></div>
+  <div class="objection" onclick="toggleObj(this)"><div class="objection-q">Como cancelar? <span class="objection-icon">+</span></div><div class="objection-a">Envie e-mail para compradores@cakto.com.br com o e-mail usado na compra.</div></div>
+  <div class="objection" onclick="toggleObj(this)"><div class="objection-q">Os protocolos são atualizados? <span class="objection-icon">+</span></div><div class="objection-a">Sim, todo mês.</div></div>
+</div>
+</div>
+
+<section class="final-cta">
+  <h2 class="final-cta-title">A próxima vez que<br>você travar na cadeira,<br>o que vai fazer?</h2>
+  <p class="final-cta-sub">Você pode continuar improvisando. Ou pode ter a resposta certa em 3 cliques.</p>
+  <div class="cta-group">
+    <a href="https://pay.cakto.com.br/39mazes_884016" class="btn-primary" style="font-size:18px;padding:20px 44px;">🦷 Assinar agora</a>
+  </div>
+  <p class="hero-note" style="margin-top:20px;"><span>✓</span> Garantia de 7 dias &nbsp;&nbsp; <span>✓</span> Cancele sem justificar</p>
+</section>
+
+<footer>
+  <p>© 2026 OdontoDex · <a href="https://odontodex.vercel.app/" style="color:var(--muted);">Acessar o app</a></p>
+</footer>
+
+<script>
+function toggleObj(el){el.classList.toggle('open');}
+</script>
+</body>
+</html>
