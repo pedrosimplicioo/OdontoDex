@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OdontoDex — Seu assistente clínico</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root{
+  --brand:#7B3FA0;--brand-dark:#5E2D7A;--brand-light:#9B5FC0;
+  --gray:#8A8A8A;--dark:#1C1C1C;--dark2:#242424;--dark3:#2E2E2E;
+  --text:#F9FAFB;--muted:#9CA3AF;--green:#10B981;--red:#EF4444;--cream:#F0EDE8;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'Sora',sans-serif;background:var(--dark);color:var(--text);overflow-x:hidden;}
+
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:80px 24px 60px;text-align:center;position:relative;overflow:hidden;}
+.hero::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 0%,rgba(123,63,160,0.2) 0%,transparent 70%);pointer-events:none;}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(to right,transparent,rgba(255,255,255,0.1),transparent);}
+
+.hero-logo{margin-bottom:32px;animation:fadeUp 0.6s ease both;}
+.hero-logo img{height:200px;width:auto;object-fit:contain;}
+
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(123,63,160,0.15);border:1px solid rgba(123,63,160,0.4);border-radius:100px;padding:6px 16px;font-size:12px;font-weight:600;color:#C084E0;letter-spacing:1px;margin-bottom:32px;animation:fadeUp 0.6s 0.05s ease both;opacity:0;}
+.badge-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
+
+.hero-eyebrow{font-family:'DM Serif Display',serif;font-style:italic;font-size:clamp(14px,3vw,18px);color:#C084E0;margin-bottom:16px;animation:fadeUp 0.6s 0.1s ease both;opacity:0;}
+.hero-title{font-size:clamp(36px,7vw,72px);font-weight:800;line-height:1.05;letter-spacing:-2px;margin-bottom:24px;animation:fadeUp 0.6s 0.2s ease both;opacity:0;}
+.hero-title em{font-style:normal;background:linear-gradient(135deg,#C084E0,#8A8A8A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.hero-sub{font-size:clamp(16px,2.5vw,20px);color:var(--muted);max-width:600px;line-height:1.7;margin:0 auto 48px;font-weight:400;animation:fadeUp 0.6s 0.3s ease both;opacity:0;}
+
+.cta-group{display:flex;gap:14px;flex-wrap:wrap;justify-content:center;animation:fadeUp 0.6s 0.4s ease both;opacity:0;}
+.btn-primary{background:var(--brand);color:#fff;border:none;border-radius:14px;padding:18px 36px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;text-decoration:none;}
+.btn-primary:hover{background:var(--brand-dark);transform:translateY(-2px);box-shadow:0 16px 40px rgba(123,63,160,0.4);}
+.btn-ghost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.15);border-radius:14px;padding:18px 36px;font-size:16px;font-weight:600;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.2s;text-decoration:none;}
+.btn-ghost:hover{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.3);}
+
+.hero-note{margin-top:24px;font-size:13px;color:var(--muted);animation:fadeUp 0.6s 0.5s ease both;opacity:0;}
+.hero-note span{color:var(--green);}
+
+.phone-wrap{margin-top:80px;animation:fadeUp 0.8s 0.4s ease both;opacity:0;position:relative;display:inline-block;}
+.phone-glow{position:absolute;inset:-60px;background:radial-gradient(ellipse,rgba(123,63,160,0.35),transparent 70%);pointer-events:none;border-radius:50%;}
+.phone{width:420px;background:#242424;border-radius:56px;border:10px solid #1a1a1a;box-shadow:0 60px 120px rgba(0,0,0,0.7),inset 0 1px 0 rgba(255,255,255,0.05);overflow:hidden;font-family:system-ui,-apple-system,sans-serif;}
+.phone-notch{width:120px;height:9px;background:#1a1a1a;border-radius:10px;margin:18px auto 0;}
+.phone-screen{padding:24px 20px 28px;}
+.p-header{background:#2E2E2E;border-radius:22px;padding:18px 20px;margin-bottom:14px;}
+.p-greeting{font-size:11px;color:#6B7280;margin-bottom:4px;display:flex;align-items:center;gap:5px;}
+.p-greeting::before{content:'●';color:#22C55E;font-size:8px;}
+.p-name{font-size:22px;font-weight:800;color:#F9FAFB;margin-bottom:12px;}
+.p-search{background:#1C1C1C;border-radius:14px;padding:12px 14px;font-size:13px;color:#6B7280;display:flex;align-items:center;gap:8px;}
+.p-label{font-size:10px;font-weight:700;color:#6B7280;letter-spacing:1.5px;text-transform:uppercase;margin:12px 0 10px;}
+.p-cats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px;}
+.p-cat{background:#2E2E2E;border-radius:16px;padding:14px 6px;text-align:center;}
+.p-cat-icon{font-size:22px;display:block;}
+.p-cat-name{font-size:9px;font-weight:600;color:#D1D5DB;margin-top:5px;}
+.p-sos{background:#2E2E2E;border-radius:16px;padding:16px;margin-bottom:10px;}
+.p-sos-title{font-size:10px;font-weight:700;color:#6B7280;letter-spacing:1px;margin-bottom:12px;}
+.p-sos-btns{display:flex;gap:10px;}
+.p-sos-btn{flex:1;background:#2D1A0E;border:1px solid #7F1D1D;border-radius:14px;padding:14px 6px;text-align:center;}
+.p-sos-icon{font-size:20px;display:block;}
+.p-sos-label{font-size:9px;font-weight:700;color:#FCA5A5;margin-top:4px;}
+
+.stats{display:flex;justify-content:center;gap:0;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,0.07);border-bottom:1px solid rgba(255,255,255,0.07);margin:0;}
+.stat{flex:1;min-width:160px;padding:40px 24px;text-align:center;border-right:1px solid rgba(255,255,255,0.07);}
+.stat:last-child{border-right:none;}
+.stat-num{font-size:48px;font-weight:800;background:linear-gradient(135deg,#C084E0,#8A8A8A);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;margin-bottom:8px;}
+.stat-label{font-size:13px;color:var(--muted);font-weight:500;}
+
+.section{padding:100px 24px;max-width:1100px;margin:0 auto;}
+.section-tag{display:block;text-align:center;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:#C084E0;margin-bottom:16px;}
+.section-title{font-size:clamp(28px,5vw,48px);font-weight:800;letter-spacing:-1.5px;line-height:1.15;margin-bottom:20px;text-align:center;}
+.section-title em{font-style:normal;color:#C084E0;}
+.section-sub{font-size:18px;color:var(--muted);line-height:1.7;max-width:600px;text-align:center;margin:0 auto;}
+
+.problem-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:16px;margin-top:48px;}
+@media(max-width:600px){.problem-grid{grid-template-columns:1fr;}}
+.problem-card{background:var(--dark2);border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:28px;position:relative;overflow:hidden;}
+.problem-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,var(--red),transparent);}
+.problem-icon{font-size:28px;margin-bottom:16px;}
+.problem-title{font-size:16px;font-weight:700;margin-bottom:8px;}
+.problem-text{font-size:14px;color:var(--muted);line-height:1.6;}
+
+.features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:20px;margin-top:48px;}
+.feature-card{background:var(--dark2);border:1px solid rgba(255,255,255,0.07);border-radius:20px;padding:28px;transition:all 0.3s;position:relative;overflow:hidden;}
+.feature-card:hover{border-color:rgba(123,63,160,0.4);transform:translateY(-4px);}
+.feature-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,var(--brand),transparent);border-radius:20px 20px 0 0;}
+.feature-icon{width:48px;height:48px;background:rgba(123,63,160,0.15);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;margin-bottom:20px;}
+.feature-title{font-size:18px;font-weight:700;margin-bottom:10px;}
+.feature-text{font-size:14px;color:var(--muted);line-height:1.6;}
+
+.protocols-section{background:var(--dark2);padding:100px 24px;}
+.protocols-inner{max-width:1100px;margin:0 auto;}
+.protocols-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:48px;}
+.proto-cat{background:var(--dark);border:1px solid rgba(255,255,255,0.07);border-radius:16px;padding:20px;display:flex;align-items:center;gap:14px;transition:all 0.2s;}
+.proto-cat:hover{border-color:rgba(123,63,160,0.4);background:rgba(123,63,160,0.05);}
+.proto-cat-icon{font-size:28px;}
+.proto-cat-name{font-size:14px;font-weight:600;}
+.proto-cat-count{font-size:12px;color:var(--muted);margin-top:2px;}
+
+.urgencias{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:12px;margin-top:32px;}
+.urgencia{background:rgba(239,68,68,0.08);border:1px solid rgba(239,68,68,0.2);border-radius:14px;padding:16px;display:flex;align-items:center;gap:12px;}
+.urgencia-icon{font-size:22px;}
+.urgencia-name{font-size:13px;font-weight:600;color:#FCA5A5;}
+
+.demo-section{padding:100px 24px;max-width:1100px;margin:0 auto;}
+.demo-card{background:var(--dark2);border:1px solid rgba(255,255,255,0.07);border-radius:24px;padding:40px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center;}
+@media(max-width:768px){.demo-card{grid-template-columns:1fr;}}
+.demo-tag{display:inline-block;background:rgba(123,63,160,0.15);border:1px solid rgba(123,63,160,0.3);border-radius:100px;padding:4px 14px;font-size:11px;font-weight:700;color:#C084E0;letter-spacing:1px;margin-bottom:16px;}
+.demo-title{font-size:28px;font-weight:800;letter-spacing:-1px;margin-bottom:12px;line-height:1.2;}
+.demo-text{font-size:15px;color:var(--muted);line-height:1.7;margin-bottom:24px;}
+.demo-steps{display:flex;flex-direction:column;gap:12px;}
+.demo-step{display:flex;align-items:flex-start;gap:12px;}
+.demo-step-num{width:28px;height:28px;background:var(--brand);border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;flex-shrink:0;}
+.demo-step-text{font-size:14px;color:var(--muted);line-height:1.5;padding-top:4px;}
+.demo-phone{background:#242424;border-radius:28px;border:4px solid #2E2E2E;padding:16px;box-shadow:0 20px 60px rgba(0,0,0,0.5);}
+.demo-fw-label{font-size:8px;font-weight:700;color:#6B7280;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px;}
+.demo-fw-input{background:#2E2E2E;border-radius:10px;padding:10px;text-align:center;font-size:22px;font-weight:800;color:#C084E0;margin-bottom:8px;}
+.demo-fw-confirm{background:#2E2E2E;border-radius:8px;padding:8px 10px;font-size:9px;color:#D1D5DB;display:flex;align-items:center;gap:6px;margin-bottom:8px;}
+.demo-fw-ok{color:#10B981;font-weight:700;}
+.demo-fw-result{background:#2E2E2E;border-radius:10px;padding:12px;}
+.demo-fw-name{font-size:12px;font-weight:700;color:#F9FAFB;margin-bottom:4px;}
+.demo-fw-tipo{font-size:9px;color:#6B7280;margin-bottom:8px;}
+.demo-fw-tag{display:inline-block;background:rgba(123,63,160,0.2);color:#C084E0;border-radius:30px;padding:3px 8px;font-size:8px;font-weight:700;}
+.demo-fw-alert{background:rgba(239,68,68,0.15);border:1px solid rgba(239,68,68,0.3);border-radius:8px;padding:8px 10px;font-size:9px;color:#FCA5A5;font-weight:600;margin-top:8px;}
+
+.pricing-section{padding:100px 24px;position:relative;overflow:hidden;}
+.pricing-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 60% 50% at 50% 100%,rgba(123,63,160,0.12),transparent 70%);pointer-events:none;}
+.pricing-inner{max-width:900px;margin:0 auto;text-align:center;}
+.pricing-name{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-bottom:16px;}
+.pricing-feature{display:flex;align-items:center;gap:12px;font-size:14px;margin-bottom:12px;}
+.pricing-feature-check{width:22px;height:22px;background:rgba(16,185,129,0.15);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;}
+.pricing-cta{width:100%;background:var(--brand);color:#fff;border:none;border-radius:16px;padding:18px;font-size:17px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;transition:all 0.2s;display:block;text-decoration:none;text-align:center;}
+.pricing-cta:hover{background:var(--brand-dark);transform:translateY(-2px);box-shadow:0 16px 40px rgba(123,63,160,0.45);}
+
+.objections{padding:80px 24px;max-width:700px;margin:0 auto;}
+.objection{border-bottom:1px solid rgba(255,255,255,0.07);padding:24px 0;cursor:pointer;}
+.objection-q{font-size:16px;font-weight:700;display:flex;justify-content:space-between;align-items:center;gap:16px;}
+.objection-icon{font-size:20px;transition:transform 0.2s;flex-shrink:0;}
+.objection-a{font-size:14px;color:var(--muted);line-height:1.7;margin-top:14px;display:none;}
+.objection.open .objection-icon{transform:rotate(45deg);}
+.objection.open .objection-a{display:block;}
+
+.final-cta{padding:120px 24px;text-align:center;position:relative;overflow:hidden;}
+.final-cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 60% at 50% 50%,rgba(123,63,160,0.15),transparent 70%);}
+.final-cta-inner{position:relative;max-width:700px;margin:0 auto;}
+.final-cta-title{font-size:clamp(32px,6vw,56px);font-weight:800;letter-spacing:-2px;line-height:1.1;margin-bottom:20px;}
+.final-cta-sub{font-size:18px;color:var(--muted);margin-bottom:48px;line-height:1.6;}
+
+.navbar{position:fixed;top:0;left:0;right:0;z-index:100;padding:16px 32px;display:flex;align-items:center;justify-content:space-between;background:rgba(28,28,28,0.85);backdrop-filter:blur(12px);border-bottom:1px solid rgba(255,255,255,0.06);}
+.navbar-cta{background:var(--brand);color:#fff;border:none;border-radius:10px;padding:10px 20px;font-size:14px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;text-decoration:none;transition:all 0.2s;}
+.navbar-cta:hover{background:var(--brand-dark);}
+
+footer{padding:40px 24px;text-align:center;border-top:1px solid rgba(255,255,255,0.07);}
+footer p{font-size:13px;color:var(--muted);}
+
+@keyframes fadeUp{from{opacity:0;transform:translateY(24px);}to{opacity:1;transform:translateY(0);}}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity 0.6s ease,transform 0.6s ease;}
+.reveal.visible{opacity:1;transform:translateY(0);}
+
+@media(max-width:640px){
+  .plans-grid{grid-template-columns:1fr!important;}
+  .stats{flex-direction:column;}
+  .stat{border-right:none;border-bottom:1px solid rgba(255,255,255,0.07);padding:28px;}
+  .stat:last-child{border-bottom:none;}
+  .navbar{padding:12px 20px;}
+  .phone{width:280px;border-radius:40px;border-width:6px;}
+  .phone-notch{width:80px;height:6px;}
+  .phone-screen{padding:16px 14px 20px;}
+  .p-header{border-radius:16px;padding:12px 14px;}
+  .p-name{font-size:16px;}
+  .p-cat-icon{font-size:16px;}
+  .p-sos-icon{font-size:16px;}
+}
+</style>
+</head>
+<body>
+
+<nav class="navbar">
+  <div class="navbar-logo">
+    <img src="logolanding.png" alt="OdontoDex" style="height:60px;width:auto;">
+  </div>
+  <a href="#planos" class="navbar-cta">Começar grátis →</a>
+</nav>
+
+<section class="hero" style="padding-top:120px;">
+  <div class="hero-logo">
+    <img src="logolanding.png" alt="OdontoDex" style="height:360px;width:auto;">
+  </div>
+  <div class="badge"><span class="badge-dot"></span>LANÇAMENTO — OFERTA LIMITADA</div>
+  <p class="hero-eyebrow">Para dentistas recém-formados</p>
+  <h1 class="hero-title">Sua segunda opinião<br>clínica <em>na palma</em><br>da mão.</h1>
+  <p class="hero-sub">38+ protocolos clínicos. Fórceps dinâmico. Emergências. Modo pânico. Tudo o que você precisa no momento que mais importa — dentro do atendimento.</p>
+  <div class="cta-group">
+    <a href="https://odontodex.vercel.app/" class="btn-primary">🦷 Experimentar grátis</a>
+    <a href="#planos" class="btn-ghost">Ver planos →</a>
+  </div>
+  <p class="hero-note"><span>✓</span> Garantia de 7 dias &nbsp;&nbsp; <span>✓</span> Cancele sem justificar</p>
+
+  <div class="phone-wrap">
+    <div class="phone-glow"></div>
+    <div class="phone">
+      <div class="phone-notch"></div>
+      <div class="phone-screen">
+        <div class="p-header">
+          <div class="p-greeting">Disponível agora</div>
+          <div class="p-name">Olá, Dr. Pedro! 👋</div>
+          <div class="p-search">🔍 Como posso te ajudar hoje?</div>
+        </div>
+        <div class="p-label">CATEGORIAS</div>
+        <div class="p-cats">
+          <div class="p-cat"><span class="p-cat-icon">🦷</span><span class="p-cat-name">Dentística</span></div>
+          <div class="p-cat"><span class="p-cat-icon">👑</span><span class="p-cat-name">Prótese</span></div>
+          <div class="p-cat"><span class="p-cat-icon">🔬</span><span class="p-cat-name">Endodontia</span></div>
+          <div class="p-cat"><span class="p-cat-icon">⚕️</span><span class="p-cat-name">Cirurgia</span></div>
+        </div>
+        <div class="p-sos">
+          <div class="p-sos-title">🆘 S.O.S. CLÍNICO</div>
+          <div class="p-sos-btns">
+            <div class="p-sos-btn"><span class="p-sos-icon">😰</span><span class="p-sos-label">Desmaio</span></div>
+            <div class="p-sos-btn"><span class="p-sos-icon">💔</span><span class="p-sos-label">Infarto</span></div>
+            <div class="p-sos-btn"><span class="p-sos-icon">⚡</span><span class="p-sos-label">Epilepsia</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stat reveal"><div class="stat-num">38+</div><div class="stat-label">Protocolos clínicos</div></div>
+  <div class="stat reveal"><div class="stat-num">6</div><div class="stat-label">Especialidades cobertas</div></div>
+  <div class="stat reveal"><div class="stat-num">3</div><div class="stat-label">Cliques até a solução</div></div>
+  <div class="stat reveal"><div class="stat-num">24h</div><div class="stat-label">Disponível offline</div></div>
+</div>
+
+<div class="section">
+  <p class="section-tag reveal">O PROBLEMA</p>
+  <h2 class="section-title reveal">Você travou no meio<br>do atendimento.<br><em>E agora?</em></h2>
+  <p class="section-sub reveal">Todo dentista recém-formado já passou por isso. A diferença está em como você resolve e com que velocidade.</p>
+  <div class="problem-grid">
+    <div class="problem-card reveal"><div class="problem-icon">📞</div><div class="problem-title">Ligar para o professor</div><div class="problem-text">Constrangedor. Nem sempre disponível. O paciente está na cadeira esperando enquanto você liga.</div></div>
+    <div class="problem-card reveal"><div class="problem-icon">🔍</div><div class="problem-title">Pesquisar no Google</div><div class="problem-text">Resultados genéricos, artigos em inglês, fóruns duvidosos. Você não tem tempo para filtrar isso agora.</div></div>
+    <div class="problem-card reveal"><div class="problem-icon">📚</div><div class="problem-title">Abrir o livro</div><div class="problem-text">O livro não está no consultório. E quando está, você não lembra em qual capítulo está o que precisa.</div></div>
+    <div class="problem-card reveal"><div class="problem-icon">😓</div><div class="problem-title">Improvisar e rezar</div><div class="problem-text">A opção mais comum. E a mais perigosa — tanto para o paciente quanto para a sua reputação.</div></div>
+  </div>
+</div>
+
+<div style="background:var(--dark2);padding:100px 24px;">
+<div style="max-width:1100px;margin:0 auto;">
+  <p class="section-tag reveal">A SOLUÇÃO</p>
+  <h2 class="section-title reveal">O OdontoDex é o colega<br>que você sempre <em>quis ter</em><br>do seu lado.</h2>
+  <p class="section-sub reveal">Não é um livro digital. Não é um chatbot. É um assistente clínico pensado para o momento real do atendimento rápido, preciso, confiável.</p>
+  <div class="features-grid" style="margin-top:48px;">
+    <div class="feature-card reveal"><div class="feature-icon">⚡</div><div class="feature-title">3 cliques até a solução</div><div class="feature-text">Categoria → Situação → Protocolo. Em menos de 10 segundos você tem o passo a passo do que fazer.</div></div>
+    <div class="feature-card reveal"><div class="feature-icon">🎯</div><div class="feature-title">Fórceps dinâmico</div><div class="feature-text">Digite o número do dente. O app mostra o fórceps correto, a técnica de luxação e os alertas de risco. Inédito.</div></div>
+    <div class="feature-card reveal"><div class="feature-icon">🚨</div><div class="feature-title">S.O.S. Clínico</div><div class="feature-text">Desmaio, infarto, epilepsia, sangramento. Protocolos de emergência com um toque — sem precisar navegar.</div></div>
+    <div class="feature-card reveal"><div class="feature-icon">😰</div><div class="feature-title">Modo pânico</div><div class="feature-text">Algo deu errado? Cada protocolo tem uma seção de emergência — o que fazer quando o improvável acontece.</div></div>
+    <div class="feature-card reveal"><div class="feature-icon">📶</div><div class="feature-title">Funciona offline</div><div class="feature-text">Sem sinal no consultório? Não importa. O app funciona sem internet — todos os protocolos disponíveis sempre.</div></div>
+    <div class="feature-card reveal"><div class="feature-icon">🧠</div><div class="feature-title">Transmita segurança</div><div class="feature-text">Consulte discretamente em 3 cliques, sem sair da sala. A resposta na tela — a confiança no rosto.</div></div>
+  </div>
+</div>
+</div>
+
+<section class="protocols-section">
+  <div class="protocols-inner">
+    <p class="section-tag reveal">O QUE ESTÁ DENTRO</p>
+    <h2 class="section-title reveal">38+ protocolos em<br><em>6 especialidades</em></h2>
+    <div class="protocols-grid">
+      <div class="proto-cat reveal"><span class="proto-cat-icon">🦷</span><div><div class="proto-cat-name">Dentística</div><div class="proto-cat-count">12+ protocolos</div></div></div>
+      <div class="proto-cat reveal"><span class="proto-cat-icon">👑</span><div><div class="proto-cat-name">Prótese</div><div class="proto-cat-count">18+ protocolos</div></div></div>
+      <div class="proto-cat reveal"><span class="proto-cat-icon">🔬</span><div><div class="proto-cat-name">Endodontia</div><div class="proto-cat-count">9+ protocolos</div></div></div>
+      <div class="proto-cat reveal"><span class="proto-cat-icon">⚕️</span><div><div class="proto-cat-name">Cirurgia</div><div class="proto-cat-count">7+ protocolos</div></div></div>
+      <div class="proto-cat reveal"><span class="proto-cat-icon">🪥</span><div><div class="proto-cat-name">Periodontia</div><div class="proto-cat-count">6+ protocolos</div></div></div>
+   
+    </div>
+    <h3 style="font-size:20px;font-weight:700;margin-top:60px;margin-bottom:20px;text-align:center;" class="reveal">+ S.O.S. Clínico completo</h3>
+    <div class="urgencias">
+      <div class="urgencia reveal"><span class="urgencia-icon">😰</span><span class="urgencia-name">Síncope</span></div>
+      <div class="urgencia reveal"><span class="urgencia-icon">💔</span><span class="urgencia-name">Infarto</span></div>
+      <div class="urgencia reveal"><span class="urgencia-icon">⚡</span><span class="urgencia-name">Epilepsia</span></div>
+      <div class="urgencia reveal"><span class="urgencia-icon">🩸</span><span class="urgencia-name">Sangramento</span></div>
+      <div class="urgencia reveal"><span class="urgencia-icon">😨</span><span class="urgencia-name">Ansiedade</span></div>
+      <div class="urgencia reveal"><span class="urgencia-icon">🩺</span><span class="urgencia-name">Anafilaxia</span></div>
+      <div class="urgencia reveal"><span class="urgencia-icon">🍬</span><span class="urgencia-name">Hipoglicemia</span></div>
+      <div class="urgencia reveal"><span class="urgencia-icon">📈</span><span class="urgencia-name">Hipertensão</span></div>
+    </div>
+  </div>
+</section>
+
+<section class="demo-section">
+  <div class="demo-card reveal">
+    <div>
+      <div class="demo-tag">FUNCIONALIDADE EXCLUSIVA</div>
+      <h2 class="demo-title">Fórceps dinâmico.<br>Digite o dente.<br>Pronto.</h2>
+      <p class="demo-text">Sem tabelas, sem decorar. Você digita o número do dente e o app mostra o fórceps correto, a técnica exata e os alertas de risco.</p>
+      <div class="demo-steps">
+        <div class="demo-step"><div class="demo-step-num">1</div><div class="demo-step-text">Abre o protocolo de Extração Simples</div></div>
+        <div class="demo-step"><div class="demo-step-num">2</div><div class="demo-step-text">Digite o número do dente a ser extraído</div></div>
+        <div class="demo-step"><div class="demo-step-num">3</div><div class="demo-step-text">Veja o fórceps, a técnica e os alertas instantaneamente</div></div>
+      </div>
+    </div>
+    <div class="demo-phone">
+      <div class="demo-fw-label">🎯 FÓRCEPS DINÂMICO</div>
+      <div class="demo-fw-input">36</div>
+      <div class="demo-fw-confirm">🦷 <span>Dente 36 — Molar inferior</span> <span class="demo-fw-ok">✓</span></div>
+      <div class="demo-fw-result">
+        <div class="demo-fw-name">Fórceps nº 22 (Cowhorn)</div>
+        <div class="demo-fw-tipo">Cowhorn inferior</div>
+        <span class="demo-fw-tag">Encaixar pontas nas furças — balanço V-L</span>
+        <div class="demo-fw-alert">⚠️ 2 raízes divergentes — risco de fratura mandibular</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section class="pricing-section" id="planos">
+  <div class="pricing-inner">
+    <p class="section-tag reveal">PLANOS</p>
+    <h2 class="section-title reveal">Invista menos que<br> <em>R$0,50 por dia</em>.</h2>
+    <p class="section-sub reveal" style="margin:0 auto;">Menos do que você gasta em um procedimento mal executado por falta de informação.</p>
+
+    <div class="plans-grid reveal" style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:48px;">
+
+      <!-- GRATUITO -->
+      <div style="background:var(--dark2);border:1px solid rgba(255,255,255,0.07);border-radius:28px;padding:36px 28px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(to right,#475569,transparent);"></div>
+        <div class="pricing-name">GRATUITO</div>
+        <div style="font-size:52px;font-weight:800;letter-spacing:-2px;line-height:1;margin-bottom:8px;">R$0</div>
+        <div style="font-size:14px;color:var(--muted);margin-bottom:32px;">Para experimentar</div>
+        <div style="margin-bottom:32px;">
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>5 protocolos básicos</div>
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>2 protocolos S.O.S. Clínico</div>
+          <div class="pricing-feature"><div style="width:22px;height:22px;background:rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;color:var(--muted);">✕</div><span style="color:var(--muted);">Fórceps dinâmico</span></div>
+          <div class="pricing-feature"><div style="width:22px;height:22px;background:rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;color:var(--muted);">✕</div><span style="color:var(--muted);">Modo pânico</span></div>
+          <div class="pricing-feature"><div style="width:22px;height:22px;background:rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;color:var(--muted);">✕</div><span style="color:var(--muted);">Atualizações mensais</span></div>
+        </div>
+        <a href="https://odontodex.vercel.app/" style="width:100%;background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;display:block;text-align:center;text-decoration:none;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Começar grátis</a>
+      </div>
+
+      <!-- PREMIUM -->
+      <div style="background:var(--dark2);border:1px solid rgba(123,63,160,0.4);border-radius:28px;padding:36px 28px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(to right,var(--brand),#8A8A8A);"></div>
+        <div style="position:absolute;top:16px;right:16px;background:linear-gradient(135deg,var(--brand),#8A8A8A);border-radius:100px;padding:4px 12px;font-size:11px;font-weight:700;">⭐ POPULAR</div>
+        <!-- Timer oferta -->
+        <div style="background:linear-gradient(135deg,rgba(123,63,160,0.15),rgba(138,138,138,0.15));border:1px solid rgba(123,63,160,0.25);border-radius:12px;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:20px;">
+          <div style="font-size:12px;font-weight:600;color:#C084E0;">🔥 Oferta de lançamento</div>
+          <div id="timer" style="font-size:20px;font-weight:800;color:var(--brand);font-variant-numeric:tabular-nums;letter-spacing:-1px;">23:59:47</div>
+        </div>
+        <div class="pricing-name">PREMIUM</div>
+        <div style="font-size:13px;color:var(--red);font-weight:600;text-decoration:line-through;margin-bottom:4px;">R$29,90/mês</div>
+        <div style="font-size:52px;font-weight:800;letter-spacing:-2px;line-height:1;margin-bottom:4px;"><span style="font-size:20px;font-weight:600;color:var(--muted);vertical-align:top;margin-top:8px;display:inline-block;">R$</span>9<small style="font-size:16px;font-weight:500;color:var(--muted);">,90/mês</small></div>
+        <div style="font-size:12px;color:var(--green);font-weight:700;margin-bottom:6px;">✓ Você economiza R$20/mês</div>
+        <div style="font-size:14px;color:var(--muted);margin-bottom:32px;">Garantia de 7 dias · Cancele sem justificar</div>
+        <div style="margin-bottom:32px;">
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>Todos os 38+ protocolos clínicos</div>
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>Fórceps dinâmico e odontosecção</div>
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>S.O.S. Clínico completo (8 emergências)</div>
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>Modo pânico em todos os protocolos</div>
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>Funciona offline — sem depender de internet</div>
+          <div class="pricing-feature"><div class="pricing-feature-check">✓</div>Atualizações mensais com novos protocolos</div>
+        </div>
+        <a href="https://pay.cakto.com.br/39mazes_884016" class="pricing-cta">Assinar agora →</a>
+        <div style="margin-top:14px;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;">🔒 Garantia de 7 dias. Não gostou, cancelamos sem perguntas.</div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<div style="background:var(--dark2);padding:80px 0;">
+<div class="objections">
+  <p class="section-tag reveal" style="text-align:center;display:block;margin-bottom:32px;">DÚVIDAS FREQUENTES</p>
+  <div class="objection reveal" onclick="toggleObj(this)"><div class="objection-q">Funciona sem internet? <span class="objection-icon">+</span></div><div class="objection-a">Sim. Todos os protocolos são salvos no seu dispositivo. Você pode estar sem sinal no consultório e o app funciona normalmente.</div></div>
+  <div class="objection reveal" onclick="toggleObj(this)"><div class="objection-q">Como cancelar minha assinatura? <span class="objection-icon">+</span></div><div class="objection-a">Para cancelar, envie um e-mail para <strong>compradores@cakto.com.br</strong> 
+    com o e-mail usado na compra e o nome do produto (OdontoDex Premium). 
+    Você continua tendo acesso até o fim do período já pago. 
+    Sem fidelidade, sem multa, sem perguntas.</div></div>
+  <div class="objection reveal" onclick="toggleObj(this)"><div class="objection-q">Os protocolos são atualizados? <span class="objection-icon">+</span></div><div class="objection-a">Sim. Adicionamos novos protocolos todo mês com base nas situações mais relatadas por dentistas usando o app.</div></div>
+  <div class="objection reveal" onclick="toggleObj(this)"><div class="objection-q">É para estudantes também? <span class="objection-icon">+</span></div><div class="objection-a">Sim. Estudantes de odontologia usam o OdontoDex para revisar antes das clínicas supervisionadas e fixar condutas para as provas.</div></div>
+  <div class="objection reveal" onclick="toggleObj(this)"><div class="objection-q">Os protocolos têm embasamento científico? <span class="objection-icon">+</span></div><div class="objection-a">Sim. Todos os protocolos são baseados em diretrizes do CFO e literatura odontológica atual. Cada conduta vem com nota clínica de responsabilidade profissional.</div></div>
+</div>
+</div>
+
+<section class="final-cta">
+  <div class="final-cta-inner">
+    <h2 class="final-cta-title reveal">A próxima vez que<br>você travar na cadeira,<br>o que vai fazer?</h2>
+    <p class="final-cta-sub reveal">Você pode continuar improvisando. Ou pode ter a resposta certa em 3 cliques.</p>
+    <div class="cta-group reveal">
+      <a href="https://pay.cakto.com.br/39mazes_884016" class="btn-primary" style="font-size:18px;padding:20px 44px;">🦷 Assinar agora</a>
+    </div>
+    <p class="hero-note reveal" style="margin-top:20px;"><span>✓</span> Garantia de 7 dias &nbsp;&nbsp; <span>✓</span> Cancele sem justificar</p>
+  </div>
+</section>
+
+<footer>
+  <p>© 2026 OdontoDex · Seu assistente clínico · <a href="https://odontodex.vercel.app/" style="color:var(--muted);">Acessar o app</a></p>
+</footer>
+
+<script>
+const reveals=document.querySelectorAll('.reveal');
+const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});},{threshold:0.1});
+reveals.forEach(r=>observer.observe(r));
+function toggleObj(el){el.classList.toggle('open');}
+function startTimer(){
+  let target=localStorage.getItem('odontodex_lp_timer');
+  if(!target){target=Date.now()+24*60*60*1000;localStorage.setItem('odontodex_lp_timer',target);}
+  target=parseInt(target);
+  function update(){
+    const diff=target-Date.now();
+    if(diff<=0){document.getElementById('timer').textContent='00:00:00';return;}
+    const h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+    document.getElementById('timer').textContent=String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+    setTimeout(update,1000);
+  }
+  update();
+}
+startTimer();
+</script>
+</body>
+</html>
