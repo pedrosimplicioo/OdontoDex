@@ -2628,83 +2628,32 @@ document.addEventListener('DOMContentLoaded', function() {
   setTimeout(setupCancelButtons, 500);
 });
   // ============================================================
-// ========== PULL TO REFRESH (puxar para atualizar) ==========
+// ========== PULL TO REFRESH (ESTILO INSTAGRAM) ==========
 // ============================================================
 
-let ptrStartY = 0;           // Guarda onde o toque começou
-let ptrIsPulling = false;    // Controla se está puxando
-const ptrIndicator = document.getElementById('ptr-indicator');
-
-// Função que atualiza os dados (sem recarregar a página)
-function refreshDataPull() {
-  // Mostrar mensagem no indicador
-  if (ptrIndicator) {
-    ptrIndicator.textContent = '🔄 Atualizando dados...';
-  }
-  
-  // Recarregar todos os dados do localStorage
-  DATA = loadData();
-  FAVS = loadFavs();
-  HISTORY = loadHistory();
-  USAGE_COUNT = loadUsageCount();
-  
-  // Atualizar a tela que está aberta
-  const activeScreen = document.querySelector('.screen.active')?.id;
-  
-  if (activeScreen === 'screen-app') {
-    renderHome();
-  }
-  if (activeScreen === 'screen-favorites') {
-    renderFavs();
-  }
-  if (activeScreen === 'screen-settings') {
-    renderSettings();
-  }
-  
-  // Mostrar mensagem de sucesso
-  setTimeout(() => {
-    if (ptrIndicator) {
-      ptrIndicator.textContent = '✅ Dados atualizados!';
-      setTimeout(() => {
-        ptrIndicator.classList.remove('ptr-indicator-show');
-      }, 800);
-    }
-    showToast("✅ Dados atualizados!", "success");
-  }, 500);
-}
-
-// ============================================================
-// ========== PULL TO REFRESH (FUNCIONA COM UM PUXÃO) ==========
-// ============================================================
-
-let pullStartY = 0;           // Onde o dedo começou a tocar
-let pullDistance = 0;         // Distância que puxou
-let isPulling = false;        // Está puxando?
-let shouldRefresh = false;     // Já pode atualizar?
-const pullThreshold = 70;      // Quantos pixels precisa puxar (70px)
-
-// PEGAR O INDICADOR
+let pullStartY = 0;
+let pullDistance = 0;
+let isPulling = false;
+let shouldRefresh = false;
+const pullThreshold = 70;
 const pullIndicator = document.getElementById('ptr-indicator');
 
-// FUNÇÃO QUE ATUALIZA OS DADOS
+// Função que atualiza os dados
 function doRefresh() {
   if (pullIndicator) {
     pullIndicator.textContent = '🔄 Atualizando...';
   }
   
-  // Recarregar os dados
   DATA = loadData();
   FAVS = loadFavs();
   HISTORY = loadHistory();
   USAGE_COUNT = loadUsageCount();
   
-  // Atualizar a tela que está aberta
   const activeScreen = document.querySelector('.screen.active')?.id;
   if (activeScreen === 'screen-app') renderHome();
   if (activeScreen === 'screen-favorites') renderFavs();
   if (activeScreen === 'screen-settings') renderSettings();
   
-  // Mostrar mensagem de sucesso
   setTimeout(() => {
     if (pullIndicator) {
       pullIndicator.textContent = '✅ Atualizado!';
@@ -2721,10 +2670,15 @@ document.addEventListener('touchstart', (e) => {
   const activeBody = document.querySelector('.screen.active .body');
   if (!activeBody) return;
   
-  // Guarda a posição Y do toque
-  pullStartY = e.touches[0].clientY;
-  isPulling = true;
-  shouldRefresh = false;
+  // SÓ FUNCIONA SE ESTIVER NO TOPO (scrollTop <= 5)
+  if (activeBody.scrollTop <= 5) {
+    pullStartY = e.touches[0].clientY;
+    isPulling = true;
+    shouldRefresh = false;
+    pullDistance = 0;
+  } else {
+    isPulling = false;
+  }
 });
 
 // ===== 2. QUANDO O DEDO MOVE (ENQUANTO PUXA) =====
@@ -2734,12 +2688,11 @@ document.addEventListener('touchmove', (e) => {
   const currentY = e.touches[0].clientY;
   pullDistance = currentY - pullStartY;
   
-  // Só faz algo se estiver puxando para BAIXO (distância positiva)
+  // Só faz algo se estiver puxando para BAIXO
   if (pullDistance > 0) {
     // Impede a página de rolar enquanto puxa
     e.preventDefault();
     
-    // Mostra o indicador com a distância que falta
     if (pullDistance < pullThreshold) {
       const falta = pullThreshold - pullDistance;
       if (pullIndicator) {
@@ -2749,7 +2702,6 @@ document.addEventListener('touchmove', (e) => {
       shouldRefresh = false;
     }
     
-    // Se puxou o suficiente, prepara para atualizar
     if (pullDistance >= pullThreshold && !shouldRefresh) {
       shouldRefresh = true;
       if (pullIndicator) {
@@ -2757,23 +2709,20 @@ document.addEventListener('touchmove', (e) => {
       }
     }
   }
-}, { passive: false });  // ← importante para o preventDefault funcionar
+}, { passive: false });
 
-// ===== 3. QUANDO O DEDO SOLTA A TELA =====
+// ===== 3. QUANDO O DEDO SOLTA =====
 document.addEventListener('touchend', (e) => {
   if (!isPulling) return;
   
-  // Se puxou o suficiente, ATUALIZA
   if (shouldRefresh) {
     doRefresh();
   } else {
-    // Se não puxou o suficiente, só esconde o indicador
     if (pullIndicator) {
       pullIndicator.classList.remove('ptr-indicator-show');
     }
   }
   
-  // Reseta tudo
   isPulling = false;
   shouldRefresh = false;
   pullDistance = 0;
