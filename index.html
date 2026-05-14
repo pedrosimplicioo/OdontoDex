@@ -480,100 +480,10 @@ body.dark .cancel-reason-btn.selected {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
-  /* Efeito visual ao arrastar para voltar */
-.swipe-back-indicator {
-  position: fixed;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 3px;
-  background: #7C3FA0;
-  z-index: 9998;
-  opacity: 0;
-  transition: opacity 0.1s;
-  pointer-events: none;
-}
-
-.swipe-back-indicator.active {
-  opacity: 0.5;
-}
-  // ============================================================
-// ========== SWIPE BACK (arrastar para voltar) ==========
-// ============================================================
-
-let swipeStartX = 0;
-let swipeCurrentX = 0;
-let isSwiping = false;
-let swipeDistance = 0;
-const swipeThreshold = 80; // Distância mínima para voltar (80px)
-const swipeIndicator = document.getElementById('swipe-indicator');
-
-// Função que volta para a tela anterior
-function goBack() {
-  if (typeof goBackToLastScreen === 'function') {
-    goBackToLastScreen();
-  }
-}
-
-// ===== TOUCH START =====
-document.addEventListener('touchstart', (e) => {
-  // Só ativa se o toque começou na borda esquerda (até 30px)
-  const touchX = e.touches[0].clientX;
-  if (touchX <= 30) {
-    // Verifica se não está na tela de login
-    const activeScreen = document.querySelector('.screen.active')?.id;
-    if (activeScreen !== 'screen-login') {
-      swipeStartX = touchX;
-      isSwiping = true;
-      swipeDistance = 0;
-      if (swipeIndicator) swipeIndicator.classList.add('active');
-    }
-  }
-});
-
-// ===== TOUCH MOVE =====
-document.addEventListener('touchmove', (e) => {
-  if (!isSwiping) return;
-  
-  swipeCurrentX = e.touches[0].clientX;
-  swipeDistance = swipeCurrentX - swipeStartX;
-  
-  if (swipeDistance > 0) {
-    e.preventDefault();
-    
-    // Mostrar progresso (opcional)
-    const progress = Math.min((swipeDistance / swipeThreshold) * 100, 100);
-    if (swipeIndicator) {
-      swipeIndicator.style.opacity = 0.3 + (progress / 100) * 0.4;
-    }
-  }
-}, { passive: false });
-
-// ===== TOUCH END =====
-document.addEventListener('touchend', (e) => {
-  if (!isSwiping) return;
-  
-  if (swipeDistance >= swipeThreshold) {
-    // Voltar para tela anterior
-    goBack();
-    // Feedback tátil (opcional)
-    if (navigator.vibrate) navigator.vibrate(30);
-  }
-  
-  // Resetar
-  isSwiping = false;
-  swipeDistance = 0;
-  swipeStartX = 0;
-  if (swipeIndicator) {
-    swipeIndicator.classList.remove('active');
-    swipeIndicator.style.opacity = '';
-  }
-});
 </style>
 </head>
 <body>
-<!-- Indicador de arrastar para voltar -->
-<div id="swipe-indicator" class="swipe-back-indicator"></div>
+
 <div class="toast" id="toast"></div>
 <div class="loading-overlay" id="loading-overlay"><div class="spinner"></div></div>
 
@@ -673,7 +583,7 @@ document.addEventListener('touchend', (e) => {
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
       <div class="hdr-saudacao"><span class="hdr-dot"></span><span id="hdr-periodo">Disponível agora</span></div>
       <div style="display:flex;gap:6px;align-items:center">
-        <button class="gear-btn" onclick="hapticFeedback('light'); goScreen('settings')" title="Configurações">⚙️</button>
+        <button class="gear-btn" onclick="goScreen('settings')" title="Configurações">⚙️</button>
       </div>
     </div>
     <div id="logo-tap" style="position:absolute;left:-9999px;opacity:0;pointer-events:auto;width:1px;height:1px"></div>
@@ -702,7 +612,7 @@ document.addEventListener('touchend', (e) => {
     <div id="favs-box" class="fav-box">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
         <span style="font-weight:800;font-size:13px;color:#F59E0B">⭐ FAVORITOS</span>
-        <button class="link-btn" onclick="hapticFeedback('light'); goScreen('favorites')">Ver todos</button>
+        <button class="link-btn" onclick="goScreen('favorites')">Ver todos</button>
       </div>
       <div class="fav-chips" id="fav-chips"></div>
     </div>
@@ -723,7 +633,7 @@ document.addEventListener('touchend', (e) => {
 <!-- FAVORITES -->
 <div class="screen" id="screen-favorites">
   <div class="top-bar">
-    <button class="back-btn" onclick="hapticFeedback('light'); goBackToLastScreen()">←</button>
+    <button class="back-btn" onclick="goBackToLastScreen()">←</button>
     <span class="top-title">⭐ Favoritos</span>
     <div style="width:48px"></div>
   </div>
@@ -733,7 +643,7 @@ document.addEventListener('touchend', (e) => {
 <!-- SETTINGS -->
 <div class="screen" id="screen-settings">
   <div class="top-bar">
-    <button class="back-btn" onclick="hapticFeedback('light'); goBackToLastScreen()">←</button>
+    <button class="back-btn" onclick="goBackToLastScreen()">←</button>
     <span class="top-title">Configurações</span>
     <div style="width:36px"></div>
   </div>
@@ -1620,7 +1530,6 @@ function renderHome(){
         btn.className="cat-horizontal" + (isPremiumCat ? " cat-locked" : "");
         btn.innerHTML=`<span class="cat-horizontal-icon">${cat.icon}</span><span class="cat-horizontal-label">${cat.label}</span>${isPremiumCat ? '<span class="cat-crown">🔒</span>' : ''}`;
         btn.onclick=()=>{
-           hapticFeedback('light');
           if(isPremiumCat){
             showUpgradeModal(cat.id);
             return;
@@ -1753,7 +1662,7 @@ function renderSituations(){
       btn.onclick=()=>showUpgradeModal(null);
     } else {
       btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="arr">›</span>`;
-      btn.onclick=()=>{hapticFeedback('light'); selSit=sit.id;renderProcedures();goScreen("procedures");};
+      btn.onclick=()=>{selSit=sit.id;renderProcedures();goScreen("procedures");};
     }
     list.appendChild(btn);
   });
@@ -1788,25 +1697,16 @@ function renderProceduresList(procs) {
   
   procs.forEach(proc => {
     const p = DATA.protocols[proc.id];
-    if (!p) return;
-    
-    const isProcLocked = !p.free && !window.userIsPremium;
-    const timeHtml = p.time ? `<span class="list-time">⏱ ${p.time}</span>` : '';
+    const timeHtml = p ? `<span class="list-time">⏱ ${p.time}</span>` : '';
     const seenHtml = HISTORY.includes(proc.id) ? '<span class="seen-badge">✓ Visto</span>' : '';
-    
     const btn = document.createElement("button");
     btn.className = "list-btn";
-    
-    if (isProcLocked) {
-      btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}${seenHtml}<span class="prem-tag">🔒 Premium</span><span class="arr">›</span>`;
-      btn.onclick = () => showUpgradeModal(null);
-    } else {
-      btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}${seenHtml}<span class="arr">›</span>`;
-      btn.onclick = () => {
-        hapticFeedback('light');
-        openProto(proc.id);
-      };
-    }
+   if(proc.free || window.userIsPremium) {
+  btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}${seenHtml}<span class="arr">›</span>`;
+} else {
+  btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}<span class="prem-tag">🔒 Premium</span>`;
+}
+    btn.onclick = () => openProto(proc.id);
     list.appendChild(btn);
   });
 }
@@ -1885,7 +1785,37 @@ function showUpgradeModal(catId){
   }
   showOverlay('premium-overlay');
 }
-
+// ==================== ANALYTICS FIRESTORE ====================
+async function registrarUsoProtocolo(protocoloId) {
+  if (!currentUser) return; // só registra se usuário logado
+  
+  const protocolo = DATA.protocols[protocoloId];
+  if (!protocolo) return;
+  
+  try {
+    const agora = new Date();
+    const dataStr = agora.toISOString().split('T')[0];
+    const mesStr = dataStr.substring(0, 7);
+    const hora = agora.getHours();
+    const diaSemana = agora.getDay(); // 0=Domingo, 1=Segunda...
+    
+    await db.collection('analytics_uso_protocolos').add({
+      protocoloId: protocoloId,
+      protocoloTitulo: protocolo.title,
+      usuarioId: currentUser.uid,
+      usuarioEmail: currentUser.email,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      data: dataStr,
+      mes: mesStr,
+      hora: hora,
+      diaSemana: diaSemana
+    });
+    
+    console.log('✅ Analytics: uso registrado', protocolo.title);
+  } catch (error) {
+    console.error('Erro ao registrar uso:', error);
+  }
+}
 function openProto(id){
   if(!DATA) return;
   const p = DATA.protocols[id];
@@ -1899,7 +1829,7 @@ function openProto(id){
     showUpgradeModal(null);
     return;
   }
-  
+  registrarUsoProtocolo(id);
   currentProtoId = id;
   HISTORY = [id, ...HISTORY.filter(h => h !== id)].slice(0,20);
   saveHistory();
@@ -2720,124 +2650,6 @@ function updatePremiumUI() {
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(setupCancelButtons, 500);
 });
- // ============================================================
-// ========== SWIPE BACK (arrastar da borda para voltar) ==========
-// ============================================================
-
-let swipeStartX = 0;
-let swipeDistance = 0;
-let isSwiping = false;
-const swipeThreshold = 60; // Distância mínima para voltar (60px)
-
-// Criar o elemento indicador se não existir
-let swipeIndicator = document.getElementById('swipe-indicator');
-if (!swipeIndicator) {
-  swipeIndicator = document.createElement('div');
-  swipeIndicator.id = 'swipe-indicator';
-  swipeIndicator.className = 'swipe-back-indicator';
-  document.body.appendChild(swipeIndicator);
-}
-
-// ===== TOUCH START (detecta toque na borda esquerda) =====
-document.addEventListener('touchstart', (e) => {
-  const touchX = e.touches[0].clientX;
-  
-  // Só ativa se tocou nos primeiros 25px da tela
-  if (touchX <= 25) {
-    const activeScreen = document.querySelector('.screen.active')?.id;
-    // Não ativa na tela de login
-    if (activeScreen !== 'screen-login' && activeScreen !== 'screen-app') {
-      swipeStartX = touchX;
-      isSwiping = true;
-      swipeDistance = 0;
-      if (swipeIndicator) swipeIndicator.classList.add('active');
-    }
-  }
-});
-
-// ===== TOUCH MOVE (enquanto arrasta) =====
-document.addEventListener('touchmove', (e) => {
-  if (!isSwiping) return;
-  
-  const currentX = e.touches[0].clientX;
-  swipeDistance = currentX - swipeStartX;
-  
-  if (swipeDistance > 0) {
-    e.preventDefault();
-    
-    // Atualiza opacidade do indicador conforme a distância
-    const opacity = Math.min(swipeDistance / swipeThreshold, 1);
-    if (swipeIndicator) {
-      swipeIndicator.style.opacity = opacity;
-    }
-  }
-}, { passive: false });
-
-// ===== TOUCH END (quando solta) =====
-document.addEventListener('touchend', (e) => {
-  if (!isSwiping) return;
-  
-  // Se arrastou mais que o limite, volta a tela
-  if (swipeDistance >= swipeThreshold) {
-    if (typeof goBackToLastScreen === 'function') {
-      goBackToLastScreen();
-    }
-    // Feedback tátil (opcional)
-    if (navigator.vibrate) navigator.vibrate(30);
-  }
-  
-  // Resetar tudo
-  isSwiping = false;
-  swipeDistance = 0;
-  swipeStartX = 0;
-  if (swipeIndicator) {
-    swipeIndicator.classList.remove('active');
-    swipeIndicator.style.opacity = '';
-  }
-});
-  // ============================================================
-// ========== HAPTIC FEEDBACK (VIBRAÇÃO TÁTIL) ==========
-// ============================================================
-
-function hapticFeedback(type) {
-  // Verifica se o dispositivo suporta vibração
-  if (!navigator.vibrate) return;
-  
-  switch(type) {
-    case 'light':
-      // Toque leve - para botões comuns
-      navigator.vibrate(10);
-      break;
-      
-    case 'medium':
-      // Toque médio - para ações importantes
-      navigator.vibrate(20);
-      break;
-      
-    case 'success':
-      // Sucesso - para favoritos, copiar, etc.
-      navigator.vibrate([20, 30, 20]);
-      break;
-      
-    case 'heavy':
-      // Pesado - para ações destrutivas (cancelar, excluir)
-      navigator.vibrate(50);
-      break;
-      
-    case 'error':
-      // Erro - vibração dupla longa
-      navigator.vibrate([100, 50, 100]);
-      break;
-      
-    case 'refresh':
-      // Atualizar - vibração progressiva
-      navigator.vibrate([30, 20, 50, 20, 30]);
-      break;
-      
-    default:
-      navigator.vibrate(10);
-  }
-}
 </script>
 </body>
 </html>
