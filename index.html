@@ -1192,20 +1192,30 @@ function renderSettings(){
     av.textContent = iniciais.toUpperCase();
     av.style.borderColor = document.body.classList.contains('dark') ? '#1E293B' : '#fff';
   }
-  const planBadge = document.getElementById('cfg-plan-badge');
-  if(planBadge){
-    if(window.userIsPremium){
-      planBadge.textContent = '🔒 Premium';
-      planBadge.style.background = '#F5EEFB';
-      planBadge.style.color = '#7C3FA0';
-      planBadge.style.borderColor = '#D9B8F0';
-    } else {
-      planBadge.textContent = 'Gratuito';
-      planBadge.style.background = '#F1F5F9';
-      planBadge.style.color = '#64748B';
-      planBadge.style.borderColor = '#E2E8F0';
-    }
+ const planBadge = document.getElementById('cfg-plan-badge');
+if(planBadge){
+  if(window.userIsPremium){
+    planBadge.textContent = '💎 PREMIUM';
+    planBadge.style.background = 'linear-gradient(135deg, #F59E0B, #FCD34D)';
+    planBadge.style.color = '#92400E';
+    planBadge.style.border = 'none';
+    planBadge.style.fontSize = '11px';
+    planBadge.style.fontWeight = '800';
+    planBadge.style.padding = '4px 14px';
+    planBadge.style.borderRadius = '30px';
+    planBadge.style.boxShadow = '0 2px 8px rgba(245,158,11,0.3)';
+  } else {
+    planBadge.textContent = 'Gratuito';
+    planBadge.style.background = '#334155';
+    planBadge.style.color = '#94A3B8';
+    planBadge.style.border = '1px solid #475569';
+    planBadge.style.fontSize = '11px';
+    planBadge.style.fontWeight = '600';
+    planBadge.style.padding = '4px 12px';
+    planBadge.style.borderRadius = '30px';
+    planBadge.style.boxShadow = 'none';
   }
+}
   const cn = document.getElementById('cfg-user-name');
   if(cn) cn.textContent = dnFmt;
   const ce = document.getElementById('cfg-user-email');
