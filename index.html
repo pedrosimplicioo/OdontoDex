@@ -2710,32 +2710,33 @@ function updatePremiumUI() {
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(setupCancelButtons, 500);
 });
-  // ============================================================
-// ========== SWIPE BACK (arrastar para voltar) ==========
+ // ============================================================
+// ========== SWIPE BACK (arrastar da borda para voltar) ==========
 // ============================================================
 
 let swipeStartX = 0;
-let swipeCurrentX = 0;
-let isSwiping = false;
 let swipeDistance = 0;
-const swipeThreshold = 80; // Distância mínima para voltar (80px)
-const swipeIndicator = document.getElementById('swipe-indicator');
+let isSwiping = false;
+const swipeThreshold = 60; // Distância mínima para voltar (60px)
 
-// Função que volta para a tela anterior
-function goBack() {
-  if (typeof goBackToLastScreen === 'function') {
-    goBackToLastScreen();
-  }
+// Criar o elemento indicador se não existir
+let swipeIndicator = document.getElementById('swipe-indicator');
+if (!swipeIndicator) {
+  swipeIndicator = document.createElement('div');
+  swipeIndicator.id = 'swipe-indicator';
+  swipeIndicator.className = 'swipe-back-indicator';
+  document.body.appendChild(swipeIndicator);
 }
 
-// ===== TOUCH START =====
+// ===== TOUCH START (detecta toque na borda esquerda) =====
 document.addEventListener('touchstart', (e) => {
-  // Só ativa se o toque começou na borda esquerda (até 30px)
   const touchX = e.touches[0].clientX;
-  if (touchX <= 30) {
-    // Verifica se não está na tela de login
+  
+  // Só ativa se tocou nos primeiros 25px da tela
+  if (touchX <= 25) {
     const activeScreen = document.querySelector('.screen.active')?.id;
-    if (activeScreen !== 'screen-login') {
+    // Não ativa na tela de login
+    if (activeScreen !== 'screen-login' && activeScreen !== 'screen-app') {
       swipeStartX = touchX;
       isSwiping = true;
       swipeDistance = 0;
@@ -2744,36 +2745,38 @@ document.addEventListener('touchstart', (e) => {
   }
 });
 
-// ===== TOUCH MOVE =====
+// ===== TOUCH MOVE (enquanto arrasta) =====
 document.addEventListener('touchmove', (e) => {
   if (!isSwiping) return;
   
-  swipeCurrentX = e.touches[0].clientX;
-  swipeDistance = swipeCurrentX - swipeStartX;
+  const currentX = e.touches[0].clientX;
+  swipeDistance = currentX - swipeStartX;
   
   if (swipeDistance > 0) {
     e.preventDefault();
     
-    // Mostrar progresso (opcional)
-    const progress = Math.min((swipeDistance / swipeThreshold) * 100, 100);
+    // Atualiza opacidade do indicador conforme a distância
+    const opacity = Math.min(swipeDistance / swipeThreshold, 1);
     if (swipeIndicator) {
-      swipeIndicator.style.opacity = 0.3 + (progress / 100) * 0.4;
+      swipeIndicator.style.opacity = opacity;
     }
   }
 }, { passive: false });
 
-// ===== TOUCH END =====
+// ===== TOUCH END (quando solta) =====
 document.addEventListener('touchend', (e) => {
   if (!isSwiping) return;
   
+  // Se arrastou mais que o limite, volta a tela
   if (swipeDistance >= swipeThreshold) {
-    // Voltar para tela anterior
-    goBack();
+    if (typeof goBackToLastScreen === 'function') {
+      goBackToLastScreen();
+    }
     // Feedback tátil (opcional)
     if (navigator.vibrate) navigator.vibrate(30);
   }
   
-  // Resetar
+  // Resetar tudo
   isSwiping = false;
   swipeDistance = 0;
   swipeStartX = 0;
