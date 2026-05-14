@@ -1963,7 +1963,7 @@ function doHomeSearch(q){
   found.forEach(p=>{
     const btn=document.createElement("button");
     btn.className="home-result-card";
-    btn.innerHTML='<div style="display:flex;align-items:center;gap:6px"><span class="result-title">'+p.title+'</span>'+(!p.free?'<span class="prem-tag">🔒</span>':'')+'</div><span class="result-meta">'+p.time+' · <span style="color:'+(lcs[p.level]||"#6B7280")+'">'+(lis[p.level]||"")+" "+p.level+'</span></span>';
+    btn.innerHTML='<div style="display:flex;align-items:center;gap:6px"><span class="result-title">'+p.title+'</span>'+(!p.free && !window.userIsPremium ? '<span class="prem-tag">🔒</span>' : '')+'</div><span class="result-meta">'+p.time+' · <span style="color:'+(lcs[p.level]||"#6B7280")+'">'+(lis[p.level]||"")+" "+p.level+'</span></span>';
     btn.onclick=()=>{clearHomeSearch();openProto(p.id);};
     resDiv.appendChild(btn);
   });
@@ -2005,7 +2005,7 @@ function doSearch(q){
     const li={fácil:"🟢",médio:"🟡",difícil:"🔴",urgente:"🚨"}[p.level]||"";
     const btn=document.createElement("button");
     btn.className="result-card";
-    btn.innerHTML=`<div style="display:flex;align-items:center;gap:6px"><span class="result-title">${p.title}</span>${!p.free?'<span class="prem-tag">🔒</span>':''}</div><span class="result-meta">${p.time} · <span style="color:${lc}">${li} ${p.level}</span></span>`;
+    btn.innerHTML=`<div style="display:flex;align-items:center;gap:6px"><span class="result-title">${p.title}</span>${!p.free && !window.userIsPremium ? '<span class="prem-tag">🔒</span>' : ''}</div><span class="result-meta">${p.time} · <span style="color:${lc}">${li} ${p.level}</span></span>`;
     btn.onclick=()=>openProto(p.id);
     res.appendChild(btn);
   });
