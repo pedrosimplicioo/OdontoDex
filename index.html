@@ -2785,6 +2785,49 @@ document.addEventListener('touchend', (e) => {
     swipeIndicator.style.opacity = '';
   }
 });
+  // ============================================================
+// ========== HAPTIC FEEDBACK (VIBRAÇÃO TÁTIL) ==========
+// ============================================================
+
+function hapticFeedback(type) {
+  // Verifica se o dispositivo suporta vibração
+  if (!navigator.vibrate) return;
+  
+  switch(type) {
+    case 'light':
+      // Toque leve - para botões comuns
+      navigator.vibrate(10);
+      break;
+      
+    case 'medium':
+      // Toque médio - para ações importantes
+      navigator.vibrate(20);
+      break;
+      
+    case 'success':
+      // Sucesso - para favoritos, copiar, etc.
+      navigator.vibrate([20, 30, 20]);
+      break;
+      
+    case 'heavy':
+      // Pesado - para ações destrutivas (cancelar, excluir)
+      navigator.vibrate(50);
+      break;
+      
+    case 'error':
+      // Erro - vibração dupla longa
+      navigator.vibrate([100, 50, 100]);
+      break;
+      
+    case 'refresh':
+      // Atualizar - vibração progressiva
+      navigator.vibrate([30, 20, 50, 20, 30]);
+      break;
+      
+    default:
+      navigator.vibrate(10);
+  }
+}
 </script>
 </body>
 </html>
