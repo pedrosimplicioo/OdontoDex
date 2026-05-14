@@ -1753,7 +1753,7 @@ function renderSituations(){
       btn.onclick=()=>showUpgradeModal(null);
     } else {
       btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="arr">›</span>`;
-      btn.onclick=()=>{selSit=sit.id;renderProcedures();goScreen("procedures");};
+      btn.onclick=()=>{hapticFeedback('light'); selSit=sit.id;renderProcedures();goScreen("procedures");};
     }
     list.appendChild(btn);
   });
@@ -1790,15 +1790,16 @@ function renderProceduresList(procs) {
     const p = DATA.protocols[proc.id];
     const timeHtml = p ? `<span class="list-time">⏱ ${p.time}</span>` : '';
     const seenHtml = HISTORY.includes(proc.id) ? '<span class="seen-badge">✓ Visto</span>' : '';
-    const btn = document.createElement("button");
-    btn.className = "list-btn";
-   if(proc.free || window.userIsPremium) {
-  btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}${seenHtml}<span class="arr">›</span>`;
+   const btn=document.createElement("button");
+btn.className="list-btn";
+if(isLocked){
+  btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="prem-tag">🔒 Premium</span>`;
+  btn.onclick=()=>showUpgradeModal(null);
 } else {
-  btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}<span class="prem-tag">🔒 Premium</span>`;
+  btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="arr">›</span>`;
+  btn.onclick=()=>{hapticFeedback('light'); selSit=sit.id;renderProcedures();goScreen("procedures");};
 }
-    btn.onclick = () => openProto(proc.id);
-    list.appendChild(btn);
+list.appendChild(btn);
   });
 }
 
