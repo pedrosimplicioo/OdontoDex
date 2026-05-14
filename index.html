@@ -483,7 +483,14 @@ body.dark .cancel-reason-btn.selected {
 </style>
 </head>
 <body>
-
+<!-- Indicador de Pull to Refresh -->
+<div id="ptr-indicator" style="position: fixed; top: 0; left: 0; right: 0; background: #7C3FA0; color: white; text-align: center; padding: 12px; font-size: 13px; transform: translateY(-100%); transition: transform 0.2s; z-index: 9999; font-weight: 600;">
+  🔄 Solte para atualizar...
+  /* Mostrar o indicador quando puxar */
+.ptr-indicator-show {
+  transform: translateY(0) !important;
+}
+</div>
 <div class="toast" id="toast"></div>
 <div class="loading-overlay" id="loading-overlay"><div class="spinner"></div></div>
 
@@ -2619,6 +2626,105 @@ function updatePremiumUI() {
 // Inicializa os botões quando a página carrega
 document.addEventListener('DOMContentLoaded', function() {
   setTimeout(setupCancelButtons, 500);
+});
+  // ============================================================
+// ========== PULL TO REFRESH (puxar para atualizar) ==========
+// ============================================================
+
+let ptrStartY = 0;           // Guarda onde o toque começou
+let ptrIsPulling = false;    // Controla se está puxando
+const ptrIndicator = document.getElementById('ptr-indicator');
+
+// Função que atualiza os dados (sem recarregar a página)
+function refreshDataPull() {
+  // Mostrar mensagem no indicador
+  if (ptrIndicator) {
+    ptrIndicator.textContent = '🔄 Atualizando dados...';
+  }
+  
+  // Recarregar todos os dados do localStorage
+  DATA = loadData();
+  FAVS = loadFavs();
+  HISTORY = loadHistory();
+  USAGE_COUNT = loadUsageCount();
+  
+  // Atualizar a tela que está aberta
+  const activeScreen = document.querySelector('.screen.active')?.id;
+  
+  if (activeScreen === 'screen-app') {
+    renderHome();
+  }
+  if (activeScreen === 'screen-favorites') {
+    renderFavs();
+  }
+  if (activeScreen === 'screen-settings') {
+    renderSettings();
+  }
+  
+  // Mostrar mensagem de sucesso
+  setTimeout(() => {
+    if (ptrIndicator) {
+      ptrIndicator.textContent = '✅ Dados atualizados!';
+      setTimeout(() => {
+        ptrIndicator.classList.remove('ptr-indicator-show');
+      }, 800);
+    }
+    showToast("✅ Dados atualizados!", "success");
+  }, 500);
+}
+
+// DETECTAR QUANDO O USUÁRIO COMEÇA A PUXAR
+document.addEventListener('touchstart', (e) => {
+  // Encontrar a área de rolagem da tela ativa
+  const activeBody = document.querySelector('.screen.active .body');
+  if (!activeBody) return;
+  
+  // Só funciona se estiver no TOPO da página (scrollTop = 0)
+  if (activeBody.scrollTop === 0) {
+    ptrStartY = e.touches[0].clientY;  // Guarda a posição Y do toque
+    ptrIsPulling = true;                // Marca que começou a puxar
+  }
+});
+
+// DETECTAR ENQUANTO O USUÁRIO PUXA
+document.addEventListener('touchmove', (e) => {
+  if (!ptrIsPulling) return;
+  
+  const currentY = e.touches[0].clientY;
+  const pullDistance = currentY - ptrStartY;
+  
+  // Se puxou mais de 60 pixels (distância suficiente)
+  if (pullDistance > 60 && pullDistance < 150) {
+    // Mostrar o indicador
+    if (ptrIndicator) {
+      ptrIndicator.classList.add('ptr-indicator-show');
+      ptrIndicator.textContent = '🔽 Solte para atualizar...';
+    }
+  }
+});
+
+// DETECTAR QUANDO O USUÁRIO SOLTA
+document.addEventListener('touchend', (e) => {
+  if (!ptrIsPulling) return;
+  
+  const activeBody = document.querySelector('.screen.active .body');
+  if (!activeBody) return;
+  
+  // Se estava no topo E o indicador estava visível
+  if (activeBody.scrollTop === 0 && ptrIndicator && ptrIndicator.classList.contains('ptr-indicator-show')) {
+    // Executar a atualização
+    refreshDataPull();
+  }
+  
+  // Resetar as variáveis
+  ptrIsPulling = false;
+  
+  // Esconder o indicador após um tempo
+  setTimeout(() => {
+    if (ptrIndicator) {
+      ptrIndicator.classList.remove('ptr-indicator-show');
+    }
+  }, 1000);
 });
 </script>
 </body>
