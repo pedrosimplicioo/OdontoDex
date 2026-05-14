@@ -480,16 +480,16 @@ body.dark .cancel-reason-btn.selected {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+  /* Mostrar o indicador quando puxar */
+.ptr-indicator-show {
+  transform: translateY(0) !important;
+}
 </style>
 </head>
 <body>
 <!-- Indicador de Pull to Refresh -->
 <div id="ptr-indicator" style="position: fixed; top: 0; left: 0; right: 0; background: #7C3FA0; color: white; text-align: center; padding: 12px; font-size: 13px; transform: translateY(-100%); transition: transform 0.2s; z-index: 9999; font-weight: 600;">
   🔄 Solte para atualizar...
-  /* Mostrar o indicador quando puxar */
-.ptr-indicator-show {
-  transform: translateY(0) !important;
-}
 </div>
 <div class="toast" id="toast"></div>
 <div class="loading-overlay" id="loading-overlay"><div class="spinner"></div></div>
