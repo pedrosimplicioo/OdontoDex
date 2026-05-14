@@ -1266,10 +1266,13 @@ function atualizarSaudacao(){
       const bannerExistente = document.getElementById('student-banner');
       if (!bannerExistente && document.getElementById('screen-app').classList.contains('active')) {
         localStorage.removeItem('studentBannerDismissed');
-        adicionarBannerEstudante();
+        if (typeof adicionarBannerEstudante === 'function') {
+          adicionarBannerEstudante();
+        }
       }
     }
   }
+}
 }
 
 function renderSettings(){
