@@ -1620,6 +1620,7 @@ function renderHome(){
         btn.className="cat-horizontal" + (isPremiumCat ? " cat-locked" : "");
         btn.innerHTML=`<span class="cat-horizontal-icon">${cat.icon}</span><span class="cat-horizontal-label">${cat.label}</span>${isPremiumCat ? '<span class="cat-crown">🔒</span>' : ''}`;
         btn.onclick=()=>{
+           hapticFeedback('light');
           if(isPremiumCat){
             showUpgradeModal(cat.id);
             return;
