@@ -1788,18 +1788,26 @@ function renderProceduresList(procs) {
   
   procs.forEach(proc => {
     const p = DATA.protocols[proc.id];
-    const timeHtml = p ? `<span class="list-time">⏱ ${p.time}</span>` : '';
+    if (!p) return;
+    
+    const isProcLocked = !p.free && !window.userIsPremium;
+    const timeHtml = p.time ? `<span class="list-time">⏱ ${p.time}</span>` : '';
     const seenHtml = HISTORY.includes(proc.id) ? '<span class="seen-badge">✓ Visto</span>' : '';
-   const btn=document.createElement("button");
-btn.className="list-btn";
-if(isLocked){
-  btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="prem-tag">🔒 Premium</span>`;
-  btn.onclick=()=>showUpgradeModal(null);
-} else {
-  btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="arr">›</span>`;
-  btn.onclick=()=>{hapticFeedback('light'); selSit=sit.id;renderProcedures();goScreen("procedures");};
-}
-list.appendChild(btn);
+    
+    const btn = document.createElement("button");
+    btn.className = "list-btn";
+    
+    if (isProcLocked) {
+      btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}${seenHtml}<span class="prem-tag">🔒 Premium</span><span class="arr">›</span>`;
+      btn.onclick = () => showUpgradeModal(null);
+    } else {
+      btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}${seenHtml}<span class="arr">›</span>`;
+      btn.onclick = () => {
+        hapticFeedback('light');
+        openProto(proc.id);
+      };
+    }
+    list.appendChild(btn);
   });
 }
 
