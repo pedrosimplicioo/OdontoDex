@@ -439,6 +439,47 @@ body.dark .search-bar-proc {
 body.dark .search-bar-proc input {
   color:#F1F5F9;
 }
+/* ===== BOTÕES DE CANCELAMENTO ===== */
+.cancel-reason-btn {
+  background: var(--dark2);
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  padding: 12px 16px;
+  text-align: left;
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text);
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  width: 100%;
+}
+.cancel-reason-btn:hover {
+  border-color: #DC2626;
+  background: rgba(220,38,38,0.1);
+}
+.cancel-reason-btn.selected {
+  background: rgba(220,38,38,0.15);
+  border-color: #DC2626;
+  color: #DC2626;
+}
+body.dark .cancel-reason-btn {
+  background: #1E293B;
+  border-color: #334155;
+}
+body.dark .cancel-reason-btn.selected {
+  background: rgba(220,38,38,0.2);
+  border-color: #DC2626;
+  color: #FCA5A5;
+}
+/* Esconder a barra de rolagem do modal de cancelamento */
+#cancel-overlay .modal::-webkit-scrollbar {
+  display: none;
+}
+#cancel-overlay .modal {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
 </style>
 </head>
 <body>
@@ -651,6 +692,12 @@ body.dark .search-bar-proc input {
         <span class="cfg-label" style="color:#DC2626">Sair da conta</span>
       </div>
     </div>
+<!-- Cancelamento Premium (discreto, sem borda, sem ícone) -->
+<div id="cancel-premium-section" style="display: none; text-align: center; margin-top: 24px; margin-bottom: 16px;">
+  <button onclick="openCancelModal()" style="background: none; border: none; font-size: 12px; color: #94A3B8; cursor: pointer; font-family: inherit; text-decoration: none; opacity: 0.6;">
+    Cancelar assinatura
+  </button>
+</div>
     <div style="text-align:center;font-size:11px;color:#94A3B8;margin-top:8px">odontodex · Versão 1.0</div>
     <div class="spacer"></div>
   </div>
@@ -832,6 +879,49 @@ body.dark .search-bar-proc input {
     <p class="modal-sub">Toque no problema para ver a solução</p>
     <div style="width:100%;margin-top:8px" id="crise-options-list"></div>
     <button class="btn-cancel-sm" onclick="hideOverlay('crise-overlay')">Fechar</button>
+  </div>
+</div>
+<!-- MODAL DE CANCELAMENTO PREMIUM -->
+<div class="overlay" id="cancel-overlay" onclick="hideCancelModal()">
+  <div class="modal" onclick="event.stopPropagation()" style="max-height: 85vh; overflow-y: auto; max-width: 400px;">
+    
+    <div style="font-size: 44px; text-align: center;">❌</div>
+    
+    <h2 class="modal-title" style="font-size: 20px; text-align: center;">Cancelar assinatura</h2>
+    
+    <p class="modal-sub" style="text-align: center;">Sentimos muito por ver você partir. Sua opinião nos ajuda a melhorar.</p>
+    
+    <div style="width: 100%; margin: 16px 0 8px;">
+      
+      <div class="section-label" style="margin-bottom: 12px;">📋 Por que está cancelando?</div>
+      
+      <div id="cancel-reasons" style="display: flex; flex-direction: column; gap: 8px;">
+        <button class="cancel-reason-btn" data-reason="Muito caro">💰 Muito caro</button>
+        <button class="cancel-reason-btn" data-reason="Não uso o suficiente">📉 Não uso o suficiente</button>
+        <button class="cancel-reason-btn" data-reason="Encontrei algo melhor">🦷 Encontrei algo melhor</button>
+        <button class="cancel-reason-btn" data-reason="Problemas técnicos">🐛 Problemas técnicos no app</button>
+        <button class="cancel-reason-btn" data-reason="Não atendeu minhas expectativas">😞 Não atendeu minhas expectativas</button>
+        <button class="cancel-reason-btn" data-reason="Outro">📝 Outro</button>
+      </div>
+      
+      <div id="other-reason-input" style="display: none; margin-top: 12px;">
+        <input type="text" id="cancel-other-text" class="input-field" placeholder="Digite o motivo..." style="width: 100%;">
+      </div>
+      
+      <div style="margin-top: 20px;">
+        <div class="section-label" style="margin-bottom: 8px;">💡 Sugestão para melhorarmos</div>
+        <textarea id="cancel-suggestion" class="input-field" rows="3" placeholder="O que poderia ser melhor? (opcional)" style="width: 100%; resize: none;"></textarea>
+      </div>
+      
+    </div>
+    
+    <div style="display: flex; gap: 10px; width: 100%; margin-top: 16px;">
+      <button class="btn-cancel" onclick="hideCancelModal()" style="flex: 1;">Voltar</button>
+      <button class="btn-primary" onclick="submitCancel()" style="flex: 1; background: #DC2626;">Confirmar cancelamento</button>
+    </div>
+    
+    <p class="modal-sub" style="margin-top: 12px; font-size: 11px; text-align: center;">🔒 Você mantém acesso até o fim do período já pago.</p>
+    
   </div>
 </div>
 
@@ -2376,12 +2466,150 @@ document.addEventListener("DOMContentLoaded", () => {
       } catch(e) {
         window.userIsPremium = false;
       }
+ updatePremiumUI(); 
       showAppScreen();
     } else {
       showLoginScreen();
     }
   });
 });
+// ============================================================
+// ========== CANCELAMENTO PREMIUM ============================
+// ============================================================
+
+let selectedCancelReason = null;
+
+// Função para ABRIR o modal de cancelamento
+function openCancelModal() {
+  if (!currentUser) {
+    showToast("Faça login para cancelar a assinatura", "error");
+    return;
+  }
+  
+  selectedCancelReason = null;
+  
+  const otherInput = document.getElementById('cancel-other-text');
+  const suggestionInput = document.getElementById('cancel-suggestion');
+  if (otherInput) otherInput.value = '';
+  if (suggestionInput) suggestionInput.value = '';
+  
+  const otherDiv = document.getElementById('other-reason-input');
+  if (otherDiv) otherDiv.style.display = 'none';
+  
+  document.querySelectorAll('.cancel-reason-btn').forEach(btn => {
+    btn.classList.remove('selected');
+  });
+  
+  showOverlay('cancel-overlay');
+}
+
+// Função para FECHAR o modal de cancelamento
+function hideCancelModal() {
+  hideOverlay('cancel-overlay');
+}
+
+// Configura os botões de motivo
+function setupCancelButtons() {
+  document.querySelectorAll('.cancel-reason-btn').forEach(btn => {
+    btn.removeEventListener('click', handleCancelReasonClick);
+    btn.addEventListener('click', handleCancelReasonClick);
+  });
+}
+
+// O que acontece quando um botão de motivo é clicado
+function handleCancelReasonClick(e) {
+  const btn = e.currentTarget;
+  const reason = btn.getAttribute('data-reason');
+  
+  document.querySelectorAll('.cancel-reason-btn').forEach(b => {
+    b.classList.remove('selected');
+  });
+  
+  btn.classList.add('selected');
+  selectedCancelReason = reason;
+  
+  const otherDiv = document.getElementById('other-reason-input');
+  if (reason === 'Outro') {
+    if (otherDiv) otherDiv.style.display = 'block';
+    const otherText = document.getElementById('cancel-other-text');
+    if (otherText) otherText.focus();
+  } else {
+    if (otherDiv) otherDiv.style.display = 'none';
+  }
+}
+
+// Função para ENVIAR o cancelamento
+async function submitCancel() {
+  if (!currentUser) {
+    showToast("Erro: usuário não encontrado", "error");
+    return;
+  }
+  
+  let finalReason = selectedCancelReason;
+  
+  if (selectedCancelReason === 'Outro') {
+    const otherText = document.getElementById('cancel-other-text').value.trim();
+    if (!otherText) {
+      showToast("Por favor, digite o motivo do cancelamento", "error");
+      return;
+    }
+    finalReason = `Outro: ${otherText}`;
+  }
+  
+  if (!finalReason) {
+    showToast("Por favor, selecione um motivo", "error");
+    return;
+  }
+  
+  const suggestion = document.getElementById('cancel-suggestion').value.trim();
+  
+  showLoading();
+  
+  try {
+    await db.collection('cancelamentos').add({
+      userId: currentUser.uid,
+      userEmail: currentUser.email,
+      userName: currentUser.displayName || localStorage.getItem('guiaNome') || '',
+      motivo: finalReason,
+      sugestao: suggestion || '',
+      dataCancelamento: new Date().toISOString(),
+      status: 'pendente',
+      plataforma: 'PWA'
+    });
+    
+    console.log("Cancelamento registrado no Firebase!");
+    
+    hideCancelModal();
+    
+    showToast("Solicitação registrada! Verifique seu e-mail.", "success");
+    
+    const subject = `Cancelamento assinatura OdontoDex - ${currentUser.email}`;
+    const body = `Olá,\n\nSolicito o cancelamento da minha assinatura OdontoDex Premium.\n\nMeus dados:\nE-mail: ${currentUser.email}\nNome: ${currentUser.displayName || ''}\nMotivo: ${finalReason}\n\nAgradeço pela atenção.`;
+    
+    setTimeout(() => {
+      window.location.href = `mailto:compradores@cakto.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }, 500);
+    
+  } catch (error) {
+    console.error("Erro ao salvar cancelamento:", error);
+    showToast("Erro ao processar. Tente novamente.", "error");
+  } finally {
+    hideLoading();
+  }
+}
+
+// Função para MOSTRAR/ESCONDER o botão de cancelamento (só para Premium)
+function updatePremiumUI() {
+  const cancelSection = document.getElementById('cancel-premium-section');
+  if (cancelSection) {
+    cancelSection.style.display = window.userIsPremium === true ? 'block' : 'none';
+  }
+}
+
+// Inicializa os botões quando a página carrega
+document.addEventListener('DOMContentLoaded', function() {
+  setTimeout(setupCancelButtons, 500);
+});
 </script>
 </body>
-</html>v
+</html>
