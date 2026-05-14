@@ -1242,26 +1242,27 @@ function hideLoading(){const el=document.getElementById("loading-overlay");if(el
 let editTratSelected = '';
 
 function atualizarSaudacao(){
-  var nomeEl=document.getElementById('hdr-nome');
-  if(!nomeEl)return;
-  var nome=localStorage.getItem('guiaNome')||'';
-  var trat=localStorage.getItem('guiaTratamento')??'';
-  var perfil=localStorage.getItem('guiaPerfil')||'dentista';
+  var nomeEl = document.getElementById('hdr-nome');
+  if(!nomeEl) return;
+  var nome = localStorage.getItem('guiaNome') || '';
+  var trat = localStorage.getItem('guiaTratamento') ?? '';
+  var perfil = localStorage.getItem('guiaPerfil') || 'dentista';
+  
   if(nome){
-    if(perfil==='estudante'){
-      nomeEl.textContent='Olá, '+nome+'!';
+    if(perfil === 'estudante'){
+      nomeEl.textContent = 'Olá, ' + nome + '!';
     } else {
-      var t=trat?trat+' ':'';
-      nomeEl.textContent='Olá, '+t+nome+'!';
+      var t = trat ? trat + ' ' : '';
+      nomeEl.textContent = 'Olá, ' + t + nome + '!';
     }
   } else {
-    nomeEl.textContent='Olá!';
+    nomeEl.textContent = 'Olá!';
   }
-}
+  
+  // Lógica para recriar o banner se o perfil mudou para estudante
   if (perfil === 'estudante') {
     const bannerFechado = localStorage.getItem('studentBannerDismissed');
     if (bannerFechado === 'true') {
-      // Reset apenas se estiver na tela home e não tiver banner
       const bannerExistente = document.getElementById('student-banner');
       if (!bannerExistente && document.getElementById('screen-app').classList.contains('active')) {
         localStorage.removeItem('studentBannerDismissed');
