@@ -235,6 +235,7 @@ async function toggleIgnorarUsuario(userId) {
     console.log('🔄 Recarregando dados...');
     await carregarDados();
     await carregarMetricasProduto();
+    await carregarLandingStats();
     renderizarSecaoAtual();
     console.log('✅ Dados recarregados com sucesso');
   } catch (error) {
@@ -299,7 +300,7 @@ function toggleSidebar() {
   }, 300);
 }
 
-// ========== CARREGAR DADOS DO APP ==========
+// ========== CARREGAR DADOS DO APP (COM FILTRO DE IGNORADOS) ==========
 async function carregarDados() {
   try {
     const agora = new Date();
@@ -308,21 +309,30 @@ async function carregarDados() {
     const usuarios = [];
     let totalPremium = 0, totalFree = 0;
     
+    // Primeiro, coletar todos os usuários
     usersSnapshot.forEach(doc => {
       const userId = doc.id;
       const isIgnorado = isUsuarioIgnorado(userId);
       const userData = doc.data();
       const isPremium = userData.premium === true;
+      
+      // Só conta para os totais se NÃO for ignorado
       if (!isIgnorado) {
         if (isPremium) totalPremium++;
         else totalFree++;
       }
+      
       usuarios.push({
-        id: userId, email: userData.email || '', nome: userData.nome || userData.displayName || '-',
-        premium: isPremium, criadoEm: userData.criadoEm || userData.criado_em || null,
+        id: userId, 
+        email: userData.email || '', 
+        nome: userData.nome || userData.displayName || '-',
+        premium: isPremium, 
+        criadoEm: userData.criadoEm || userData.criado_em || null,
         dataPrimeiroAcesso: userData.dataPrimeiroAcesso || null,
         ultimoAcesso: userData.ultimoAcesso || null,
-        acessosPorDia: userData.acessosPorDia || {}, usos: 0, ignorado: isIgnorado
+        acessosPorDia: userData.acessosPorDia || {}, 
+        usos: 0, 
+        ignorado: isIgnorado
       });
     });
     
@@ -339,19 +349,33 @@ async function carregarDados() {
     
     analyticsSnapshot.forEach(doc => {
       const data = doc.data();
+      const userId = data.usuarioId;
+      
+      // Pular analytics de usuários ignorados
+      if (userId && isUsuarioIgnorado(userId)) return;
+      
       analytics.total++;
       if (data.protocoloTitulo) analytics.protocolos[data.protocoloTitulo] = (analytics.protocolos[data.protocoloTitulo] || 0) + 1;
-      if (data.usuarioId) analytics.usuariosCount[data.usuarioId] = (analytics.usuariosCount[data.usuarioId] || 0) + 1;
-      if (data.mes === mesAtual && data.usuarioId) analytics.usuariosAtivosMes.add(data.usuarioId);
+      if (userId) analytics.usuariosCount[userId] = (analytics.usuariosCount[userId] || 0) + 1;
+      if (data.mes === mesAtual && userId) analytics.usuariosAtivosMes.add(userId);
       if (data.mes) analytics.porMes[data.mes] = (analytics.porMes[data.mes] || 0) + 1;
       if (data.hora !== undefined) analytics.porHora[data.hora]++;
       if (data.diaSemana !== undefined) analytics.porDiaSemana[data.diaSemana]++;
     });
     
-    usuarios.forEach(user => { user.usos = analytics.usuariosCount[user.id] || 0; });
+    // Atualizar usos apenas para usuários NÃO ignorados
+    usuarios.forEach(user => { 
+      if (!user.ignorado) {
+        user.usos = analytics.usuariosCount[user.id] || 0;
+      } else {
+        user.usos = 0;
+      }
+    });
     
-    const totalUsuarios = usuarios.length;
-    const totalPremiumCount = usuarios.filter(u => u.premium).length;
+    // Filtrar usuários ignorados para os cards do dashboard
+    const usuariosNaoIgnorados = usuarios.filter(u => !u.ignorado);
+    const totalUsuarios = usuariosNaoIgnorados.length;
+    const totalPremiumCount = usuariosNaoIgnorados.filter(u => u.premium).length;
     const totalFreeCount = totalUsuarios - totalPremiumCount;
     const taxaConversao = totalUsuarios > 0 ? Math.round((totalPremiumCount / totalUsuarios) * 100) : 0;
     
@@ -360,19 +384,32 @@ async function carregarDados() {
     const lowProtocolos = protocolosArray.filter(p => p.percentual < 5).slice(0, 10);
     
     cachedDados = {
-      usuarios, analytics, totalUsuarios, totalPremium: totalPremiumCount, totalFree: totalFreeCount,
-      taxaConversao, topProtocolos, lowProtocolos, totalUsos: analytics.total,
-      usosMes: analytics.porMes[mesAtual] || 0, usuariosAtivosMes: analytics.usuariosAtivosMes.size,
-      topProtocoloNome: topProtocolos[0]?.nome || '-', topProtocoloCount: topProtocolos[0]?.count || 0,
-      topProtocoloPercentual: topProtocolos[0]?.percentual || 0, porHora: analytics.porHora,
-      porDiaSemana: analytics.porDiaSemana, porMes: analytics.porMes
+      usuarios: usuariosNaoIgnorados,
+      analytics, 
+      totalUsuarios, 
+      totalPremium: totalPremiumCount, 
+      totalFree: totalFreeCount,
+      taxaConversao, 
+      topProtocolos, 
+      lowProtocolos, 
+      totalUsos: analytics.total,
+      usosMes: analytics.porMes[mesAtual] || 0, 
+      usuariosAtivosMes: analytics.usuariosAtivosMes.size,
+      topProtocoloNome: topProtocolos[0]?.nome || '-', 
+      topProtocoloCount: topProtocolos[0]?.count || 0,
+      topProtocoloPercentual: topProtocolos[0]?.percentual || 0, 
+      porHora: analytics.porHora,
+      porDiaSemana: analytics.porDiaSemana, 
+      porMes: analytics.porMes
     };
     dadosUsuarios = [...usuarios];
     aplicarFiltroOrdenacao();
-  } catch (error) { console.error("Erro ao carregar dados:", error); }
+  } catch (error) { 
+    console.error("Erro ao carregar dados:", error); 
+  }
 }
 
-// ========== CARREGAR MÉTRICAS DE PRODUTO ==========
+// ========== CARREGAR MÉTRICAS DE PRODUTO (COM FILTRO DE IGNORADOS) ==========
 async function carregarMetricasProduto() {
   try {
     const usersSnapshot = await db.collection('users').get();
@@ -380,9 +417,11 @@ async function carregarMetricasProduto() {
     usersSnapshot.forEach(doc => {
       const userData = doc.data();
       usuarios.push({
-        id: doc.id, dataPrimeiroAcesso: userData.dataPrimeiroAcesso?.toDate() || null,
+        id: doc.id, 
+        dataPrimeiroAcesso: userData.dataPrimeiroAcesso?.toDate() || null,
         ultimoAcesso: userData.ultimoAcesso?.toDate() || null,
-        acessosPorDia: userData.acessosPorDia || {}, premium: userData.premium === true
+        acessosPorDia: userData.acessosPorDia || {}, 
+        premium: userData.premium === true
       });
     });
     
@@ -393,8 +432,11 @@ async function carregarMetricasProduto() {
     const userActions = {};
     actionsSnapshot.forEach(doc => {
       const data = doc.data();
-      if (!userActions[data.userId]) userActions[data.userId] = [];
-      userActions[data.userId].push({ actionType: data.actionType, timestamp: data.timestamp?.toDate() || new Date() });
+      const userId = data.userId;
+      // Pular ações de usuários ignorados
+      if (userId && isUsuarioIgnorado(userId)) return;
+      if (!userActions[userId]) userActions[userId] = [];
+      userActions[userId].push({ actionType: data.actionType, timestamp: data.timestamp?.toDate() || new Date() });
     });
     
     const metricas = {
@@ -662,7 +704,7 @@ function renderUsuarios() {
     <div class="content-header"><h1>👥 Usuários</h1><p>Gerencie os usuários do OdontoDex</p></div>
     <div class="section"><div class="search-box"><input type="text" class="search-input" id="search-usuario" placeholder="🔍 Buscar por nome ou email..." oninput="buscarUsuarios(this.value)"></div>
     <div class="table-wrapper"><table><thead><tr><th onclick="changeSort('nome')">Nome ${currentSort.field==='nome'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('email')">Email ${currentSort.field==='email'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('premium')">Status ${currentSort.field==='premium'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('usos')">Usos ${currentSort.field==='usos'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th>Cadastro</th><th>Ação</th></tr></thead>
-    <tbody>${paginated.map(user => `<tr><td>${user.nome}${user.ignorado?'<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">⊘ Ignorado</span>':''}${user.email === 'pedrosimplicio.sousa@gmail.com' ? '<span style="background:#DBEAFE;color:#1E40AF;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">👑 Admin</span>' : ''}</div></td><td>${user.email}</td><td><span class="${user.premium?'badge-premium':'badge-free'}">${user.premium?'💎 Premium':'🆓 Free'}</span></td><td><strong>${user.usos}</strong> ${user.usos===0?'⚠️':user.usos>50?'🔥':''}</td><td>${user.criadoEm?new Date(user.criadoEm).toLocaleDateString():'-'}</td><td><button onclick="toggleIgnorarUsuario('${user.id}')" style="background:${user.ignorado?'#10B981':'#EF4444'};color:white;border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">${user.ignorado?'✓ Incluir':'⊘ Ignorar'}</button></td></tr>`).join('')}${paginated.length===0?'<tr><td colspan="6" style="text-align:center;">Nenhum usuário encontrado</td></tr>':''}</tbody></table></div>
+    <tbody>${paginated.map(user => `<tr><td>${user.nome}${user.ignorado?'<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">⊘ Ignorado</span>':''}${user.email === 'pedrosimplicio.sousa@gmail.com' ? '<span style="background:#DBEAFE;color:#1E40AF;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">👑 Admin</span>' : ''}</td><td>${user.email}</td><td><span class="${user.premium?'badge-premium':'badge-free'}">${user.premium?'💎 Premium':'🆓 Free'}</span></td><td><strong>${user.usos}</strong> ${user.usos===0?'⚠️':user.usos>50?'🔥':''}</td><td>${user.criadoEm?new Date(user.criadoEm).toLocaleDateString():'-'}</td><td><button onclick="toggleIgnorarUsuario('${user.id}')" style="background:${user.ignorado?'#10B981':'#EF4444'};color:white;border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">${user.ignorado?'✓ Incluir':'⊘ Ignorar'}</button></td></tr>`).join('')}${paginated.length===0?'<tr><td colspan="6" style="text-align:center;">Nenhum usuário encontrado</td></tr>':''}</tbody></table></div>
     <div class="pagination"><button class="page-btn" onclick="mudarPagina(1)" ${currentPage===1?'disabled':''}>«</button><button class="page-btn" onclick="mudarPagina(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>${(()=>{const totalP=total; let buttons=[]; if(totalP<=5){for(let i=1;i<=totalP;i++)buttons.push(i)}else{if(currentPage<=3){for(let i=1;i<=5;i++)buttons.push(i)}else if(currentPage>=totalP-2){for(let i=totalP-4;i<=totalP;i++)buttons.push(i)}else{for(let i=currentPage-2;i<=currentPage+2;i++)buttons.push(i)}} return buttons.map(p=>`<button class="page-btn ${p===currentPage?'active':''}" onclick="mudarPagina(${p})">${p}</button>`).join('');})()}<button class="page-btn" onclick="mudarPagina(${currentPage+1})" ${currentPage===total||total===0?'disabled':''}>›</button><button class="page-btn" onclick="mudarPagina(${total})" ${currentPage===total||total===0?'disabled':''}>»</button></div>
     <div style="text-align:center;margin-top:14px;font-size:11px;color:#64748B;">Mostrando ${Math.min(itemsPerPage,usuariosFiltrados.length)} de ${usuariosFiltrados.length} usuários</div></div>
   `;
