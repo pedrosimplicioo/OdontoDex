@@ -10,443 +10,116 @@
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
-      background: #F1F5F9;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    /* ========== LOGIN ========== */
-    .login-container {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-      background: linear-gradient(135deg, #7C3FA0 0%, #4A1D6E 100%);
-    }
-
-    .login-box {
-      background: white;
-      padding: 40px;
-      border-radius: 32px;
-      width: 100%;
-      max-width: 400px;
-      box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-    }
-
-    .login-box h2 {
-      color: #0F172A;
-      margin-bottom: 8px;
-      font-size: 24px;
-    }
-
-    .login-box p {
-      color: #64748B;
-      margin-bottom: 28px;
-    }
-
-    .login-input {
-      width: 100%;
-      padding: 14px 16px;
-      border: 1.5px solid #E2E8F0;
-      border-radius: 16px;
-      font-size: 14px;
-      font-family: inherit;
-      margin-bottom: 14px;
-      transition: all 0.2s;
-    }
-
-    .login-input:focus {
-      outline: none;
-      border-color: #7C3FA0;
-      box-shadow: 0 0 0 3px rgba(124,63,160,0.1);
-    }
-
-    .login-btn {
-      width: 100%;
-      background: #7C3FA0;
-      color: white;
-      border: none;
-      padding: 14px;
-      border-radius: 16px;
-      font-weight: 700;
-      font-size: 16px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .login-btn:hover {
-      background: #6B2F8E;
-      transform: translateY(-1px);
-    }
-
-    .login-error {
-      color: #DC2626;
-      text-align: center;
-      margin-top: 16px;
-      font-size: 13px;
-    }
-
-    /* ========== DASHBOARD LAYOUT ========== */
-    .dashboard-container {
-      display: none;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    .sidebar {
-      position: fixed;
-      left: 0;
-      top: 0;
-      height: 100vh;
-      background: linear-gradient(180deg, #1E1B2E 0%, #0F0A1A 100%);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      z-index: 100;
-      transition: width 0.3s ease;
-      overflow-x: hidden;
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-    }
-
-    .sidebar.expanded { width: 260px; }
-    .sidebar.collapsed { width: 70px; }
-
-    .sidebar-toggle {
-      background: rgba(255,255,255,0.1);
-      border: none;
-      color: white;
-      font-size: 20px;
-      cursor: pointer;
-      padding: 16px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-      margin-bottom: 8px;
-      width: 100%;
-    }
-
-    .sidebar-toggle:hover { background: rgba(255,255,255,0.2); }
-
-    .sidebar-logo {
-      padding: 20px 16px;
-      border-bottom: 1px solid rgba(255,255,255,0.1);
-      margin-bottom: 24px;
-      white-space: nowrap;
-    }
-
-    .sidebar.expanded .sidebar-logo h2 { display: block; font-size: 20px; font-weight: 800; }
-    .sidebar.collapsed .sidebar-logo h2 { display: none; }
-    .sidebar-logo p { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 4px; }
-    .sidebar.collapsed .sidebar-logo p { display: none; }
-
-    .sidebar-menu { flex: 1; padding: 0 12px; }
-
-    .sidebar-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      border-radius: 12px;
-      margin-bottom: 4px;
-      cursor: pointer;
-      transition: all 0.2s;
-      color: rgba(255,255,255,0.7);
-      white-space: nowrap;
-    }
-
-    .sidebar-item:hover { background: rgba(255,255,255,0.08); color: white; }
-    .sidebar-item.active { background: rgba(124,63,160,0.3); color: white; border-left: 3px solid #9B4DC8; }
-    .sidebar-item span:first-child { font-size: 20px; min-width: 24px; }
-    .sidebar.collapsed .sidebar-item span:last-child { display: none; }
-
-    .sidebar-footer {
-      padding: 20px 12px;
-      border-top: 1px solid rgba(255,255,255,0.1);
-      margin-top: auto;
-    }
-
-    .logout-sidebar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 12px;
-      border-radius: 12px;
-      cursor: pointer;
-      color: rgba(255,255,255,0.7);
-      transition: all 0.2s;
-    }
-
-    .logout-sidebar:hover { background: rgba(220,38,38,0.2); color: #FCA5A5; }
-    .sidebar.collapsed .logout-sidebar span:last-child { display: none; }
-
-    .main-content {
-      transition: margin-left 0.3s ease;
-      height: 100vh;
-      overflow-y: auto;
-      padding: 20px 28px;
-    }
-
-    .sidebar.expanded ~ .main-content { margin-left: 260px; }
-    .sidebar.collapsed ~ .main-content { margin-left: 70px; }
-
-    .content-header { margin-bottom: 24px; width: 100%; }
-    .content-header h1 { font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px; }
-    .content-header p { color: #64748B; margin-top: 4px; font-size: 13px; }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
-      width: 100%;
-    }
-
-    @media (max-width: 1000px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
-
-    .stat-card {
-      background: white;
-      border-radius: 20px;
-      padding: 18px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-      transition: all 0.2s;
-      border: 1px solid #E2E8F0;
-    }
-
-    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
-    .stat-icon { font-size: 24px; margin-bottom: 8px; }
-    .stat-number { font-size: 28px; font-weight: 800; color: #0F172A; }
-    .stat-label { font-size: 12px; color: #64748B; font-weight: 500; margin-top: 4px; }
-
-    .card-users .stat-number { color: #3B82F6; }
-    .card-premium .stat-number { color: #F59E0B; }
-    .card-free .stat-number { color: #64748B; }
-    .card-conversion .stat-number { color: #10B981; }
-    .card-total .stat-number { color: #7C3FA0; }
-    .card-most .stat-number { color: #F97316; font-size: 14px; font-weight: 700; }
-    .card-month .stat-number { color: #06B6D4; }
-    .card-active .stat-number { color: #22C55E; }
-
-    .section {
-      background: white;
-      border-radius: 20px;
-      padding: 20px;
-      margin-bottom: 24px;
-      border: 1px solid #E2E8F0;
-      width: 100%;
-    }
-
-    .section-title {
-      font-size: 14px;
-      font-weight: 800;
-      color: #0F172A;
-      margin-bottom: 16px;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .search-box { margin-bottom: 20px; }
-    .search-input {
-      width: 100%;
-      max-width: 320px;
-      padding: 10px 14px;
-      border: 1.5px solid #E2E8F0;
-      border-radius: 12px;
-      font-size: 13px;
-      font-family: inherit;
-    }
-    .search-input:focus { outline: none; border-color: #7C3FA0; }
-
-    .table-wrapper { overflow-x: auto; width: 100%; }
-    table { width: 100%; border-collapse: collapse; font-size: 13px; }
-    th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid #F1F5F9; }
-    th { color: #64748B; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; user-select: none; }
-    th:hover { color: #7C3FA0; }
-    td { color: #0F172A; }
-    tr:hover { background: #F8FAFC; }
-
-    .badge-premium { background: #FEF3C7; color: #D97706; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
-    .badge-free { background: #F1F5F9; color: #64748B; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
-
-    .ranking-item { margin-bottom: 14px; }
-    .ranking-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
-    .ranking-name { font-weight: 700; font-size: 13px; color: #0F172A; }
-    .ranking-stats { font-size: 11px; color: #64748B; }
-    .ranking-bar { height: 6px; background: #E2E8F0; border-radius: 3px; overflow: hidden; }
-    .ranking-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
-    .fill-hot { background: #F97316; }
-    .fill-popular { background: #F59E0B; }
-    .fill-normal { background: #10B981; }
-    .fill-low { background: #EF4444; }
-
-    .ranking-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-left: 6px; }
-    .badge-hot { background: #FEF2F2; color: #DC2626; }
-    .badge-popular { background: #FEF3C7; color: #D97706; }
-    .badge-normal { background: #ECFDF5; color: #059669; }
-    .badge-low { background: #FEF2F2; color: #DC2626; }
-
-    .pagination {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      gap: 6px;
-      margin-top: 20px;
-      flex-wrap: wrap;
-    }
-
-    .page-btn {
-      background: white;
-      border: 1px solid #E2E8F0;
-      padding: 6px 12px;
-      border-radius: 8px;
-      cursor: pointer;
-      font-family: inherit;
-      font-weight: 500;
-      font-size: 12px;
-      transition: all 0.2s;
-    }
-
-    .page-btn:hover { background: #F1F5F9; border-color: #CBD5E1; }
-    .page-btn.active { background: #7C3FA0; color: white; border-color: #7C3FA0; }
-    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-    .export-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
-    .export-btn {
-      background: #F1F5F9;
-      border: 1px solid #E2E8F0;
-      padding: 10px 18px;
-      border-radius: 12px;
-      cursor: pointer;
-      font-family: inherit;
-      font-weight: 600;
-      font-size: 13px;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-    }
-    .export-btn:hover { background: #E2E8F0; }
-    .refresh-btn { background: #7C3FA0; color: white; border: none; }
-    .refresh-btn:hover { background: #6B2F8E; }
-
-    .alert-card {
-      background: #FEF2F2;
-      border: 1px solid #FECACA;
-      border-radius: 16px;
-      padding: 14px;
-      margin-top: 16px;
-      width: 100%;
-    }
-    .alert-title { font-weight: 700; font-size: 13px; color: #DC2626; margin-bottom: 6px; }
-
-    .graficos-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      margin-bottom: 20px;
-      width: 100%;
-    }
-    @media (max-width: 900px) { .graficos-grid { grid-template-columns: 1fr; } }
-    canvas { max-height: 250px; width: 100%; }
-
-    /* Landing specific styles */
-    .landing-stats-grid {
-      display: grid;
-      grid-template-columns: repeat(5, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    @media (max-width: 1000px) { .landing-stats-grid { grid-template-columns: repeat(3, 1fr); } }
-    @media (max-width: 600px) { .landing-stats-grid { grid-template-columns: repeat(2, 1fr); } }
-
-    .click-chart {
-      background: #F8FAFC;
-      border-radius: 12px;
-      padding: 16px;
-      margin-bottom: 16px;
-    }
-    .click-chart-title {
-      font-size: 13px;
-      font-weight: 700;
-      color: #0F172A;
-      margin-bottom: 12px;
-    }
-    .click-bar {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 10px;
-    }
-    .click-bar-label {
-      width: 180px;
-      font-size: 12px;
-      color: #475569;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .click-bar-fill {
-      flex: 1;
-      height: 28px;
-      background: #E2E8F0;
-      border-radius: 8px;
-      overflow: hidden;
-    }
-    .click-bar-progress {
-      height: 100%;
-      background: linear-gradient(90deg, #7C3FA0, #9B4DC8);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding-right: 8px;
-      color: white;
-      font-size: 11px;
-      font-weight: 700;
-    }
-    .insight-card {
-      background: #F0FDF4;
-      border: 1px solid #BBF7D0;
-      border-radius: 16px;
-      padding: 14px;
-      margin-top: 16px;
-    }
-    .insight-title {
-      font-weight: 800;
-      font-size: 13px;
-      color: #166534;
-      margin-bottom: 8px;
-    }
-    .insight-text {
-      font-size: 12px;
-      color: #14532D;
-      line-height: 1.5;
-    }
-    .warning-card {
-      background: #FEF3C7;
-      border: 1px solid #FDE68A;
-      border-radius: 16px;
-      padding: 14px;
-      margin-top: 16px;
-    }
-    .warning-title {
-      font-weight: 800;
-      font-size: 13px;
-      color: #92400E;
-      margin-bottom: 8px;
-    }
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:'Inter',system-ui,sans-serif;background:#F1F5F9;height:100vh;overflow:hidden}
+    .login-container{display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(135deg,#7C3FA0 0%,#4A1D6E 100%)}
+    .login-box{background:#fff;padding:40px;border-radius:32px;width:100%;max-width:400px;box-shadow:0 20px 40px rgba(0,0,0,0.2)}
+    .login-box h2{color:#0F172A;margin-bottom:8px;font-size:24px}
+    .login-box p{color:#64748B;margin-bottom:28px}
+    .login-input{width:100%;padding:14px 16px;border:1.5px solid #E2E8F0;border-radius:16px;font-size:14px;font-family:inherit;margin-bottom:14px}
+    .login-input:focus{outline:none;border-color:#7C3FA0;box-shadow:0 0 0 3px rgba(124,63,160,0.1)}
+    .login-btn{width:100%;background:#7C3FA0;color:#fff;border:none;padding:14px;border-radius:16px;font-weight:700;font-size:16px;cursor:pointer}
+    .login-btn:hover{background:#6B2F8E;transform:translateY(-1px)}
+    .login-error{color:#DC2626;text-align:center;margin-top:16px;font-size:13px}
+    .dashboard-container{display:none;height:100vh;overflow:hidden}
+    .sidebar{position:fixed;left:0;top:0;height:100vh;background:linear-gradient(180deg,#1E1B2E 0%,#0F0A1A 100%);color:#fff;display:flex;flex-direction:column;z-index:100;transition:width .3s ease;overflow-x:hidden;box-shadow:2px 0 10px rgba(0,0,0,0.1)}
+    .sidebar.expanded{width:260px}.sidebar.collapsed{width:70px}
+    .sidebar-toggle{background:rgba(255,255,255,0.1);border:none;color:#fff;font-size:20px;cursor:pointer;padding:16px;margin-bottom:8px;width:100%}
+    .sidebar-logo{padding:20px 16px;border-bottom:1px solid rgba(255,255,255,0.1);margin-bottom:24px;white-space:nowrap}
+    .sidebar.expanded .sidebar-logo h2{display:block;font-size:20px;font-weight:800}
+    .sidebar.collapsed .sidebar-logo h2{display:none}
+    .sidebar-logo p{font-size:10px;color:rgba(255,255,255,0.5);margin-top:4px}
+    .sidebar.collapsed .sidebar-logo p{display:none}
+    .sidebar-menu{flex:1;padding:0 12px}
+    .sidebar-item{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;margin-bottom:4px;cursor:pointer;color:rgba(255,255,255,0.7);white-space:nowrap}
+    .sidebar-item:hover{background:rgba(255,255,255,0.08);color:#fff}
+    .sidebar-item.active{background:rgba(124,63,160,0.3);color:#fff;border-left:3px solid #9B4DC8}
+    .sidebar-item span:first-child{font-size:20px;min-width:24px}
+    .sidebar.collapsed .sidebar-item span:last-child{display:none}
+    .sidebar-footer{padding:20px 12px;border-top:1px solid rgba(255,255,255,0.1);margin-top:auto}
+    .logout-sidebar{display:flex;align-items:center;gap:12px;padding:12px;border-radius:12px;cursor:pointer;color:rgba(255,255,255,0.7)}
+    .logout-sidebar:hover{background:rgba(220,38,38,0.2);color:#FCA5A5}
+    .sidebar.collapsed .logout-sidebar span:last-child{display:none}
+    .main-content{transition:margin-left .3s ease;height:100vh;overflow-y:auto;padding:20px 28px}
+    .sidebar.expanded~.main-content{margin-left:260px}
+    .sidebar.collapsed~.main-content{margin-left:70px}
+    .content-header{margin-bottom:24px}
+    .content-header h1{font-size:24px;font-weight:800;color:#0F172A;letter-spacing:-0.5px}
+    .content-header p{color:#64748B;margin-top:4px;font-size:13px}
+    .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:24px}
+    @media(max-width:1000px){.stats-grid{grid-template-columns:repeat(2,1fr)}}
+    @media(max-width:600px){.stats-grid{grid-template-columns:1fr}}
+    .stat-card{background:#fff;border-radius:20px;padding:18px;box-shadow:0 1px 3px rgba(0,0,0,0.05);border:1px solid #E2E8F0}
+    .stat-card:hover{transform:translateY(-2px);box-shadow:0 8px 20px rgba(0,0,0,0.08)}
+    .stat-icon{font-size:24px;margin-bottom:8px}
+    .stat-number{font-size:28px;font-weight:800;color:#0F172A}
+    .stat-label{font-size:12px;color:#64748B;font-weight:500;margin-top:4px}
+    .card-users .stat-number{color:#3B82F6}
+    .card-premium .stat-number{color:#F59E0B}
+    .card-free .stat-number{color:#64748B}
+    .card-conversion .stat-number{color:#10B981}
+    .card-total .stat-number{color:#7C3FA0}
+    .card-most .stat-number{color:#F97316;font-size:14px;font-weight:700}
+    .card-month .stat-number{color:#06B6D4}
+    .card-active .stat-number{color:#22C55E}
+    .section{background:#fff;border-radius:20px;padding:20px;margin-bottom:24px;border:1px solid #E2E8F0}
+    .section-title{font-size:14px;font-weight:800;color:#0F172A;margin-bottom:16px;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.5px}
+    .search-box{margin-bottom:20px}
+    .search-input{width:100%;max-width:320px;padding:10px 14px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:13px;font-family:inherit}
+    .search-input:focus{outline:none;border-color:#7C3FA0}
+    .table-wrapper{overflow-x:auto}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{text-align:left;padding:12px 10px;border-bottom:1px solid #F1F5F9}
+    th{color:#64748B;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px;cursor:pointer}
+    th:hover{color:#7C3FA0}
+    td{color:#0F172A}
+    tr:hover{background:#F8FAFC}
+    .badge-premium{background:#FEF3C7;color:#D97706;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block}
+    .badge-free{background:#F1F5F9;color:#64748B;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block}
+    .ranking-item{margin-bottom:14px}
+    .ranking-header{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;flex-wrap:wrap;gap:6px}
+    .ranking-name{font-weight:700;font-size:13px;color:#0F172A}
+    .ranking-stats{font-size:11px;color:#64748B}
+    .ranking-bar{height:6px;background:#E2E8F0;border-radius:3px;overflow:hidden}
+    .ranking-fill{height:100%;border-radius:3px;transition:width .3s}
+    .fill-hot{background:#F97316}
+    .fill-popular{background:#F59E0B}
+    .fill-normal{background:#10B981}
+    .fill-low{background:#EF4444}
+    .ranking-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;margin-left:6px}
+    .badge-hot{background:#FEF2F2;color:#DC2626}
+    .badge-popular{background:#FEF3C7;color:#D97706}
+    .badge-normal{background:#ECFDF5;color:#059669}
+    .badge-low{background:#FEF2F2;color:#DC2626}
+    .pagination{display:flex;justify-content:center;gap:6px;margin-top:20px;flex-wrap:wrap}
+    .page-btn{background:#fff;border:1px solid #E2E8F0;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:500;font-size:12px}
+    .page-btn:hover{background:#F1F5F9;border-color:#CBD5E1}
+    .page-btn.active{background:#7C3FA0;color:#fff;border-color:#7C3FA0}
+    .page-btn:disabled{opacity:.5;cursor:not-allowed}
+    .export-buttons{display:flex;gap:10px;flex-wrap:wrap}
+    .export-btn{background:#F1F5F9;border:1px solid #E2E8F0;padding:10px 18px;border-radius:12px;cursor:pointer;font-family:inherit;font-weight:600;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+    .export-btn:hover{background:#E2E8F0}
+    .refresh-btn{background:#7C3FA0;color:#fff;border:none}
+    .refresh-btn:hover{background:#6B2F8E}
+    .alert-card{background:#FEF2F2;border:1px solid #FECACA;border-radius:16px;padding:14px;margin-top:16px}
+    .alert-title{font-weight:700;font-size:13px;color:#DC2626;margin-bottom:6px}
+    .graficos-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:20px;margin-bottom:20px}
+    @media(max-width:900px){.graficos-grid{grid-template-columns:1fr}}
+    canvas{max-height:250px;width:100%}
+    .landing-stats-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:24px}
+    @media(max-width:1000px){.landing-stats-grid{grid-template-columns:repeat(3,1fr)}}
+    @media(max-width:600px){.landing-stats-grid{grid-template-columns:repeat(2,1fr)}}
+    .click-chart{background:#F8FAFC;border-radius:12px;padding:16px;margin-bottom:16px}
+    .click-bar{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    .click-bar-label{width:180px;font-size:12px;color:#475569;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .click-bar-fill{flex:1;height:28px;background:#E2E8F0;border-radius:8px;overflow:hidden}
+    .click-bar-progress{height:100%;background:linear-gradient(90deg,#7C3FA0,#9B4DC8);border-radius:8px;display:flex;align-items:center;justify-content:flex-end;padding-right:8px;color:#fff;font-size:11px;font-weight:700}
+    .insight-card{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:16px;padding:14px;margin-top:16px}
+    .insight-title{font-weight:800;font-size:13px;color:#166534;margin-bottom:8px}
+    .insight-text{font-size:12px;color:#14532D;line-height:1.5}
+    .warning-card{background:#FEF3C7;border:1px solid #FDE68A;border-radius:16px;padding:14px;margin-top:16px}
+    .warning-title{font-weight:800;font-size:13px;color:#92400E;margin-bottom:8px}
+    @keyframes fadeInOutAdmin{0%{opacity:0;transform:translateY(20px)}15%{opacity:1;transform:translateY(0)}85%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(20px)}}
   </style>
 </head>
 <body>
@@ -463,13 +136,9 @@
 </div>
 
 <div id="dashboard-container" class="dashboard-container">
-  
   <div id="sidebar" class="sidebar expanded">
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
-    <div class="sidebar-logo">
-      <h2>🦷 OdontoDex</h2>
-      <p>Admin Dashboard</p>
-    </div>
+    <div class="sidebar-logo"><h2>🦷 OdontoDex</h2><p>Admin Dashboard</p></div>
     <div class="sidebar-menu">
       <div class="sidebar-item active" data-section="dashboard"><span>📊</span><span>Dashboard</span></div>
       <div class="sidebar-item" data-section="metricas"><span>📈</span><span>Métricas de Produto</span></div>
@@ -479,332 +148,278 @@
       <div class="sidebar-item" data-section="graficos"><span>📈</span><span>Gráficos</span></div>
       <div class="sidebar-item" data-section="exportar"><span>📥</span><span>Exportar</span></div>
     </div>
-    <div class="sidebar-footer">
-      <div class="logout-sidebar" onclick="logout()"><span>🚪</span><span>Sair</span></div>
-    </div>
+    <div class="sidebar-footer"><div class="logout-sidebar" onclick="logout()"><span>🚪</span><span>Sair</span></div></div>
   </div>
-
-  <div class="main-content">
-    <div id="content-area"></div>
-  </div>
+  <div class="main-content"><div id="content-area"></div></div>
 </div>
 
-<>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBGYluL3f0yuaZnpc-fX8sIQhlCeVo6bwk",
-    authDomain: "guia-odonto-a24ed.firebaseapp.com",
-    projectId: "guia-odonto-a24ed",
-    storageBucket: "guia-odonto-a24ed.firebasestorage.app",
-    messagingSenderId: "822223061470",
-    appId: "1:822223061470:web:8b1447dcfb37e7eeda1d4f"
-  };
-  
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.firestore();
-  
-  let currentUser = null;
-  let charts = {};
-  let dadosUsuarios = [];
-  let usuariosFiltrados = [];
-  let currentPage = 1;
-  let itemsPerPage = 10;
-  let currentSort = { field: 'usos', order: 'desc' };
-  let searchTerm = '';
-  let currentSection = 'dashboard';
-  let cachedDados = null;
-  let cachedLandingStats = null;
-  let cachedMetricasProduto = null;
-  
-  const ADMIN_EMAILS = ["pedrosimplicio.sousa@gmail.com"];
-  
-  // ========== LOGIN ==========
-  async function doAdminLogin() {
-    const email = document.getElementById('admin-email').value;
-    const password = document.getElementById('admin-password').value;
-    const errorDiv = document.getElementById('login-error');
-    
-    try {
-      const res = await auth.signInWithEmailAndPassword(email, password);
-      currentUser = res.user;
-      
-      if (!ADMIN_EMAILS.includes(currentUser.email)) {
-        await auth.signOut();
-        errorDiv.textContent = "Acesso negado. Você não é administrador.";
-        return;
-      }
-      
-      document.getElementById('login-container').style.display = 'none';
-      document.getElementById('dashboard-container').style.display = 'flex';
-      
-      await carregarDados();
-      await carregarLandingStats();
-      await carregarMetricasProduto();
-      renderizarSecaoAtual();
-      
-    } catch(e) {
-      errorDiv.textContent = "Email ou senha incorretos";
-    }
-  }
-  
-  function toggleSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    if (sidebar.classList.contains('expanded')) {
-      sidebar.classList.remove('expanded');
-      sidebar.classList.add('collapsed');
-    } else {
-      sidebar.classList.remove('collapsed');
-      sidebar.classList.add('expanded');
-    }
-    setTimeout(() => {
-      if (currentSection === 'graficos' && charts.horas) {
-        if (charts.horas) charts.horas.resize();
-        if (charts.dias) charts.dias.resize();
-        if (charts.mensal) charts.mensal.resize();
-      }
-      if (currentSection === 'landing' && charts.landingVisitas) {
-        if (charts.landingVisitas) charts.landingVisitas.resize();
-      }
-    }, 300);
-  }
-  
-  // ========== CARREGAR DADOS DO APP ==========
-  async function carregarDados() {
-    try {
-      const agora = new Date();
-      const mesAtual = agora.toISOString().split('T')[0].substring(0, 7);
-      
-      const usersSnapshot = await db.collection('users').get();
-      const usuarios = [];
-      let totalPremium = 0, totalFree = 0;
-      
-   usersSnapshot.forEach(doc => {
-  const userId = doc.id;
-  const isIgnorado = isUsuarioIgnorado(userId);  // VERIFICA SE ESTÁ IGNORADO
-  const userData = doc.data();
-  const isPremium = userData.premium === true;
-  
-  // SÓ CONTA se NÃO for ignorado
-  if (!isIgnorado) {
-    if (isPremium) totalPremium++;
-    else totalFree++;
-  }
-  
-  usuarios.push({
-    id: userId,
-    email: userData.email || '',
-    nome: userData.nome || userData.displayName || '-',
-    premium: isPremium,
-    criadoEm: userData.criadoEm || userData.criado_em || null,
-    dataPrimeiroAcesso: userData.dataPrimeiroAcesso || null,
-    ultimoAcesso: userData.ultimoAcesso || null,
-    acessosPorDia: userData.acessosPorDia || {},
-    usos: 0,
-    ignorado: isIgnorado  // <--- ADICIONA ESTA LINHA (marca se está ignorado)
-  });
-});
-      
-      const noventaDiasAtras = new Date();
-      noventaDiasAtras.setDate(noventaDiasAtras.getDate() - 90);
-      
-      const analyticsSnapshot = await db.collection('analytics_uso_protocolos')
-        .where('timestamp', '>=', noventaDiasAtras)
-        .get();
-      
-      const analytics = {
-        protocolos: {},
-        usuariosCount: {},
-        porMes: {},
-        porHora: Array(24).fill(0),
-        porDiaSemana: Array(7).fill(0),
-        total: 0,
-        usuariosAtivosMes: new Set()
-      };
-      
-      analyticsSnapshot.forEach(doc => {
-        const data = doc.data();
-        analytics.total++;
-        
-        if (data.protocoloTitulo) {
-          analytics.protocolos[data.protocoloTitulo] = (analytics.protocolos[data.protocoloTitulo] || 0) + 1;
-        }
-        
-        if (data.usuarioId) {
-          analytics.usuariosCount[data.usuarioId] = (analytics.usuariosCount[data.usuarioId] || 0) + 1;
-        }
-        
-        if (data.mes === mesAtual && data.usuarioId) {
-          analytics.usuariosAtivosMes.add(data.usuarioId);
-        }
-        
-        if (data.mes) analytics.porMes[data.mes] = (analytics.porMes[data.mes] || 0) + 1;
-        if (data.hora !== undefined) analytics.porHora[data.hora]++;
-        if (data.diaSemana !== undefined) analytics.porDiaSemana[data.diaSemana]++;
-      });
-      
-      usuarios.forEach(user => {
-        user.usos = analytics.usuariosCount[user.id] || 0;
-      });
-      
-      const totalUsuarios = usuarios.length;
-      const totalPremiumCount = usuarios.filter(u => u.premium).length;
-      const totalFreeCount = totalUsuarios - totalPremiumCount;
-      const taxaConversao = totalUsuarios > 0 ? Math.round((totalPremiumCount / totalUsuarios) * 100) : 0;
-      
-      const protocolosArray = Object.entries(analytics.protocolos)
-        .map(([nome, count]) => ({ nome, count, percentual: analytics.total > 0 ? (count / analytics.total) * 100 : 0 }))
-        .sort((a, b) => b.count - a.count);
-      
-      const topProtocolos = protocolosArray.slice(0, 10);
-      const lowProtocolos = protocolosArray.filter(p => p.percentual < 5).slice(0, 10);
-      
-      cachedDados = {
-        usuarios,
-        analytics,
-        totalUsuarios,
-        totalPremium: totalPremiumCount,
-        totalFree: totalFreeCount,
-        taxaConversao,
-        topProtocolos,
-        lowProtocolos,
-        totalUsos: analytics.total,
-        usosMes: analytics.porMes[mesAtual] || 0,
-        usuariosAtivosMes: analytics.usuariosAtivosMes.size,
-        topProtocoloNome: topProtocolos[0]?.nome || '-',
-        topProtocoloCount: topProtocolos[0]?.count || 0,
-        topProtocoloPercentual: topProtocolos[0]?.percentual || 0,
-        porHora: analytics.porHora,
-        porDiaSemana: analytics.porDiaSemana,
-        porMes: analytics.porMes
-      };
-      
-      dadosUsuarios = [...usuarios];
-      aplicarFiltroOrdenacao();
-      
-    } catch (error) {
-      console.error("Erro ao carregar dados:", error);
-    }
-  }
-  
-  // ========== CARREGAR MÉTRICAS DE PRODUTO ==========
- async function carregarMetricasProduto() {
+<script>
+const firebaseConfig = {
+  apiKey: "AIzaSyBGYluL3f0yuaZnpc-fX8sIQhlCeVo6bwk",
+  authDomain: "guia-odonto-a24ed.firebaseapp.com",
+  projectId: "guia-odonto-a24ed",
+  storageBucket: "guia-odonto-a24ed.firebasestorage.app",
+  messagingSenderId: "822223061470",
+  appId: "1:822223061470:web:8b1447dcfb37e7eeda1d4f"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUser = null;
+let charts = {};
+let dadosUsuarios = [];
+let usuariosFiltrados = [];
+let currentPage = 1;
+let itemsPerPage = 10;
+let currentSort = { field: 'usos', order: 'desc' };
+let searchTerm = '';
+let currentSection = 'dashboard';
+let cachedDados = null;
+let cachedLandingStats = null;
+let cachedMetricasProduto = null;
+
+const ADMIN_EMAILS = ["pedrosimplicio.sousa@gmail.com"];
+
+// ========== SISTEMA DE IGNORAR USUÁRIOS ==========
+let usuariosIgnorados = [];
+
+function carregarIgnorados() {
   try {
-    const hoje = new Date();
-    const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+    const saved = localStorage.getItem('admin_usuarios_ignorados');
+    if (saved) usuariosIgnorados = JSON.parse(saved);
+  } catch(e) { usuariosIgnorados = []; }
+}
+
+function salvarIgnorados() {
+  localStorage.setItem('admin_usuarios_ignorados', JSON.stringify(usuariosIgnorados));
+}
+
+function isUsuarioIgnorado(userId) {
+  return usuariosIgnorados.includes(userId);
+}
+
+function toggleIgnorarUsuario(userId) {
+  const index = usuariosIgnorados.indexOf(userId);
+  if (index === -1) {
+    usuariosIgnorados.push(userId);
+    mostrarToastAdmin('👤 Usuário ignorado das estatísticas', 'warning');
+  } else {
+    usuariosIgnorados.splice(index, 1);
+    mostrarToastAdmin('✅ Usuário reincluído nas estatísticas', 'success');
+  }
+  salvarIgnorados();
+  carregarDados().then(() => {
+    carregarMetricasProduto();
+    renderizarSecaoAtual();
+  });
+}
+
+function mostrarToastAdmin(mensagem, tipo) {
+  const toast = document.createElement('div');
+  toast.textContent = mensagem;
+  let cor = '#3B82F6';
+  if (tipo === 'success') cor = '#10B981';
+  if (tipo === 'warning') cor = '#F59E0B';
+  if (tipo === 'error') cor = '#EF4444';
+  toast.style.cssText = `position:fixed;bottom:20px;right:20px;background:${cor};color:white;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;animation:fadeInOutAdmin 2s ease;font-family:'Inter',sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.15)`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
+}
+
+// ========== LOGIN ==========
+async function doAdminLogin() {
+  const email = document.getElementById('admin-email').value;
+  const password = document.getElementById('admin-password').value;
+  const errorDiv = document.getElementById('login-error');
+  try {
+    const res = await auth.signInWithEmailAndPassword(email, password);
+    currentUser = res.user;
+    if (!ADMIN_EMAILS.includes(currentUser.email)) {
+      await auth.signOut();
+      errorDiv.textContent = "Acesso negado. Você não é administrador.";
+      return;
+    }
+    document.getElementById('login-container').style.display = 'none';
+    document.getElementById('dashboard-container').style.display = 'flex';
+    await carregarDados();
+    await carregarLandingStats();
+    await carregarMetricasProduto();
+    renderizarSecaoAtual();
+  } catch(e) {
+    errorDiv.textContent = "Email ou senha incorretos";
+  }
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar.classList.contains('expanded')) {
+    sidebar.classList.remove('expanded');
+    sidebar.classList.add('collapsed');
+  } else {
+    sidebar.classList.remove('collapsed');
+    sidebar.classList.add('expanded');
+  }
+  setTimeout(() => {
+    if (currentSection === 'graficos' && charts.horas) {
+      if (charts.horas) charts.horas.resize();
+      if (charts.dias) charts.dias.resize();
+      if (charts.mensal) charts.mensal.resize();
+    }
+    if (currentSection === 'landing' && charts.landingVisitas) {
+      if (charts.landingVisitas) charts.landingVisitas.resize();
+    }
+  }, 300);
+}
+
+// ========== CARREGAR DADOS DO APP ==========
+async function carregarDados() {
+  try {
+    const agora = new Date();
+    const mesAtual = agora.toISOString().split('T')[0].substring(0, 7);
+    const usersSnapshot = await db.collection('users').get();
+    const usuarios = [];
+    let totalPremium = 0, totalFree = 0;
     
+    usersSnapshot.forEach(doc => {
+      const userId = doc.id;
+      const isIgnorado = isUsuarioIgnorado(userId);
+      const userData = doc.data();
+      const isPremium = userData.premium === true;
+      if (!isIgnorado) {
+        if (isPremium) totalPremium++;
+        else totalFree++;
+      }
+      usuarios.push({
+        id: userId, email: userData.email || '', nome: userData.nome || userData.displayName || '-',
+        premium: isPremium, criadoEm: userData.criadoEm || userData.criado_em || null,
+        dataPrimeiroAcesso: userData.dataPrimeiroAcesso || null,
+        ultimoAcesso: userData.ultimoAcesso || null,
+        acessosPorDia: userData.acessosPorDia || {}, usos: 0, ignorado: isIgnorado
+      });
+    });
+    
+    const noventaDiasAtras = new Date();
+    noventaDiasAtras.setDate(noventaDiasAtras.getDate() - 90);
+    const analyticsSnapshot = await db.collection('analytics_uso_protocolos')
+      .where('timestamp', '>=', noventaDiasAtras).get();
+    
+    const analytics = {
+      protocolos: {}, usuariosCount: {}, porMes: {},
+      porHora: Array(24).fill(0), porDiaSemana: Array(7).fill(0),
+      total: 0, usuariosAtivosMes: new Set()
+    };
+    
+    analyticsSnapshot.forEach(doc => {
+      const data = doc.data();
+      analytics.total++;
+      if (data.protocoloTitulo) analytics.protocolos[data.protocoloTitulo] = (analytics.protocolos[data.protocoloTitulo] || 0) + 1;
+      if (data.usuarioId) analytics.usuariosCount[data.usuarioId] = (analytics.usuariosCount[data.usuarioId] || 0) + 1;
+      if (data.mes === mesAtual && data.usuarioId) analytics.usuariosAtivosMes.add(data.usuarioId);
+      if (data.mes) analytics.porMes[data.mes] = (analytics.porMes[data.mes] || 0) + 1;
+      if (data.hora !== undefined) analytics.porHora[data.hora]++;
+      if (data.diaSemana !== undefined) analytics.porDiaSemana[data.diaSemana]++;
+    });
+    
+    usuarios.forEach(user => { user.usos = analytics.usuariosCount[user.id] || 0; });
+    
+    const totalUsuarios = usuarios.length;
+    const totalPremiumCount = usuarios.filter(u => u.premium).length;
+    const totalFreeCount = totalUsuarios - totalPremiumCount;
+    const taxaConversao = totalUsuarios > 0 ? Math.round((totalPremiumCount / totalUsuarios) * 100) : 0;
+    
+    const protocolosArray = Object.entries(analytics.protocolos).map(([nome, count]) => ({ nome, count, percentual: analytics.total > 0 ? (count / analytics.total) * 100 : 0 })).sort((a,b) => b.count - a.count);
+    const topProtocolos = protocolosArray.slice(0, 10);
+    const lowProtocolos = protocolosArray.filter(p => p.percentual < 5).slice(0, 10);
+    
+    cachedDados = {
+      usuarios, analytics, totalUsuarios, totalPremium: totalPremiumCount, totalFree: totalFreeCount,
+      taxaConversao, topProtocolos, lowProtocolos, totalUsos: analytics.total,
+      usosMes: analytics.porMes[mesAtual] || 0, usuariosAtivosMes: analytics.usuariosAtivosMes.size,
+      topProtocoloNome: topProtocolos[0]?.nome || '-', topProtocoloCount: topProtocolos[0]?.count || 0,
+      topProtocoloPercentual: topProtocolos[0]?.percentual || 0, porHora: analytics.porHora,
+      porDiaSemana: analytics.porDiaSemana, porMes: analytics.porMes
+    };
+    dadosUsuarios = [...usuarios];
+    aplicarFiltroOrdenacao();
+  } catch (error) { console.error("Erro ao carregar dados:", error); }
+}
+
+// ========== CARREGAR MÉTRICAS DE PRODUTO ==========
+async function carregarMetricasProduto() {
+  try {
     const usersSnapshot = await db.collection('users').get();
     const usuarios = [];
     usersSnapshot.forEach(doc => {
       const userData = doc.data();
       usuarios.push({
-        id: doc.id,
-        dataPrimeiroAcesso: userData.dataPrimeiroAcesso?.toDate() || null,
+        id: doc.id, dataPrimeiroAcesso: userData.dataPrimeiroAcesso?.toDate() || null,
         ultimoAcesso: userData.ultimoAcesso?.toDate() || null,
-        acessosPorDia: userData.acessosPorDia || {},
-        premium: userData.premium === true
+        acessosPorDia: userData.acessosPorDia || {}, premium: userData.premium === true
       });
     });
     
-    // Buscar ações dos usuários
     const noventaDiasAtras = new Date();
     noventaDiasAtras.setDate(noventaDiasAtras.getDate() - 90);
-    
-    const actionsSnapshot = await db.collection('user_actions')
-      .where('timestamp', '>=', noventaDiasAtras)
-      .get();
+    const actionsSnapshot = await db.collection('user_actions').where('timestamp', '>=', noventaDiasAtras).get();
     
     const userActions = {};
     actionsSnapshot.forEach(doc => {
       const data = doc.data();
-      if (!userActions[data.userId]) {
-        userActions[data.userId] = [];
-      }
-      userActions[data.userId].push({
-        actionType: data.actionType,
-        timestamp: data.timestamp?.toDate() || new Date(),
-        details: data
-      });
+      if (!userActions[data.userId]) userActions[data.userId] = [];
+      userActions[data.userId].push({ actionType: data.actionType, timestamp: data.timestamp?.toDate() || new Date() });
     });
     
-    // Calcular métricas
     const metricas = {
-      totalNovosUltimos30: 0,
-      ativadosUltimos30: 0,
-      taxaAtivacao: 0,
+      totalNovosUltimos30: 0, ativadosUltimos30: 0, taxaAtivacao: 0,
       acaoAtivacao: { open_protocol: 0, search: 0, favorite: 0, forceps: 0, diagnostico: 0 },
-      coortes: {},
-      primeiroAcaoRetornantes: {},
-      scores: [],
+      coortes: {}, primeiroAcaoRetornantes: {}, scores: [],
       tipoUso: { passivo: 0, hibrido: 0, interativo: 0 }
     };
     
     const trintaDiasAtras = new Date();
     trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
     
-    // PERCORRER USUÁRIOS - AQUI É ONDE ADICIONAMOS O FILTRO
     for (const user of usuarios) {
-      // 🔴 PULA USUÁRIOS IGNORADOS
       if (isUsuarioIgnorado(user.id)) continue;
       
-      // Verificar se é novo usuário nos últimos 30 dias
       if (user.dataPrimeiroAcesso && user.dataPrimeiroAcesso >= trintaDiasAtras) {
         metricas.totalNovosUltimos30++;
-        
         const userActionsList = userActions[user.id] || [];
         const usouProtocolo = userActionsList.some(a => a.actionType === 'open_protocol');
         const usouBusca = userActionsList.some(a => a.actionType === 'search');
-        const usouFavorito = userActionsList.some(a => a.actionType === 'favorite');
-        const usouForceps = userActionsList.some(a => a.actionType === 'forceps');
-        const usouDiagnostico = userActionsList.some(a => a.actionType === 'diagnostico');
-        
         const ativado = usouProtocolo || usouBusca;
         if (ativado) {
           metricas.ativadosUltimos30++;
           if (usouProtocolo) metricas.acaoAtivacao.open_protocol++;
           if (usouBusca) metricas.acaoAtivacao.search++;
-          if (usouFavorito) metricas.acaoAtivacao.favorite++;
-          if (usouForceps) metricas.acaoAtivacao.forceps++;
-          if (usouDiagnostico) metricas.acaoAtivacao.diagnostico++;
+          if (userActionsList.some(a => a.actionType === 'favorite')) metricas.acaoAtivacao.favorite++;
+          if (userActionsList.some(a => a.actionType === 'forceps')) metricas.acaoAtivacao.forceps++;
+          if (userActionsList.some(a => a.actionType === 'diagnostico')) metricas.acaoAtivacao.diagnostico++;
         }
       }
       
-      // Calcular retenção por coorte (mês)
       if (user.dataPrimeiroAcesso) {
         const coorteKey = `${user.dataPrimeiroAcesso.getFullYear()}-${user.dataPrimeiroAcesso.getMonth()+1}`;
-        if (!metricas.coortes[coorteKey]) {
-          metricas.coortes[coorteKey] = { total: 0, d1: 0, d7: 0, d30: 0 };
-        }
+        if (!metricas.coortes[coorteKey]) metricas.coortes[coorteKey] = { total: 0, d1: 0, d7: 0, d30: 0 };
         metricas.coortes[coorteKey].total++;
         
-        const userActionsList = userActions[user.id] || [];
         const acessoDias = Object.keys(user.acessosPorDia).map(d => new Date(d));
-        
-        const diaSeguinte = new Date(user.dataPrimeiroAcesso);
-        diaSeguinte.setDate(diaSeguinte.getDate() + 1);
-        const voltouD1 = acessoDias.some(d => d.toDateString() === diaSeguinte.toDateString());
-        if (voltouD1) metricas.coortes[coorteKey].d1++;
-        
-        const dia7 = new Date(user.dataPrimeiroAcesso);
-        dia7.setDate(dia7.getDate() + 7);
-        const voltouD7 = acessoDias.some(d => d.toDateString() === dia7.toDateString());
-        if (voltouD7) metricas.coortes[coorteKey].d7++;
-        
-        const dia30 = new Date(user.dataPrimeiroAcesso);
-        dia30.setDate(dia30.getDate() + 30);
-        const voltouD30 = acessoDias.some(d => d.toDateString() === dia30.toDateString());
-        if (voltouD30) metricas.coortes[coorteKey].d30++;
+        const diaSeguinte = new Date(user.dataPrimeiroAcesso); diaSeguinte.setDate(diaSeguinte.getDate() + 1);
+        if (acessoDias.some(d => d.toDateString() === diaSeguinte.toDateString())) metricas.coortes[coorteKey].d1++;
+        const dia7 = new Date(user.dataPrimeiroAcesso); dia7.setDate(dia7.getDate() + 7);
+        if (acessoDias.some(d => d.toDateString() === dia7.toDateString())) metricas.coortes[coorteKey].d7++;
+        const dia30 = new Date(user.dataPrimeiroAcesso); dia30.setDate(dia30.getDate() + 30);
+        if (acessoDias.some(d => d.toDateString() === dia30.toDateString())) metricas.coortes[coorteKey].d30++;
       }
       
-      // Momento AHA
       if (user.ultimoAcesso && user.dataPrimeiroAcesso && user.ultimoAcesso > user.dataPrimeiroAcesso) {
         const userActionsList = (userActions[user.id] || []).sort((a,b) => a.timestamp - b.timestamp);
         const primeiraAcao = userActionsList[0];
-        if (primeiraAcao) {
-          metricas.primeiroAcaoRetornantes[primeiraAcao.actionType] = (metricas.primeiroAcaoRetornantes[primeiraAcao.actionType] || 0) + 1;
-        }
+        if (primeiraAcao) metricas.primeiroAcaoRetornantes[primeiraAcao.actionType] = (metricas.primeiroAcaoRetornantes[primeiraAcao.actionType] || 0) + 1;
       }
       
-      // Profundidade de uso
       const userActionsList = userActions[user.id] || [];
       const protocolosCount = userActionsList.filter(a => a.actionType === 'open_protocol').length;
       const buscasCount = userActionsList.filter(a => a.actionType === 'search').length;
@@ -821,10 +436,8 @@
       if (diagnosticoCount >= 1) score += 15;
       metricas.scores.push(score);
       
-      // Tipo de uso
       const temInterativo = buscasCount > 0 || favoritosCount > 0 || forcepsCount > 0 || diagnosticoCount > 0;
       const temPassivo = protocolosCount > 0;
-      
       if (temPassivo && !temInterativo) metricas.tipoUso.passivo++;
       else if (temPassivo && temInterativo) metricas.tipoUso.hibrido++;
       else if (!temPassivo && temInterativo) metricas.tipoUso.interativo++;
@@ -838,1333 +451,361 @@
       alto: metricas.scores.filter(s => s > 70).length
     };
     
-    let ahaCampeao = '';
-    let ahaMax = 0;
+    let ahaCampeao = '', ahaMax = 0;
     for (const [acao, count] of Object.entries(metricas.primeiroAcaoRetornantes)) {
-      if (count > ahaMax) {
-        ahaMax = count;
-        ahaCampeao = acao;
-      }
+      if (count > ahaMax) { ahaMax = count; ahaCampeao = acao; }
     }
     metricas.ahaCampeao = ahaCampeao;
     metricas.ahaPercentual = ahaMax > 0 ? Math.round((ahaMax / Object.values(metricas.primeiroAcaoRetornantes).reduce((a,b) => a+b, 0)) * 100) : 0;
     
     cachedMetricasProduto = metricas;
-    
   } catch (error) {
-    console.error("Erro ao carregar métricas de produto:", error);
+    console.error("Erro ao carregar métricas:", error);
     cachedMetricasProduto = {
-      totalNovosUltimos30: 0,
-      ativadosUltimos30: 0,
-      taxaAtivacao: 0,
-      acaoAtivacao: {},
-      coortes: {},
-      primeiroAcaoRetornantes: {},
-      scores: [],
-      tipoUso: { passivo: 0, hibrido: 0, interativo: 0 },
-      mediaProfundidade: 0,
-      distribuicaoProfundidade: { baixo: 0, medio: 0, alto: 0 },
-      ahaCampeao: '',
-      ahaPercentual: 0
+      totalNovosUltimos30: 0, ativadosUltimos30: 0, taxaAtivacao: 0, acaoAtivacao: {},
+      coortes: {}, primeiroAcaoRetornantes: {}, scores: [],
+      tipoUso: { passivo: 0, hibrido: 0, interativo: 0 }, mediaProfundidade: 0,
+      distribuicaoProfundidade: { baixo: 0, medio: 0, alto: 0 }, ahaCampeao: '', ahaPercentual: 0
     };
   }
 }
-      
-      // Buscar ações dos usuários
-      const noventaDiasAtras = new Date();
-      noventaDiasAtras.setDate(noventaDiasAtras.getDate() - 90);
-      
-      const actionsSnapshot = await db.collection('user_actions')
-        .where('timestamp', '>=', noventaDiasAtras)
-        .get();
-      
-      const userActions = {};
-      actionsSnapshot.forEach(doc => {
-        const data = doc.data();
-        if (!userActions[data.userId]) {
-          userActions[data.userId] = [];
-        }
-        userActions[data.userId].push({
-          actionType: data.actionType,
-          timestamp: data.timestamp?.toDate() || new Date(),
-          details: data
-        });
-      });
-      
-      // Calcular métricas
-      const metricas = {
-        // Ativação
-        totalNovosUltimos30: 0,
-        ativadosUltimos30: 0,
-        taxaAtivacao: 0,
-        acaoAtivacao: { open_protocol: 0, search: 0, favorite: 0, forceps: 0, diagnostico: 0 },
-        
-        // Retenção
-        coortes: {},
-        
-        // Momento AHA
-        primeiroAcaoRetornantes: {},
-        
-        // Profundidade de uso
-        scores: [],
-        
-        // Tipo de uso
-        tipoUso: { passivo: 0, hibrido: 0, interativo: 0 }
-      };
-      
-      const trintaDiasAtras = new Date();
-      trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
-      
-      usuarios.forEach(user => {
-        // Verificar se é novo usuário nos últimos 30 dias
-        if (user.dataPrimeiroAcesso && user.dataPrimeiroAcesso >= trintaDiasAtras) {
-          metricas.totalNovosUltimos30++;
-          
-          // Verificar se foi ativado (usou pelo menos 1 protocolo)
-          const userActionsList = userActions[user.id] || [];
-          const usouProtocolo = userActionsList.some(a => a.actionType === 'open_protocol');
-          const usouBusca = userActionsList.some(a => a.actionType === 'search');
-          const usouFavorito = userActionsList.some(a => a.actionType === 'favorite');
-          const usouForceps = userActionsList.some(a => a.actionType === 'forceps');
-          const usouDiagnostico = userActionsList.some(a => a.actionType === 'diagnostico');
-          
-          const ativado = usouProtocolo || usouBusca;
-          if (ativado) {
-            metricas.ativadosUltimos30++;
-            if (usouProtocolo) metricas.acaoAtivacao.open_protocol++;
-            if (usouBusca) metricas.acaoAtivacao.search++;
-            if (usouFavorito) metricas.acaoAtivacao.favorite++;
-            if (usouForceps) metricas.acaoAtivacao.forceps++;
-            if (usouDiagnostico) metricas.acaoAtivacao.diagnostico++;
-          }
-        }
-        
-        // Calcular retenção por coorte (mês)
-        if (user.dataPrimeiroAcesso) {
-          const coorteKey = `${user.dataPrimeiroAcesso.getFullYear()}-${user.dataPrimeiroAcesso.getMonth()+1}`;
-          if (!metricas.coortes[coorteKey]) {
-            metricas.coortes[coorteKey] = { total: 0, d1: 0, d7: 0, d30: 0 };
-          }
-          metricas.coortes[coorteKey].total++;
-          
-          // Verificar retenção
-          const userActionsList = userActions[user.id] || [];
-          const acessoDias = Object.keys(user.acessosPorDia).map(d => new Date(d));
-          
-          // D1: voltou no dia seguinte
-          const diaSeguinte = new Date(user.dataPrimeiroAcesso);
-          diaSeguinte.setDate(diaSeguinte.getDate() + 1);
-          const voltouD1 = acessoDias.some(d => d.toDateString() === diaSeguinte.toDateString());
-          if (voltouD1) metricas.coortes[coorteKey].d1++;
-          
-          // D7: voltou no dia 7
-          const dia7 = new Date(user.dataPrimeiroAcesso);
-          dia7.setDate(dia7.getDate() + 7);
-          const voltouD7 = acessoDias.some(d => d.toDateString() === dia7.toDateString());
-          if (voltouD7) metricas.coortes[coorteKey].d7++;
-          
-          // D30: voltou no dia 30
-          const dia30 = new Date(user.dataPrimeiroAcesso);
-          dia30.setDate(dia30.getDate() + 30);
-          const voltouD30 = acessoDias.some(d => d.toDateString() === dia30.toDateString());
-          if (voltouD30) metricas.coortes[coorteKey].d30++;
-        }
-        
-        // Momento AHA: para usuários que retornaram, qual foi a PRIMEIRA ação?
-        if (user.ultimoAcesso && user.dataPrimeiroAcesso && user.ultimoAcesso > user.dataPrimeiroAcesso) {
-          const userActionsList = (userActions[user.id] || []).sort((a,b) => a.timestamp - b.timestamp);
-          const primeiraAcao = userActionsList[0];
-          if (primeiraAcao) {
-            metricas.primeiroAcaoRetornantes[primeiraAcao.actionType] = (metricas.primeiroAcaoRetornantes[primeiraAcao.actionType] || 0) + 1;
-          }
-        }
-        
-        // Profundidade de uso (score 0-100)
-        const userActionsList = userActions[user.id] || [];
-        const protocolosCount = userActionsList.filter(a => a.actionType === 'open_protocol').length;
-        const buscasCount = userActionsList.filter(a => a.actionType === 'search').length;
-        const favoritosCount = userActionsList.filter(a => a.actionType === 'favorite').length;
-        const forcepsCount = userActionsList.filter(a => a.actionType === 'forceps').length;
-        const diagnosticoCount = userActionsList.filter(a => a.actionType === 'diagnostico').length;
-        
-        let score = 0;
-        if (protocolosCount >= 5) score += 20;
-        if (protocolosCount >= 10) score += 20;
-        if (buscasCount >= 3) score += 15;
-        if (favoritosCount >= 3) score += 15;
-        if (forcepsCount >= 1) score += 15;
-        if (diagnosticoCount >= 1) score += 15;
-        metricas.scores.push(score);
-        
-        // Tipo de uso
-        const temInterativo = buscasCount > 0 || favoritosCount > 0 || forcepsCount > 0 || diagnosticoCount > 0;
-        const temPassivo = protocolosCount > 0;
-        
-        if (temPassivo && !temInterativo) metricas.tipoUso.passivo++;
-        else if (temPassivo && temInterativo) metricas.tipoUso.hibrido++;
-        else if (!temPassivo && temInterativo) metricas.tipoUso.interativo++;
-      });
-      
-      metricas.taxaAtivacao = metricas.totalNovosUltimos30 > 0 ? Math.round((metricas.ativadosUltimos30 / metricas.totalNovosUltimos30) * 100) : 0;
-      
-      // Calcular média de profundidade
-      metricas.mediaProfundidade = metricas.scores.length > 0 ? Math.round(metricas.scores.reduce((a,b) => a+b, 0) / metricas.scores.length) : 0;
-      metricas.distribuicaoProfundidade = {
-        baixo: metricas.scores.filter(s => s <= 30).length,
-        medio: metricas.scores.filter(s => s > 30 && s <= 70).length,
-        alto: metricas.scores.filter(s => s > 70).length
-      };
-      
-      // Descobrir Momento AHA campeão
-      let ahaCampeao = '';
-      let ahaMax = 0;
-      for (const [acao, count] of Object.entries(metricas.primeiroAcaoRetornantes)) {
-        if (count > ahaMax) {
-          ahaMax = count;
-          ahaCampeao = acao;
-        }
-      }
-      metricas.ahaCampeao = ahaCampeao;
-      metricas.ahaPercentual = ahaMax > 0 ? Math.round((ahaMax / Object.values(metricas.primeiroAcaoRetornantes).reduce((a,b) => a+b, 0)) * 100) : 0;
-      
-      cachedMetricasProduto = metricas;
-      
-    } catch (error) {
-      console.error("Erro ao carregar métricas de produto:", error);
-      cachedMetricasProduto = {
-        totalNovosUltimos30: 0,
-        ativadosUltimos30: 0,
-        taxaAtivacao: 0,
-        acaoAtivacao: {},
-        coortes: {},
-        primeiroAcaoRetornantes: {},
-        scores: [],
-        tipoUso: { passivo: 0, hibrido: 0, interativo: 0 },
-        mediaProfundidade: 0,
-        distribuicaoProfundidade: { baixo: 0, medio: 0, alto: 0 },
-        ahaCampeao: '',
-        ahaPercentual: 0
-      };
-    }
-  }
-  
-  // ========== CARREGAR DADOS DA LANDING PAGE ==========
-  async function carregarLandingStats() {
-    try {
-      const agora = new Date();
-      const ultimos30Dias = new Date();
-      ultimos30Dias.setDate(agora.getDate() - 30);
-      
-      const snapshot = await db.collection('landing_stats')
-        .orderBy('timestamp', 'desc')
-        .limit(10000)
-        .get();
-      
-      const stats = {
-        totalVisitas: 0,
-        visitasUnicas: new Set(),
-        eventos: {},
-        eventosPorDia: {},
-        cliquesPorCta: {},
-        scrollDepth: { 25: 0, 50: 0, 75: 0, 100: 0 },
-        sources: {},
-        devices: {},
-        tempoMedio: 0,
-        temposTotais: [],
-        sessionDurations: [],
-        secoesVistas: {},
-        timerClicks: { total: 0, tempos: [] },
-        bounces: 0
-      };
-      
-      let eventosPorData = {};
-      
-      snapshot.forEach(doc => {
-        const data = doc.data();
-        const dataStr = data.timestamp?.toDate?.()?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0];
-        
-        if (data.event === 'page_view') {
-          stats.totalVisitas++;
-          stats.visitasUnicas.add(data.sessionId);
-          
-          if (!eventosPorData[dataStr]) eventosPorData[dataStr] = {};
-          eventosPorData[dataStr].visitas = (eventosPorData[dataStr].visitas || 0) + 1;
-          
-          if (data.source) stats.sources[data.source] = (stats.sources[data.source] || 0) + 1;
-          if (data.deviceType) stats.devices[data.deviceType] = (stats.devices[data.deviceType] || 0) + 1;
-        }
-        
-        stats.eventos[data.event] = (stats.eventos[data.event] || 0) + 1;
-        
-        if (data.event && data.event.startsWith('click_')) {
-          stats.cliquesPorCta[data.event] = (stats.cliquesPorCta[data.event] || 0) + 1;
-          
-          if (!eventosPorData[dataStr]) eventosPorData[dataStr] = {};
-          eventosPorData[dataStr].cliques = (eventosPorData[dataStr].cliques || 0) + 1;
-        }
-        
-        if (data.event === 'scroll_25') stats.scrollDepth[25]++;
-        if (data.event === 'scroll_50') stats.scrollDepth[50]++;
-        if (data.event === 'scroll_75') stats.scrollDepth[75]++;
-        if (data.event === 'scroll_100') stats.scrollDepth[100]++;
-        
-        if (data.event === 'section_view' && data.section) {
-          stats.secoesVistas[data.section] = (stats.secoesVistas[data.section] || 0) + 1;
-        }
-        
-        if (data.event === 'exit' && data.timeOnPageSeconds) {
-          stats.temposTotais.push(data.timeOnPageSeconds);
-        }
-        
-        if (data.event === 'timer_click' && data.timeToClickSeconds) {
-          stats.timerClicks.total++;
-          stats.timerClicks.tempos.push(data.timeToClickSeconds);
-        }
-        
-        if (data.event === 'bounce_detected') {
-          stats.bounces++;
-        }
-      });
-      
-      if (stats.temposTotais.length > 0) {
-        const total = stats.temposTotais.reduce((a, b) => a + b, 0);
-        stats.tempoMedio = Math.round(total / stats.temposTotais.length);
-      }
-      
-      if (stats.timerClicks.tempos.length > 0) {
-        const total = stats.timerClicks.tempos.reduce((a, b) => a + b, 0);
-        stats.timerClicks.tempoMedio = Math.round(total / stats.timerClicks.tempos.length);
-      }
-      
-      const cliquesAssinar = stats.cliquesPorCta['click_assinar_premium'] || 0;
-      stats.taxaConversaoLanding = stats.totalVisitas > 0 ? Math.round((cliquesAssinar / stats.totalVisitas) * 100) : 0;
-      
-      const totalCliques = Object.values(stats.cliquesPorCta).reduce((a, b) => a + b, 0);
-      stats.cliquesPorVisita = stats.totalVisitas > 0 ? (totalCliques / stats.totalVisitas).toFixed(2) : 0;
-      
-      stats.taxaRejeicao = stats.totalVisitas > 0 ? Math.round((stats.bounces / stats.totalVisitas) * 100) : 0;
-      
-      stats.visitasPorDia = Object.entries(eventosPorData).map(([data, valores]) => ({
-        data,
-        visitas: valores.visitas || 0,
-        cliques: valores.cliques || 0
-      })).sort((a, b) => a.data.localeCompare(b.data)).slice(-30);
-      
-      stats.usuariosUnicos = stats.visitasUnicas.size;
-      
-      cachedLandingStats = stats;
-      
-    } catch (error) {
-      console.error("Erro ao carregar dados da landing page:", error);
-      cachedLandingStats = {
-        totalVisitas: 0,
-        usuariosUnicos: 0,
-        eventos: {},
-        cliquesPorCta: {},
-        scrollDepth: { 25: 0, 50: 0, 75: 0, 100: 0 },
-        sources: {},
-        devices: {},
-        tempoMedio: 0,
-        secoesVistas: {},
-        timerClicks: { total: 0, tempoMedio: 0 },
-        taxaConversaoLanding: 0,
-        cliquesPorVisita: 0,
-        taxaRejeicao: 0,
-        bounces: 0,
-        visitasPorDia: []
-      };
-    }
-  }
-  
-  function aplicarFiltroOrdenacao() {
-    let filtered = [...dadosUsuarios];
-    
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(u => 
-        u.email.toLowerCase().includes(term) || 
-        u.nome.toLowerCase().includes(term)
-      );
-    }
-    
-    filtered.sort((a, b) => {
-      let valA = a[currentSort.field];
-      let valB = b[currentSort.field];
-      if (currentSort.field === 'usos') {
-        valA = valA || 0;
-        valB = valB || 0;
-      }
-      if (typeof valA === 'boolean') {
-        return currentSort.order === 'desc' ? (valA === valB ? 0 : valA ? -1 : 1) : (valA === valB ? 0 : valA ? 1 : -1);
-      }
-      if (valA < valB) return currentSort.order === 'desc' ? 1 : -1;
-      if (valA > valB) return currentSort.order === 'desc' ? -1 : 1;
-      return 0;
-    });
-    
-    usuariosFiltrados = filtered;
-  }
-  
-  function changeSort(field) {
-    if (currentSort.field === field) {
-      currentSort.order = currentSort.order === 'desc' ? 'asc' : 'desc';
-    } else {
-      currentSort.field = field;
-      currentSort.order = 'desc';
-    }
-    aplicarFiltroOrdenacao();
-    currentPage = 1;
-    renderizarSecaoAtual();
-  }
-  
-  function getPaginatedUsers() {
-    const start = (currentPage - 1) * itemsPerPage;
-    return usuariosFiltrados.slice(start, start + itemsPerPage);
-  }
-  
-  const totalPages = () => Math.ceil(usuariosFiltrados.length / itemsPerPage);
-  
-  // ========== RENDERIZAÇÃO ==========
-  function renderizarSecaoAtual() {
-    const area = document.getElementById('content-area');
-    if (!area) return;
-    
-    switch(currentSection) {
-      case 'dashboard':
-        area.innerHTML = renderDashboard();
-        break;
-      case 'metricas':
-        area.innerHTML = renderMetricasProduto();
-        break;
-      case 'usuarios':
-        area.innerHTML = renderUsuarios();
-        break;
-      case 'rankings':
-        area.innerHTML = renderRankings();
-        break;
-      case 'landing':
-        area.innerHTML = renderLandingPage();
-        setTimeout(() => renderLandingCharts(), 100);
-        break;
-      case 'graficos':
-        area.innerHTML = renderGraficos();
-        setTimeout(() => renderGraficosChart(), 100);
-        break;
-      case 'exportar':
-        area.innerHTML = renderExportar();
-        break;
-    }
-  }
-  
-  function renderDashboard() {
-    if (!cachedDados) return '<div class="section">Carregando...</div>';
-    
-    const d = cachedDados;
-    const percentTop = d.topProtocoloPercentual.toFixed(1);
-    
-    let topBadge = '';
-    if (d.topProtocoloPercentual > 20) topBadge = '<span class="ranking-badge badge-hot">🔥 MUITO POPULAR</span>';
-    else if (d.topProtocoloPercentual > 10) topBadge = '<span class="ranking-badge badge-popular">👍 POPULAR</span>';
-    else if (d.topProtocoloPercentual > 5) topBadge = '<span class="ranking-badge badge-normal">👌 NORMAL</span>';
-    else topBadge = '<span class="ranking-badge badge-low">⚠️ BAIXO</span>';
-    
-    return `
-      <div class="content-header">
-        <h1>📊 Dashboard</h1>
-        <p>Visão geral do OdontoDex</p>
-      </div>
-      
-      <div class="stats-grid">
-        <div class="stat-card card-users"><div class="stat-icon">👥</div><div class="stat-number">${d.totalUsuarios}</div><div class="stat-label">Total de Usuários</div></div>
-        <div class="stat-card card-premium"><div class="stat-icon">💎</div><div class="stat-number">${d.totalPremium}</div><div class="stat-label">Usuários Premium</div></div>
-        <div class="stat-card card-free"><div class="stat-icon">🆓</div><div class="stat-number">${d.totalFree}</div><div class="stat-label">Usuários Gratuitos</div></div>
-        <div class="stat-card card-conversion"><div class="stat-icon">📈</div><div class="stat-number">${d.taxaConversao}%</div><div class="stat-label">Taxa de Conversão</div></div>
-      </div>
-      
-      <div class="stats-grid">
-        <div class="stat-card card-total"><div class="stat-icon">📋</div><div class="stat-number">${d.totalUsos.toLocaleString()}</div><div class="stat-label">Total de Protocolos Abertos</div></div>
-        <div class="stat-card card-most"><div class="stat-icon">🔥</div><div class="stat-number" style="font-size:14px;">${d.topProtocoloNome.substring(0, 25)}</div><div class="stat-label">${d.topProtocoloCount} usos · ${percentTop}% do total ${topBadge}</div></div>
-        <div class="stat-card card-month"><div class="stat-icon">📅</div><div class="stat-number">${d.usosMes}</div><div class="stat-label">Usos neste mês</div></div>
-        <div class="stat-card card-active"><div class="stat-icon">👥</div><div class="stat-number">${d.usuariosAtivosMes}</div><div class="stat-label">Usuários ativos no mês</div></div>
-      </div>
-      
-      <div class="section">
-        <div class="section-title"><span>🏆</span> Top 5 Protocolos Mais Usados</div>
-        ${d.topProtocolos.slice(0,5).map((p, i) => {
-          let fillClass = '';
-          let badge = '';
-          if (p.percentual > 20) { fillClass = 'fill-hot'; badge = '<span class="ranking-badge badge-hot">🔥 MUITO POPULAR</span>'; }
-          else if (p.percentual > 10) { fillClass = 'fill-popular'; badge = '<span class="ranking-badge badge-popular">👍 POPULAR</span>'; }
-          else if (p.percentual > 5) { fillClass = 'fill-normal'; badge = '<span class="ranking-badge badge-normal">👌 NORMAL</span>'; }
-          else { fillClass = 'fill-low'; badge = '<span class="ranking-badge badge-low">⚠️ BAIXO</span>'; }
-          
-          return `
-            <div class="ranking-item">
-              <div class="ranking-header">
-                <span class="ranking-name">${i+1}. ${p.nome}</span>
-                <span class="ranking-stats">${p.count} usos · ${p.percentual.toFixed(1)}% do total ${badge}</span>
-              </div>
-              <div class="ranking-bar"><div class="ranking-fill ${fillClass}" style="width: ${Math.min(p.percentual * 2, 100)}%"></div></div>
-            </div>
-          `;
-        }).join('')}
-      </div>
-      
-      ${d.lowProtocolos.length > 0 ? `
-      <div class="alert-card">
-        <div class="alert-title">⚠️ ATENÇÃO: Protocolos com baixa representatividade (&lt;5% dos usos)</div>
-        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;">
-          ${d.lowProtocolos.slice(0,6).map(p => `<span style="background:#F1F5F9; padding:4px 10px; border-radius:16px; font-size:11px;">📌 ${p.nome} (${p.count} usos, ${p.percentual.toFixed(1)}%)</span>`).join('')}
-        </div>
-        <div style="font-size: 11px; color: #64748B; margin-top: 10px;">💡 <strong>Sugestão:</strong> Estes protocolos podem precisar de mais visibilidade ou podem ser removidos.</div>
-      </div>
-      ` : ''}
-    `;
-  }
-  
-  function renderMetricasProduto() {
-    if (!cachedMetricasProduto) return '<div class="section">Carregando...</div>';
-    
-    const m = cachedMetricasProduto;
-    
-    const formatTipoAcao = (acao) => {
-      const map = { 'open_protocol': '📖 Abriu protocolo', 'search': '🔍 Usou busca', 'favorite': '⭐ Favoritou', 'forceps': '🦷 Fórceps dinâmico', 'diagnostico': '🩺 Diagnóstico guiado' };
-      return map[acao] || acao;
-    };
-    
-    const tipoUsoTotal = m.tipoUso.passivo + m.tipoUso.hibrido + m.tipoUso.interativo;
-    const passivoPercent = tipoUsoTotal > 0 ? Math.round((m.tipoUso.passivo / tipoUsoTotal) * 100) : 0;
-    const hibridoPercent = tipoUsoTotal > 0 ? Math.round((m.tipoUso.hibrido / tipoUsoTotal) * 100) : 0;
-    const interativoPercent = tipoUsoTotal > 0 ? Math.round((m.tipoUso.interativo / tipoUsoTotal) * 100) : 0;
-    
-    const totalRetornantes = Object.values(m.primeiroAcaoRetornantes).reduce((a,b) => a+b, 0);
-    
-    return `
-      <div class="content-header">
-        <h1>📈 Métricas de Produto</h1>
-        <p>Análise de comportamento e retenção</p>
-      </div>
-      
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon">🚀</div><div class="stat-number">${m.taxaAtivacao}%</div><div class="stat-label">Taxa de Ativação</div></div>
-        <div class="stat-card"><div class="stat-icon">🔄</div><div class="stat-number">${Object.keys(m.coortes).length} coortes</div><div class="stat-label">Coortes analisadas</div></div>
-        <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-number">${m.ahaPercentual}%</div><div class="stat-label">AHA: ${formatTipoAcao(m.ahaCampeao)}</div></div>
-        <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-number">${m.mediaProfundidade}</div><div class="stat-label">Score médio de profundidade</div></div>
-      </div>
-      
-      <div class="graficos-grid">
-        <div class="section">
-          <div class="section-title"><span>🚀</span> ATIVAÇÃO (últimos 30 dias)</div>
-          <div class="stats-grid" style="grid-template-columns:1fr 1fr; margin-bottom:0;">
-            <div><div class="stat-number" style="font-size:20px;">${m.totalNovosUltimos30}</div><div class="stat-label">Novos usuários</div></div>
-            <div><div class="stat-number" style="font-size:20px; color:#10B981;">${m.ativadosUltimos30}</div><div class="stat-label">Ativados</div></div>
-          </div>
-          <div class="ranking-bar" style="margin:12px 0;"><div class="ranking-fill fill-normal" style="width: ${m.taxaAtivacao}%; background:#10B981;"></div></div>
-          <div style="font-size:12px; color:#64748B;">O que fez ativar?</div>
-          <div class="click-chart" style="margin-top:8px;">
-            ${Object.entries(m.acaoAtivacao).map(([acao, count]) => `
-              <div class="click-bar"><div class="click-bar-label">${formatTipoAcao(acao)}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${Math.min((count/m.ativadosUltimos30)*100, 100)}%; background:#10B981;">${count}</div></div></div>
-            `).join('')}
-          </div>
-        </div>
-        
-        <div class="section">
-          <div class="section-title"><span>🎮</span> TIPO DE USO DO APP</div>
-          <div class="click-chart">
-            <div class="click-bar"><div class="click-bar-label">📖 Passivo (só protocolos)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${passivoPercent}%; background:#64748B;">${passivoPercent}%</div></div></div>
-            <div class="click-bar"><div class="click-bar-label">🔄 Híbrido</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${hibridoPercent}%; background:#F59E0B;">${hibridoPercent}%</div></div></div>
-            <div class="click-bar"><div class="click-bar-label">⚡ Interativo (busca/favoritos/ferramentas)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${interativoPercent}%; background:#7C3FA0;">${interativoPercent}%</div></div></div>
-          </div>
-          ${interativoPercent < 30 ? `
-          <div class="warning-card" style="margin-top:12px;">
-            <div class="warning-title">💡 Insight</div>
-            <div class="insight-text">Apenas ${interativoPercent}% dos usuários usam ferramentas interativas. Considere destacar a busca e o fórceps dinâmico na home.</div>
-          </div>
-          ` : ''}
-        </div>
-      </div>
-      
-      <div class="graficos-grid">
-        <div class="section">
-          <div class="section-title"><span>📊</span> PROFUNDIDADE DE USO</div>
-          <div class="click-chart">
-            <div class="click-bar"><div class="click-bar-label">🟡 Superficial (0-30)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${Math.min((m.distribuicaoProfundidade.baixo / m.scores.length) * 100, 100)}%; background:#EF4444;">${m.distribuicaoProfundidade.baixo}</div></div></div>
-            <div class="click-bar"><div class="click-bar-label">🟠 Médio (31-70)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${Math.min((m.distribuicaoProfundidade.medio / m.scores.length) * 100, 100)}%; background:#F59E0B;">${m.distribuicaoProfundidade.medio}</div></div></div>
-            <div class="click-bar"><div class="click-bar-label">🟢 Profundo (71-100)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${Math.min((m.distribuicaoProfundidade.alto / m.scores.length) * 100, 100)}%; background:#10B981;">${m.distribuicaoProfundidade.alto}</div></div></div>
-          </div>
-          <div class="insight-card" style="margin-top:12px;">
-            <div class="insight-title">📊 Score médio: ${m.mediaProfundidade}</div>
-            <div class="insight-text">Meta: 60 até Jun/2025</div>
-          </div>
-        </div>
-        
-        <div class="section">
-          <div class="section-title"><span>⚡</span> MOMENTO "AHA"</div>
-          <div class="click-chart">
-            ${Object.entries(m.primeiroAcaoRetornantes).sort((a,b) => b[1] - a[1]).slice(0,4).map(([acao, count]) => {
-              const percent = totalRetornantes > 0 ? Math.round((count / totalRetornantes) * 100) : 0;
-              return `
-                <div class="click-bar"><div class="click-bar-label">${formatTipoAcao(acao)}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${percent}%; background:#7C3FA0;">${percent}%</div></div></div>
-              `;
-            }).join('')}
-          </div>
-          <div class="insight-card">
-            <div class="insight-title">🏆 Funcionalidade campeã: ${formatTipoAcao(m.ahaCampeao)}</div>
-            <div class="insight-text">${m.ahaPercentual}% dos usuários que voltaram no D1 começaram por esta funcionalidade.</div>
-          </div>
-        </div>
-      </div>
-      
-      <div class="section">
-        <div class="section-title"><span>🔄</span> RETENÇÃO POR COORTE (D1 / D7 / D30)</div>
-        <div class="table-wrapper">
-          <table>
-            <thead><tr><th>Mês</th><th>Usuários</th><th>D1</th><th>D7</th><th>D30</th></tr></thead>
-            <tbody>
-              ${Object.entries(m.coortes).sort((a,b) => b[0].localeCompare(a[0])).slice(0,6).map(([mes, coorte]) => {
-                const d1Percent = coorte.total > 0 ? Math.round((coorte.d1 / coorte.total) * 100) : 0;
-                const d7Percent = coorte.total > 0 ? Math.round((coorte.d7 / coorte.total) * 100) : 0;
-                const d30Percent = coorte.total > 0 ? Math.round((coorte.d30 / coorte.total) * 100) : 0;
-                return `<tr><td>${mes}</td><td>${coorte.total}</td><td>${coorte.d1} (${d1Percent}%)</td><td>${coorte.d7} (${d7Percent}%)</td><td>${coorte.d30} (${d30Percent}%)</td></tr>`;
-              }).join('')}
-              ${Object.keys(m.coortes).length === 0 ? '<tr><td colspan="5" style="text-align:center;">Nenhuma coorte disponível ainda</td></tr>' : ''}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    `;
-  }
-  
-  function renderUsuarios() {
-    const paginated = getPaginatedUsers();
-    const total = totalPages();
-    
-    return `
-      <div class="content-header">
-        <h1>👥 Usuários</h1>
-        <p>Gerencie os usuários do OdontoDex</p>
-      </div>
-      
-      <div class="section">
-        <div class="search-box">
-          <input type="text" class="search-input" id="search-usuario" placeholder="🔍 Buscar por nome ou email..." oninput="buscarUsuarios(this.value)">
-        </div>
-        
-        <div class="table-wrapper">
-          <table>
-            <thead>
-              <tr>
-                <th onclick="changeSort('nome')">Nome ${currentSort.field === 'nome' ? (currentSort.order === 'desc' ? '↓' : '↑') : ''}</th>
-                <th onclick="changeSort('email')">Email ${currentSort.field === 'email' ? (currentSort.order === 'desc' ? '↓' : '↑') : ''}</th>
-                <th onclick="changeSort('premium')">Status ${currentSort.field === 'premium' ? (currentSort.order === 'desc' ? '↓' : '↑') : ''}</th>
-                <th onclick="changeSort('usos')">Usos ${currentSort.field === 'usos' ? (currentSort.order === 'desc' ? '↓' : '↑') : ''}</th>
-                <th>Cadastro</th>
-                <th>Ação</th> 
-              </tr>
-            </thead>
-            <tbody>
-             ${paginated.map(user => `
-  <tr>
-    <td>
-      ${user.nome}
-      ${user.ignorado ? '<span style="background:#FEF3C7; color:#92400E; padding:2px 8px; border-radius:12px; font-size:10px; margin-left:8px;">⊘ Ignorado</span>' : ''}
-    </td>
-    <td>${user.email}</td>
-    <td><span class="${user.premium ? 'badge-premium' : 'badge-free'}">${user.premium ? '💎 Premium' : '🆓 Free'}</span></td>
-    <td><strong>${user.usos}</strong> ${user.usos === 0 ? '⚠️' : user.usos > 50 ? '🔥' : ''}</td>
-    <td>${user.criadoEm ? new Date(user.criadoEm).toLocaleDateString() : '-'}</td>
-    <td>
-      <button onclick="toggleIgnorarUsuario('${user.id}')" 
-              style="background:${user.ignorado ? '#10B981' : '#EF4444'}; 
-                     color:white; 
-                     border:none; 
-                     padding:4px 10px; 
-                     border-radius:8px; 
-                     font-size:11px; 
-                     font-weight:600; 
-                     cursor:pointer;
-                     opacity:0.8;
-                     transition:opacity 0.2s;"
-              onmouseover="this.style.opacity='1'"
-              onmouseout="this.style.opacity='0.8'">
-        ${user.ignorado ? '✓ Incluir' : '⊘ Ignorar'}
-      </button>
-    </td>
-  </tr>
-`).join('')}
-              ${paginated.length === 0 ? '<tr><td colspan="5" style="text-align: center;">Nenhum usuário encontrado</td></tr>' : ''}
-            </tbody>
-          </table>
-        </div>
-        
-        <div class="pagination">
-          <button class="page-btn" onclick="mudarPagina(1)" ${currentPage === 1 ? 'disabled' : ''}>«</button>
-          <button class="page-btn" onclick="mudarPagina(${currentPage-1})" ${currentPage === 1 ? 'disabled' : ''}>‹</button>
-          ${(() => {
-            const totalP = total;
-            let buttons = [];
-            if (totalP <= 5) {
-              for (let i = 1; i <= totalP; i++) buttons.push(i);
-            } else {
-              if (currentPage <= 3) {
-                for (let i = 1; i <= 5; i++) buttons.push(i);
-              } else if (currentPage >= totalP - 2) {
-                for (let i = totalP - 4; i <= totalP; i++) buttons.push(i);
-              } else {
-                for (let i = currentPage - 2; i <= currentPage + 2; i++) buttons.push(i);
-              }
-            }
-            return buttons.map(p => `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="mudarPagina(${p})">${p}</button>`).join('');
-          })()}
-          <button class="page-btn" onclick="mudarPagina(${currentPage+1})" ${currentPage === total || total === 0 ? 'disabled' : ''}>›</button>
-          <button class="page-btn" onclick="mudarPagina(${total})" ${currentPage === total || total === 0 ? 'disabled' : ''}>»</button>
-        </div>
-        
-        <div style="text-align: center; margin-top: 14px; font-size: 11px; color: #64748B;">
-          Mostrando ${Math.min(itemsPerPage, usuariosFiltrados.length)} de ${usuariosFiltrados.length} usuários
-        </div>
-      </div>
-    `;
-  }
-  
-  function renderRankings() {
-    if (!cachedDados) return '<div class="section">Carregando...</div>';
-    const d = cachedDados;
-    
-    return `
-      <div class="content-header">
-        <h1>🏆 Rankings</h1>
-        <p>Análise de uso dos protocolos</p>
-      </div>
-      
-      <div class="stats-grid">
-        <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-number">${d.totalUsos.toLocaleString()}</div><div class="stat-label">Total de usos (90 dias)</div></div>
-        <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-number" style="font-size:14px;">${d.topProtocolos[0]?.nome.substring(0, 20) || '-'}</div><div class="stat-label">Mais usado · ${d.topProtocolos[0]?.percentual.toFixed(1)}% do total</div></div>
-      </div>
-      
-      <div class="section">
-        <div class="section-title"><span>🔥</span> TOP 10 MAIS USADOS</div>
-        ${d.topProtocolos.map((p, i) => {
-          let fillClass = '';
-          let badge = '';
-          if (p.percentual > 20) { fillClass = 'fill-hot'; badge = '<span class="ranking-badge badge-hot">🔥 MUITO POPULAR</span>'; }
-          else if (p.percentual > 10) { fillClass = 'fill-popular'; badge = '<span class="ranking-badge badge-popular">👍 POPULAR</span>'; }
-          else if (p.percentual > 5) { fillClass = 'fill-normal'; badge = '<span class="ranking-badge badge-normal">👌 NORMAL</span>'; }
-          else { fillClass = 'fill-low'; badge = '<span class="ranking-badge badge-low">⚠️ BAIXO</span>'; }
-          
-          return `
-            <div class="ranking-item">
-              <div class="ranking-header">
-                <span class="ranking-name">${i+1}. ${p.nome}</span>
-                <span class="ranking-stats">${p.count} usos · ${p.percentual.toFixed(1)}% do total ${badge}</span>
-              </div>
-              <div class="ranking-bar"><div class="ranking-fill ${fillClass}" style="width: ${Math.min(p.percentual * 2, 100)}%"></div></div>
-            </div>
-          `;
-        }).join('')}
-      </div>
-      
-      <div class="section">
-        <div class="section-title"><span>⚠️</span> PROTOCOLOS COM BAIXA REPRESENTATIVIDADE (&lt;5% do total)</div>
-        ${d.lowProtocolos.length > 0 ? d.lowProtocolos.map(p => `
-          <div class="ranking-item">
-            <div class="ranking-header">
-              <span class="ranking-name">📌 ${p.nome}</span>
-              <span class="ranking-stats">${p.count} usos · ${p.percentual.toFixed(1)}% do total</span>
-            </div>
-            <div class="ranking-bar"><div class="ranking-fill fill-low" style="width: ${Math.min(p.percentual * 2, 100)}%"></div></div>
-          </div>
-        `).join('') : '<p style="color:#64748B;">Nenhum protocolo com baixa representatividade!</p>'}
-      </div>
-      
-      ${d.lowProtocolos.some(p => p.count === 0) ? `
-      <div class="alert-card">
-        <div class="alert-title">❓ PROTOCOLOS COM ZERO USOS</div>
-        <div style="display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px;">
-          ${d.lowProtocolos.filter(p => p.count === 0).map(p => `<span style="background:#FEF2F2; color:#DC2626; padding:4px 10px; border-radius:16px; font-size:11px;">📌 ${p.nome}</span>`).join('')}
-        </div>
-        <div style="font-size: 11px; color: #64748B; margin-top: 10px;">💡 <strong>Sugestão:</strong> Estes protocolos NUNCA foram usados. Considere removê-los ou reposicioná-los.</div>
-      </div>
-      ` : ''}
-    `;
-  }
-  
-  function renderLandingPage() {
-    if (!cachedLandingStats) return '<div class="section">Carregando dados da Landing Page...</div>';
-    
-    const l = cachedLandingStats;
-    
-    const sortedClicks = Object.entries(l.cliquesPorCta)
-      .sort((a, b) => b[1] - a[1]);
-    
-    const sortedSources = Object.entries(l.sources)
-      .sort((a, b) => b[1] - a[1]);
-    
-    const formatTime = (seconds) => {
-      if (!seconds) return '0s';
-      const mins = Math.floor(seconds / 60);
-      const secs = seconds % 60;
-      return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
-    };
-    
-    return `
-      <div class="content-header">
-        <h1>🌐 Landing Page Analytics</h1>
-        <p>Métricas de performance da página de vendas</p>
-      </div>
-      
-      <div class="landing-stats-grid">
-        <div class="stat-card"><div class="stat-icon">👁️</div><div class="stat-number">${l.totalVisitas}</div><div class="stat-label">Total de Visitas</div></div>
-        <div class="stat-card"><div class="stat-icon">🆔</div><div class="stat-number">${l.usuariosUnicos}</div><div class="stat-label">Usuários Únicos</div></div>
-        <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-number">${l.taxaConversaoLanding}%</div><div class="stat-label">Taxa de Conversão</div></div>
-        <div class="stat-card"><div class="stat-icon">🖱️</div><div class="stat-number">${l.cliquesPorVisita}</div><div class="stat-label">Cliques por Visita</div></div>
-        <div class="stat-card"><div class="stat-icon">📉</div><div class="stat-number">${l.taxaRejeicao}%</div><div class="stat-label">Taxa de Rejeição</div></div>
-      </div>
-      
-      <div class="section">
-        <div class="section-title"><span>🖱️</span> CLIQUE NOS CTAs</div>
-        ${sortedClicks.length > 0 ? `
-          <div class="click-chart">
-            ${sortedClicks.map(([cta, count]) => {
-              const maxCount = sortedClicks[0][1];
-              const width = maxCount > 0 ? (count / maxCount) * 100 : 0;
-              let ctaLabel = cta.replace('click_', '').replace(/_/g, ' ');
-              return `
-                <div class="click-bar">
-                  <div class="click-bar-label">📌 ${ctaLabel}</div>
-                  <div class="click-bar-fill">
-                    <div class="click-bar-progress" style="width: ${width}%">${count}</div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        ` : '<p style="color:#64748B;">Nenhum clique registrado ainda.</p>'}
-      </div>
-      
-      <div class="graficos-grid">
-        <div class="section">
-          <div class="section-title"><span>📱</span> DISPOSITIVOS</div>
-          <div class="click-chart">
-            ${Object.entries(l.devices).map(([device, count]) => {
-              const maxCount = Math.max(...Object.values(l.devices), 1);
-              const width = (count / maxCount) * 100;
-              const icons = { desktop: '🖥️', mobile: '📱', tablet: '📟' };
-              return `
-                <div class="click-bar">
-                  <div class="click-bar-label">${icons[device] || '💻'} ${device}</div>
-                  <div class="click-bar-fill">
-                    <div class="click-bar-progress" style="width: ${width}%">${count}</div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        </div>
-        
-        <div class="section">
-          <div class="section-title"><span>🌐</span> FONTE DE TRÁFEGO</div>
-          <div class="click-chart">
-            ${sortedSources.slice(0, 5).map(([source, count]) => {
-              const maxCount = sortedSources[0][1];
-              const width = maxCount > 0 ? (count / maxCount) * 100 : 0;
-              const icons = { direct: '🔗', google: '🔍', facebook: '📘', instagram: '📸', linkedin: '💼', referrer: '↪️' };
-              return `
-                <div class="click-bar">
-                  <div class="click-bar-label">${icons[source] || '🌍'} ${source}</div>
-                  <div class="click-bar-fill">
-                    <div class="click-bar-progress" style="width: ${width}%">${count}</div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        </div>
-      </div>
-      
-      <div class="graficos-grid">
-        <div class="section">
-          <div class="section-title"><span>📜</span> SCROLL DEPTH</div>
-          <div class="click-chart">
-            ${[25, 50, 75, 100].map(p => {
-              const count = l.scrollDepth[p] || 0;
-              const percent = l.totalVisitas > 0 ? Math.round((count / l.totalVisitas) * 100) : 0;
-              return `
-                <div class="click-bar">
-                  <div class="click-bar-label">📏 ${p}% da página</div>
-                  <div class="click-bar-fill">
-                    <div class="click-bar-progress" style="width: ${percent}%">${percent}%</div>
-                  </div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-          ${l.scrollDepth[25] === 0 ? `
-          <div class="warning-card" style="margin-top:12px;">
-            <div class="warning-title">⚠️ Alerta</div>
-            <div class="insight-text">Nenhum usuário rolou até 25% da página. O conteúdo acima da dobra pode não estar atraente.</div>
-          </div>
-          ` : ''}
-        </div>
-        
-        <div class="section">
-          <div class="section-title"><span>⏰</span> TIMER DA OFERTA</div>
-          <div class="click-chart">
-            <div class="click-bar">
-              <div class="click-bar-label">⏱️ Cliques durante oferta</div>
-              <div class="click-bar-fill">
-                <div class="click-bar-progress" style="width: ${Math.min(l.timerClicks.total * 5, 100)}%">${l.timerClicks.total}</div>
-              </div>
-            </div>
-            ${l.timerClicks.tempoMedio ? `
-            <div class="click-bar">
-              <div class="click-bar-label">⚡ Tempo médio até clicar</div>
-              <div class="click-bar-fill">
-                <div class="click-bar-progress" style="width: ${Math.min((l.timerClicks.tempoMedio / 60) * 100, 100)}%">${formatTime(l.timerClicks.tempoMedio)}</div>
-              </div>
-            </div>
-            ` : ''}
-          </div>
-        </div>
-      </div>
-      
-      <div class="section">
-        <div class="section-title"><span>📊</span> VISITAS E CLiques POR DIA (Últimos 30 dias)</div>
-        <canvas id="grafico-landing-visitas" height="200"></canvas>
-      </div>
-      
-      <div class="section">
-        <div class="section-title"><span>🎯</span> SEÇÕES MAIS VISUALIZADAS</div>
-        <div class="click-chart">
-          ${Object.entries(l.secoesVistas).sort((a, b) => b[1] - a[1]).map(([secao, count]) => {
-            const maxCount = Math.max(...Object.values(l.secoesVistas), 1);
-            const width = (count / maxCount) * 100;
-            const icons = { problema: '❓', solucao: '💡', planos: '💰', faq: '❔' };
-            return `
-              <div class="click-bar">
-                <div class="click-bar-label">${icons[secao] || '📌'} ${secao}</div>
-                <div class="click-bar-fill">
-                  <div class="click-bar-progress" style="width: ${width}%">${count}</div>
-                </div>
-              </div>
-            `;
-          }).join('')}
-        </div>
-      </div>
-      
-      <div class="insight-card">
-        <div class="insight-title">💡 Insights da Landing Page</div>
-        <div class="insight-text">
-          ${l.taxaRejeicao > 50 ? '🔴 Taxa de rejeição alta (>50%). Revise o CTA acima da dobra.' : ''}<br>
-          ${l.scrollDepth[50] < 20 ? '🟡 Poucos usuários chegam a 50% da página. O conteúdo pode não estar engajando.' : ''}<br>
-          ${l.timerClicks.total === 0 ? '🟡 Ninguém clicou na oferta com timer. Considere destacar mais o botão.' : ''}
-        </div>
-      </div>
-    `;
-  }
-  
-  function renderLandingCharts() {
-    if (!cachedLandingStats) return;
-    const l = cachedLandingStats;
-    
-    const ctxVisitas = document.getElementById('grafico-landing-visitas')?.getContext('2d');
-    if (ctxVisitas) {
-      if (charts.landingVisitas) charts.landingVisitas.destroy();
-      charts.landingVisitas = new Chart(ctxVisitas, {
-        type: 'line',
-        data: {
-          labels: l.visitasPorDia.map(d => d.data.substring(5)),
-          datasets: [
-            {
-              label: 'Visitas',
-              data: l.visitasPorDia.map(d => d.visitas),
-              borderColor: '#7C3FA0',
-              backgroundColor: 'rgba(124,63,160,0.1)',
-              fill: true,
-              tension: 0.3
-            },
-            {
-              label: 'Cliques',
-              data: l.visitasPorDia.map(d => d.cliques),
-              borderColor: '#F59E0B',
-              backgroundColor: 'rgba(245,158,11,0.1)',
-              fill: true,
-              tension: 0.3
-            }
-          ]
-        },
-        options: { responsive: true, maintainAspectRatio: true }
-      });
-    }
-  }
-  
-  function renderGraficos() {
-    return `
-      <div class="content-header">
-        <h1>📈 Gráficos</h1>
-        <p>Visualização de uso do app</p>
-      </div>
-      
-      <div class="graficos-grid">
-        <div class="section">
-          <div class="section-title"><span>⏰</span> USO POR HORA DO DIA</div>
-          <canvas id="grafico-horas" height="200"></canvas>
-        </div>
-        <div class="section">
-          <div class="section-title"><span>📅</span> USO POR DIA DA SEMANA</div>
-          <canvas id="grafico-dias" height="200"></canvas>
-        </div>
-      </div>
-      
-      <div class="section">
-        <div class="section-title"><span>📈</span> EVOLUÇÃO MENSAL</div>
-        <canvas id="grafico-mensal" height="200"></canvas>
-      </div>
-    `;
-  }
-  
-  function renderGraficosChart() {
-    if (!cachedDados) return;
-    const d = cachedDados;
-    
-    if (charts.horas) charts.horas.destroy();
-    if (charts.dias) charts.dias.destroy();
-    if (charts.mensal) charts.mensal.destroy();
-    
-    const ctxHoras = document.getElementById('grafico-horas')?.getContext('2d');
-    if (ctxHoras) {
-      charts.horas = new Chart(ctxHoras, {
-        type: 'bar',
-        data: { labels: Array.from({length:24}, (_,i) => `${i}h`), datasets: [{ label: 'Usos', data: d.porHora, backgroundColor: '#7C3FA0', borderRadius: 6 }] },
-        options: { responsive: true, maintainAspectRatio: true }
-      });
-    }
-    
-    const ctxDias = document.getElementById('grafico-dias')?.getContext('2d');
-    if (ctxDias) {
-      charts.dias = new Chart(ctxDias, {
-        type: 'bar',
-        data: { labels: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'], datasets: [{ label: 'Usos', data: d.porDiaSemana, backgroundColor: '#7C3FA0', borderRadius: 6 }] },
-        options: { responsive: true, maintainAspectRatio: true }
-      });
-    }
-    
-    const mesesOrdenados = Object.entries(d.porMes).sort();
-    const ctxMensal = document.getElementById('grafico-mensal')?.getContext('2d');
-    if (ctxMensal) {
-      charts.mensal = new Chart(ctxMensal, {
-        type: 'line',
-        data: { labels: mesesOrdenados.map(m => m[0]), datasets: [{ label: 'Usos por mês', data: mesesOrdenados.map(m => m[1]), borderColor: '#7C3FA0', backgroundColor: 'rgba(124,63,160,0.1)', fill: true, tension: 0.3 }] },
-        options: { responsive: true, maintainAspectRatio: true }
-      });
-    }
-  }
-  
-  function renderExportar() {
-    return `
-      <div class="content-header">
-        <h1>📥 Exportar Dados</h1>
-        <p>Exporte os dados do OdontoDex</p>
-      </div>
-      
-      <div class="section">
-        <div class="section-title"><span>📄</span> Exportar Analytics</div>
-        <div class="export-buttons">
-          <button class="export-btn" onclick="exportarCSV()">📄 Exportar CSV</button>
-          <button class="export-btn json" onclick="exportarJSON()" style="background:#3B82F6; color:white;">📦 Exportar JSON</button>
-          <button class="export-btn" onclick="exportarUsuariosCSV()" style="background:#7C3FA0; color:white;">👥 Exportar Usuários</button>
-          <button class="export-btn" onclick="exportarLandingCSV()" style="background:#10B981; color:white;">🌐 Exportar Landing Stats</button>
-          <button class="export-btn" onclick="exportarMetricasCSV()" style="background:#F59E0B; color:white;">📈 Exportar Métricas</button>
-          <button class="export-btn refresh-btn" onclick="refreshData()">⟳ Atualizar Dados</button>
-        </div>
-      </div>
-      
-      <div class="section">
-        <div class="section-title"><span>ℹ️</span> Sobre os dados</div>
-        <p style="color:#64748B; font-size:13px;">Os dados incluem todos os protocolos abertos nos últimos 90 dias. As métricas de produto são calculadas em tempo real.</p>
-      </div>
-    `;
-  }
-  
-  // ========== FUNÇÕES AUXILIARES ==========
-  function mudarPagina(page) {
-    currentPage = Math.max(1, Math.min(page, totalPages()));
-    renderizarSecaoAtual();
-  }
-  
-  function buscarUsuarios(termo) {
-    searchTerm = termo;
-    aplicarFiltroOrdenacao();
-    currentPage = 1;
-    renderizarSecaoAtual();
-  }
-  
-  async function exportarCSV() {
-    const snapshot = await db.collection('analytics_uso_protocolos').orderBy('timestamp', 'desc').limit(10000).get();
-    const headers = ['Data', 'Protocolo', 'Usuário', 'Hora'];
-    const rows = [headers];
-    snapshot.forEach(doc => {
-      const d = doc.data();
-      rows.push([d.data || '', d.protocoloTitulo || '', d.usuarioEmail || '', d.hora !== undefined ? `${d.hora}h` : '']);
-    });
-    const csv = rows.map(row => row.join(',')).join('\n');
-    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `odontodex_analytics_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-  
-  async function exportarJSON() {
-    const snapshot = await db.collection('analytics_uso_protocolos').orderBy('timestamp', 'desc').limit(10000).get();
-    const dados = [];
-    snapshot.forEach(doc => dados.push({ id: doc.id, ...doc.data() }));
-    const json = JSON.stringify(dados, null, 2);
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `odontodex_analytics_${new Date().toISOString().split('T')[0]}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-  
-  async function exportarUsuariosCSV() {
-    const headers = ['Email', 'Nome', 'Status', 'Cadastro', 'Protocolos Abertos'];
-    const rows = [headers];
-    dadosUsuarios.forEach(user => {
-      rows.push([
-        user.email,
-        user.nome,
-        user.premium ? 'Premium' : 'Free',
-        user.criadoEm ? new Date(user.criadoEm).toLocaleDateString() : '-',
-        user.usos
-      ]);
-    });
-    const csv = rows.map(row => row.join(',')).join('\n');
-    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `odontodex_usuarios_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
-  }
-  
-  async function exportarLandingCSV() {
+
+// ========== CARREGAR DADOS DA LANDING PAGE ==========
+async function carregarLandingStats() {
+  try {
     const snapshot = await db.collection('landing_stats').orderBy('timestamp', 'desc').limit(10000).get();
-    const headers = ['Data', 'Evento', 'SessionId', 'Dispositivo', 'Fonte', 'Detalhes'];
-    const rows = [headers];
+    const stats = {
+      totalVisitas: 0, visitasUnicas: new Set(), eventos: {}, eventosPorDia: {},
+      cliquesPorCta: {}, scrollDepth: { 25:0, 50:0, 75:0, 100:0 },
+      sources: {}, devices: {}, tempoMedio: 0, temposTotais: [], secoesVistas: {},
+      timerClicks: { total: 0, tempos: [] }, bounces: 0
+    };
+    let eventosPorData = {};
+    
     snapshot.forEach(doc => {
-      const d = doc.data();
-      const dataStr = d.timestamp?.toDate?.()?.toLocaleString() || '-';
-      let detalhes = '';
-      if (d.event === 'click_cta') detalhes = d.elementText || '';
-      if (d.event === 'section_view') detalhes = d.section || '';
-      if (d.event === 'exit') detalhes = `${d.timeOnPageSeconds}s na página`;
-      if (d.event === 'timer_click') detalhes = `${d.timeToClickSeconds}s até clicar`;
-      rows.push([
-        dataStr,
-        d.event || '-',
-        d.sessionId || '-',
-        d.deviceType || '-',
-        d.source || '-',
-        detalhes
-      ]);
+      const data = doc.data();
+      const dataStr = data.timestamp?.toDate?.()?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0];
+      if (data.event === 'page_view') {
+        stats.totalVisitas++;
+        stats.visitasUnicas.add(data.sessionId);
+        if (!eventosPorData[dataStr]) eventosPorData[dataStr] = {};
+        eventosPorData[dataStr].visitas = (eventosPorData[dataStr].visitas || 0) + 1;
+        if (data.source) stats.sources[data.source] = (stats.sources[data.source] || 0) + 1;
+        if (data.deviceType) stats.devices[data.deviceType] = (stats.devices[data.deviceType] || 0) + 1;
+      }
+      stats.eventos[data.event] = (stats.eventos[data.event] || 0) + 1;
+      if (data.event && data.event.startsWith('click_')) {
+        stats.cliquesPorCta[data.event] = (stats.cliquesPorCta[data.event] || 0) + 1;
+        if (!eventosPorData[dataStr]) eventosPorData[dataStr] = {};
+        eventosPorData[dataStr].cliques = (eventosPorData[dataStr].cliques || 0) + 1;
+      }
+      if (data.event === 'scroll_25') stats.scrollDepth[25]++;
+      if (data.event === 'scroll_50') stats.scrollDepth[50]++;
+      if (data.event === 'scroll_75') stats.scrollDepth[75]++;
+      if (data.event === 'scroll_100') stats.scrollDepth[100]++;
+      if (data.event === 'section_view' && data.section) stats.secoesVistas[data.section] = (stats.secoesVistas[data.section] || 0) + 1;
+      if (data.event === 'exit' && data.timeOnPageSeconds) stats.temposTotais.push(data.timeOnPageSeconds);
+      if (data.event === 'timer_click' && data.timeToClickSeconds) { stats.timerClicks.total++; stats.timerClicks.tempos.push(data.timeToClickSeconds); }
+      if (data.event === 'bounce_detected') stats.bounces++;
     });
-    const csv = rows.map(row => row.join(',')).join('\n');
-    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `odontodex_landing_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+    
+    if (stats.temposTotais.length > 0) stats.tempoMedio = Math.round(stats.temposTotais.reduce((a,b)=>a+b,0) / stats.temposTotais.length);
+    if (stats.timerClicks.tempos.length > 0) stats.timerClicks.tempoMedio = Math.round(stats.timerClicks.tempos.reduce((a,b)=>a+b,0) / stats.timerClicks.tempos.length);
+    
+    const cliquesAssinar = stats.cliquesPorCta['click_assinar_premium'] || 0;
+    stats.taxaConversaoLanding = stats.totalVisitas > 0 ? Math.round((cliquesAssinar / stats.totalVisitas) * 100) : 0;
+    const totalCliques = Object.values(stats.cliquesPorCta).reduce((a,b)=>a+b,0);
+    stats.cliquesPorVisita = stats.totalVisitas > 0 ? (totalCliques / stats.totalVisitas).toFixed(2) : 0;
+    stats.taxaRejeicao = stats.totalVisitas > 0 ? Math.round((stats.bounces / stats.totalVisitas) * 100) : 0;
+    stats.visitasPorDia = Object.entries(eventosPorData).map(([data,valores]) => ({ data, visitas: valores.visitas || 0, cliques: valores.cliques || 0 })).sort((a,b)=>a.data.localeCompare(b.data)).slice(-30);
+    stats.usuariosUnicos = stats.visitasUnicas.size;
+    cachedLandingStats = stats;
+  } catch(error) {
+    console.error("Erro ao carregar landing stats:", error);
+    cachedLandingStats = { totalVisitas:0, usuariosUnicos:0, eventos:{}, cliquesPorCta:{}, scrollDepth:{25:0,50:0,75:0,100:0}, sources:{}, devices:{}, tempoMedio:0, secoesVistas:{}, timerClicks:{total:0,tempoMedio:0}, taxaConversaoLanding:0, cliquesPorVisita:0, taxaRejeicao:0, bounces:0, visitasPorDia:[] };
   }
-  
-  async function exportarMetricasCSV() {
-    if (!cachedMetricasProduto) return;
-    const m = cachedMetricasProduto;
-    
-    const headers = ['Métrica', 'Valor'];
-    const rows = [headers];
-    rows.push(['Taxa de Ativação (últimos 30 dias)', `${m.taxaAtivacao}%`]);
-    rows.push(['Novos usuários (últimos 30 dias)', m.totalNovosUltimos30]);
-    rows.push(['Usuários ativados', m.ativadosUltimos30]);
-    rows.push(['Score médio de profundidade', m.mediaProfundidade]);
-    rows.push(['Usuários superficiais (0-30)', m.distribuicaoProfundidade.baixo]);
-    rows.push(['Usuários médios (31-70)', m.distribuicaoProfundidade.medio]);
-    rows.push(['Usuários profundos (71-100)', m.distribuicaoProfundidade.alto]);
-    rows.push(['Tipo de uso - Passivo', m.tipoUso.passivo]);
-    rows.push(['Tipo de uso - Híbrido', m.tipoUso.hibrido]);
-    rows.push(['Tipo de uso - Interativo', m.tipoUso.interativo]);
-    rows.push(['Momento AHA campeão', m.ahaCampeao]);
-    rows.push(['Percentual do AHA', `${m.ahaPercentual}%`]);
-    
-    for (const [mes, coorte] of Object.entries(m.coortes)) {
-      rows.push([`Coorte ${mes} - Total`, coorte.total]);
-      rows.push([`Coorte ${mes} - D1`, `${coorte.d1} (${Math.round((coorte.d1/coorte.total)*100)}%)`]);
-      rows.push([`Coorte ${mes} - D7`, `${coorte.d7} (${Math.round((coorte.d7/coorte.total)*100)}%)`]);
-      rows.push([`Coorte ${mes} - D30`, `${coorte.d30} (${Math.round((coorte.d30/coorte.total)*100)}%)`]);
-    }
-    
-    const csv = rows.map(row => row.join(',')).join('\n');
-    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `odontodex_metricas_${new Date().toISOString().split('T')[0]}.csv`;
-    a.click();
-    URL.revokeObjectURL(url);
+}
+
+function aplicarFiltroOrdenacao() {
+  let filtered = [...dadosUsuarios];
+  if (searchTerm) {
+    const term = searchTerm.toLowerCase();
+    filtered = filtered.filter(u => u.email.toLowerCase().includes(term) || u.nome.toLowerCase().includes(term));
   }
-  
-  async function refreshData() {
+  filtered.sort((a,b) => {
+    let valA = a[currentSort.field], valB = b[currentSort.field];
+    if (currentSort.field === 'usos') { valA = valA || 0; valB = valB || 0; }
+    if (typeof valA === 'boolean') return currentSort.order === 'desc' ? (valA === valB ? 0 : valA ? -1 : 1) : (valA === valB ? 0 : valA ? 1 : -1);
+    if (valA < valB) return currentSort.order === 'desc' ? 1 : -1;
+    if (valA > valB) return currentSort.order === 'desc' ? -1 : 1;
+    return 0;
+  });
+  usuariosFiltrados = filtered;
+}
+
+function changeSort(field) {
+  if (currentSort.field === field) currentSort.order = currentSort.order === 'desc' ? 'asc' : 'desc';
+  else { currentSort.field = field; currentSort.order = 'desc'; }
+  aplicarFiltroOrdenacao();
+  currentPage = 1;
+  renderizarSecaoAtual();
+}
+
+function getPaginatedUsers() { const start = (currentPage-1)*itemsPerPage; return usuariosFiltrados.slice(start, start+itemsPerPage); }
+const totalPages = () => Math.ceil(usuariosFiltrados.length / itemsPerPage);
+function mudarPagina(page) { currentPage = Math.max(1, Math.min(page, totalPages())); renderizarSecaoAtual(); }
+function buscarUsuarios(termo) { searchTerm = termo; aplicarFiltroOrdenacao(); currentPage = 1; renderizarSecaoAtual(); }
+
+function renderizarSecaoAtual() {
+  const area = document.getElementById('content-area');
+  if (!area) return;
+  switch(currentSection) {
+    case 'dashboard': area.innerHTML = renderDashboard(); break;
+    case 'metricas': area.innerHTML = renderMetricasProduto(); break;
+    case 'usuarios': area.innerHTML = renderUsuarios(); break;
+    case 'rankings': area.innerHTML = renderRankings(); break;
+    case 'landing': area.innerHTML = renderLandingPage(); setTimeout(() => renderLandingCharts(), 100); break;
+    case 'graficos': area.innerHTML = renderGraficos(); setTimeout(() => renderGraficosChart(), 100); break;
+    case 'exportar': area.innerHTML = renderExportar(); break;
+  }
+}
+
+function renderDashboard() {
+  if (!cachedDados) return '<div class="section">Carregando...</div>';
+  const d = cachedDados;
+  const percentTop = d.topProtocoloPercentual.toFixed(1);
+  let topBadge = '';
+  if (d.topProtocoloPercentual > 20) topBadge = '<span class="ranking-badge badge-hot">🔥 MUITO POPULAR</span>';
+  else if (d.topProtocoloPercentual > 10) topBadge = '<span class="ranking-badge badge-popular">👍 POPULAR</span>';
+  else if (d.topProtocoloPercentual > 5) topBadge = '<span class="ranking-badge badge-normal">👌 NORMAL</span>';
+  else topBadge = '<span class="ranking-badge badge-low">⚠️ BAIXO</span>';
+  return `
+    <div class="content-header"><h1>📊 Dashboard</h1><p>Visão geral do OdontoDex</p></div>
+    <div class="stats-grid">
+      <div class="stat-card card-users"><div class="stat-icon">👥</div><div class="stat-number">${d.totalUsuarios}</div><div class="stat-label">Total de Usuários</div></div>
+      <div class="stat-card card-premium"><div class="stat-icon">💎</div><div class="stat-number">${d.totalPremium}</div><div class="stat-label">Usuários Premium</div></div>
+      <div class="stat-card card-free"><div class="stat-icon">🆓</div><div class="stat-number">${d.totalFree}</div><div class="stat-label">Usuários Gratuitos</div></div>
+      <div class="stat-card card-conversion"><div class="stat-icon">📈</div><div class="stat-number">${d.taxaConversao}%</div><div class="stat-label">Taxa de Conversão</div></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card card-total"><div class="stat-icon">📋</div><div class="stat-number">${d.totalUsos.toLocaleString()}</div><div class="stat-label">Total de Protocolos Abertos</div></div>
+      <div class="stat-card card-most"><div class="stat-icon">🔥</div><div class="stat-number" style="font-size:14px;">${d.topProtocoloNome.substring(0,25)}</div><div class="stat-label">${d.topProtocoloCount} usos · ${percentTop}% do total ${topBadge}</div></div>
+      <div class="stat-card card-month"><div class="stat-icon">📅</div><div class="stat-number">${d.usosMes}</div><div class="stat-label">Usos neste mês</div></div>
+      <div class="stat-card card-active"><div class="stat-icon">👥</div><div class="stat-number">${d.usuariosAtivosMes}</div><div class="stat-label">Usuários ativos no mês</div></div>
+    </div>
+    <div class="section"><div class="section-title"><span>🏆</span> Top 5 Protocolos Mais Usados</div>
+      ${d.topProtocolos.slice(0,5).map((p,i) => { let fillClass='',badge=''; if(p.percentual>20){fillClass='fill-hot';badge='<span class="ranking-badge badge-hot">🔥 MUITO POPULAR</span>'}else if(p.percentual>10){fillClass='fill-popular';badge='<span class="ranking-badge badge-popular">👍 POPULAR</span>'}else if(p.percentual>5){fillClass='fill-normal';badge='<span class="ranking-badge badge-normal">👌 NORMAL</span>'}else{fillClass='fill-low';badge='<span class="ranking-badge badge-low">⚠️ BAIXO</span>'}; return `<div class="ranking-item"><div class="ranking-header"><span class="ranking-name">${i+1}. ${p.nome}</span><span class="ranking-stats">${p.count} usos · ${p.percentual.toFixed(1)}% do total ${badge}</span></div><div class="ranking-bar"><div class="ranking-fill ${fillClass}" style="width: ${Math.min(p.percentual*2,100)}%"></div></div></div>`; }).join('')}
+    </div>
+    ${d.lowProtocolos.length>0?`<div class="alert-card"><div class="alert-title">⚠️ ATENÇÃO: Protocolos com baixa representatividade (&lt;5% dos usos)</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">${d.lowProtocolos.slice(0,6).map(p=>`<span style="background:#F1F5F9;padding:4px 10px;border-radius:16px;font-size:11px;">📌 ${p.nome} (${p.count} usos, ${p.percentual.toFixed(1)}%)</span>`).join('')}</div><div style="font-size:11px;color:#64748B;margin-top:10px;">💡 <strong>Sugestão:</strong> Estes protocolos podem precisar de mais visibilidade ou podem ser removidos.</div></div>`:''}
+  `;
+}
+
+function renderMetricasProduto() {
+  if (!cachedMetricasProduto) return '<div class="section">Carregando...</div>';
+  const m = cachedMetricasProduto;
+  const formatTipoAcao = (acao) => { const map = { 'open_protocol':'📖 Abriu protocolo', 'search':'🔍 Usou busca', 'favorite':'⭐ Favoritou', 'forceps':'🦷 Fórceps dinâmico', 'diagnostico':'🩺 Diagnóstico guiado' }; return map[acao] || acao; };
+  const tipoUsoTotal = m.tipoUso.passivo + m.tipoUso.hibrido + m.tipoUso.interativo;
+  const passivoPercent = tipoUsoTotal>0 ? Math.round((m.tipoUso.passivo/tipoUsoTotal)*100) : 0;
+  const hibridoPercent = tipoUsoTotal>0 ? Math.round((m.tipoUso.hibrido/tipoUsoTotal)*100) : 0;
+  const interativoPercent = tipoUsoTotal>0 ? Math.round((m.tipoUso.interativo/tipoUsoTotal)*100) : 0;
+  const totalRetornantes = Object.values(m.primeiroAcaoRetornantes).reduce((a,b)=>a+b,0);
+  return `
+    <div class="content-header"><h1>📈 Métricas de Produto</h1><p>Análise de comportamento e retenção</p></div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">🚀</div><div class="stat-number">${m.taxaAtivacao}%</div><div class="stat-label">Taxa de Ativação</div></div>
+      <div class="stat-card"><div class="stat-icon">🔄</div><div class="stat-number">${Object.keys(m.coortes).length} coortes</div><div class="stat-label">Coortes analisadas</div></div>
+      <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-number">${m.ahaPercentual}%</div><div class="stat-label">AHA: ${formatTipoAcao(m.ahaCampeao)}</div></div>
+      <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-number">${m.mediaProfundidade}</div><div class="stat-label">Score médio de profundidade</div></div>
+    </div>
+    <div class="graficos-grid">
+      <div class="section"><div class="section-title"><span>🚀</span> ATIVAÇÃO (últimos 30 dias)</div><div class="stats-grid" style="grid-template-columns:1fr 1fr;margin-bottom:0;"><div><div class="stat-number" style="font-size:20px;">${m.totalNovosUltimos30}</div><div class="stat-label">Novos usuários</div></div><div><div class="stat-number" style="font-size:20px;color:#10B981;">${m.ativadosUltimos30}</div><div class="stat-label">Ativados</div></div></div><div class="ranking-bar" style="margin:12px 0;"><div class="ranking-fill fill-normal" style="width:${m.taxaAtivacao}%;background:#10B981;"></div></div><div style="font-size:12px;color:#64748B;">O que fez ativar?</div><div class="click-chart" style="margin-top:8px;">${Object.entries(m.acaoAtivacao).map(([acao,count])=>`<div class="click-bar"><div class="click-bar-label">${formatTipoAcao(acao)}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${Math.min((count/m.ativadosUltimos30)*100,100)}%;background:#10B981;">${count}</div></div></div>`).join('')}</div></div>
+      <div class="section"><div class="section-title"><span>🎮</span> TIPO DE USO DO APP</div><div class="click-chart"><div class="click-bar"><div class="click-bar-label">📖 Passivo (só protocolos)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${passivoPercent}%;background:#64748B;">${passivoPercent}%</div></div></div><div class="click-bar"><div class="click-bar-label">🔄 Híbrido</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${hibridoPercent}%;background:#F59E0B;">${hibridoPercent}%</div></div></div><div class="click-bar"><div class="click-bar-label">⚡ Interativo (busca/favoritos/ferramentas)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${interativoPercent}%;background:#7C3FA0;">${interativoPercent}%</div></div></div></div>${interativoPercent<30?`<div class="warning-card"><div class="warning-title">💡 Insight</div><div class="insight-text">Apenas ${interativoPercent}% dos usuários usam ferramentas interativas. Considere destacar a busca e o fórceps dinâmico na home.</div></div>`:''}</div>
+    </div>
+    <div class="graficos-grid">
+      <div class="section"><div class="section-title"><span>📊</span> PROFUNDIDADE DE USO</div><div class="click-chart"><div class="click-bar"><div class="click-bar-label">🟡 Superficial (0-30)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${Math.min((m.distribuicaoProfundidade.baixo/m.scores.length)*100,100)}%;background:#EF4444;">${m.distribuicaoProfundidade.baixo}</div></div></div><div class="click-bar"><div class="click-bar-label">🟠 Médio (31-70)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${Math.min((m.distribuicaoProfundidade.medio/m.scores.length)*100,100)}%;background:#F59E0B;">${m.distribuicaoProfundidade.medio}</div></div></div><div class="click-bar"><div class="click-bar-label">🟢 Profundo (71-100)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${Math.min((m.distribuicaoProfundidade.alto/m.scores.length)*100,100)}%;background:#10B981;">${m.distribuicaoProfundidade.alto}</div></div></div></div><div class="insight-card"><div class="insight-title">📊 Score médio: ${m.mediaProfundidade}</div><div class="insight-text">Meta: 60 até Jun/2025</div></div></div>
+      <div class="section"><div class="section-title"><span>⚡</span> MOMENTO "AHA"</div><div class="click-chart">${Object.entries(m.primeiroAcaoRetornantes).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([acao,count])=>{const percent=totalRetornantes>0?Math.round((count/totalRetornantes)*100):0; return `<div class="click-bar"><div class="click-bar-label">${formatTipoAcao(acao)}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${percent}%;background:#7C3FA0;">${percent}%</div></div></div>`;}).join('')}</div><div class="insight-card"><div class="insight-title">🏆 Funcionalidade campeã: ${formatTipoAcao(m.ahaCampeao)}</div><div class="insight-text">${m.ahaPercentual}% dos usuários que voltaram no D1 começaram por esta funcionalidade.</div></div></div>
+    </div>
+    <div class="section"><div class="section-title"><span>🔄</span> RETENÇÃO POR COORTE (D1 / D7 / D30)</div><div class="table-wrapper"><table><thead><tr><th>Mês</th><th>Usuários</th><th>D1</th><th>D7</th><th>D30</th></tr></thead><tbody>${Object.entries(m.coortes).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,6).map(([mes,coorte])=>{const d1Percent=coorte.total>0?Math.round((coorte.d1/coorte.total)*100):0; const d7Percent=coorte.total>0?Math.round((coorte.d7/coorte.total)*100):0; const d30Percent=coorte.total>0?Math.round((coorte.d30/coorte.total)*100):0; return `<tr><td>${mes}</td><td>${coorte.total}</td><td>${coorte.d1} (${d1Percent}%)</td><td>${coorte.d7} (${d7Percent}%)</td><td>${coorte.d30} (${d30Percent}%)</td></tr>`;}).join('')}${Object.keys(m.coortes).length===0?'<tr><td colspan="5" style="text-align:center;">Nenhuma coorte disponível ainda</td></tr>':''}</tbody></table></div></div>
+  `;
+}
+
+function renderUsuarios() {
+  const paginated = getPaginatedUsers();
+  const total = totalPages();
+  return `
+    <div class="content-header"><h1>👥 Usuários</h1><p>Gerencie os usuários do OdontoDex</p></div>
+    <div class="section"><div class="search-box"><input type="text" class="search-input" id="search-usuario" placeholder="🔍 Buscar por nome ou email..." oninput="buscarUsuarios(this.value)"></div>
+    <div class="table-wrapper"><table><thead><tr><th onclick="changeSort('nome')">Nome ${currentSort.field==='nome'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('email')">Email ${currentSort.field==='email'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('premium')">Status ${currentSort.field==='premium'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('usos')">Usos ${currentSort.field==='usos'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th>Cadastro</th><th>Ação</th></tr></thead>
+    <tbody>${paginated.map(user => `<tr><td>${user.nome}${user.ignorado?'<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">⊘ Ignorado</span>':''}</td><td>${user.email}</td><td><span class="${user.premium?'badge-premium':'badge-free'}">${user.premium?'💎 Premium':'🆓 Free'}</span></td><td><strong>${user.usos}</strong> ${user.usos===0?'⚠️':user.usos>50?'🔥':''}</td><td>${user.criadoEm?new Date(user.criadoEm).toLocaleDateString():'-'}</td><td><button onclick="toggleIgnorarUsuario('${user.id}')" style="background:${user.ignorado?'#10B981':'#EF4444'};color:white;border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">${user.ignorado?'✓ Incluir':'⊘ Ignorar'}</button></td></tr>`).join('')}${paginated.length===0?'<tr><td colspan="6" style="text-align:center;">Nenhum usuário encontrado</td></tr>':''}</tbody></table></div>
+    <div class="pagination"><button class="page-btn" onclick="mudarPagina(1)" ${currentPage===1?'disabled':''}>«</button><button class="page-btn" onclick="mudarPagina(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>${(()=>{const totalP=total; let buttons=[]; if(totalP<=5){for(let i=1;i<=totalP;i++)buttons.push(i)}else{if(currentPage<=3){for(let i=1;i<=5;i++)buttons.push(i)}else if(currentPage>=totalP-2){for(let i=totalP-4;i<=totalP;i++)buttons.push(i)}else{for(let i=currentPage-2;i<=currentPage+2;i++)buttons.push(i)}} return buttons.map(p=>`<button class="page-btn ${p===currentPage?'active':''}" onclick="mudarPagina(${p})">${p}</button>`).join('');})()}<button class="page-btn" onclick="mudarPagina(${currentPage+1})" ${currentPage===total||total===0?'disabled':''}>›</button><button class="page-btn" onclick="mudarPagina(${total})" ${currentPage===total||total===0?'disabled':''}>»</button></div>
+    <div style="text-align:center;margin-top:14px;font-size:11px;color:#64748B;">Mostrando ${Math.min(itemsPerPage,usuariosFiltrados.length)} de ${usuariosFiltrados.length} usuários</div></div>
+  `;
+}
+
+function renderRankings() {
+  if (!cachedDados) return '<div class="section">Carregando...</div>';
+  const d = cachedDados;
+  return `
+    <div class="content-header"><h1>🏆 Rankings</h1><p>Análise de uso dos protocolos</p></div>
+    <div class="stats-grid"><div class="stat-card"><div class="stat-icon">📊</div><div class="stat-number">${d.totalUsos.toLocaleString()}</div><div class="stat-label">Total de usos (90 dias)</div></div><div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-number" style="font-size:14px;">${d.topProtocolos[0]?.nome.substring(0,20)||'-'}</div><div class="stat-label">Mais usado · ${d.topProtocolos[0]?.percentual.toFixed(1)}% do total</div></div></div>
+    <div class="section"><div class="section-title"><span>🔥</span> TOP 10 MAIS USADOS</div>${d.topProtocolos.map((p,i)=>{let fillClass='',badge=''; if(p.percentual>20){fillClass='fill-hot';badge='<span class="ranking-badge badge-hot">🔥 MUITO POPULAR</span>'}else if(p.percentual>10){fillClass='fill-popular';badge='<span class="ranking-badge badge-popular">👍 POPULAR</span>'}else if(p.percentual>5){fillClass='fill-normal';badge='<span class="ranking-badge badge-normal">👌 NORMAL</span>'}else{fillClass='fill-low';badge='<span class="ranking-badge badge-low">⚠️ BAIXO</span>'}; return `<div class="ranking-item"><div class="ranking-header"><span class="ranking-name">${i+1}. ${p.nome}</span><span class="ranking-stats">${p.count} usos · ${p.percentual.toFixed(1)}% do total ${badge}</span></div><div class="ranking-bar"><div class="ranking-fill ${fillClass}" style="width:${Math.min(p.percentual*2,100)}%"></div></div></div>`;}).join('')}</div>
+    <div class="section"><div class="section-title"><span>⚠️</span> PROTOCOLOS COM BAIXA REPRESENTATIVIDADE (&lt;5% do total)</div>${d.lowProtocolos.length>0?d.lowProtocolos.map(p=>`<div class="ranking-item"><div class="ranking-header"><span class="ranking-name">📌 ${p.nome}</span><span class="ranking-stats">${p.count} usos · ${p.percentual.toFixed(1)}% do total</span></div><div class="ranking-bar"><div class="ranking-fill fill-low" style="width:${Math.min(p.percentual*2,100)}%"></div></div></div>`).join(''):'<p style="color:#64748B;">Nenhum protocolo com baixa representatividade!</p>'}</div>
+    ${d.lowProtocolos.some(p=>p.count===0)?`<div class="alert-card"><div class="alert-title">❓ PROTOCOLOS COM ZERO USOS</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">${d.lowProtocolos.filter(p=>p.count===0).map(p=>`<span style="background:#FEF2F2;color:#DC2626;padding:4px 10px;border-radius:16px;font-size:11px;">📌 ${p.nome}</span>`).join('')}</div><div style="font-size:11px;color:#64748B;margin-top:10px;">💡 <strong>Sugestão:</strong> Estes protocolos NUNCA foram usados. Considere removê-los ou reposicioná-los.</div></div>`:''}
+  `;
+}
+
+function renderLandingPage() {
+  if (!cachedLandingStats) return '<div class="section">Carregando dados da Landing Page...</div>';
+  const l = cachedLandingStats;
+  const sortedClicks = Object.entries(l.cliquesPorCta).sort((a,b)=>b[1]-a[1]);
+  const sortedSources = Object.entries(l.sources).sort((a,b)=>b[1]-a[1]);
+  const formatTime = (seconds) => { if(!seconds) return '0s'; const mins=Math.floor(seconds/60); const secs=seconds%60; return mins>0?`${mins}m ${secs}s`:`${secs}s`; };
+  return `
+    <div class="content-header"><h1>🌐 Landing Page Analytics</h1><p>Métricas de performance da página de vendas</p></div>
+    <div class="landing-stats-grid"><div class="stat-card"><div class="stat-icon">👁️</div><div class="stat-number">${l.totalVisitas}</div><div class="stat-label">Total de Visitas</div></div><div class="stat-card"><div class="stat-icon">🆔</div><div class="stat-number">${l.usuariosUnicos}</div><div class="stat-label">Usuários Únicos</div></div><div class="stat-card"><div class="stat-icon">💰</div><div class="stat-number">${l.taxaConversaoLanding}%</div><div class="stat-label">Taxa de Conversão</div></div><div class="stat-card"><div class="stat-icon">🖱️</div><div class="stat-number">${l.cliquesPorVisita}</div><div class="stat-label">Cliques por Visita</div></div><div class="stat-card"><div class="stat-icon">📉</div><div class="stat-number">${l.taxaRejeicao}%</div><div class="stat-label">Taxa de Rejeição</div></div></div>
+    <div class="section"><div class="section-title"><span>🖱️</span> CLIQUE NOS CTAs</div>${sortedClicks.length>0?`<div class="click-chart">${sortedClicks.map(([cta,count])=>{const maxCount=sortedClicks[0][1]; const width=maxCount>0?(count/maxCount)*100:0; let ctaLabel=cta.replace('click_','').replace(/_/g,' '); return `<div class="click-bar"><div class="click-bar-label">📌 ${ctaLabel}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${width}%">${count}</div></div></div>`;}).join('')}</div>`:'<p style="color:#64748B;">Nenhum clique registrado ainda.</p>'}</div>
+    <div class="graficos-grid"><div class="section"><div class="section-title"><span>📱</span> DISPOSITIVOS</div><div class="click-chart">${Object.entries(l.devices).map(([device,count])=>{const maxCount=Math.max(...Object.values(l.devices),1); const width=(count/maxCount)*100; const icons={desktop:'🖥️',mobile:'📱',tablet:'📟'}; return `<div class="click-bar"><div class="click-bar-label">${icons[device]||'💻'} ${device}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${width}%">${count}</div></div></div>`;}).join('')}</div></div>
+    <div class="section"><div class="section-title"><span>🌐</span> FONTE DE TRÁFEGO</div><div class="click-chart">${sortedSources.slice(0,5).map(([source,count])=>{const maxCount=sortedSources[0][1]; const width=maxCount>0?(count/maxCount)*100:0; const icons={direct:'🔗',google:'🔍',facebook:'📘',instagram:'📸',linkedin:'💼',referrer:'↪️'}; return `<div class="click-bar"><div class="click-bar-label">${icons[source]||'🌍'} ${source}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${width}%">${count}</div></div></div>`;}).join('')}</div></div></div>
+    <div class="graficos-grid"><div class="section"><div class="section-title"><span>📜</span> SCROLL DEPTH</div><div class="click-chart">${[25,50,75,100].map(p=>{const count=l.scrollDepth[p]||0; const percent=l.totalVisitas>0?Math.round((count/l.totalVisitas)*100):0; return `<div class="click-bar"><div class="click-bar-label">📏 ${p}% da página</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${percent}%">${percent}%</div></div></div>`;}).join('')}</div>${l.scrollDepth[25]===0?`<div class="warning-card"><div class="warning-title">⚠️ Alerta</div><div class="insight-text">Nenhum usuário rolou até 25% da página. O conteúdo acima da dobra pode não estar atraente.</div></div>`:''}</div>
+    <div class="section"><div class="section-title"><span>⏰</span> TIMER DA OFERTA</div><div class="click-chart"><div class="click-bar"><div class="click-bar-label">⏱️ Cliques durante oferta</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${Math.min(l.timerClicks.total*5,100)}%">${l.timerClicks.total}</div></div></div>${l.timerClicks.tempoMedio?`<div class="click-bar"><div class="click-bar-label">⚡ Tempo médio até clicar</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${Math.min((l.timerClicks.tempoMedio/60)*100,100)}%">${formatTime(l.timerClicks.tempoMedio)}</div></div></div>`:''}</div></div></div>
+    <div class="section"><div class="section-title"><span>📊</span> VISITAS E CLiques POR DIA (Últimos 30 dias)</div><canvas id="grafico-landing-visitas" height="200"></canvas></div>
+    <div class="section"><div class="section-title"><span>🎯</span> SEÇÕES MAIS VISUALIZADAS</div><div class="click-chart">${Object.entries(l.secoesVistas).sort((a,b)=>b[1]-a[1]).map(([secao,count])=>{const maxCount=Math.max(...Object.values(l.secoesVistas),1); const width=(count/maxCount)*100; const icons={problema:'❓',solucao:'💡',planos:'💰',faq:'❔'}; return `<div class="click-bar"><div class="click-bar-label">${icons[secao]||'📌'} ${secao}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${width}%">${count}</div></div></div>`;}).join('')}</div></div>
+    <div class="insight-card"><div class="insight-title">💡 Insights da Landing Page</div><div class="insight-text">${l.taxaRejeicao>50?'🔴 Taxa de rejeição alta (>50%). Revise o CTA acima da dobra.<br>':''}${l.scrollDepth[50]<20?'🟡 Poucos usuários chegam a 50% da página. O conteúdo pode não estar engajando.<br>':''}${l.timerClicks.total===0?'🟡 Ninguém clicou na oferta com timer. Considere destacar mais o botão.':''}</div></div>
+  `;
+}
+
+function renderLandingCharts() {
+  if (!cachedLandingStats) return;
+  const l = cachedLandingStats;
+  const ctxVisitas = document.getElementById('grafico-landing-visitas')?.getContext('2d');
+  if (ctxVisitas) {
+    if (charts.landingVisitas) charts.landingVisitas.destroy();
+    charts.landingVisitas = new Chart(ctxVisitas, {
+      type: 'line',
+      data: { labels: l.visitasPorDia.map(d=>d.data.substring(5)), datasets: [{ label:'Visitas', data:l.visitasPorDia.map(d=>d.visitas), borderColor:'#7C3FA0', backgroundColor:'rgba(124,63,160,0.1)', fill:true, tension:0.3 }, { label:'Cliques', data:l.visitasPorDia.map(d=>d.cliques), borderColor:'#F59E0B', backgroundColor:'rgba(245,158,11,0.1)', fill:true, tension:0.3 }] },
+      options: { responsive: true, maintainAspectRatio: true }
+    });
+  }
+}
+
+function renderGraficos() {
+  return `<div class="content-header"><h1>📈 Gráficos</h1><p>Visualização de uso do app</p></div><div class="graficos-grid"><div class="section"><div class="section-title"><span>⏰</span> USO POR HORA DO DIA</div><canvas id="grafico-horas" height="200"></canvas></div><div class="section"><div class="section-title"><span>📅</span> USO POR DIA DA SEMANA</div><canvas id="grafico-dias" height="200"></canvas></div></div><div class="section"><div class="section-title"><span>📈</span> EVOLUÇÃO MENSAL</div><canvas id="grafico-mensal" height="200"></canvas></div>`;
+}
+
+function renderGraficosChart() {
+  if (!cachedDados) return;
+  const d = cachedDados;
+  if (charts.horas) charts.horas.destroy();
+  if (charts.dias) charts.dias.destroy();
+  if (charts.mensal) charts.mensal.destroy();
+  const ctxHoras = document.getElementById('grafico-horas')?.getContext('2d');
+  if (ctxHoras) charts.horas = new Chart(ctxHoras, { type:'bar', data:{ labels:Array.from({length:24},(_,i)=>`${i}h`), datasets:[{ label:'Usos', data:d.porHora, backgroundColor:'#7C3FA0', borderRadius:6 }] }, options:{ responsive:true, maintainAspectRatio:true } });
+  const ctxDias = document.getElementById('grafico-dias')?.getContext('2d');
+  if (ctxDias) charts.dias = new Chart(ctxDias, { type:'bar', data:{ labels:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'], datasets:[{ label:'Usos', data:d.porDiaSemana, backgroundColor:'#7C3FA0', borderRadius:6 }] }, options:{ responsive:true, maintainAspectRatio:true } });
+  const mesesOrdenados = Object.entries(d.porMes).sort();
+  const ctxMensal = document.getElementById('grafico-mensal')?.getContext('2d');
+  if (ctxMensal) charts.mensal = new Chart(ctxMensal, { type:'line', data:{ labels:mesesOrdenados.map(m=>m[0]), datasets:[{ label:'Usos por mês', data:mesesOrdenados.map(m=>m[1]), borderColor:'#7C3FA0', backgroundColor:'rgba(124,63,160,0.1)', fill:true, tension:0.3 }] }, options:{ responsive:true, maintainAspectRatio:true } });
+}
+
+function renderExportar() {
+  return `<div class="content-header"><h1>📥 Exportar Dados</h1><p>Exporte os dados do OdontoDex</p></div><div class="section"><div class="section-title"><span>📄</span> Exportar Analytics</div><div class="export-buttons"><button class="export-btn" onclick="exportarCSV()">📄 Exportar CSV</button><button class="export-btn json" onclick="exportarJSON()" style="background:#3B82F6;color:white;">📦 Exportar JSON</button><button class="export-btn" onclick="exportarUsuariosCSV()" style="background:#7C3FA0;color:white;">👥 Exportar Usuários</button><button class="export-btn" onclick="exportarLandingCSV()" style="background:#10B981;color:white;">🌐 Exportar Landing Stats</button><button class="export-btn" onclick="exportarMetricasCSV()" style="background:#F59E0B;color:white;">📈 Exportar Métricas</button><button class="export-btn refresh-btn" onclick="refreshData()">⟳ Atualizar Dados</button></div></div><div class="section"><div class="section-title"><span>ℹ️</span> Sobre os dados</div><p style="color:#64748B;font-size:13px;">Os dados incluem todos os protocolos abertos nos últimos 90 dias. As métricas de produto são calculadas em tempo real.</p></div>`;
+}
+
+async function exportarCSV() {
+  const snapshot = await db.collection('analytics_uso_protocolos').orderBy('timestamp','desc').limit(10000).get();
+  const headers = ['Data','Protocolo','Usuário','Hora'];
+  const rows = [headers];
+  snapshot.forEach(doc=>{const d=doc.data(); rows.push([d.data||'',d.protocoloTitulo||'',d.usuarioEmail||'',d.hora!==undefined?`${d.hora}h`:'']);});
+  const csv=rows.map(row=>row.join(',')).join('\n');
+  const blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`odontodex_analytics_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
+}
+async function exportarJSON() {
+  const snapshot=await db.collection('analytics_uso_protocolos').orderBy('timestamp','desc').limit(10000).get();
+  const dados=[]; snapshot.forEach(doc=>dados.push({id:doc.id,...doc.data()}));
+  const json=JSON.stringify(dados,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`odontodex_analytics_${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(url);
+}
+async function exportarUsuariosCSV() {
+  const headers=['Email','Nome','Status','Cadastro','Protocolos Abertos'];
+  const rows=[headers];
+  dadosUsuarios.forEach(user=>{rows.push([user.email,user.nome,user.premium?'Premium':'Free',user.criadoEm?new Date(user.criadoEm).toLocaleDateString():'-',user.usos]);});
+  const csv=rows.map(row=>row.join(',')).join('\n');
+  const blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`odontodex_usuarios_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
+}
+async function exportarLandingCSV() {
+  const snapshot=await db.collection('landing_stats').orderBy('timestamp','desc').limit(10000).get();
+  const headers=['Data','Evento','SessionId','Dispositivo','Fonte','Detalhes'];
+  const rows=[headers];
+  snapshot.forEach(doc=>{const d=doc.data(); const dataStr=d.timestamp?.toDate?.()?.toLocaleString()||'-'; let detalhes=''; if(d.event==='click_cta')detalhes=d.elementText||''; if(d.event==='section_view')detalhes=d.section||''; if(d.event==='exit')detalhes=`${d.timeOnPageSeconds}s na página`; if(d.event==='timer_click')detalhes=`${d.timeToClickSeconds}s até clicar`; rows.push([dataStr,d.event||'-',d.sessionId||'-',d.deviceType||'-',d.source||'-',detalhes]);});
+  const csv=rows.map(row=>row.join(',')).join('\n');
+  const blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`odontodex_landing_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
+}
+async function exportarMetricasCSV() {
+  if(!cachedMetricasProduto)return;
+  const m=cachedMetricasProduto;
+  const headers=['Métrica','Valor'];
+  const rows=[headers];
+  rows.push(['Taxa de Ativação (últimos 30 dias)',`${m.taxaAtivacao}%`]);
+  rows.push(['Novos usuários (últimos 30 dias)',m.totalNovosUltimos30]);
+  rows.push(['Usuários ativados',m.ativadosUltimos30]);
+  rows.push(['Score médio de profundidade',m.mediaProfundidade]);
+  rows.push(['Usuários superficiais (0-30)',m.distribuicaoProfundidade.baixo]);
+  rows.push(['Usuários médios (31-70)',m.distribuicaoProfundidade.medio]);
+  rows.push(['Usuários profundos (71-100)',m.distribuicaoProfundidade.alto]);
+  rows.push(['Tipo de uso - Passivo',m.tipoUso.passivo]);
+  rows.push(['Tipo de uso - Híbrido',m.tipoUso.hibrido]);
+  rows.push(['Tipo de uso - Interativo',m.tipoUso.interativo]);
+  rows.push(['Momento AHA campeão',m.ahaCampeao]);
+  rows.push(['Percentual do AHA',`${m.ahaPercentual}%`]);
+  for(const[mes,coorte]of Object.entries(m.coortes)){rows.push([`Coorte ${mes} - Total`,coorte.total]); rows.push([`Coorte ${mes} - D1`, `${coorte.d1} (${Math.round((coorte.d1/coorte.total)*100)}%)`]); rows.push([`Coorte ${mes} - D7`, `${coorte.d7} (${Math.round((coorte.d7/coorte.total)*100)}%)`]); rows.push([`Coorte ${mes} - D30`, `${coorte.d30} (${Math.round((coorte.d30/coorte.total)*100)}%)`]);}
+  const csv=rows.map(row=>row.join(',')).join('\n');
+  const blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`odontodex_metricas_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
+}
+async function refreshData() { await carregarDados(); await carregarLandingStats(); await carregarMetricasProduto(); renderizarSecaoAtual(); }
+function logout() { auth.signOut(); document.getElementById('login-container').style.display='flex'; document.getElementById('dashboard-container').style.display='none'; }
+function initMenu() { document.querySelectorAll('.sidebar-item').forEach(item=>{item.addEventListener('click',()=>{document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); currentSection=item.getAttribute('data-section'); renderizarSecaoAtual();});}); }
+
+auth.onAuthStateChanged(async(user)=>{
+  if(user && ADMIN_EMAILS.includes(user.email)){
+    currentUser=user;
+    carregarIgnorados();
+    document.getElementById('login-container').style.display='none';
+    document.getElementById('dashboard-container').style.display='flex';
+    initMenu();
     await carregarDados();
     await carregarLandingStats();
     await carregarMetricasProduto();
     renderizarSecaoAtual();
+  } else if(user){
+    await auth.signOut();
+    document.getElementById('login-container').style.display='flex';
+    document.getElementById('dashboard-container').style.display='none';
   }
-  
-  function logout() {
-    auth.signOut();
-    document.getElementById('login-container').style.display = 'flex';
-    document.getElementById('dashboard-container').style.display = 'none';
-  }
-  
-  function initMenu() {
-    document.querySelectorAll('.sidebar-item').forEach(item => {
-      item.addEventListener('click', () => {
-        document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
-        item.classList.add('active');
-        currentSection = item.getAttribute('data-section');
-        renderizarSecaoAtual();
-      });
-    });
-  }
-  // ========== SISTEMA DE IGNORAR USUÁRIOS (NÃO CONTABILIZAR ADMIN) ==========
-let usuariosIgnorados = [];
+});
 
-// Carrega a lista de usuários ignorados do localStorage
-function carregarIgnorados() {
-  try {
-    const saved = localStorage.getItem('admin_usuarios_ignorados');
-    if (saved) {
-      usuariosIgnorados = JSON.parse(saved);
-      console.log('📋 Usuários ignorados carregados:', usuariosIgnorados);
-    }
-  } catch(e) { 
-    usuariosIgnorados = []; 
-  }
-}
-
-// Salva a lista de usuários ignorados no localStorage
-function salvarIgnorados() {
-  localStorage.setItem('admin_usuarios_ignorados', JSON.stringify(usuariosIgnorados));
-}
-
-// Verifica se um usuário está na lista de ignorados
-function isUsuarioIgnorado(userId) {
-  return usuariosIgnorados.includes(userId);
-}
-
-// Adiciona ou remove um usuário da lista de ignorados
-function toggleIgnorarUsuario(userId) {
-  const index = usuariosIgnorados.indexOf(userId);
-  if (index === -1) {
-    // Adiciona à lista
-    usuariosIgnorados.push(userId);
-    mostrarToastAdmin('👤 Usuário ignorado das estatísticas', 'warning');
-  } else {
-    // Remove da lista
-    usuariosIgnorados.splice(index, 1);
-    mostrarToastAdmin('✅ Usuário reincluído nas estatísticas', 'success');
-  }
-  salvarIgnorados();
-  
-  // Recarrega os dados e atualiza a tela
-  carregarDados().then(() => {
-    carregarMetricasProduto();
-    renderizarSecaoAtual();
-  });
-}
-
-// Função para mostrar um toast (notificação temporária) no admin
-function mostrarToastAdmin(mensagem, tipo) {
-  const toast = document.createElement('div');
-  toast.textContent = mensagem;
-  
-  let cor = '#3B82F6'; // azul padrão
-  if (tipo === 'success') cor = '#10B981'; // verde
-  if (tipo === 'warning') cor = '#F59E0B'; // amarelo/laranja
-  if (tipo === 'error') cor = '#EF4444'; // vermelho
-  
-  toast.style.cssText = `
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: ${cor};
-    color: white;
-    padding: 10px 18px;
-    border-radius: 12px;
-    font-size: 13px;
-    font-weight: 600;
-    z-index: 9999;
-    animation: fadeInOutAdmin 2s ease;
-    font-family: 'Inter', sans-serif;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-  `;
-  document.body.appendChild(toast);
-  setTimeout(() => toast.remove(), 2000);
-}
-
-// Adicionar o CSS da animação do toast (coloque isso uma vez)
-if (!document.querySelector('#admin-toast-style')) {
-  const styleToast = document.createElement('style');
-  styleToast.id = 'admin-toast-style';
-  styleToast.textContent = `
-    @keyframes fadeInOutAdmin {
-      0% { opacity: 0; transform: translateY(20px); }
-      15% { opacity: 1; transform: translateY(0); }
-      85% { opacity: 1; transform: translateY(0); }
-      100% { opacity: 0; transform: translateY(20px); }
-    }
-  `;
-  document.head.appendChild(styleToast);
-}
-  // ========== INICIALIZAÇÃO ==========
-  auth.onAuthStateChanged(async(user) => {
-    if (user && ADMIN_EMAILS.includes(user.email)) {
-      currentUser = user;
-      carregarIgnorados();            
-      document.getElementById('login-container').style.display = 'none';
-      document.getElementById('dashboard-container').style.display = 'flex';
-      initMenu();
-      await carregarDados();
-      await carregarLandingStats();
-      await carregarMetricasProduto();
-      renderizarSecaoAtual();
-    } else if (user) {
-      await auth.signOut();
-      document.getElementById('login-container').style.display = 'flex';
-      document.getElementById('dashboard-container').style.display = 'none';
-    }
-  });
-  
-  // Expor funções globalmente
-  window.doAdminLogin = doAdminLogin;
-  window.toggleSidebar = toggleSidebar;
-  window.mudarPagina = mudarPagina;
-  window.buscarUsuarios = buscarUsuarios;
-  window.changeSort = changeSort;
-  window.exportarCSV = exportarCSV;
-  window.exportarJSON = exportarJSON;
-  window.exportarUsuariosCSV = exportarUsuariosCSV;
-  window.exportarLandingCSV = exportarLandingCSV;
-  window.exportarMetricasCSV = exportarMetricasCSV;
-  window.refreshData = refreshData;
-  window.logout = logout;
+window.doAdminLogin=doAdminLogin;
+window.toggleSidebar=toggleSidebar;
+window.mudarPagina=mudarPagina;
+window.buscarUsuarios=buscarUsuarios;
+window.changeSort=changeSort;
+window.exportarCSV=exportarCSV;
+window.exportarJSON=exportarJSON;
+window.exportarUsuariosCSV=exportarUsuariosCSV;
+window.exportarLandingCSV=exportarLandingCSV;
+window.exportarMetricasCSV=exportarMetricasCSV;
+window.refreshData=refreshData;
+window.logout=logout;
+window.toggleIgnorarUsuario=toggleIgnorarUsuario;
 </script>
 </body>
 </html>
