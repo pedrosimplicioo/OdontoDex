@@ -101,7 +101,6 @@
       overflow: hidden;
     }
 
-    /* Menu Lateral Colapsável */
     .sidebar {
       position: fixed;
       left: 0;
@@ -117,13 +116,8 @@
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
     }
 
-    .sidebar.expanded {
-      width: 260px;
-    }
-
-    .sidebar.collapsed {
-      width: 70px;
-    }
+    .sidebar.expanded { width: 260px; }
+    .sidebar.collapsed { width: 70px; }
 
     .sidebar-toggle {
       background: rgba(255,255,255,0.1);
@@ -140,9 +134,7 @@
       width: 100%;
     }
 
-    .sidebar-toggle:hover {
-      background: rgba(255,255,255,0.2);
-    }
+    .sidebar-toggle:hover { background: rgba(255,255,255,0.2); }
 
     .sidebar-logo {
       padding: 20px 16px;
@@ -151,30 +143,12 @@
       white-space: nowrap;
     }
 
-    .sidebar.expanded .sidebar-logo h2 {
-      display: block;
-      font-size: 20px;
-      font-weight: 800;
-    }
+    .sidebar.expanded .sidebar-logo h2 { display: block; font-size: 20px; font-weight: 800; }
+    .sidebar.collapsed .sidebar-logo h2 { display: none; }
+    .sidebar-logo p { font-size: 10px; color: rgba(255,255,255,0.5); margin-top: 4px; }
+    .sidebar.collapsed .sidebar-logo p { display: none; }
 
-    .sidebar.collapsed .sidebar-logo h2 {
-      display: none;
-    }
-
-    .sidebar-logo p {
-      font-size: 10px;
-      color: rgba(255,255,255,0.5);
-      margin-top: 4px;
-    }
-
-    .sidebar.collapsed .sidebar-logo p {
-      display: none;
-    }
-
-    .sidebar-menu {
-      flex: 1;
-      padding: 0 12px;
-    }
+    .sidebar-menu { flex: 1; padding: 0 12px; }
 
     .sidebar-item {
       display: flex;
@@ -189,25 +163,10 @@
       white-space: nowrap;
     }
 
-    .sidebar-item:hover {
-      background: rgba(255,255,255,0.08);
-      color: white;
-    }
-
-    .sidebar-item.active {
-      background: rgba(124,63,160,0.3);
-      color: white;
-      border-left: 3px solid #9B4DC8;
-    }
-
-    .sidebar-item span:first-child {
-      font-size: 20px;
-      min-width: 24px;
-    }
-
-    .sidebar.collapsed .sidebar-item span:last-child {
-      display: none;
-    }
+    .sidebar-item:hover { background: rgba(255,255,255,0.08); color: white; }
+    .sidebar-item.active { background: rgba(124,63,160,0.3); color: white; border-left: 3px solid #9B4DC8; }
+    .sidebar-item span:first-child { font-size: 20px; min-width: 24px; }
+    .sidebar.collapsed .sidebar-item span:last-child { display: none; }
 
     .sidebar-footer {
       padding: 20px 12px;
@@ -226,16 +185,9 @@
       transition: all 0.2s;
     }
 
-    .logout-sidebar:hover {
-      background: rgba(220,38,38,0.2);
-      color: #FCA5A5;
-    }
+    .logout-sidebar:hover { background: rgba(220,38,38,0.2); color: #FCA5A5; }
+    .sidebar.collapsed .logout-sidebar span:last-child { display: none; }
 
-    .sidebar.collapsed .logout-sidebar span:last-child {
-      display: none;
-    }
-
-    /* Conteúdo Principal - OCUPA 100% DA LARGURA */
     .main-content {
       transition: margin-left 0.3s ease;
       height: 100vh;
@@ -243,34 +195,13 @@
       padding: 20px 28px;
     }
 
-    .sidebar.expanded ~ .main-content {
-      margin-left: 260px;
-    }
+    .sidebar.expanded ~ .main-content { margin-left: 260px; }
+    .sidebar.collapsed ~ .main-content { margin-left: 70px; }
 
-    .sidebar.collapsed ~ .main-content {
-      margin-left: 70px;
-    }
+    .content-header { margin-bottom: 24px; width: 100%; }
+    .content-header h1 { font-size: 24px; font-weight: 800; color: #0F172A; letter-spacing: -0.5px; }
+    .content-header p { color: #64748B; margin-top: 4px; font-size: 13px; }
 
-    /* Header do conteúdo */
-    .content-header {
-      margin-bottom: 24px;
-      width: 100%;
-    }
-
-    .content-header h1 {
-      font-size: 24px;
-      font-weight: 800;
-      color: #0F172A;
-      letter-spacing: -0.5px;
-    }
-
-    .content-header p {
-      color: #64748B;
-      margin-top: 4px;
-      font-size: 13px;
-    }
-
-    /* Cards - Grid responsivo */
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
@@ -279,17 +210,8 @@
       width: 100%;
     }
 
-    @media (max-width: 1000px) {
-      .stats-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 500px) {
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-    }
+    @media (max-width: 1000px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 500px) { .stats-grid { grid-template-columns: 1fr; } }
 
     .stat-card {
       background: white;
@@ -300,30 +222,11 @@
       border: 1px solid #E2E8F0;
     }
 
-    .stat-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    }
+    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+    .stat-icon { font-size: 24px; margin-bottom: 8px; }
+    .stat-number { font-size: 28px; font-weight: 800; color: #0F172A; }
+    .stat-label { font-size: 12px; color: #64748B; font-weight: 500; margin-top: 4px; }
 
-    .stat-icon {
-      font-size: 24px;
-      margin-bottom: 8px;
-    }
-
-    .stat-number {
-      font-size: 28px;
-      font-weight: 800;
-      color: #0F172A;
-    }
-
-    .stat-label {
-      font-size: 12px;
-      color: #64748B;
-      font-weight: 500;
-      margin-top: 4px;
-    }
-
-    /* Cores dos cards */
     .card-users .stat-number { color: #3B82F6; }
     .card-premium .stat-number { color: #F59E0B; }
     .card-free .stat-number { color: #64748B; }
@@ -333,7 +236,6 @@
     .card-month .stat-number { color: #06B6D4; }
     .card-active .stat-number { color: #22C55E; }
 
-    /* Seções - OCUPAM 100% DA LARGURA */
     .section {
       background: white;
       border-radius: 20px;
@@ -355,11 +257,7 @@
       letter-spacing: 0.5px;
     }
 
-    /* Busca */
-    .search-box {
-      margin-bottom: 20px;
-    }
-
+    .search-box { margin-bottom: 20px; }
     .search-input {
       width: 100%;
       max-width: 320px;
@@ -369,130 +267,36 @@
       font-size: 13px;
       font-family: inherit;
     }
+    .search-input:focus { outline: none; border-color: #7C3FA0; }
 
-    .search-input:focus {
-      outline: none;
-      border-color: #7C3FA0;
-    }
+    .table-wrapper { overflow-x: auto; width: 100%; }
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid #F1F5F9; }
+    th { color: #64748B; font-weight: 600; font-size: 11px; text-transform: uppercase; letter-spacing: 0.5px; cursor: pointer; user-select: none; }
+    th:hover { color: #7C3FA0; }
+    td { color: #0F172A; }
+    tr:hover { background: #F8FAFC; }
 
-    /* Tabelas */
-    .table-wrapper {
-      overflow-x: auto;
-      width: 100%;
-    }
+    .badge-premium { background: #FEF3C7; color: #D97706; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
+    .badge-free { background: #F1F5F9; color: #64748B; padding: 3px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; display: inline-block; }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 13px;
-    }
-
-    th, td {
-      text-align: left;
-      padding: 12px 10px;
-      border-bottom: 1px solid #F1F5F9;
-    }
-
-    th {
-      color: #64748B;
-      font-weight: 600;
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    th:hover {
-      color: #7C3FA0;
-    }
-
-    td {
-      color: #0F172A;
-    }
-
-    tr:hover {
-      background: #F8FAFC;
-    }
-
-    /* Badges */
-    .badge-premium {
-      background: #FEF3C7;
-      color: #D97706;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-      display: inline-block;
-    }
-
-    .badge-free {
-      background: #F1F5F9;
-      color: #64748B;
-      padding: 3px 10px;
-      border-radius: 20px;
-      font-size: 11px;
-      font-weight: 600;
-      display: inline-block;
-    }
-
-    /* Ranking items */
-    .ranking-item {
-      margin-bottom: 14px;
-    }
-
-    .ranking-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: baseline;
-      margin-bottom: 6px;
-      flex-wrap: wrap;
-      gap: 6px;
-    }
-
-    .ranking-name {
-      font-weight: 700;
-      font-size: 13px;
-      color: #0F172A;
-    }
-
-    .ranking-stats {
-      font-size: 11px;
-      color: #64748B;
-    }
-
-    .ranking-bar {
-      height: 6px;
-      background: #E2E8F0;
-      border-radius: 3px;
-      overflow: hidden;
-    }
-
-    .ranking-fill {
-      height: 100%;
-      border-radius: 3px;
-      transition: width 0.3s;
-    }
-
+    .ranking-item { margin-bottom: 14px; }
+    .ranking-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 6px; flex-wrap: wrap; gap: 6px; }
+    .ranking-name { font-weight: 700; font-size: 13px; color: #0F172A; }
+    .ranking-stats { font-size: 11px; color: #64748B; }
+    .ranking-bar { height: 6px; background: #E2E8F0; border-radius: 3px; overflow: hidden; }
+    .ranking-fill { height: 100%; border-radius: 3px; transition: width 0.3s; }
     .fill-hot { background: #F97316; }
     .fill-popular { background: #F59E0B; }
     .fill-normal { background: #10B981; }
     .fill-low { background: #EF4444; }
 
-    .ranking-badge {
-      font-size: 10px;
-      font-weight: 700;
-      padding: 2px 8px;
-      border-radius: 20px;
-      margin-left: 6px;
-    }
-
+    .ranking-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 20px; margin-left: 6px; }
     .badge-hot { background: #FEF2F2; color: #DC2626; }
     .badge-popular { background: #FEF3C7; color: #D97706; }
     .badge-normal { background: #ECFDF5; color: #059669; }
     .badge-low { background: #FEF2F2; color: #DC2626; }
 
-    /* Paginação */
     .pagination {
       display: flex;
       justify-content: center;
@@ -514,29 +318,11 @@
       transition: all 0.2s;
     }
 
-    .page-btn:hover {
-      background: #F1F5F9;
-      border-color: #CBD5E1;
-    }
+    .page-btn:hover { background: #F1F5F9; border-color: #CBD5E1; }
+    .page-btn.active { background: #7C3FA0; color: white; border-color: #7C3FA0; }
+    .page-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .page-btn.active {
-      background: #7C3FA0;
-      color: white;
-      border-color: #7C3FA0;
-    }
-
-    .page-btn:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    /* Botões exportar */
-    .export-buttons {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
+    .export-buttons { display: flex; gap: 10px; flex-wrap: wrap; }
     .export-btn {
       background: #F1F5F9;
       border: 1px solid #E2E8F0;
@@ -551,22 +337,10 @@
       align-items: center;
       gap: 6px;
     }
+    .export-btn:hover { background: #E2E8F0; }
+    .refresh-btn { background: #7C3FA0; color: white; border: none; }
+    .refresh-btn:hover { background: #6B2F8E; }
 
-    .export-btn:hover {
-      background: #E2E8F0;
-    }
-
-    .refresh-btn {
-      background: #7C3FA0;
-      color: white;
-      border: none;
-    }
-
-    .refresh-btn:hover {
-      background: #6B2F8E;
-    }
-
-    /* Alerta */
     .alert-card {
       background: #FEF2F2;
       border: 1px solid #FECACA;
@@ -575,15 +349,8 @@
       margin-top: 16px;
       width: 100%;
     }
+    .alert-title { font-weight: 700; font-size: 13px; color: #DC2626; margin-bottom: 6px; }
 
-    .alert-title {
-      font-weight: 700;
-      font-size: 13px;
-      color: #DC2626;
-      margin-bottom: 6px;
-    }
-
-    /* Gráficos - OCUPAM 100% DA LARGURA */
     .graficos-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
@@ -591,22 +358,68 @@
       margin-bottom: 20px;
       width: 100%;
     }
+    @media (max-width: 900px) { .graficos-grid { grid-template-columns: 1fr; } }
+    canvas { max-height: 250px; width: 100%; }
 
-    @media (max-width: 900px) {
-      .graficos-grid {
-        grid-template-columns: 1fr;
-      }
+    /* Landing specific styles */
+    .landing-stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
     }
+    @media (max-width: 1000px) { .landing-stats-grid { grid-template-columns: repeat(3, 1fr); } }
+    @media (max-width: 600px) { .landing-stats-grid { grid-template-columns: repeat(2, 1fr); } }
 
-    canvas {
-      max-height: 250px;
-      width: 100%;
+    .click-chart {
+      background: #F8FAFC;
+      border-radius: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    .click-chart-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0F172A;
+      margin-bottom: 12px;
+    }
+    .click-bar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .click-bar-label {
+      width: 180px;
+      font-size: 12px;
+      color: #475569;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .click-bar-fill {
+      flex: 1;
+      height: 28px;
+      background: #E2E8F0;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .click-bar-progress {
+      height: 100%;
+      background: linear-gradient(90deg, #7C3FA0, #9B4DC8);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 8px;
+      color: white;
+      font-size: 11px;
+      font-weight: 700;
     }
   </style>
 </head>
 <body>
 
-<!-- TELA DE LOGIN -->
 <div id="login-container" class="login-container">
   <div class="login-box">
     <h2>📊 OdontoDex Admin</h2>
@@ -618,10 +431,8 @@
   </div>
 </div>
 
-<!-- DASHBOARD PRINCIPAL -->
 <div id="dashboard-container" class="dashboard-container">
   
-  <!-- MENU LATERAL COLAPSÁVEL -->
   <div id="sidebar" class="sidebar expanded">
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
     <div class="sidebar-logo">
@@ -629,34 +440,20 @@
       <p>Admin Dashboard</p>
     </div>
     <div class="sidebar-menu">
-      <div class="sidebar-item active" data-section="dashboard">
-        <span>📊</span><span>Dashboard</span>
-      </div>
-      <div class="sidebar-item" data-section="usuarios">
-        <span>👥</span><span>Usuários</span>
-      </div>
-      <div class="sidebar-item" data-section="rankings">
-        <span>🏆</span><span>Rankings</span>
-      </div>
-      <div class="sidebar-item" data-section="graficos">
-        <span>📈</span><span>Gráficos</span>
-      </div>
-      <div class="sidebar-item" data-section="exportar">
-        <span>📥</span><span>Exportar</span>
-      </div>
+      <div class="sidebar-item active" data-section="dashboard"><span>📊</span><span>Dashboard</span></div>
+      <div class="sidebar-item" data-section="usuarios"><span>👥</span><span>Usuários</span></div>
+      <div class="sidebar-item" data-section="rankings"><span>🏆</span><span>Rankings</span></div>
+      <div class="sidebar-item" data-section="landing"><span>🌐</span><span>Landing Page</span></div>
+      <div class="sidebar-item" data-section="graficos"><span>📈</span><span>Gráficos</span></div>
+      <div class="sidebar-item" data-section="exportar"><span>📥</span><span>Exportar</span></div>
     </div>
     <div class="sidebar-footer">
-      <div class="logout-sidebar" onclick="logout()">
-        <span>🚪</span><span>Sair</span>
-      </div>
+      <div class="logout-sidebar" onclick="logout()"><span>🚪</span><span>Sair</span></div>
     </div>
   </div>
 
-  <!-- CONTEÚDO PRINCIPAL -->
   <div class="main-content">
-    <div id="content-area">
-      <!-- O conteúdo é carregado dinamicamente aqui -->
-    </div>
+    <div id="content-area"></div>
   </div>
 </div>
 
@@ -683,9 +480,10 @@
   let currentSort = { field: 'usos', order: 'desc' };
   let searchTerm = '';
   let currentSection = 'dashboard';
+  let cachedDados = null;
+  let cachedLandingStats = null;
   
   const ADMIN_EMAILS = ["pedrosimplicio.sousa@gmail.com"];
-  let cachedDados = null;
   
   // ========== LOGIN ==========
   async function doAdminLogin() {
@@ -707,6 +505,7 @@
       document.getElementById('dashboard-container').style.display = 'flex';
       
       await carregarDados();
+      await carregarLandingStats();
       renderizarSecaoAtual();
       
     } catch(e) {
@@ -714,7 +513,6 @@
     }
   }
   
-  // ========== TOGGLE MENU ==========
   function toggleSidebar() {
     const sidebar = document.getElementById('sidebar');
     if (sidebar.classList.contains('expanded')) {
@@ -730,10 +528,14 @@
         if (charts.dias) charts.dias.resize();
         if (charts.mensal) charts.mensal.resize();
       }
+      if (currentSection === 'landing' && charts.landingVisitas) {
+        if (charts.landingVisitas) charts.landingVisitas.resize();
+        if (charts.landingClicks) charts.landingClicks.resize();
+      }
     }, 300);
   }
   
-  // ========== CARREGAR DADOS ==========
+  // ========== CARREGAR DADOS DO APP ==========
   async function carregarDados() {
     try {
       const agora = new Date();
@@ -841,6 +643,145 @@
     }
   }
   
+  // ========== CARREGAR DADOS DA LANDING PAGE ==========
+  async function carregarLandingStats() {
+    try {
+      const agora = new Date();
+      const ultimos30Dias = new Date();
+      ultimos30Dias.setDate(agora.getDate() - 30);
+      
+      // Buscar todos os eventos da landing page dos últimos 30 dias
+      const snapshot = await db.collection('landing_stats')
+        .orderBy('timestamp', 'desc')
+        .limit(10000)
+        .get();
+      
+      const stats = {
+        totalVisitas: 0,
+        visitasUnicas: new Set(),
+        eventos: {},
+        eventosPorDia: {},
+        cliquesPorCta: {},
+        scrollDepth: { 25: 0, 50: 0, 75: 0, 100: 0 },
+        sources: {},
+        devices: {},
+        tempoMedio: 0,
+        temposTotais: [],
+        sessionDurations: [],
+        secoesVistas: {},
+        timerClicks: { total: 0, tempos: [] }
+      };
+      
+      let eventosPorData = {};
+      
+      snapshot.forEach(doc => {
+        const data = doc.data();
+        const dataStr = data.timestamp?.toDate?.()?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0];
+        
+        // Total de visitas (page_view)
+        if (data.event === 'page_view') {
+          stats.totalVisitas++;
+          stats.visitasUnicas.add(data.sessionId);
+          
+          if (!eventosPorData[dataStr]) eventosPorData[dataStr] = {};
+          eventosPorData[dataStr].visitas = (eventosPorData[dataStr].visitas || 0) + 1;
+          
+          // Source tracking
+          if (data.source) {
+            stats.sources[data.source] = (stats.sources[data.source] || 0) + 1;
+          }
+          
+          // Device tracking
+          if (data.deviceType) {
+            stats.devices[data.deviceType] = (stats.devices[data.deviceType] || 0) + 1;
+          }
+        }
+        
+        // Contagem de eventos por tipo
+        stats.eventos[data.event] = (stats.eventos[data.event] || 0) + 1;
+        
+        // Cliques por CTA
+        if (data.event && data.event.startsWith('click_')) {
+          stats.cliquesPorCta[data.event] = (stats.cliquesPorCta[data.event] || 0) + 1;
+          
+          if (!eventosPorData[dataStr]) eventosPorData[dataStr] = {};
+          eventosPorData[dataStr].cliques = (eventosPorData[dataStr].cliques || 0) + 1;
+        }
+        
+        // Scroll depth
+        if (data.event === 'scroll_25') stats.scrollDepth[25]++;
+        if (data.event === 'scroll_50') stats.scrollDepth[50]++;
+        if (data.event === 'scroll_75') stats.scrollDepth[75]++;
+        if (data.event === 'scroll_100') stats.scrollDepth[100]++;
+        
+        // Section views
+        if (data.event === 'section_view' && data.section) {
+          stats.secoesVistas[data.section] = (stats.secoesVistas[data.section] || 0) + 1;
+        }
+        
+        // Tempo na página
+        if (data.event === 'exit' && data.timeOnPageSeconds) {
+          stats.temposTotais.push(data.timeOnPageSeconds);
+        }
+        
+        // Timer clicks
+        if (data.event === 'timer_click' && data.timeToClickSeconds) {
+          stats.timerClicks.total++;
+          stats.timerClicks.tempos.push(data.timeToClickSeconds);
+        }
+      });
+      
+      // Calcular tempo médio
+      if (stats.temposTotais.length > 0) {
+        const total = stats.temposTotais.reduce((a, b) => a + b, 0);
+        stats.tempoMedio = Math.round(total / stats.temposTotais.length);
+      }
+      
+      // Calcular tempo médio até clicar no timer
+      if (stats.timerClicks.tempos.length > 0) {
+        const total = stats.timerClicks.tempos.reduce((a, b) => a + b, 0);
+        stats.timerClicks.tempoMedio = Math.round(total / stats.timerClicks.tempos.length);
+      }
+      
+      // Calcular taxa de conversão (cliques no assinar / visitas)
+      const cliquesAssinar = stats.cliquesPorCta['click_assinar_premium'] || 0;
+      stats.taxaConversaoLanding = stats.totalVisitas > 0 ? Math.round((cliquesAssinar / stats.totalVisitas) * 100) : 0;
+      
+      // Calcular cliques por visita
+      const totalCliques = Object.values(stats.cliquesPorCta).reduce((a, b) => a + b, 0);
+      stats.cliquesPorVisita = stats.totalVisitas > 0 ? (totalCliques / stats.totalVisitas).toFixed(2) : 0;
+      
+      // Visitas por dia para o gráfico
+      stats.visitasPorDia = Object.entries(eventosPorData).map(([data, valores]) => ({
+        data,
+        visitas: valores.visitas || 0,
+        cliques: valores.cliques || 0
+      })).sort((a, b) => a.data.localeCompare(b.data)).slice(-30);
+      
+      stats.usuariosUnicos = stats.visitasUnicas.size;
+      
+      cachedLandingStats = stats;
+      
+    } catch (error) {
+      console.error("Erro ao carregar dados da landing page:", error);
+      cachedLandingStats = {
+        totalVisitas: 0,
+        usuariosUnicos: 0,
+        eventos: {},
+        cliquesPorCta: {},
+        scrollDepth: { 25: 0, 50: 0, 75: 0, 100: 0 },
+        sources: {},
+        devices: {},
+        tempoMedio: 0,
+        secoesVistas: {},
+        timerClicks: { total: 0, tempoMedio: 0 },
+        taxaConversaoLanding: 0,
+        cliquesPorVisita: 0,
+        visitasPorDia: []
+      };
+    }
+  }
+  
   function aplicarFiltroOrdenacao() {
     let filtered = [...dadosUsuarios];
     
@@ -903,6 +844,10 @@
         break;
       case 'rankings':
         area.innerHTML = renderRankings();
+        break;
+      case 'landing':
+        area.innerHTML = renderLandingPage();
+        setTimeout(() => renderLandingCharts(), 100);
         break;
       case 'graficos':
         area.innerHTML = renderGraficos();
@@ -1014,7 +959,7 @@
                   <td><span class="${user.premium ? 'badge-premium' : 'badge-free'}">${user.premium ? '💎 Premium' : '🆓 Free'}</span></td>
                   <td><strong>${user.usos}</strong> ${user.usos === 0 ? '⚠️' : user.usos > 50 ? '🔥' : ''}</td>
                   <td>${user.criadoEm ? new Date(user.criadoEm).toLocaleDateString() : '-'}</td>
-                </tr>
+                 </tr>
               `).join('')}
               ${paginated.length === 0 ? '<tr><td colspan="5" style="text-align: center;">Nenhum usuário encontrado</td>' : ''}
             </tbody>
@@ -1113,6 +1058,204 @@
     `;
   }
   
+  function renderLandingPage() {
+    if (!cachedLandingStats) return '<div class="section">Carregando dados da Landing Page...</div>';
+    
+    const l = cachedLandingStats;
+    
+    // Ordenar cliques por CTA para exibição
+    const sortedClicks = Object.entries(l.cliquesPorCta)
+      .sort((a, b) => b[1] - a[1]);
+    
+    // Ordenar fontes
+    const sortedSources = Object.entries(l.sources)
+      .sort((a, b) => b[1] - a[1]);
+    
+    // Formatar tempo médio
+    const formatTime = (seconds) => {
+      if (!seconds) return '0s';
+      const mins = Math.floor(seconds / 60);
+      const secs = seconds % 60;
+      return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+    };
+    
+    return `
+      <div class="content-header">
+        <h1>🌐 Landing Page Analytics</h1>
+        <p>Métricas de performance da página de vendas</p>
+      </div>
+      
+      <div class="landing-stats-grid">
+        <div class="stat-card"><div class="stat-icon">👁️</div><div class="stat-number">${l.totalVisitas}</div><div class="stat-label">Total de Visitas</div></div>
+        <div class="stat-card"><div class="stat-icon">🆔</div><div class="stat-number">${l.usuariosUnicos}</div><div class="stat-label">Usuários Únicos</div></div>
+        <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-number">${l.taxaConversaoLanding}%</div><div class="stat-label">Taxa de Conversão</div></div>
+        <div class="stat-card"><div class="stat-icon">🖱️</div><div class="stat-number">${l.cliquesPorVisita}</div><div class="stat-label">Cliques por Visita</div></div>
+        <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-number">${formatTime(l.tempoMedio)}</div><div class="stat-label">Tempo Médio na Página</div></div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title"><span>🖱️</span> CLIQUE NOS CTAs</div>
+        ${sortedClicks.length > 0 ? `
+          <div class="click-chart">
+            ${sortedClicks.map(([cta, count]) => {
+              const maxCount = sortedClicks[0][1];
+              const width = maxCount > 0 ? (count / maxCount) * 100 : 0;
+              let ctaLabel = cta.replace('click_', '').replace(/_/g, ' ');
+              return `
+                <div class="click-bar">
+                  <div class="click-bar-label">📌 ${ctaLabel}</div>
+                  <div class="click-bar-fill">
+                    <div class="click-bar-progress" style="width: ${width}%">${count}</div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        ` : '<p style="color:#64748B;">Nenhum clique registrado ainda.</p>'}
+      </div>
+      
+      <div class="graficos-grid">
+        <div class="section">
+          <div class="section-title"><span>📱</span> DISPOSITIVOS</div>
+          <div class="click-chart">
+            ${Object.entries(l.devices).map(([device, count]) => {
+              const maxCount = Math.max(...Object.values(l.devices), 1);
+              const width = (count / maxCount) * 100;
+              const icons = { desktop: '🖥️', mobile: '📱', tablet: '📟' };
+              return `
+                <div class="click-bar">
+                  <div class="click-bar-label">${icons[device] || '💻'} ${device}</div>
+                  <div class="click-bar-fill">
+                    <div class="click-bar-progress" style="width: ${width}%">${count}</div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title"><span>🌐</span> FONTE DE TRÁFEGO</div>
+          <div class="click-chart">
+            ${sortedSources.slice(0, 5).map(([source, count]) => {
+              const maxCount = sortedSources[0][1];
+              const width = maxCount > 0 ? (count / maxCount) * 100 : 0;
+              const icons = { direct: '🔗', google: '🔍', facebook: '📘', instagram: '📸', linkedin: '💼', referrer: '↪️' };
+              return `
+                <div class="click-bar">
+                  <div class="click-bar-label">${icons[source] || '🌍'} ${source}</div>
+                  <div class="click-bar-fill">
+                    <div class="click-bar-progress" style="width: ${width}%">${count}</div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+      </div>
+      
+      <div class="graficos-grid">
+        <div class="section">
+          <div class="section-title"><span>📜</span> SCROLL DEPTH</div>
+          <div class="click-chart">
+            ${[25, 50, 75, 100].map(p => {
+              const count = l.scrollDepth[p] || 0;
+              const percent = l.totalVisitas > 0 ? Math.round((count / l.totalVisitas) * 100) : 0;
+              return `
+                <div class="click-bar">
+                  <div class="click-bar-label">📏 ${p}% da página</div>
+                  <div class="click-bar-fill">
+                    <div class="click-bar-progress" style="width: ${percent}%">${percent}%</div>
+                  </div>
+                </div>
+              `;
+            }).join('')}
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title"><span>⏰</span> TIMER DA OFERTA</div>
+          <div class="click-chart">
+            <div class="click-bar">
+              <div class="click-bar-label">⏱️ Cliques durante oferta</div>
+              <div class="click-bar-fill">
+                <div class="click-bar-progress" style="width: ${Math.min(l.timerClicks.total * 5, 100)}%">${l.timerClicks.total}</div>
+              </div>
+            </div>
+            ${l.timerClicks.tempoMedio ? `
+            <div class="click-bar">
+              <div class="click-bar-label">⚡ Tempo médio até clicar</div>
+              <div class="click-bar-fill">
+                <div class="click-bar-progress" style="width: ${Math.min((l.timerClicks.tempoMedio / 60) * 100, 100)}%">${formatTime(l.timerClicks.tempoMedio)}</div>
+              </div>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title"><span>📊</span> VISITAS E CLiques POR DIA (Últimos 30 dias)</div>
+        <canvas id="grafico-landing-visitas" height="200"></canvas>
+      </div>
+      
+      <div class="section">
+        <div class="section-title"><span>🎯</span> SEÇÕES MAIS VISUALIZADAS</div>
+        <div class="click-chart">
+          ${Object.entries(l.secoesVistas).sort((a, b) => b[1] - a[1]).map(([secao, count]) => {
+            const maxCount = Math.max(...Object.values(l.secoesVistas), 1);
+            const width = (count / maxCount) * 100;
+            const icons = { problema: '❓', solucao: '💡', planos: '💰', faq: '❔' };
+            return `
+              <div class="click-bar">
+                <div class="click-bar-label">${icons[secao] || '📌'} ${secao}</div>
+                <div class="click-bar-fill">
+                  <div class="click-bar-progress" style="width: ${width}%">${count}</div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+      </div>
+    `;
+  }
+  
+  function renderLandingCharts() {
+    if (!cachedLandingStats) return;
+    const l = cachedLandingStats;
+    
+    // Gráfico de visitas por dia
+    const ctxVisitas = document.getElementById('grafico-landing-visitas')?.getContext('2d');
+    if (ctxVisitas) {
+      if (charts.landingVisitas) charts.landingVisitas.destroy();
+      charts.landingVisitas = new Chart(ctxVisitas, {
+        type: 'line',
+        data: {
+          labels: l.visitasPorDia.map(d => d.data.substring(5)),
+          datasets: [
+            {
+              label: 'Visitas',
+              data: l.visitasPorDia.map(d => d.visitas),
+              borderColor: '#7C3FA0',
+              backgroundColor: 'rgba(124,63,160,0.1)',
+              fill: true,
+              tension: 0.3
+            },
+            {
+              label: 'Cliques',
+              data: l.visitasPorDia.map(d => d.cliques),
+              borderColor: '#F59E0B',
+              backgroundColor: 'rgba(245,158,11,0.1)',
+              fill: true,
+              tension: 0.3
+            }
+          ]
+        },
+        options: { responsive: true, maintainAspectRatio: true }
+      });
+    }
+  }
+  
   function renderGraficos() {
     return `
       <div class="content-header">
@@ -1188,7 +1331,8 @@
           <button class="export-btn" onclick="exportarCSV()">📄 Exportar CSV</button>
           <button class="export-btn json" onclick="exportarJSON()" style="background:#3B82F6; color:white;">📦 Exportar JSON</button>
           <button class="export-btn" onclick="exportarUsuariosCSV()" style="background:#7C3FA0; color:white;">👥 Exportar Usuários</button>
-          <button class="export-btn refresh-btn" onclick="carregarDados().then(() => renderizarSecaoAtual())">⟳ Atualizar Dados</button>
+          <button class="export-btn" onclick="exportarLandingCSV()" style="background:#10B981; color:white;">🌐 Exportar Landing Stats</button>
+          <button class="export-btn refresh-btn" onclick="refreshData()">⟳ Atualizar Dados</button>
         </div>
       </div>
       
@@ -1266,13 +1410,49 @@
     URL.revokeObjectURL(url);
   }
   
+  async function exportarLandingCSV() {
+    const snapshot = await db.collection('landing_stats').orderBy('timestamp', 'desc').limit(10000).get();
+    const headers = ['Data', 'Evento', 'SessionId', 'Dispositivo', 'Fonte', 'Detalhes'];
+    const rows = [headers];
+    snapshot.forEach(doc => {
+      const d = doc.data();
+      const dataStr = d.timestamp?.toDate?.()?.toLocaleString() || '-';
+      let detalhes = '';
+      if (d.event === 'click_cta') detalhes = d.elementText || '';
+      if (d.event === 'section_view') detalhes = d.section || '';
+      if (d.event === 'exit') detalhes = `${d.timeOnPageSeconds}s na página`;
+      if (d.event === 'timer_click') detalhes = `${d.timeToClickSeconds}s até clicar`;
+      rows.push([
+        dataStr,
+        d.event || '-',
+        d.sessionId || '-',
+        d.deviceType || '-',
+        d.source || '-',
+        detalhes
+      ]);
+    });
+    const csv = rows.map(row => row.join(',')).join('\n');
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `odontodex_landing_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  
+  async function refreshData() {
+    await carregarDados();
+    await carregarLandingStats();
+    renderizarSecaoAtual();
+  }
+  
   function logout() {
     auth.signOut();
     document.getElementById('login-container').style.display = 'flex';
     document.getElementById('dashboard-container').style.display = 'none';
   }
   
-  // ========== NAVEGAÇÃO DO MENU ==========
   function initMenu() {
     document.querySelectorAll('.sidebar-item').forEach(item => {
       item.addEventListener('click', () => {
@@ -1292,6 +1472,7 @@
       document.getElementById('dashboard-container').style.display = 'flex';
       initMenu();
       await carregarDados();
+      await carregarLandingStats();
       renderizarSecaoAtual();
     } else if (user) {
       await auth.signOut();
@@ -1309,6 +1490,8 @@
   window.exportarCSV = exportarCSV;
   window.exportarJSON = exportarJSON;
   window.exportarUsuariosCSV = exportarUsuariosCSV;
+  window.exportarLandingCSV = exportarLandingCSV;
+  window.refreshData = refreshData;
   window.logout = logout;
 </script>
 </body>
