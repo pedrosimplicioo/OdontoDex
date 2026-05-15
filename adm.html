@@ -211,7 +211,7 @@
     }
 
     @media (max-width: 1000px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 500px) { .stats-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
 
     .stat-card {
       background: white;
@@ -416,6 +416,37 @@
       font-size: 11px;
       font-weight: 700;
     }
+    .insight-card {
+      background: #F0FDF4;
+      border: 1px solid #BBF7D0;
+      border-radius: 16px;
+      padding: 14px;
+      margin-top: 16px;
+    }
+    .insight-title {
+      font-weight: 800;
+      font-size: 13px;
+      color: #166534;
+      margin-bottom: 8px;
+    }
+    .insight-text {
+      font-size: 12px;
+      color: #14532D;
+      line-height: 1.5;
+    }
+    .warning-card {
+      background: #FEF3C7;
+      border: 1px solid #FDE68A;
+      border-radius: 16px;
+      padding: 14px;
+      margin-top: 16px;
+    }
+    .warning-title {
+      font-weight: 800;
+      font-size: 13px;
+      color: #92400E;
+      margin-bottom: 8px;
+    }
   </style>
 </head>
 <body>
@@ -441,6 +472,7 @@
     </div>
     <div class="sidebar-menu">
       <div class="sidebar-item active" data-section="dashboard"><span>📊</span><span>Dashboard</span></div>
+      <div class="sidebar-item" data-section="metricas"><span>📈</span><span>Métricas de Produto</span></div>
       <div class="sidebar-item" data-section="usuarios"><span>👥</span><span>Usuários</span></div>
       <div class="sidebar-item" data-section="rankings"><span>🏆</span><span>Rankings</span></div>
       <div class="sidebar-item" data-section="landing"><span>🌐</span><span>Landing Page</span></div>
@@ -482,6 +514,7 @@
   let currentSection = 'dashboard';
   let cachedDados = null;
   let cachedLandingStats = null;
+  let cachedMetricasProduto = null;
   
   const ADMIN_EMAILS = ["pedrosimplicio.sousa@gmail.com"];
   
@@ -506,6 +539,7 @@
       
       await carregarDados();
       await carregarLandingStats();
+      await carregarMetricasProduto();
       renderizarSecaoAtual();
       
     } catch(e) {
@@ -530,7 +564,6 @@
       }
       if (currentSection === 'landing' && charts.landingVisitas) {
         if (charts.landingVisitas) charts.landingVisitas.resize();
-        if (charts.landingClicks) charts.landingClicks.resize();
       }
     }, 300);
   }
@@ -557,6 +590,9 @@
           nome: userData.nome || userData.displayName || '-',
           premium: isPremium,
           criadoEm: userData.criadoEm || userData.criado_em || null,
+          dataPrimeiroAcesso: userData.dataPrimeiroAcesso || null,
+          ultimoAcesso: userData.ultimoAcesso || null,
+          acessosPorDia: userData.acessosPorDia || {},
           usos: 0
         });
       });
@@ -643,6 +679,204 @@
     }
   }
   
+  // ========== CARREGAR MÉTRICAS DE PRODUTO ==========
+  async function carregarMetricasProduto() {
+    try {
+      const hoje = new Date();
+      const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+      
+      // Buscar usuários
+      const usersSnapshot = await db.collection('users').get();
+      const usuarios = [];
+      usersSnapshot.forEach(doc => {
+        const userData = doc.data();
+        usuarios.push({
+          id: doc.id,
+          dataPrimeiroAcesso: userData.dataPrimeiroAcesso?.toDate() || null,
+          ultimoAcesso: userData.ultimoAcesso?.toDate() || null,
+          acessosPorDia: userData.acessosPorDia || {},
+          premium: userData.premium === true
+        });
+      });
+      
+      // Buscar ações dos usuários
+      const noventaDiasAtras = new Date();
+      noventaDiasAtras.setDate(noventaDiasAtras.getDate() - 90);
+      
+      const actionsSnapshot = await db.collection('user_actions')
+        .where('timestamp', '>=', noventaDiasAtras)
+        .get();
+      
+      const userActions = {};
+      actionsSnapshot.forEach(doc => {
+        const data = doc.data();
+        if (!userActions[data.userId]) {
+          userActions[data.userId] = [];
+        }
+        userActions[data.userId].push({
+          actionType: data.actionType,
+          timestamp: data.timestamp?.toDate() || new Date(),
+          details: data
+        });
+      });
+      
+      // Calcular métricas
+      const metricas = {
+        // Ativação
+        totalNovosUltimos30: 0,
+        ativadosUltimos30: 0,
+        taxaAtivacao: 0,
+        acaoAtivacao: { open_protocol: 0, search: 0, favorite: 0, forceps: 0, diagnostico: 0 },
+        
+        // Retenção
+        coortes: {},
+        
+        // Momento AHA
+        primeiroAcaoRetornantes: {},
+        
+        // Profundidade de uso
+        scores: [],
+        
+        // Tipo de uso
+        tipoUso: { passivo: 0, hibrido: 0, interativo: 0 }
+      };
+      
+      const trintaDiasAtras = new Date();
+      trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
+      
+      usuarios.forEach(user => {
+        // Verificar se é novo usuário nos últimos 30 dias
+        if (user.dataPrimeiroAcesso && user.dataPrimeiroAcesso >= trintaDiasAtras) {
+          metricas.totalNovosUltimos30++;
+          
+          // Verificar se foi ativado (usou pelo menos 1 protocolo)
+          const userActionsList = userActions[user.id] || [];
+          const usouProtocolo = userActionsList.some(a => a.actionType === 'open_protocol');
+          const usouBusca = userActionsList.some(a => a.actionType === 'search');
+          const usouFavorito = userActionsList.some(a => a.actionType === 'favorite');
+          const usouForceps = userActionsList.some(a => a.actionType === 'forceps');
+          const usouDiagnostico = userActionsList.some(a => a.actionType === 'diagnostico');
+          
+          const ativado = usouProtocolo || usouBusca;
+          if (ativado) {
+            metricas.ativadosUltimos30++;
+            if (usouProtocolo) metricas.acaoAtivacao.open_protocol++;
+            if (usouBusca) metricas.acaoAtivacao.search++;
+            if (usouFavorito) metricas.acaoAtivacao.favorite++;
+            if (usouForceps) metricas.acaoAtivacao.forceps++;
+            if (usouDiagnostico) metricas.acaoAtivacao.diagnostico++;
+          }
+        }
+        
+        // Calcular retenção por coorte (mês)
+        if (user.dataPrimeiroAcesso) {
+          const coorteKey = `${user.dataPrimeiroAcesso.getFullYear()}-${user.dataPrimeiroAcesso.getMonth()+1}`;
+          if (!metricas.coortes[coorteKey]) {
+            metricas.coortes[coorteKey] = { total: 0, d1: 0, d7: 0, d30: 0 };
+          }
+          metricas.coortes[coorteKey].total++;
+          
+          // Verificar retenção
+          const userActionsList = userActions[user.id] || [];
+          const acessoDias = Object.keys(user.acessosPorDia).map(d => new Date(d));
+          
+          // D1: voltou no dia seguinte
+          const diaSeguinte = new Date(user.dataPrimeiroAcesso);
+          diaSeguinte.setDate(diaSeguinte.getDate() + 1);
+          const voltouD1 = acessoDias.some(d => d.toDateString() === diaSeguinte.toDateString());
+          if (voltouD1) metricas.coortes[coorteKey].d1++;
+          
+          // D7: voltou no dia 7
+          const dia7 = new Date(user.dataPrimeiroAcesso);
+          dia7.setDate(dia7.getDate() + 7);
+          const voltouD7 = acessoDias.some(d => d.toDateString() === dia7.toDateString());
+          if (voltouD7) metricas.coortes[coorteKey].d7++;
+          
+          // D30: voltou no dia 30
+          const dia30 = new Date(user.dataPrimeiroAcesso);
+          dia30.setDate(dia30.getDate() + 30);
+          const voltouD30 = acessoDias.some(d => d.toDateString() === dia30.toDateString());
+          if (voltouD30) metricas.coortes[coorteKey].d30++;
+        }
+        
+        // Momento AHA: para usuários que retornaram, qual foi a PRIMEIRA ação?
+        if (user.ultimoAcesso && user.dataPrimeiroAcesso && user.ultimoAcesso > user.dataPrimeiroAcesso) {
+          const userActionsList = (userActions[user.id] || []).sort((a,b) => a.timestamp - b.timestamp);
+          const primeiraAcao = userActionsList[0];
+          if (primeiraAcao) {
+            metricas.primeiroAcaoRetornantes[primeiraAcao.actionType] = (metricas.primeiroAcaoRetornantes[primeiraAcao.actionType] || 0) + 1;
+          }
+        }
+        
+        // Profundidade de uso (score 0-100)
+        const userActionsList = userActions[user.id] || [];
+        const protocolosCount = userActionsList.filter(a => a.actionType === 'open_protocol').length;
+        const buscasCount = userActionsList.filter(a => a.actionType === 'search').length;
+        const favoritosCount = userActionsList.filter(a => a.actionType === 'favorite').length;
+        const forcepsCount = userActionsList.filter(a => a.actionType === 'forceps').length;
+        const diagnosticoCount = userActionsList.filter(a => a.actionType === 'diagnostico').length;
+        
+        let score = 0;
+        if (protocolosCount >= 5) score += 20;
+        if (protocolosCount >= 10) score += 20;
+        if (buscasCount >= 3) score += 15;
+        if (favoritosCount >= 3) score += 15;
+        if (forcepsCount >= 1) score += 15;
+        if (diagnosticoCount >= 1) score += 15;
+        metricas.scores.push(score);
+        
+        // Tipo de uso
+        const temInterativo = buscasCount > 0 || favoritosCount > 0 || forcepsCount > 0 || diagnosticoCount > 0;
+        const temPassivo = protocolosCount > 0;
+        
+        if (temPassivo && !temInterativo) metricas.tipoUso.passivo++;
+        else if (temPassivo && temInterativo) metricas.tipoUso.hibrido++;
+        else if (!temPassivo && temInterativo) metricas.tipoUso.interativo++;
+      });
+      
+      metricas.taxaAtivacao = metricas.totalNovosUltimos30 > 0 ? Math.round((metricas.ativadosUltimos30 / metricas.totalNovosUltimos30) * 100) : 0;
+      
+      // Calcular média de profundidade
+      metricas.mediaProfundidade = metricas.scores.length > 0 ? Math.round(metricas.scores.reduce((a,b) => a+b, 0) / metricas.scores.length) : 0;
+      metricas.distribuicaoProfundidade = {
+        baixo: metricas.scores.filter(s => s <= 30).length,
+        medio: metricas.scores.filter(s => s > 30 && s <= 70).length,
+        alto: metricas.scores.filter(s => s > 70).length
+      };
+      
+      // Descobrir Momento AHA campeão
+      let ahaCampeao = '';
+      let ahaMax = 0;
+      for (const [acao, count] of Object.entries(metricas.primeiroAcaoRetornantes)) {
+        if (count > ahaMax) {
+          ahaMax = count;
+          ahaCampeao = acao;
+        }
+      }
+      metricas.ahaCampeao = ahaCampeao;
+      metricas.ahaPercentual = ahaMax > 0 ? Math.round((ahaMax / Object.values(metricas.primeiroAcaoRetornantes).reduce((a,b) => a+b, 0)) * 100) : 0;
+      
+      cachedMetricasProduto = metricas;
+      
+    } catch (error) {
+      console.error("Erro ao carregar métricas de produto:", error);
+      cachedMetricasProduto = {
+        totalNovosUltimos30: 0,
+        ativadosUltimos30: 0,
+        taxaAtivacao: 0,
+        acaoAtivacao: {},
+        coortes: {},
+        primeiroAcaoRetornantes: {},
+        scores: [],
+        tipoUso: { passivo: 0, hibrido: 0, interativo: 0 },
+        mediaProfundidade: 0,
+        distribuicaoProfundidade: { baixo: 0, medio: 0, alto: 0 },
+        ahaCampeao: '',
+        ahaPercentual: 0
+      };
+    }
+  }
+  
   // ========== CARREGAR DADOS DA LANDING PAGE ==========
   async function carregarLandingStats() {
     try {
@@ -650,7 +884,6 @@
       const ultimos30Dias = new Date();
       ultimos30Dias.setDate(agora.getDate() - 30);
       
-      // Buscar todos os eventos da landing page dos últimos 30 dias
       const snapshot = await db.collection('landing_stats')
         .orderBy('timestamp', 'desc')
         .limit(10000)
@@ -669,7 +902,8 @@
         temposTotais: [],
         sessionDurations: [],
         secoesVistas: {},
-        timerClicks: { total: 0, tempos: [] }
+        timerClicks: { total: 0, tempos: [] },
+        bounces: 0
       };
       
       let eventosPorData = {};
@@ -678,7 +912,6 @@
         const data = doc.data();
         const dataStr = data.timestamp?.toDate?.()?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0];
         
-        // Total de visitas (page_view)
         if (data.event === 'page_view') {
           stats.totalVisitas++;
           stats.visitasUnicas.add(data.sessionId);
@@ -686,21 +919,12 @@
           if (!eventosPorData[dataStr]) eventosPorData[dataStr] = {};
           eventosPorData[dataStr].visitas = (eventosPorData[dataStr].visitas || 0) + 1;
           
-          // Source tracking
-          if (data.source) {
-            stats.sources[data.source] = (stats.sources[data.source] || 0) + 1;
-          }
-          
-          // Device tracking
-          if (data.deviceType) {
-            stats.devices[data.deviceType] = (stats.devices[data.deviceType] || 0) + 1;
-          }
+          if (data.source) stats.sources[data.source] = (stats.sources[data.source] || 0) + 1;
+          if (data.deviceType) stats.devices[data.deviceType] = (stats.devices[data.deviceType] || 0) + 1;
         }
         
-        // Contagem de eventos por tipo
         stats.eventos[data.event] = (stats.eventos[data.event] || 0) + 1;
         
-        // Cliques por CTA
         if (data.event && data.event.startsWith('click_')) {
           stats.cliquesPorCta[data.event] = (stats.cliquesPorCta[data.event] || 0) + 1;
           
@@ -708,50 +932,47 @@
           eventosPorData[dataStr].cliques = (eventosPorData[dataStr].cliques || 0) + 1;
         }
         
-        // Scroll depth
         if (data.event === 'scroll_25') stats.scrollDepth[25]++;
         if (data.event === 'scroll_50') stats.scrollDepth[50]++;
         if (data.event === 'scroll_75') stats.scrollDepth[75]++;
         if (data.event === 'scroll_100') stats.scrollDepth[100]++;
         
-        // Section views
         if (data.event === 'section_view' && data.section) {
           stats.secoesVistas[data.section] = (stats.secoesVistas[data.section] || 0) + 1;
         }
         
-        // Tempo na página
         if (data.event === 'exit' && data.timeOnPageSeconds) {
           stats.temposTotais.push(data.timeOnPageSeconds);
         }
         
-        // Timer clicks
         if (data.event === 'timer_click' && data.timeToClickSeconds) {
           stats.timerClicks.total++;
           stats.timerClicks.tempos.push(data.timeToClickSeconds);
         }
+        
+        if (data.event === 'bounce_detected') {
+          stats.bounces++;
+        }
       });
       
-      // Calcular tempo médio
       if (stats.temposTotais.length > 0) {
         const total = stats.temposTotais.reduce((a, b) => a + b, 0);
         stats.tempoMedio = Math.round(total / stats.temposTotais.length);
       }
       
-      // Calcular tempo médio até clicar no timer
       if (stats.timerClicks.tempos.length > 0) {
         const total = stats.timerClicks.tempos.reduce((a, b) => a + b, 0);
         stats.timerClicks.tempoMedio = Math.round(total / stats.timerClicks.tempos.length);
       }
       
-      // Calcular taxa de conversão (cliques no assinar / visitas)
       const cliquesAssinar = stats.cliquesPorCta['click_assinar_premium'] || 0;
       stats.taxaConversaoLanding = stats.totalVisitas > 0 ? Math.round((cliquesAssinar / stats.totalVisitas) * 100) : 0;
       
-      // Calcular cliques por visita
       const totalCliques = Object.values(stats.cliquesPorCta).reduce((a, b) => a + b, 0);
       stats.cliquesPorVisita = stats.totalVisitas > 0 ? (totalCliques / stats.totalVisitas).toFixed(2) : 0;
       
-      // Visitas por dia para o gráfico
+      stats.taxaRejeicao = stats.totalVisitas > 0 ? Math.round((stats.bounces / stats.totalVisitas) * 100) : 0;
+      
       stats.visitasPorDia = Object.entries(eventosPorData).map(([data, valores]) => ({
         data,
         visitas: valores.visitas || 0,
@@ -777,6 +998,8 @@
         timerClicks: { total: 0, tempoMedio: 0 },
         taxaConversaoLanding: 0,
         cliquesPorVisita: 0,
+        taxaRejeicao: 0,
+        bounces: 0,
         visitasPorDia: []
       };
     }
@@ -838,6 +1061,9 @@
     switch(currentSection) {
       case 'dashboard':
         area.innerHTML = renderDashboard();
+        break;
+      case 'metricas':
+        area.innerHTML = renderMetricasProduto();
         break;
       case 'usuarios':
         area.innerHTML = renderUsuarios();
@@ -925,6 +1151,119 @@
     `;
   }
   
+  function renderMetricasProduto() {
+    if (!cachedMetricasProduto) return '<div class="section">Carregando...</div>';
+    
+    const m = cachedMetricasProduto;
+    
+    const formatTipoAcao = (acao) => {
+      const map = { 'open_protocol': '📖 Abriu protocolo', 'search': '🔍 Usou busca', 'favorite': '⭐ Favoritou', 'forceps': '🦷 Fórceps dinâmico', 'diagnostico': '🩺 Diagnóstico guiado' };
+      return map[acao] || acao;
+    };
+    
+    const tipoUsoTotal = m.tipoUso.passivo + m.tipoUso.hibrido + m.tipoUso.interativo;
+    const passivoPercent = tipoUsoTotal > 0 ? Math.round((m.tipoUso.passivo / tipoUsoTotal) * 100) : 0;
+    const hibridoPercent = tipoUsoTotal > 0 ? Math.round((m.tipoUso.hibrido / tipoUsoTotal) * 100) : 0;
+    const interativoPercent = tipoUsoTotal > 0 ? Math.round((m.tipoUso.interativo / tipoUsoTotal) * 100) : 0;
+    
+    const totalRetornantes = Object.values(m.primeiroAcaoRetornantes).reduce((a,b) => a+b, 0);
+    
+    return `
+      <div class="content-header">
+        <h1>📈 Métricas de Produto</h1>
+        <p>Análise de comportamento e retenção</p>
+      </div>
+      
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-icon">🚀</div><div class="stat-number">${m.taxaAtivacao}%</div><div class="stat-label">Taxa de Ativação</div></div>
+        <div class="stat-card"><div class="stat-icon">🔄</div><div class="stat-number">${Object.keys(m.coortes).length} coortes</div><div class="stat-label">Coortes analisadas</div></div>
+        <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-number">${m.ahaPercentual}%</div><div class="stat-label">AHA: ${formatTipoAcao(m.ahaCampeao)}</div></div>
+        <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-number">${m.mediaProfundidade}</div><div class="stat-label">Score médio de profundidade</div></div>
+      </div>
+      
+      <div class="graficos-grid">
+        <div class="section">
+          <div class="section-title"><span>🚀</span> ATIVAÇÃO (últimos 30 dias)</div>
+          <div class="stats-grid" style="grid-template-columns:1fr 1fr; margin-bottom:0;">
+            <div><div class="stat-number" style="font-size:20px;">${m.totalNovosUltimos30}</div><div class="stat-label">Novos usuários</div></div>
+            <div><div class="stat-number" style="font-size:20px; color:#10B981;">${m.ativadosUltimos30}</div><div class="stat-label">Ativados</div></div>
+          </div>
+          <div class="ranking-bar" style="margin:12px 0;"><div class="ranking-fill fill-normal" style="width: ${m.taxaAtivacao}%; background:#10B981;"></div></div>
+          <div style="font-size:12px; color:#64748B;">O que fez ativar?</div>
+          <div class="click-chart" style="margin-top:8px;">
+            ${Object.entries(m.acaoAtivacao).map(([acao, count]) => `
+              <div class="click-bar"><div class="click-bar-label">${formatTipoAcao(acao)}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${Math.min((count/m.ativadosUltimos30)*100, 100)}%; background:#10B981;">${count}</div></div></div>
+            `).join('')}
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title"><span>🎮</span> TIPO DE USO DO APP</div>
+          <div class="click-chart">
+            <div class="click-bar"><div class="click-bar-label">📖 Passivo (só protocolos)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${passivoPercent}%; background:#64748B;">${passivoPercent}%</div></div></div>
+            <div class="click-bar"><div class="click-bar-label">🔄 Híbrido</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${hibridoPercent}%; background:#F59E0B;">${hibridoPercent}%</div></div></div>
+            <div class="click-bar"><div class="click-bar-label">⚡ Interativo (busca/favoritos/ferramentas)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${interativoPercent}%; background:#7C3FA0;">${interativoPercent}%</div></div></div>
+          </div>
+          ${interativoPercent < 30 ? `
+          <div class="warning-card" style="margin-top:12px;">
+            <div class="warning-title">💡 Insight</div>
+            <div class="insight-text">Apenas ${interativoPercent}% dos usuários usam ferramentas interativas. Considere destacar a busca e o fórceps dinâmico na home.</div>
+          </div>
+          ` : ''}
+        </div>
+      </div>
+      
+      <div class="graficos-grid">
+        <div class="section">
+          <div class="section-title"><span>📊</span> PROFUNDIDADE DE USO</div>
+          <div class="click-chart">
+            <div class="click-bar"><div class="click-bar-label">🟡 Superficial (0-30)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${Math.min((m.distribuicaoProfundidade.baixo / m.scores.length) * 100, 100)}%; background:#EF4444;">${m.distribuicaoProfundidade.baixo}</div></div></div>
+            <div class="click-bar"><div class="click-bar-label">🟠 Médio (31-70)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${Math.min((m.distribuicaoProfundidade.medio / m.scores.length) * 100, 100)}%; background:#F59E0B;">${m.distribuicaoProfundidade.medio}</div></div></div>
+            <div class="click-bar"><div class="click-bar-label">🟢 Profundo (71-100)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${Math.min((m.distribuicaoProfundidade.alto / m.scores.length) * 100, 100)}%; background:#10B981;">${m.distribuicaoProfundidade.alto}</div></div></div>
+          </div>
+          <div class="insight-card" style="margin-top:12px;">
+            <div class="insight-title">📊 Score médio: ${m.mediaProfundidade}</div>
+            <div class="insight-text">Meta: 60 até Jun/2025</div>
+          </div>
+        </div>
+        
+        <div class="section">
+          <div class="section-title"><span>⚡</span> MOMENTO "AHA"</div>
+          <div class="click-chart">
+            ${Object.entries(m.primeiroAcaoRetornantes).sort((a,b) => b[1] - a[1]).slice(0,4).map(([acao, count]) => {
+              const percent = totalRetornantes > 0 ? Math.round((count / totalRetornantes) * 100) : 0;
+              return `
+                <div class="click-bar"><div class="click-bar-label">${formatTipoAcao(acao)}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width: ${percent}%; background:#7C3FA0;">${percent}%</div></div></div>
+              `;
+            }).join('')}
+          </div>
+          <div class="insight-card">
+            <div class="insight-title">🏆 Funcionalidade campeã: ${formatTipoAcao(m.ahaCampeao)}</div>
+            <div class="insight-text">${m.ahaPercentual}% dos usuários que voltaram no D1 começaram por esta funcionalidade.</div>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section">
+        <div class="section-title"><span>🔄</span> RETENÇÃO POR COORTE (D1 / D7 / D30)</div>
+        <div class="table-wrapper">
+          <table>
+            <thead><tr><th>Mês</th><th>Usuários</th><th>D1</th><th>D7</th><th>D30</th></tr></thead>
+            <tbody>
+              ${Object.entries(m.coortes).sort((a,b) => b[0].localeCompare(a[0])).slice(0,6).map(([mes, coorte]) => {
+                const d1Percent = coorte.total > 0 ? Math.round((coorte.d1 / coorte.total) * 100) : 0;
+                const d7Percent = coorte.total > 0 ? Math.round((coorte.d7 / coorte.total) * 100) : 0;
+                const d30Percent = coorte.total > 0 ? Math.round((coorte.d30 / coorte.total) * 100) : 0;
+                return `<tr><td>${mes}</td><td>${coorte.total}</td><td>${coorte.d1} (${d1Percent}%)</td><td>${coorte.d7} (${d7Percent}%)</td><td>${coorte.d30} (${d30Percent}%)</td></tr>`;
+              }).join('')}
+              ${Object.keys(m.coortes).length === 0 ? '<tr><td colspan="5" style="text-align:center;">Nenhuma coorte disponível ainda</td></tr>' : ''}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    `;
+  }
+  
   function renderUsuarios() {
     const paginated = getPaginatedUsers();
     const total = totalPages();
@@ -959,9 +1298,9 @@
                   <td><span class="${user.premium ? 'badge-premium' : 'badge-free'}">${user.premium ? '💎 Premium' : '🆓 Free'}</span></td>
                   <td><strong>${user.usos}</strong> ${user.usos === 0 ? '⚠️' : user.usos > 50 ? '🔥' : ''}</td>
                   <td>${user.criadoEm ? new Date(user.criadoEm).toLocaleDateString() : '-'}</td>
-                 </tr>
+                </tr>
               `).join('')}
-              ${paginated.length === 0 ? '<tr><td colspan="5" style="text-align: center;">Nenhum usuário encontrado</td>' : ''}
+              ${paginated.length === 0 ? '<tr><td colspan="5" style="text-align: center;">Nenhum usuário encontrado</td></tr>' : ''}
             </tbody>
           </table>
         </div>
@@ -1063,15 +1402,12 @@
     
     const l = cachedLandingStats;
     
-    // Ordenar cliques por CTA para exibição
     const sortedClicks = Object.entries(l.cliquesPorCta)
       .sort((a, b) => b[1] - a[1]);
     
-    // Ordenar fontes
     const sortedSources = Object.entries(l.sources)
       .sort((a, b) => b[1] - a[1]);
     
-    // Formatar tempo médio
     const formatTime = (seconds) => {
       if (!seconds) return '0s';
       const mins = Math.floor(seconds / 60);
@@ -1090,7 +1426,7 @@
         <div class="stat-card"><div class="stat-icon">🆔</div><div class="stat-number">${l.usuariosUnicos}</div><div class="stat-label">Usuários Únicos</div></div>
         <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-number">${l.taxaConversaoLanding}%</div><div class="stat-label">Taxa de Conversão</div></div>
         <div class="stat-card"><div class="stat-icon">🖱️</div><div class="stat-number">${l.cliquesPorVisita}</div><div class="stat-label">Cliques por Visita</div></div>
-        <div class="stat-card"><div class="stat-icon">⏱️</div><div class="stat-number">${formatTime(l.tempoMedio)}</div><div class="stat-label">Tempo Médio na Página</div></div>
+        <div class="stat-card"><div class="stat-icon">📉</div><div class="stat-number">${l.taxaRejeicao}%</div><div class="stat-label">Taxa de Rejeição</div></div>
       </div>
       
       <div class="section">
@@ -1171,6 +1507,12 @@
               `;
             }).join('')}
           </div>
+          ${l.scrollDepth[25] === 0 ? `
+          <div class="warning-card" style="margin-top:12px;">
+            <div class="warning-title">⚠️ Alerta</div>
+            <div class="insight-text">Nenhum usuário rolou até 25% da página. O conteúdo acima da dobra pode não estar atraente.</div>
+          </div>
+          ` : ''}
         </div>
         
         <div class="section">
@@ -1217,6 +1559,15 @@
           }).join('')}
         </div>
       </div>
+      
+      <div class="insight-card">
+        <div class="insight-title">💡 Insights da Landing Page</div>
+        <div class="insight-text">
+          ${l.taxaRejeicao > 50 ? '🔴 Taxa de rejeição alta (>50%). Revise o CTA acima da dobra.' : ''}<br>
+          ${l.scrollDepth[50] < 20 ? '🟡 Poucos usuários chegam a 50% da página. O conteúdo pode não estar engajando.' : ''}<br>
+          ${l.timerClicks.total === 0 ? '🟡 Ninguém clicou na oferta com timer. Considere destacar mais o botão.' : ''}
+        </div>
+      </div>
     `;
   }
   
@@ -1224,7 +1575,6 @@
     if (!cachedLandingStats) return;
     const l = cachedLandingStats;
     
-    // Gráfico de visitas por dia
     const ctxVisitas = document.getElementById('grafico-landing-visitas')?.getContext('2d');
     if (ctxVisitas) {
       if (charts.landingVisitas) charts.landingVisitas.destroy();
@@ -1332,13 +1682,14 @@
           <button class="export-btn json" onclick="exportarJSON()" style="background:#3B82F6; color:white;">📦 Exportar JSON</button>
           <button class="export-btn" onclick="exportarUsuariosCSV()" style="background:#7C3FA0; color:white;">👥 Exportar Usuários</button>
           <button class="export-btn" onclick="exportarLandingCSV()" style="background:#10B981; color:white;">🌐 Exportar Landing Stats</button>
+          <button class="export-btn" onclick="exportarMetricasCSV()" style="background:#F59E0B; color:white;">📈 Exportar Métricas</button>
           <button class="export-btn refresh-btn" onclick="refreshData()">⟳ Atualizar Dados</button>
         </div>
       </div>
       
       <div class="section">
         <div class="section-title"><span>ℹ️</span> Sobre os dados</div>
-        <p style="color:#64748B; font-size:13px;">Os dados incluem todos os protocolos abertos nos últimos 90 dias. A exportação inclui até 10.000 registros.</p>
+        <p style="color:#64748B; font-size:13px;">Os dados incluem todos os protocolos abertos nos últimos 90 dias. As métricas de produto são calculadas em tempo real.</p>
       </div>
     `;
   }
@@ -1441,9 +1792,46 @@
     URL.revokeObjectURL(url);
   }
   
+  async function exportarMetricasCSV() {
+    if (!cachedMetricasProduto) return;
+    const m = cachedMetricasProduto;
+    
+    const headers = ['Métrica', 'Valor'];
+    const rows = [headers];
+    rows.push(['Taxa de Ativação (últimos 30 dias)', `${m.taxaAtivacao}%`]);
+    rows.push(['Novos usuários (últimos 30 dias)', m.totalNovosUltimos30]);
+    rows.push(['Usuários ativados', m.ativadosUltimos30]);
+    rows.push(['Score médio de profundidade', m.mediaProfundidade]);
+    rows.push(['Usuários superficiais (0-30)', m.distribuicaoProfundidade.baixo]);
+    rows.push(['Usuários médios (31-70)', m.distribuicaoProfundidade.medio]);
+    rows.push(['Usuários profundos (71-100)', m.distribuicaoProfundidade.alto]);
+    rows.push(['Tipo de uso - Passivo', m.tipoUso.passivo]);
+    rows.push(['Tipo de uso - Híbrido', m.tipoUso.hibrido]);
+    rows.push(['Tipo de uso - Interativo', m.tipoUso.interativo]);
+    rows.push(['Momento AHA campeão', m.ahaCampeao]);
+    rows.push(['Percentual do AHA', `${m.ahaPercentual}%`]);
+    
+    for (const [mes, coorte] of Object.entries(m.coortes)) {
+      rows.push([`Coorte ${mes} - Total`, coorte.total]);
+      rows.push([`Coorte ${mes} - D1`, `${coorte.d1} (${Math.round((coorte.d1/coorte.total)*100)}%)`]);
+      rows.push([`Coorte ${mes} - D7`, `${coorte.d7} (${Math.round((coorte.d7/coorte.total)*100)}%)`]);
+      rows.push([`Coorte ${mes} - D30`, `${coorte.d30} (${Math.round((coorte.d30/coorte.total)*100)}%)`]);
+    }
+    
+    const csv = rows.map(row => row.join(',')).join('\n');
+    const blob = new Blob(["\uFEFF" + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `odontodex_metricas_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+  
   async function refreshData() {
     await carregarDados();
     await carregarLandingStats();
+    await carregarMetricasProduto();
     renderizarSecaoAtual();
   }
   
@@ -1473,6 +1861,7 @@
       initMenu();
       await carregarDados();
       await carregarLandingStats();
+      await carregarMetricasProduto();
       renderizarSecaoAtual();
     } else if (user) {
       await auth.signOut();
@@ -1491,6 +1880,7 @@
   window.exportarJSON = exportarJSON;
   window.exportarUsuariosCSV = exportarUsuariosCSV;
   window.exportarLandingCSV = exportarLandingCSV;
+  window.exportarMetricasCSV = exportarMetricasCSV;
   window.refreshData = refreshData;
   window.logout = logout;
 </script>
