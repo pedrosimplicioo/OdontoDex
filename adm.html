@@ -705,17 +705,168 @@
       });
     });
     
-    // AQUI É ONDE VAMOS ADICIONAR A LINHA
-    usuarios.forEach(user => {
-      // 🔴 LINHA NOVA: Pula este usuário se ele estiver na lista de ignorados
-      if (isUsuarioIgnorado(user.id)) return;  // <--- ADICIONE ESTA LINHA
-      
-      // O resto do código que calcula as métricas continua igual...
-      // (não mexa no resto, só adicione essa linha no início do loop)
+    // Buscar ações dos usuários
+    const noventaDiasAtras = new Date();
+    noventaDiasAtras.setDate(noventaDiasAtras.getDate() - 90);
+    
+    const actionsSnapshot = await db.collection('user_actions')
+      .where('timestamp', '>=', noventaDiasAtras)
+      .get();
+    
+    const userActions = {};
+    actionsSnapshot.forEach(doc => {
+      const data = doc.data();
+      if (!userActions[data.userId]) {
+        userActions[data.userId] = [];
+      }
+      userActions[data.userId].push({
+        actionType: data.actionType,
+        timestamp: data.timestamp?.toDate() || new Date(),
+        details: data
+      });
     });
     
-  } catch(error) {
-    // ...
+    // Calcular métricas
+    const metricas = {
+      totalNovosUltimos30: 0,
+      ativadosUltimos30: 0,
+      taxaAtivacao: 0,
+      acaoAtivacao: { open_protocol: 0, search: 0, favorite: 0, forceps: 0, diagnostico: 0 },
+      coortes: {},
+      primeiroAcaoRetornantes: {},
+      scores: [],
+      tipoUso: { passivo: 0, hibrido: 0, interativo: 0 }
+    };
+    
+    const trintaDiasAtras = new Date();
+    trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
+    
+    // PERCORRER USUÁRIOS - AQUI É ONDE ADICIONAMOS O FILTRO
+    for (const user of usuarios) {
+      // 🔴 PULA USUÁRIOS IGNORADOS
+      if (isUsuarioIgnorado(user.id)) continue;
+      
+      // Verificar se é novo usuário nos últimos 30 dias
+      if (user.dataPrimeiroAcesso && user.dataPrimeiroAcesso >= trintaDiasAtras) {
+        metricas.totalNovosUltimos30++;
+        
+        const userActionsList = userActions[user.id] || [];
+        const usouProtocolo = userActionsList.some(a => a.actionType === 'open_protocol');
+        const usouBusca = userActionsList.some(a => a.actionType === 'search');
+        const usouFavorito = userActionsList.some(a => a.actionType === 'favorite');
+        const usouForceps = userActionsList.some(a => a.actionType === 'forceps');
+        const usouDiagnostico = userActionsList.some(a => a.actionType === 'diagnostico');
+        
+        const ativado = usouProtocolo || usouBusca;
+        if (ativado) {
+          metricas.ativadosUltimos30++;
+          if (usouProtocolo) metricas.acaoAtivacao.open_protocol++;
+          if (usouBusca) metricas.acaoAtivacao.search++;
+          if (usouFavorito) metricas.acaoAtivacao.favorite++;
+          if (usouForceps) metricas.acaoAtivacao.forceps++;
+          if (usouDiagnostico) metricas.acaoAtivacao.diagnostico++;
+        }
+      }
+      
+      // Calcular retenção por coorte (mês)
+      if (user.dataPrimeiroAcesso) {
+        const coorteKey = `${user.dataPrimeiroAcesso.getFullYear()}-${user.dataPrimeiroAcesso.getMonth()+1}`;
+        if (!metricas.coortes[coorteKey]) {
+          metricas.coortes[coorteKey] = { total: 0, d1: 0, d7: 0, d30: 0 };
+        }
+        metricas.coortes[coorteKey].total++;
+        
+        const userActionsList = userActions[user.id] || [];
+        const acessoDias = Object.keys(user.acessosPorDia).map(d => new Date(d));
+        
+        const diaSeguinte = new Date(user.dataPrimeiroAcesso);
+        diaSeguinte.setDate(diaSeguinte.getDate() + 1);
+        const voltouD1 = acessoDias.some(d => d.toDateString() === diaSeguinte.toDateString());
+        if (voltouD1) metricas.coortes[coorteKey].d1++;
+        
+        const dia7 = new Date(user.dataPrimeiroAcesso);
+        dia7.setDate(dia7.getDate() + 7);
+        const voltouD7 = acessoDias.some(d => d.toDateString() === dia7.toDateString());
+        if (voltouD7) metricas.coortes[coorteKey].d7++;
+        
+        const dia30 = new Date(user.dataPrimeiroAcesso);
+        dia30.setDate(dia30.getDate() + 30);
+        const voltouD30 = acessoDias.some(d => d.toDateString() === dia30.toDateString());
+        if (voltouD30) metricas.coortes[coorteKey].d30++;
+      }
+      
+      // Momento AHA
+      if (user.ultimoAcesso && user.dataPrimeiroAcesso && user.ultimoAcesso > user.dataPrimeiroAcesso) {
+        const userActionsList = (userActions[user.id] || []).sort((a,b) => a.timestamp - b.timestamp);
+        const primeiraAcao = userActionsList[0];
+        if (primeiraAcao) {
+          metricas.primeiroAcaoRetornantes[primeiraAcao.actionType] = (metricas.primeiroAcaoRetornantes[primeiraAcao.actionType] || 0) + 1;
+        }
+      }
+      
+      // Profundidade de uso
+      const userActionsList = userActions[user.id] || [];
+      const protocolosCount = userActionsList.filter(a => a.actionType === 'open_protocol').length;
+      const buscasCount = userActionsList.filter(a => a.actionType === 'search').length;
+      const favoritosCount = userActionsList.filter(a => a.actionType === 'favorite').length;
+      const forcepsCount = userActionsList.filter(a => a.actionType === 'forceps').length;
+      const diagnosticoCount = userActionsList.filter(a => a.actionType === 'diagnostico').length;
+      
+      let score = 0;
+      if (protocolosCount >= 5) score += 20;
+      if (protocolosCount >= 10) score += 20;
+      if (buscasCount >= 3) score += 15;
+      if (favoritosCount >= 3) score += 15;
+      if (forcepsCount >= 1) score += 15;
+      if (diagnosticoCount >= 1) score += 15;
+      metricas.scores.push(score);
+      
+      // Tipo de uso
+      const temInterativo = buscasCount > 0 || favoritosCount > 0 || forcepsCount > 0 || diagnosticoCount > 0;
+      const temPassivo = protocolosCount > 0;
+      
+      if (temPassivo && !temInterativo) metricas.tipoUso.passivo++;
+      else if (temPassivo && temInterativo) metricas.tipoUso.hibrido++;
+      else if (!temPassivo && temInterativo) metricas.tipoUso.interativo++;
+    }
+    
+    metricas.taxaAtivacao = metricas.totalNovosUltimos30 > 0 ? Math.round((metricas.ativadosUltimos30 / metricas.totalNovosUltimos30) * 100) : 0;
+    metricas.mediaProfundidade = metricas.scores.length > 0 ? Math.round(metricas.scores.reduce((a,b) => a+b, 0) / metricas.scores.length) : 0;
+    metricas.distribuicaoProfundidade = {
+      baixo: metricas.scores.filter(s => s <= 30).length,
+      medio: metricas.scores.filter(s => s > 30 && s <= 70).length,
+      alto: metricas.scores.filter(s => s > 70).length
+    };
+    
+    let ahaCampeao = '';
+    let ahaMax = 0;
+    for (const [acao, count] of Object.entries(metricas.primeiroAcaoRetornantes)) {
+      if (count > ahaMax) {
+        ahaMax = count;
+        ahaCampeao = acao;
+      }
+    }
+    metricas.ahaCampeao = ahaCampeao;
+    metricas.ahaPercentual = ahaMax > 0 ? Math.round((ahaMax / Object.values(metricas.primeiroAcaoRetornantes).reduce((a,b) => a+b, 0)) * 100) : 0;
+    
+    cachedMetricasProduto = metricas;
+    
+  } catch (error) {
+    console.error("Erro ao carregar métricas de produto:", error);
+    cachedMetricasProduto = {
+      totalNovosUltimos30: 0,
+      ativadosUltimos30: 0,
+      taxaAtivacao: 0,
+      acaoAtivacao: {},
+      coortes: {},
+      primeiroAcaoRetornantes: {},
+      scores: [],
+      tipoUso: { passivo: 0, hibrido: 0, interativo: 0 },
+      mediaProfundidade: 0,
+      distribuicaoProfundidade: { baixo: 0, medio: 0, alto: 0 },
+      ahaCampeao: '',
+      ahaPercentual: 0
+    };
   }
 }
       
