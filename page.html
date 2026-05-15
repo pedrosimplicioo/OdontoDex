@@ -308,7 +308,7 @@ footer p{font-size:13px;color:var(--muted);}
       <div class="demo-fw-input">36</div>
       <div class="demo-fw-confirm">🦷 <span>Dente 36 — Molar inferior</span> <span class="demo-fw-ok">✓</span></div>
       <div class="demo-fw-result">
-        <div class="demo-fw-name">Fórceps nº 22 (Cowhorn)</div>
+        <div class="demo-fw-name">Fórceps nº 16 (Cowhorn)</div>
         <div class="demo-fw-tipo">Cowhorn inferior</div>
         <span class="demo-fw-tag">Encaixar pontas nas furças — balanço V-L</span>
         <div class="demo-fw-alert">⚠️ 2 raízes divergentes — risco de fratura mandibular</div>
@@ -418,6 +418,8 @@ const db = firebase.firestore();
 // ==================== TRACKING DA LANDING PAGE ====================
 let sessionId = localStorage.getItem('odontodex_session_id');
 let sessionStartTime = Date.now();
+let hasInteraction = false; // Para detectar bounce
+let interactionTypes = new Set(); // Para registrar tipos de interação
 
 if (!sessionId) {
   sessionId = generateSessionId();
@@ -445,6 +447,7 @@ function getSource() {
   if (referrer.includes('facebook')) return 'facebook';
   if (referrer.includes('instagram')) return 'instagram';
   if (referrer.includes('linkedin')) return 'linkedin';
+  if (referrer.includes('twitter')) return 'twitter';
   if (referrer) return 'referrer';
   return 'direct';
 }
@@ -461,6 +464,7 @@ async function trackEvent(eventName, eventData = {}) {
       screenHeight: window.innerHeight,
       source: getSource(),
       url: window.location.pathname,
+      hasInteraction: hasInteraction,
       ...eventData
     });
     console.log('📊 Evento registrado:', eventName);
@@ -477,14 +481,22 @@ trackEvent('page_view', {
 
 // Scroll depth tracking
 let maxScrollPercent = 0;
+let scrollEventsSent = new Set();
+
 function trackScrollDepth() {
   const scrollPercent = (window.scrollY + window.innerHeight) / document.body.scrollHeight * 100;
   if (scrollPercent > maxScrollPercent) {
     maxScrollPercent = scrollPercent;
-    if (maxScrollPercent >= 25 && maxScrollPercent < 50) trackEvent('scroll_25');
-    if (maxScrollPercent >= 50 && maxScrollPercent < 75) trackEvent('scroll_50');
-    if (maxScrollPercent >= 75 && maxScrollPercent < 100) trackEvent('scroll_75');
-    if (maxScrollPercent >= 100) trackEvent('scroll_100');
+    
+    const thresholds = [25, 50, 75, 100];
+    for (const threshold of thresholds) {
+      if (maxScrollPercent >= threshold && !scrollEventsSent.has(threshold)) {
+        scrollEventsSent.add(threshold);
+        trackEvent(`scroll_${threshold}`, { scrollPercent: maxScrollPercent });
+        hasInteraction = true;
+        interactionTypes.add(`scroll_${threshold}`);
+      }
+    }
   }
 }
 window.addEventListener('scroll', trackScrollDepth);
@@ -493,7 +505,12 @@ window.addEventListener('scroll', trackScrollDepth);
 let pageViewStart = Date.now();
 window.addEventListener('beforeunload', () => {
   const timeOnPage = Math.round((Date.now() - pageViewStart) / 1000);
-  trackEvent('exit', { timeOnPageSeconds: timeOnPage });
+  trackEvent('exit', { 
+    timeOnPageSeconds: timeOnPage,
+    maxScrollPercent: maxScrollPercent,
+    hasInteraction: hasInteraction,
+    interactionTypes: Array.from(interactionTypes)
+  });
 });
 
 // Track all clicks on elements with data-track attribute
@@ -501,10 +518,13 @@ document.addEventListener('click', (e) => {
   const target = e.target.closest('[data-track]');
   if (target) {
     const eventName = target.getAttribute('data-track');
+    hasInteraction = true;
+    interactionTypes.add('click');
     trackEvent(eventName, {
       elementText: target.innerText?.substring(0, 100),
       elementId: target.id,
-      elementClass: target.className
+      elementClass: target.className,
+      elementHref: target.href
     });
   }
 });
@@ -516,6 +536,8 @@ const sectionObserver = new IntersectionObserver((entries) => {
       const section = entry.target;
       const sectionName = section.getAttribute('data-track-section');
       if (sectionName) {
+        hasInteraction = true;
+        interactionTypes.add('section_view');
         trackEvent('section_view', { section: sectionName });
         sectionObserver.unobserve(section);
       }
@@ -528,18 +550,27 @@ document.querySelectorAll('[data-track-section]').forEach(section => {
 });
 
 // Timer tracking for CTA (tempo até clicar no botão de assinatura)
-let timerStartTime = Date.now();
+let timerStartTime = null;
+let timerVisible = false;
+
 function trackTimerClick() {
-  const timeToClick = Math.round((Date.now() - timerStartTime) / 1000);
-  trackEvent('timer_click', { timeToClickSeconds: timeToClick });
+  if (timerStartTime) {
+    const timeToClick = Math.round((Date.now() - timerStartTime) / 1000);
+    hasInteraction = true;
+    interactionTypes.add('timer_click');
+    trackEvent('timer_click', { timeToClickSeconds: timeToClick });
+  }
 }
 
-// Re-iniciar timer quando o timer for visível (quando chegar na seção de planos)
+// Monitor timer visibility
 const timerObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
-    if (entry.isIntersecting) {
+    if (entry.isIntersecting && !timerVisible) {
+      timerVisible = true;
       timerStartTime = Date.now();
-      timerObserver.unobserve(entry.target);
+      trackEvent('timer_view');
+    } else if (!entry.isIntersecting && timerVisible) {
+      timerVisible = false;
     }
   });
 });
@@ -548,6 +579,32 @@ const timerElement = document.getElementById('timer');
 if (timerElement) {
   timerObserver.observe(timerElement.parentElement.parentElement);
 }
+
+// Track quando o usuário sai da página (abandono)
+let abandonTime = null;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    abandonTime = Date.now();
+    trackEvent('tab_inactive');
+  } else if (abandonTime) {
+    const timeAway = Math.round((Date.now() - abandonTime) / 1000);
+    hasInteraction = true;
+    trackEvent('return_from_inactive', { timeAwaySeconds: timeAway });
+    abandonTime = null;
+  }
+});
+
+// Detectar bounce automaticamente (se não houve interação após 10 segundos)
+let bounceDetected = false;
+setTimeout(() => {
+  if (!hasInteraction && !bounceDetected) {
+    bounceDetected = true;
+    trackEvent('bounce_detected', { 
+      timeOnPage: Math.round((Date.now() - pageViewStart) / 1000),
+      maxScrollPercent: maxScrollPercent
+    });
+  }
+}, 10000);
 
 // ==================== TIMER ORIGINAL ====================
 function startTimer(){
@@ -573,16 +630,13 @@ reveals.forEach(r=>observer.observe(r));
 
 startTimer();
 
-// Track quando o usuário sai da página (abandono)
-let abandonTime = null;
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    abandonTime = Date.now();
-  } else if (abandonTime) {
-    const timeAway = Math.round((Date.now() - abandonTime) / 1000);
-    trackEvent('return_from_inactive', { timeAwaySeconds: timeAway });
-    abandonTime = null;
-  }
+// Adicionar tracking no clique do timer CTA (botão "Assinar agora" dentro da oferta)
+document.querySelectorAll('.pricing-cta, .btn-primary[href*="pay.cakto"]').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (timerVisible) {
+      trackTimerClick();
+    }
+  });
 });
 </script>
 </body>
