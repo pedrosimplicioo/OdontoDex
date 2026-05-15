@@ -188,32 +188,58 @@ let usuariosIgnorados = [];
 function carregarIgnorados() {
   try {
     const saved = localStorage.getItem('admin_usuarios_ignorados');
-    if (saved) usuariosIgnorados = JSON.parse(saved);
-  } catch(e) { usuariosIgnorados = []; }
+    if (saved) {
+      usuariosIgnorados = JSON.parse(saved);
+      console.log('✅ Ignorados carregados:', usuariosIgnorados);
+    } else {
+      usuariosIgnorados = [];
+      console.log('📋 Nenhum ignorado encontrado, lista vazia');
+    }
+  } catch(e) { 
+    console.error('Erro ao carregar ignorados:', e);
+    usuariosIgnorados = []; 
+  }
 }
 
 function salvarIgnorados() {
-  localStorage.setItem('admin_usuarios_ignorados', JSON.stringify(usuariosIgnorados));
+  try {
+    localStorage.setItem('admin_usuarios_ignorados', JSON.stringify(usuariosIgnorados));
+    console.log('💾 Ignorados salvos:', usuariosIgnorados);
+  } catch(e) {
+    console.error('Erro ao salvar ignorados:', e);
+  }
 }
 
 function isUsuarioIgnorado(userId) {
   return usuariosIgnorados.includes(userId);
 }
 
-function toggleIgnorarUsuario(userId) {
+async function toggleIgnorarUsuario(userId) {
+  console.log('🔘 toggleIgnorarUsuario chamado para:', userId);
+  console.log('📋 Lista atual:', usuariosIgnorados);
+  
   const index = usuariosIgnorados.indexOf(userId);
   if (index === -1) {
     usuariosIgnorados.push(userId);
     mostrarToastAdmin('👤 Usuário ignorado das estatísticas', 'warning');
+    console.log('➕ Adicionado à lista');
   } else {
     usuariosIgnorados.splice(index, 1);
     mostrarToastAdmin('✅ Usuário reincluído nas estatísticas', 'success');
+    console.log('➖ Removido da lista');
   }
+  
   salvarIgnorados();
-  carregarDados().then(() => {
-    carregarMetricasProduto();
+  
+  try {
+    console.log('🔄 Recarregando dados...');
+    await carregarDados();
+    await carregarMetricasProduto();
     renderizarSecaoAtual();
-  });
+    console.log('✅ Dados recarregados com sucesso');
+  } catch (error) {
+    console.error('❌ Erro ao recarregar:', error);
+  }
 }
 
 function mostrarToastAdmin(mensagem, tipo) {
@@ -636,7 +662,7 @@ function renderUsuarios() {
     <div class="content-header"><h1>👥 Usuários</h1><p>Gerencie os usuários do OdontoDex</p></div>
     <div class="section"><div class="search-box"><input type="text" class="search-input" id="search-usuario" placeholder="🔍 Buscar por nome ou email..." oninput="buscarUsuarios(this.value)"></div>
     <div class="table-wrapper"><table><thead><tr><th onclick="changeSort('nome')">Nome ${currentSort.field==='nome'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('email')">Email ${currentSort.field==='email'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('premium')">Status ${currentSort.field==='premium'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('usos')">Usos ${currentSort.field==='usos'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th>Cadastro</th><th>Ação</th></tr></thead>
-    <tbody>${paginated.map(user => `<tr><td>${user.nome}${user.ignorado?'<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">⊘ Ignorado</span>':''}</td><td>${user.email}</td><td><span class="${user.premium?'badge-premium':'badge-free'}">${user.premium?'💎 Premium':'🆓 Free'}</span></td><td><strong>${user.usos}</strong> ${user.usos===0?'⚠️':user.usos>50?'🔥':''}</td><td>${user.criadoEm?new Date(user.criadoEm).toLocaleDateString():'-'}</td><td><button onclick="toggleIgnorarUsuario('${user.id}')" style="background:${user.ignorado?'#10B981':'#EF4444'};color:white;border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">${user.ignorado?'✓ Incluir':'⊘ Ignorar'}</button></td></tr>`).join('')}${paginated.length===0?'<tr><td colspan="6" style="text-align:center;">Nenhum usuário encontrado</td></tr>':''}</tbody></table></div>
+    <tbody>${paginated.map(user => `<tr><td>${user.nome}${user.ignorado?'<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">⊘ Ignorado</span>':''}${user.email === 'pedrosimplicio.sousa@gmail.com' ? '<span style="background:#DBEAFE;color:#1E40AF;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">👑 Admin</span>' : ''}</div></td><td>${user.email}</td><td><span class="${user.premium?'badge-premium':'badge-free'}">${user.premium?'💎 Premium':'🆓 Free'}</span></td><td><strong>${user.usos}</strong> ${user.usos===0?'⚠️':user.usos>50?'🔥':''}</td><td>${user.criadoEm?new Date(user.criadoEm).toLocaleDateString():'-'}</td><td><button onclick="toggleIgnorarUsuario('${user.id}')" style="background:${user.ignorado?'#10B981':'#EF4444'};color:white;border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">${user.ignorado?'✓ Incluir':'⊘ Ignorar'}</button></td></tr>`).join('')}${paginated.length===0?'<tr><td colspan="6" style="text-align:center;">Nenhum usuário encontrado</td></tr>':''}</tbody></table></div>
     <div class="pagination"><button class="page-btn" onclick="mudarPagina(1)" ${currentPage===1?'disabled':''}>«</button><button class="page-btn" onclick="mudarPagina(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>${(()=>{const totalP=total; let buttons=[]; if(totalP<=5){for(let i=1;i<=totalP;i++)buttons.push(i)}else{if(currentPage<=3){for(let i=1;i<=5;i++)buttons.push(i)}else if(currentPage>=totalP-2){for(let i=totalP-4;i<=totalP;i++)buttons.push(i)}else{for(let i=currentPage-2;i<=currentPage+2;i++)buttons.push(i)}} return buttons.map(p=>`<button class="page-btn ${p===currentPage?'active':''}" onclick="mudarPagina(${p})">${p}</button>`).join('');})()}<button class="page-btn" onclick="mudarPagina(${currentPage+1})" ${currentPage===total||total===0?'disabled':''}>›</button><button class="page-btn" onclick="mudarPagina(${total})" ${currentPage===total||total===0?'disabled':''}>»</button></div>
     <div style="text-align:center;margin-top:14px;font-size:11px;color:#64748B;">Mostrando ${Math.min(itemsPerPage,usuariosFiltrados.length)} de ${usuariosFiltrados.length} usuários</div></div>
   `;
@@ -805,7 +831,9 @@ window.exportarLandingCSV=exportarLandingCSV;
 window.exportarMetricasCSV=exportarMetricasCSV;
 window.refreshData=refreshData;
 window.logout=logout;
-window.toggleIgnorarUsuario=toggleIgnorarUsuario;
+window.toggleIgnorarUsuario = toggleIgnorarUsuario;
+window.carregarIgnorados = carregarIgnorados;
+window.salvarIgnorados = salvarIgnorados;
 </script>
 </body>
 </html>
