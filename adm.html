@@ -489,7 +489,7 @@
   </div>
 </div>
 
-<script>
+<>
   const firebaseConfig = {
     apiKey: "AIzaSyBGYluL3f0yuaZnpc-fX8sIQhlCeVo6bwk",
     authDomain: "guia-odonto-a24ed.firebaseapp.com",
@@ -578,24 +578,31 @@
       const usuarios = [];
       let totalPremium = 0, totalFree = 0;
       
-      usersSnapshot.forEach(doc => {
-        const userData = doc.data();
-        const isPremium = userData.premium === true;
-        if (isPremium) totalPremium++;
-        else totalFree++;
-        
-        usuarios.push({
-          id: doc.id,
-          email: userData.email || '',
-          nome: userData.nome || userData.displayName || '-',
-          premium: isPremium,
-          criadoEm: userData.criadoEm || userData.criado_em || null,
-          dataPrimeiroAcesso: userData.dataPrimeiroAcesso || null,
-          ultimoAcesso: userData.ultimoAcesso || null,
-          acessosPorDia: userData.acessosPorDia || {},
-          usos: 0
-        });
-      });
+   usersSnapshot.forEach(doc => {
+  const userId = doc.id;
+  const isIgnorado = isUsuarioIgnorado(userId);  // VERIFICA SE ESTÁ IGNORADO
+  const userData = doc.data();
+  const isPremium = userData.premium === true;
+  
+  // SÓ CONTA se NÃO for ignorado
+  if (!isIgnorado) {
+    if (isPremium) totalPremium++;
+    else totalFree++;
+  }
+  
+  usuarios.push({
+    id: userId,
+    email: userData.email || '',
+    nome: userData.nome || userData.displayName || '-',
+    premium: isPremium,
+    criadoEm: userData.criadoEm || userData.criado_em || null,
+    dataPrimeiroAcesso: userData.dataPrimeiroAcesso || null,
+    ultimoAcesso: userData.ultimoAcesso || null,
+    acessosPorDia: userData.acessosPorDia || {},
+    usos: 0,
+    ignorado: isIgnorado  // <--- ADICIONA ESTA LINHA (marca se está ignorado)
+  });
+});
       
       const noventaDiasAtras = new Date();
       noventaDiasAtras.setDate(noventaDiasAtras.getDate() - 90);
@@ -680,24 +687,37 @@
   }
   
   // ========== CARREGAR MÉTRICAS DE PRODUTO ==========
-  async function carregarMetricasProduto() {
-    try {
-      const hoje = new Date();
-      const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
-      
-      // Buscar usuários
-      const usersSnapshot = await db.collection('users').get();
-      const usuarios = [];
-      usersSnapshot.forEach(doc => {
-        const userData = doc.data();
-        usuarios.push({
-          id: doc.id,
-          dataPrimeiroAcesso: userData.dataPrimeiroAcesso?.toDate() || null,
-          ultimoAcesso: userData.ultimoAcesso?.toDate() || null,
-          acessosPorDia: userData.acessosPorDia || {},
-          premium: userData.premium === true
-        });
+ async function carregarMetricasProduto() {
+  try {
+    const hoje = new Date();
+    const inicioMes = new Date(hoje.getFullYear(), hoje.getMonth(), 1);
+    
+    const usersSnapshot = await db.collection('users').get();
+    const usuarios = [];
+    usersSnapshot.forEach(doc => {
+      const userData = doc.data();
+      usuarios.push({
+        id: doc.id,
+        dataPrimeiroAcesso: userData.dataPrimeiroAcesso?.toDate() || null,
+        ultimoAcesso: userData.ultimoAcesso?.toDate() || null,
+        acessosPorDia: userData.acessosPorDia || {},
+        premium: userData.premium === true
       });
+    });
+    
+    // AQUI É ONDE VAMOS ADICIONAR A LINHA
+    usuarios.forEach(user => {
+      // 🔴 LINHA NOVA: Pula este usuário se ele estiver na lista de ignorados
+      if (isUsuarioIgnorado(user.id)) return;  // <--- ADICIONE ESTA LINHA
+      
+      // O resto do código que calcula as métricas continua igual...
+      // (não mexa no resto, só adicione essa linha no início do loop)
+    });
+    
+  } catch(error) {
+    // ...
+  }
+}
       
       // Buscar ações dos usuários
       const noventaDiasAtras = new Date();
@@ -1288,18 +1308,39 @@
                 <th onclick="changeSort('premium')">Status ${currentSort.field === 'premium' ? (currentSort.order === 'desc' ? '↓' : '↑') : ''}</th>
                 <th onclick="changeSort('usos')">Usos ${currentSort.field === 'usos' ? (currentSort.order === 'desc' ? '↓' : '↑') : ''}</th>
                 <th>Cadastro</th>
+                <th>Ação</th> 
               </tr>
             </thead>
             <tbody>
-              ${paginated.map(user => `
-                <tr>
-                  <td>${user.nome}</td>
-                  <td>${user.email}</td>
-                  <td><span class="${user.premium ? 'badge-premium' : 'badge-free'}">${user.premium ? '💎 Premium' : '🆓 Free'}</span></td>
-                  <td><strong>${user.usos}</strong> ${user.usos === 0 ? '⚠️' : user.usos > 50 ? '🔥' : ''}</td>
-                  <td>${user.criadoEm ? new Date(user.criadoEm).toLocaleDateString() : '-'}</td>
-                </tr>
-              `).join('')}
+             ${paginated.map(user => `
+  <tr>
+    <td>
+      ${user.nome}
+      ${user.ignorado ? '<span style="background:#FEF3C7; color:#92400E; padding:2px 8px; border-radius:12px; font-size:10px; margin-left:8px;">⊘ Ignorado</span>' : ''}
+    </td>
+    <td>${user.email}</td>
+    <td><span class="${user.premium ? 'badge-premium' : 'badge-free'}">${user.premium ? '💎 Premium' : '🆓 Free'}</span></td>
+    <td><strong>${user.usos}</strong> ${user.usos === 0 ? '⚠️' : user.usos > 50 ? '🔥' : ''}</td>
+    <td>${user.criadoEm ? new Date(user.criadoEm).toLocaleDateString() : '-'}</td>
+    <td>
+      <button onclick="toggleIgnorarUsuario('${user.id}')" 
+              style="background:${user.ignorado ? '#10B981' : '#EF4444'}; 
+                     color:white; 
+                     border:none; 
+                     padding:4px 10px; 
+                     border-radius:8px; 
+                     font-size:11px; 
+                     font-weight:600; 
+                     cursor:pointer;
+                     opacity:0.8;
+                     transition:opacity 0.2s;"
+              onmouseover="this.style.opacity='1'"
+              onmouseout="this.style.opacity='0.8'">
+        ${user.ignorado ? '✓ Incluir' : '⊘ Ignorar'}
+      </button>
+    </td>
+  </tr>
+`).join('')}
               ${paginated.length === 0 ? '<tr><td colspan="5" style="text-align: center;">Nenhum usuário encontrado</td></tr>' : ''}
             </tbody>
           </table>
@@ -1851,11 +1892,101 @@
       });
     });
   }
+  // ========== SISTEMA DE IGNORAR USUÁRIOS (NÃO CONTABILIZAR ADMIN) ==========
+let usuariosIgnorados = [];
+
+// Carrega a lista de usuários ignorados do localStorage
+function carregarIgnorados() {
+  try {
+    const saved = localStorage.getItem('admin_usuarios_ignorados');
+    if (saved) {
+      usuariosIgnorados = JSON.parse(saved);
+      console.log('📋 Usuários ignorados carregados:', usuariosIgnorados);
+    }
+  } catch(e) { 
+    usuariosIgnorados = []; 
+  }
+}
+
+// Salva a lista de usuários ignorados no localStorage
+function salvarIgnorados() {
+  localStorage.setItem('admin_usuarios_ignorados', JSON.stringify(usuariosIgnorados));
+}
+
+// Verifica se um usuário está na lista de ignorados
+function isUsuarioIgnorado(userId) {
+  return usuariosIgnorados.includes(userId);
+}
+
+// Adiciona ou remove um usuário da lista de ignorados
+function toggleIgnorarUsuario(userId) {
+  const index = usuariosIgnorados.indexOf(userId);
+  if (index === -1) {
+    // Adiciona à lista
+    usuariosIgnorados.push(userId);
+    mostrarToastAdmin('👤 Usuário ignorado das estatísticas', 'warning');
+  } else {
+    // Remove da lista
+    usuariosIgnorados.splice(index, 1);
+    mostrarToastAdmin('✅ Usuário reincluído nas estatísticas', 'success');
+  }
+  salvarIgnorados();
   
+  // Recarrega os dados e atualiza a tela
+  carregarDados().then(() => {
+    carregarMetricasProduto();
+    renderizarSecaoAtual();
+  });
+}
+
+// Função para mostrar um toast (notificação temporária) no admin
+function mostrarToastAdmin(mensagem, tipo) {
+  const toast = document.createElement('div');
+  toast.textContent = mensagem;
+  
+  let cor = '#3B82F6'; // azul padrão
+  if (tipo === 'success') cor = '#10B981'; // verde
+  if (tipo === 'warning') cor = '#F59E0B'; // amarelo/laranja
+  if (tipo === 'error') cor = '#EF4444'; // vermelho
+  
+  toast.style.cssText = `
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: ${cor};
+    color: white;
+    padding: 10px 18px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 600;
+    z-index: 9999;
+    animation: fadeInOutAdmin 2s ease;
+    font-family: 'Inter', sans-serif;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  `;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
+}
+
+// Adicionar o CSS da animação do toast (coloque isso uma vez)
+if (!document.querySelector('#admin-toast-style')) {
+  const styleToast = document.createElement('style');
+  styleToast.id = 'admin-toast-style';
+  styleToast.textContent = `
+    @keyframes fadeInOutAdmin {
+      0% { opacity: 0; transform: translateY(20px); }
+      15% { opacity: 1; transform: translateY(0); }
+      85% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(20px); }
+    }
+  `;
+  document.head.appendChild(styleToast);
+}
   // ========== INICIALIZAÇÃO ==========
   auth.onAuthStateChanged(async(user) => {
     if (user && ADMIN_EMAILS.includes(user.email)) {
       currentUser = user;
+      carregarIgnorados();            
       document.getElementById('login-container').style.display = 'none';
       document.getElementById('dashboard-container').style.display = 'flex';
       initMenu();
