@@ -6,6 +6,8 @@
 <title>OdontoDex — Seu assistente clínico</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;700;800&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
 :root{
   --brand:#7B3FA0;--brand-dark:#5E2D7A;--brand-light:#9B5FC0;
@@ -182,7 +184,7 @@ footer p{font-size:13px;color:var(--muted);}
   <div class="navbar-logo">
     <img src="logolanding.png" alt="OdontoDex" style="height:60px;width:auto;">
   </div>
-  <a href="#planos" class="navbar-cta">Começar grátis →</a>
+  <a href="#planos" class="navbar-cta" data-track="click_cta_navbar">Começar grátis →</a>
 </nav>
 
 <section class="hero" style="padding-top:120px;">
@@ -194,8 +196,8 @@ footer p{font-size:13px;color:var(--muted);}
   <h1 class="hero-title">Sua segunda opinião<br>clínica <em>na palma</em><br>da mão.</h1>
   <p class="hero-sub">50+ protocolos clínicos. Fórceps dinâmico. Emergências. Modo pânico. Tudo o que você precisa no momento que mais importa.</p>
   <div class="cta-group">
-    <a href="https://odontodex.vercel.app/" class="btn-primary">🦷 Experimentar grátis</a>
-    <a href="#planos" class="btn-ghost">Ver planos →</a>
+    <a href="https://odontodex.vercel.app/" class="btn-primary" data-track="click_cta_gratis">🦷 Experimentar grátis</a>
+    <a href="#planos" class="btn-ghost" data-track="click_cta_planos">Ver planos →</a>
   </div>
   <p class="hero-note"><span>✓</span> Garantia de 7 dias &nbsp;&nbsp; <span>✓</span> Cancele sem justificar</p>
 
@@ -236,7 +238,7 @@ footer p{font-size:13px;color:var(--muted);}
   <div class="stat reveal"><div class="stat-num">24h</div><div class="stat-label">Disponível offline</div></div>
 </div>
 
-<div class="section">
+<div class="section" data-track-section="problema">
   <p class="section-tag reveal">O PROBLEMA</p>
   <h2 class="section-title reveal">Você travou no meio<br>do atendimento.<br><em>E agora?</em></h2>
   <p class="section-sub reveal">Todo dentista recém-formado já passou por isso. A diferença está em como você resolve e com que velocidade.</p>
@@ -248,7 +250,7 @@ footer p{font-size:13px;color:var(--muted);}
   </div>
 </div>
 
-<div style="background:var(--dark2);padding:100px 24px;">
+<div style="background:var(--dark2);padding:100px 24px;" data-track-section="solucao">
 <div style="max-width:1100px;margin:0 auto;">
   <p class="section-tag reveal">A SOLUÇÃO</p>
   <h2 class="section-title reveal">O OdontoDex é o colega<br>que você sempre <em>quis ter</em><br>ao seu lado.</h2>
@@ -274,7 +276,6 @@ footer p{font-size:13px;color:var(--muted);}
       <div class="proto-cat reveal"><span class="proto-cat-icon">🔬</span><div><div class="proto-cat-name">Endodontia</div><div class="proto-cat-count">9+ protocolos</div></div></div>
       <div class="proto-cat reveal"><span class="proto-cat-icon">⚕️</span><div><div class="proto-cat-name">Cirurgia</div><div class="proto-cat-count">7+ protocolos</div></div></div>
       <div class="proto-cat reveal"><span class="proto-cat-icon">🪥</span><div><div class="proto-cat-name">Periodontia</div><div class="proto-cat-count">6+ protocolos</div></div></div>
-   
     </div>
     <h3 style="font-size:20px;font-weight:700;margin-top:60px;margin-bottom:20px;text-align:center;" class="reveal">+ S.O.S. Clínico completo</h3>
     <div class="urgencias">
@@ -317,7 +318,7 @@ footer p{font-size:13px;color:var(--muted);}
 </section>
 
 <!-- PRICING -->
-<section class="pricing-section" id="planos">
+<section class="pricing-section" id="planos" data-track-section="planos">
   <div class="pricing-inner">
     <p class="section-tag reveal">PLANOS</p>
     <h2 class="section-title reveal">Invista menos que<br> <em>R$0,50 por dia</em>.</h2>
@@ -338,7 +339,7 @@ footer p{font-size:13px;color:var(--muted);}
           <div class="pricing-feature"><div style="width:22px;height:22px;background:rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;color:var(--muted);">✕</div><span style="color:var(--muted);">Modo pânico</span></div>
           <div class="pricing-feature"><div style="width:22px;height:22px;background:rgba(255,255,255,0.05);border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;color:var(--muted);">✕</div><span style="color:var(--muted);">Atualizações mensais</span></div>
         </div>
-        <a href="https://odontodex.vercel.app/" style="width:100%;background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;display:block;text-align:center;text-decoration:none;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">Começar grátis</a>
+        <a href="https://odontodex.vercel.app/" style="width:100%;background:transparent;color:var(--text);border:1px solid rgba(255,255,255,0.15);border-radius:16px;padding:16px;font-size:15px;font-weight:700;cursor:pointer;font-family:'Sora',sans-serif;display:block;text-align:center;text-decoration:none;transition:background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'" data-track="click_plano_gratuito">Começar grátis</a>
       </div>
 
       <!-- PREMIUM -->
@@ -363,7 +364,7 @@ footer p{font-size:13px;color:var(--muted);}
           <div class="pricing-feature"><div class="pricing-feature-check">✓</div>Funciona offline — sem depender de internet</div>
           <div class="pricing-feature"><div class="pricing-feature-check">✓</div>Atualizações mensais com novos protocolos</div>
         </div>
-        <a href="https://pay.cakto.com.br/39mazes_884016" class="pricing-cta">Assinar agora →</a>
+        <a href="https://pay.cakto.com.br/39mazes_884016" class="pricing-cta" data-track="click_assinar_premium">Assinar agora →</a>
         <div style="margin-top:14px;font-size:12px;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px;">🔒 Garantia de 7 dias. Não gostou, cancelamos sem perguntas.</div>
       </div>
 
@@ -371,7 +372,7 @@ footer p{font-size:13px;color:var(--muted);}
   </div>
 </section>
 
-<div style="background:var(--dark2);padding:80px 0;">
+<div style="background:var(--dark2);padding:80px 0;" data-track-section="faq">
 <div class="objections">
   <p class="section-tag reveal" style="text-align:center;display:block;margin-bottom:32px;">DÚVIDAS FREQUENTES</p>
   <div class="objection reveal" onclick="toggleObj(this)"><div class="objection-q">Funciona sem internet? <span class="objection-icon">+</span></div><div class="objection-a">Sim. Todos os protocolos são salvos no seu dispositivo. Você pode estar sem sinal no consultório e o app funciona normalmente.</div></div>
@@ -390,7 +391,7 @@ footer p{font-size:13px;color:var(--muted);}
     <h2 class="final-cta-title reveal">A próxima vez que<br>você travar na cadeira,<br>o que vai fazer?</h2>
     <p class="final-cta-sub reveal">Você pode continuar improvisando. Ou pode ter a resposta certa em 3 cliques.</p>
     <div class="cta-group reveal">
-      <a href="https://pay.cakto.com.br/39mazes_884016" class="btn-primary" style="font-size:18px;padding:20px 44px;">🦷 Assinar agora</a>
+      <a href="https://pay.cakto.com.br/39mazes_884016" class="btn-primary" style="font-size:18px;padding:20px 44px;" data-track="click_cta_final">🦷 Assinar agora</a>
     </div>
     <p class="hero-note reveal" style="margin-top:20px;"><span>✓</span> Garantia de 7 dias &nbsp;&nbsp; <span>✓</span> Cancele sem justificar</p>
   </div>
@@ -401,10 +402,154 @@ footer p{font-size:13px;color:var(--muted);}
 </footer>
 
 <script>
-const reveals=document.querySelectorAll('.reveal');
-const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});},{threshold:0.1});
-reveals.forEach(r=>observer.observe(r));
-function toggleObj(el){el.classList.toggle('open');}
+// ==================== FIREBASE CONFIG ====================
+const firebaseConfig = {
+  apiKey: "AIzaSyBGYluL3f0yuaZnpc-fX8sIQhlCeVo6bwk",
+  authDomain: "guia-odonto-a24ed.firebaseapp.com",
+  projectId: "guia-odonto-a24ed",
+  storageBucket: "guia-odonto-a24ed.firebasestorage.app",
+  messagingSenderId: "822223061470",
+  appId: "1:822223061470:web:8b1447dcfb37e7eeda1d4f"
+};
+
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
+
+// ==================== TRACKING DA LANDING PAGE ====================
+let sessionId = localStorage.getItem('odontodex_session_id');
+let sessionStartTime = Date.now();
+
+if (!sessionId) {
+  sessionId = generateSessionId();
+  localStorage.setItem('odontodex_session_id', sessionId);
+}
+
+function generateSessionId() {
+  return Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+}
+
+function getDeviceType() {
+  const ua = navigator.userAgent;
+  if (/mobile/i.test(ua)) return 'mobile';
+  if (/tablet/i.test(ua)) return 'tablet';
+  return 'desktop';
+}
+
+function getSource() {
+  const params = new URLSearchParams(window.location.search);
+  const utmSource = params.get('utm_source');
+  if (utmSource) return utmSource;
+  
+  const referrer = document.referrer;
+  if (referrer.includes('google')) return 'google';
+  if (referrer.includes('facebook')) return 'facebook';
+  if (referrer.includes('instagram')) return 'instagram';
+  if (referrer.includes('linkedin')) return 'linkedin';
+  if (referrer) return 'referrer';
+  return 'direct';
+}
+
+async function trackEvent(eventName, eventData = {}) {
+  try {
+    await db.collection('landing_stats').add({
+      sessionId: sessionId,
+      event: eventName,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+      userAgent: navigator.userAgent,
+      deviceType: getDeviceType(),
+      screenWidth: window.innerWidth,
+      screenHeight: window.innerHeight,
+      source: getSource(),
+      url: window.location.pathname,
+      ...eventData
+    });
+    console.log('📊 Evento registrado:', eventName);
+  } catch (error) {
+    console.error('Erro ao registrar evento:', error);
+  }
+}
+
+// Registrar page view ao carregar
+trackEvent('page_view', {
+  pageTitle: document.title,
+  referrer: document.referrer
+});
+
+// Scroll depth tracking
+let maxScrollPercent = 0;
+function trackScrollDepth() {
+  const scrollPercent = (window.scrollY + window.innerHeight) / document.body.scrollHeight * 100;
+  if (scrollPercent > maxScrollPercent) {
+    maxScrollPercent = scrollPercent;
+    if (maxScrollPercent >= 25 && maxScrollPercent < 50) trackEvent('scroll_25');
+    if (maxScrollPercent >= 50 && maxScrollPercent < 75) trackEvent('scroll_50');
+    if (maxScrollPercent >= 75 && maxScrollPercent < 100) trackEvent('scroll_75');
+    if (maxScrollPercent >= 100) trackEvent('scroll_100');
+  }
+}
+window.addEventListener('scroll', trackScrollDepth);
+
+// Time on page tracking
+let pageViewStart = Date.now();
+window.addEventListener('beforeunload', () => {
+  const timeOnPage = Math.round((Date.now() - pageViewStart) / 1000);
+  trackEvent('exit', { timeOnPageSeconds: timeOnPage });
+});
+
+// Track all clicks on elements with data-track attribute
+document.addEventListener('click', (e) => {
+  const target = e.target.closest('[data-track]');
+  if (target) {
+    const eventName = target.getAttribute('data-track');
+    trackEvent(eventName, {
+      elementText: target.innerText?.substring(0, 100),
+      elementId: target.id,
+      elementClass: target.className
+    });
+  }
+});
+
+// Track section views (when sections enter viewport)
+const sectionObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const section = entry.target;
+      const sectionName = section.getAttribute('data-track-section');
+      if (sectionName) {
+        trackEvent('section_view', { section: sectionName });
+        sectionObserver.unobserve(section);
+      }
+    }
+  });
+}, { threshold: 0.5 });
+
+document.querySelectorAll('[data-track-section]').forEach(section => {
+  sectionObserver.observe(section);
+});
+
+// Timer tracking for CTA (tempo até clicar no botão de assinatura)
+let timerStartTime = Date.now();
+function trackTimerClick() {
+  const timeToClick = Math.round((Date.now() - timerStartTime) / 1000);
+  trackEvent('timer_click', { timeToClickSeconds: timeToClick });
+}
+
+// Re-iniciar timer quando o timer for visível (quando chegar na seção de planos)
+const timerObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      timerStartTime = Date.now();
+      timerObserver.unobserve(entry.target);
+    }
+  });
+});
+
+const timerElement = document.getElementById('timer');
+if (timerElement) {
+  timerObserver.observe(timerElement.parentElement.parentElement);
+}
+
+// ==================== TIMER ORIGINAL ====================
 function startTimer(){
   let target=localStorage.getItem('odontodex_lp_timer');
   if(!target){target=Date.now()+24*60*60*1000;localStorage.setItem('odontodex_lp_timer',target);}
@@ -418,7 +563,27 @@ function startTimer(){
   }
   update();
 }
+
+function toggleObj(el){el.classList.toggle('open');}
+
+// ==================== REVEAL ANIMATION ====================
+const reveals=document.querySelectorAll('.reveal');
+const observer=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target);}});},{threshold:0.1});
+reveals.forEach(r=>observer.observe(r));
+
 startTimer();
+
+// Track quando o usuário sai da página (abandono)
+let abandonTime = null;
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    abandonTime = Date.now();
+  } else if (abandonTime) {
+    const timeAway = Math.round((Date.now() - abandonTime) / 1000);
+    trackEvent('return_from_inactive', { timeAwaySeconds: timeAway });
+    abandonTime = null;
+  }
+});
 </script>
 </body>
 </html>
