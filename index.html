@@ -2644,7 +2644,7 @@ window.addEventListener('online', () => {
   window.addEventListener('offline', () => {
     showToast('📴 Sem internet — usando dados salvos', 'success');
   });
-}); 
+  
   // iOS: show modal automatically if not standalone and not dismissed
   if(isIOS() && !isInStandaloneMode() && !pwaAlreadyDismissed()){
     setTimeout(()=>{
