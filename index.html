@@ -1343,6 +1343,26 @@ if(planBadge){
     planBadge.style.boxShadow = 'none';
   }
 }
+  const expInfoId = 'cfg-premium-expira';
+  let expInfoEl = document.getElementById(expInfoId);
+  if (!expInfoEl) {
+    expInfoEl = document.createElement('div');
+    expInfoEl.id = expInfoId;
+    expInfoEl.style.cssText = 'font-size:11px;color:#F59E0B;font-weight:600;text-align:center;margin-top:4px;';
+    const planBadgeParent = document.getElementById('cfg-plan-badge')?.parentElement;
+    if (planBadgeParent) planBadgeParent.appendChild(expInfoEl);
+  }
+  if (window.userIsPremium && currentUser) {
+    db.collection("users").doc(currentUser.uid).get().then(doc => {
+      if (doc.exists && doc.data().premiumExpira) {
+        const expDate = doc.data().premiumExpira.toDate();
+        const dias = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
+        expInfoEl.textContent = `Expira em ${dias} dia${dias !== 1 ? 's' : ''} · ${expDate.toLocaleDateString('pt-BR')}`;
+      }
+    }).catch(() => {});
+  } else {
+    expInfoEl.textContent = '';
+  }
   const cn = document.getElementById('cfg-user-name');
   if(cn) cn.textContent = dnFmt;
   const ce = document.getElementById('cfg-user-email');
