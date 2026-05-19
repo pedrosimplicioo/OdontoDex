@@ -2828,9 +2828,28 @@ async function submitCancel() {
     const subject = `Cancelamento assinatura OdontoDex - ${currentUser.email}`;
     const body = `Olá,\n\nSolicito o cancelamento da minha assinatura OdontoDex Premium.\n\nMeus dados:\nE-mail: ${currentUser.email}\nNome: ${currentUser.displayName || ''}\nMotivo: ${finalReason}\n\nAgradeço pela atenção.`;
     
-    setTimeout(() => {
-      window.location.href = `mailto:compradores@cakto.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    }, 500);
+    hideCancelModal();
+showToast("Solicitação registrada com sucesso!", "success");
+
+// Mostra instrução inline
+const instrDiv = document.createElement('div');
+instrDiv.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:flex-end;justify-content:center;z-index:9999;';
+instrDiv.innerHTML = `
+  <div style="background:#1E293B;border-radius:28px 28px 0 0;padding:28px 20px 40px;width:100%;max-width:430px;">
+    <div style="font-size:32px;text-align:center;margin-bottom:12px;">📧</div>
+    <div style="font-size:17px;font-weight:800;color:#F1F5F9;text-align:center;margin-bottom:8px;">Última etapa</div>
+    <div style="font-size:14px;color:#94A3B8;text-align:center;margin-bottom:20px;line-height:1.5;">Envie um e-mail para confirmar o cancelamento:</div>
+    <div style="background:#0F172A;border-radius:14px;padding:14px;margin-bottom:20px;">
+      <div style="font-size:11px;color:#64748B;margin-bottom:4px;">PARA</div>
+      <div style="font-size:14px;font-weight:700;color:#F1F5F9;">compradores@cakto.com.br</div>
+      <div style="font-size:11px;color:#64748B;margin-top:10px;margin-bottom:4px;">ASSUNTO</div>
+      <div style="font-size:13px;color:#F1F5F9;">Cancelamento OdontoDex - ${currentUser.email}</div>
+    </div>
+    <button onclick="navigator.clipboard.writeText('compradores@cakto.com.br').then(()=>showToast('Email copiado!','success'))" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:16px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">📋 Copiar email</button>
+    <button onclick="this.parentElement.parentElement.remove()" style="width:100%;background:none;border:none;color:#64748B;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Fechar</button>
+  </div>
+`;
+document.body.appendChild(instrDiv);
     
   } catch (error) {
     console.error("Erro ao salvar cancelamento:", error);
