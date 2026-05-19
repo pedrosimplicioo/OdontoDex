@@ -14,6 +14,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,sans-serif;background:#F1F5F9;min-height:100vh;max-width:430px;margin:0 auto;position:relative;overscroll-behavior:none;transition:background 0.2s,color 0.2s;}
@@ -1398,6 +1399,26 @@ if(planBadge){
     planBadge.style.boxShadow = 'none';
   }
 }
+  const expInfoId = 'cfg-premium-expira';
+  let expInfoEl = document.getElementById(expInfoId);
+  if (!expInfoEl) {
+    expInfoEl = document.createElement('div');
+    expInfoEl.id = expInfoId;
+    expInfoEl.style.cssText = 'font-size:11px;color:#F59E0B;font-weight:600;text-align:center;margin-top:4px;';
+    const planBadgeParent = document.getElementById('cfg-plan-badge')?.parentElement;
+    if (planBadgeParent) planBadgeParent.appendChild(expInfoEl);
+  }
+  if (window.userIsPremium && currentUser) {
+    db.collection("users").doc(currentUser.uid).get().then(doc => {
+      if (doc.exists && doc.data().premiumExpira) {
+        const expDate = doc.data().premiumExpira.toDate();
+        const dias = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
+        expInfoEl.textContent = `Expira em ${dias} dia${dias !== 1 ? 's' : ''} · ${expDate.toLocaleDateString('pt-BR')}`;
+      }
+    }).catch(() => {});
+  } else {
+    expInfoEl.textContent = '';
+  }
   const cn = document.getElementById('cfg-user-name');
   if(cn) cn.textContent = dnFmt;
   const ce = document.getElementById('cfg-user-email');
@@ -2738,9 +2759,28 @@ document.addEventListener("DOMContentLoaded", () => {
       // NOVO: Vincular sessionId da landing com o usuário (conversão)
       await vincularSessionIdUsuario(user.uid);
       
-      try {
+     try {
         const doc = await db.collection("users").doc(user.uid).get();
-        window.userIsPremium = doc.exists && doc.data().premium === true;
+        if (doc.exists && doc.data().premium === true) {
+          const expira = doc.data().premiumExpira;
+          if (expira && expira.toDate() > new Date()) {
+            window.userIsPremium = true;
+          } else {
+            window.userIsPremium = false;
+          }
+        } else {
+          window.userIsPremium = false;
+        }
+        // Verifica se tem pagamento pendente (comprou antes de criar conta)
+        try {
+          const verificar = firebase.functions().httpsCallable("verificarPagamentoPendente");
+          const resultado = await verificar();
+          if (resultado.data && resultado.data.encontrado) {
+            window.userIsPremium = true;
+            const expDate = new Date(resultado.data.expiracao);
+            showToast("🎉 Premium ativado! Válido até " + expDate.toLocaleDateString("pt-BR"), "success");
+          }
+        } catch(e2) { /* sem pagamento pendente */ }
       } catch(e) {
         window.userIsPremium = false;
       }
