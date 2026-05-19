@@ -1111,6 +1111,9 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
+  b.enablePersistence().catch(err => {
+  console.warn('Persistência offline não disponível:', err.code);
+});
 
 // ==================== FUNÇÕES DE RASTREAMENTO DO APP ====================
 
@@ -2634,7 +2637,14 @@ document.addEventListener('DOMContentLoaded', () => {
   if('serviceWorker' in navigator){
     navigator.serviceWorker.register('sw.js').catch(()=>{});
   }
+window.addEventListener('online', () => {
+    showToast('✅ Conexão restaurada', 'success');
+  });
 
+  window.addEventListener('offline', () => {
+    showToast('📴 Sem internet — usando dados salvos', 'success');
+  });
+}); 
   // iOS: show modal automatically if not standalone and not dismissed
   if(isIOS() && !isInStandaloneMode() && !pwaAlreadyDismissed()){
     setTimeout(()=>{
@@ -2731,6 +2741,7 @@ function openCancelModal() {
     showToast("Faça login para cancelar a assinatura", "error");
     return;
   }
+  setupCancelButtons();
   
   selectedCancelReason = null;
   
@@ -2870,11 +2881,6 @@ function updatePremiumUI() {
     cancelSection.style.display = window.userIsPremium === true ? 'block' : 'none';
   }
 }
-
-// Inicializa os botões quando a página carrega
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(setupCancelButtons, 500);
-});
   // ==================== BANNER PARA ESTUDANTES ====================
 function adicionarBannerEstudante() {
   const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
