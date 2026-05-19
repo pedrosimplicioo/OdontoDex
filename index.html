@@ -2965,7 +2965,7 @@ function fecharBannerEstudante() {
   if (banner) banner.remove();
   localStorage.setItem('studentBannerDismissed', 'true');
 }
-  sync function iniciarPagamento() {
+  async function iniciarPagamento() {
   if (!currentUser) {
     showToast("Faça login primeiro", "error");
     return;
