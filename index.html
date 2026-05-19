@@ -14,7 +14,6 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-functions-compat.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,sans-serif;background:#F1F5F9;min-height:100vh;max-width:430px;margin:0 auto;position:relative;overscroll-behavior:none;transition:background 0.2s,color 0.2s;}
@@ -481,6 +480,63 @@ body.dark .cancel-reason-btn.selected {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+  // ==================== BANNER PARA ESTUDANTES ====================
+function adicionarBannerEstudante() {
+  const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
+  
+  // Remove banner antigo se existir
+  const bannerExistente = document.getElementById('student-banner');
+  if (bannerExistente) bannerExistente.remove();
+  
+  // Só mostra se for estudante
+  if (perfil !== 'estudante') return;
+  
+  // Verifica se o usuário já fechou o banner
+  const bannerFechado = localStorage.getItem('studentBannerDismissed');
+  if (bannerFechado === 'true') return;
+  
+  const header = document.getElementById('main-header');
+  if (!header) return;
+  
+  const banner = document.createElement('div');
+  banner.id = 'student-banner';
+  banner.className = 'student-banner';
+  banner.innerHTML = `
+    <button class="student-banner-close" onclick="fecharBannerEstudante()">✕</button>
+    <div class="student-banner-header">
+      <span class="student-banner-icon">🎓</span>
+      <span class="student-banner-title">ATENÇÃO: MODO ESTUDANTE</span>
+    </div>
+    <div class="student-banner-content">
+      Os protocolos clínicos exibidos neste app refletem práticas gerais da odontologia.
+      Cada faculdade ou universidade pode adotar técnicas, materiais ou fluxos diferentes.
+    </div>
+    <div class="student-banner-warning">
+      ⚠️ PORTANTO:<br>
+      • Este conteúdo NÃO substitui a orientação do seu professor<br>
+      • NÃO execute procedimentos sem supervisão adequada<br>
+      • Em caso de dúvida, CONSULTE seu supervisor
+    </div>
+  `;
+  
+  // 🔥 INSERE O BANNER ENTRE O .hdr-nome e o .hdr-pergunta
+  const nomeEl = header.querySelector('.hdr-nome');
+  const perguntaEl = header.querySelector('.hdr-pergunta');
+  
+  if (nomeEl && perguntaEl) {
+    // Insere o banner entre o nome e a pergunta
+    header.insertBefore(banner, perguntaEl);
+  } else {
+    // Fallback: adiciona no final do header
+    header.appendChild(banner);
+  }
+}
+
+function fecharBannerEstudante() {
+  const banner = document.getElementById('student-banner');
+  if (banner) banner.remove();
+  localStorage.setItem('studentBannerDismissed', 'true');
+}
 </style>
 </head>
 <body>
@@ -850,11 +906,10 @@ body.dark .cancel-reason-btn.selected {
       <div class="prem-price-inner">
         <div class="prem-price-tag">ACESSO TOTAL</div>
         <div class="prem-price-row">
-          <div class="prem-price-main">R$<span class="prem-price-num">9</span><span class="prem-price-cents">,90*</span></div>
+          <div class="prem-price-main">R$<span class="prem-price-num">9</span><span class="prem-price-cents">,90</span></div>
           <div class="prem-price-aside">
             <div class="prem-price-period">por mês</div>
             <div class="prem-price-day">- R$0,50/dia</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px;">*+ taxas de processamento</div>
           </div>
         </div>
       </div>
@@ -1343,26 +1398,6 @@ if(planBadge){
     planBadge.style.boxShadow = 'none';
   }
 }
-  const expInfoId = 'cfg-premium-expira';
-  let expInfoEl = document.getElementById(expInfoId);
-  if (!expInfoEl) {
-    expInfoEl = document.createElement('div');
-    expInfoEl.id = expInfoId;
-    expInfoEl.style.cssText = 'font-size:11px;color:#F59E0B;font-weight:600;text-align:center;margin-top:4px;';
-    const planBadgeParent = document.getElementById('cfg-plan-badge')?.parentElement;
-    if (planBadgeParent) planBadgeParent.appendChild(expInfoEl);
-  }
-  if (window.userIsPremium && currentUser) {
-    db.collection("users").doc(currentUser.uid).get().then(doc => {
-      if (doc.exists && doc.data().premiumExpira) {
-        const expDate = doc.data().premiumExpira.toDate();
-        const dias = Math.ceil((expDate - new Date()) / (1000 * 60 * 60 * 24));
-        expInfoEl.textContent = `Expira em ${dias} dia${dias !== 1 ? 's' : ''} · ${expDate.toLocaleDateString('pt-BR')}`;
-      }
-    }).catch(() => {});
-  } else {
-    expInfoEl.textContent = '';
-  }
   const cn = document.getElementById('cfg-user-name');
   if(cn) cn.textContent = dnFmt;
   const ce = document.getElementById('cfg-user-email');
@@ -2703,28 +2738,9 @@ document.addEventListener("DOMContentLoaded", () => {
       // NOVO: Vincular sessionId da landing com o usuário (conversão)
       await vincularSessionIdUsuario(user.uid);
       
-     try {
+      try {
         const doc = await db.collection("users").doc(user.uid).get();
-        if (doc.exists && doc.data().premium === true) {
-          const expira = doc.data().premiumExpira;
-          if (expira && expira.toDate() > new Date()) {
-            window.userIsPremium = true;
-          } else {
-            window.userIsPremium = false;
-          }
-        } else {
-          window.userIsPremium = false;
-        }
-        // Verifica se tem pagamento pendente (comprou antes de criar conta)
-        try {
-          const verificar = firebase.functions().httpsCallable("verificarPagamentoPendente");
-          const resultado = await verificar();
-          if (resultado.data && resultado.data.encontrado) {
-            window.userIsPremium = true;
-            const expDate = new Date(resultado.data.expiracao);
-            showToast("🎉 Premium ativado! Válido até " + expDate.toLocaleDateString("pt-BR"), "success");
-          }
-        } catch(e2) { /* sem pagamento pendente */ }
+        window.userIsPremium = doc.exists && doc.data().premium === true;
       } catch(e) {
         window.userIsPremium = false;
       }
