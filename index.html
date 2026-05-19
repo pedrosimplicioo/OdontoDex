@@ -2696,25 +2696,29 @@ document.addEventListener("DOMContentLoaded", () => {
           window.userIsPremium = false;
         }
         // Verifica se tem pagamento pendente (comprou antes de criar conta)
-        try {
-          const verificar = firebase.functions().httpsCallable("verificarPagamentoPendente");
-          const resultado = await verificar();
-          if (resultado.data && resultado.data.encontrado) {
-            window.userIsPremium = true;
-            const expDate = new Date(resultado.data.expiracao);
-            showToast("🎉 Premium ativado! Válido até " + expDate.toLocaleDateString("pt-BR"), "success");
-          }
-        } catch(e2) { /* sem pagamento pendente */ }
-      } catch(e) {
-        window.userIsPremium = false;
-      }
- updatePremiumUI(); 
-      showAppScreen();
-    } else {
-      showLoginScreen();
-    }
-  });
-});
+      try {
+  const verificar = firebase.functions().httpsCallable("verificarPagamentoPendente");
+  const resultado = await verificar();
+  if (resultado.data && resultado.data.encontrado) {
+    window.userIsPremium = true;
+    const expDate = new Date(resultado.data.expiracao);
+    showToast("🎉 Premium ativado! Válido até " + expDate.toLocaleDateString("pt-BR"), "success");
+  }
+} catch(e2) {
+  if (e2.code === 'functions/not-found' || e2.code === 'functions/unavailable') {
+    console.warn('Função não disponível — ignorando verificação de pagamento pendente');
+  } else {
+    console.error('Erro inesperado ao verificar pagamento:', e2.code, e2.message);
+    db.collection('erros_app').add({
+      tipo: 'verificarPagamentoPendente',
+      erro: e2.message,
+      codigo: e2.code,
+      userId: currentUser?.uid,
+      email: currentUser?.email,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    }).catch(() => {});
+  }
+}
 // ============================================================
 // ========== CANCELAMENTO PREMIUM ============================
 // ============================================================
