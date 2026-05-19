@@ -481,6 +481,63 @@ body.dark .cancel-reason-btn.selected {
   -ms-overflow-style: none;
   scrollbar-width: none;
 }
+  // ==================== BANNER PARA ESTUDANTES ====================
+function adicionarBannerEstudante() {
+  const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
+  
+  // Remove banner antigo se existir
+  const bannerExistente = document.getElementById('student-banner');
+  if (bannerExistente) bannerExistente.remove();
+  
+  // Só mostra se for estudante
+  if (perfil !== 'estudante') return;
+  
+  // Verifica se o usuário já fechou o banner
+  const bannerFechado = localStorage.getItem('studentBannerDismissed');
+  if (bannerFechado === 'true') return;
+  
+  const header = document.getElementById('main-header');
+  if (!header) return;
+  
+  const banner = document.createElement('div');
+  banner.id = 'student-banner';
+  banner.className = 'student-banner';
+  banner.innerHTML = `
+    <button class="student-banner-close" onclick="fecharBannerEstudante()">✕</button>
+    <div class="student-banner-header">
+      <span class="student-banner-icon">🎓</span>
+      <span class="student-banner-title">ATENÇÃO: MODO ESTUDANTE</span>
+    </div>
+    <div class="student-banner-content">
+      Os protocolos clínicos exibidos neste app refletem práticas gerais da odontologia.
+      Cada faculdade ou universidade pode adotar técnicas, materiais ou fluxos diferentes.
+    </div>
+    <div class="student-banner-warning">
+      ⚠️ PORTANTO:<br>
+      • Este conteúdo NÃO substitui a orientação do seu professor<br>
+      • NÃO execute procedimentos sem supervisão adequada<br>
+      • Em caso de dúvida, CONSULTE seu supervisor
+    </div>
+  `;
+  
+  // 🔥 INSERE O BANNER ENTRE O .hdr-nome e o .hdr-pergunta
+  const nomeEl = header.querySelector('.hdr-nome');
+  const perguntaEl = header.querySelector('.hdr-pergunta');
+  
+  if (nomeEl && perguntaEl) {
+    // Insere o banner entre o nome e a pergunta
+    header.insertBefore(banner, perguntaEl);
+  } else {
+    // Fallback: adiciona no final do header
+    header.appendChild(banner);
+  }
+}
+
+function fecharBannerEstudante() {
+  const banner = document.getElementById('student-banner');
+  if (banner) banner.remove();
+  localStorage.setItem('studentBannerDismissed', 'true');
+}
 </style>
 </head>
 <body>
@@ -850,11 +907,10 @@ body.dark .cancel-reason-btn.selected {
       <div class="prem-price-inner">
         <div class="prem-price-tag">ACESSO TOTAL</div>
         <div class="prem-price-row">
-          <div class="prem-price-main">R$<span class="prem-price-num">9</span><span class="prem-price-cents">,90*</span></div>
+          <div class="prem-price-main">R$<span class="prem-price-num">9</span><span class="prem-price-cents">,90</span></div>
           <div class="prem-price-aside">
             <div class="prem-price-period">por mês</div>
             <div class="prem-price-day">- R$0,50/dia</div>
-            <div style="font-size:10px;color:rgba(255,255,255,0.3);margin-top:4px;">*+ taxas de processamento</div>
           </div>
         </div>
       </div>
@@ -2696,29 +2752,25 @@ document.addEventListener("DOMContentLoaded", () => {
           window.userIsPremium = false;
         }
         // Verifica se tem pagamento pendente (comprou antes de criar conta)
-      try {
-  const verificar = firebase.functions().httpsCallable("verificarPagamentoPendente");
-  const resultado = await verificar();
-  if (resultado.data && resultado.data.encontrado) {
-    window.userIsPremium = true;
-    const expDate = new Date(resultado.data.expiracao);
-    showToast("🎉 Premium ativado! Válido até " + expDate.toLocaleDateString("pt-BR"), "success");
-  }
-} catch(e2) {
-  if (e2.code === 'functions/not-found' || e2.code === 'functions/unavailable') {
-    console.warn('Função não disponível — ignorando verificação de pagamento pendente');
-  } else {
-    console.error('Erro inesperado ao verificar pagamento:', e2.code, e2.message);
-    db.collection('erros_app').add({
-      tipo: 'verificarPagamentoPendente',
-      erro: e2.message,
-      codigo: e2.code,
-      userId: currentUser?.uid,
-      email: currentUser?.email,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(() => {});
-  }
-}
+        try {
+          const verificar = firebase.functions().httpsCallable("verificarPagamentoPendente");
+          const resultado = await verificar();
+          if (resultado.data && resultado.data.encontrado) {
+            window.userIsPremium = true;
+            const expDate = new Date(resultado.data.expiracao);
+            showToast("🎉 Premium ativado! Válido até " + expDate.toLocaleDateString("pt-BR"), "success");
+          }
+        } catch(e2) { /* sem pagamento pendente */ }
+      } catch(e) {
+        window.userIsPremium = false;
+      }
+ updatePremiumUI(); 
+      showAppScreen();
+    } else {
+      showLoginScreen();
+    }
+  });
+});
 // ============================================================
 // ========== CANCELAMENTO PREMIUM ============================
 // ============================================================
@@ -2832,28 +2884,9 @@ async function submitCancel() {
     const subject = `Cancelamento assinatura OdontoDex - ${currentUser.email}`;
     const body = `Olá,\n\nSolicito o cancelamento da minha assinatura OdontoDex Premium.\n\nMeus dados:\nE-mail: ${currentUser.email}\nNome: ${currentUser.displayName || ''}\nMotivo: ${finalReason}\n\nAgradeço pela atenção.`;
     
-    hideCancelModal();
-showToast("Solicitação registrada com sucesso!", "success");
-
-// Mostra instrução inline
-const instrDiv = document.createElement('div');
-instrDiv.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:flex-end;justify-content:center;z-index:9999;';
-instrDiv.innerHTML = `
-  <div style="background:#1E293B;border-radius:28px 28px 0 0;padding:28px 20px 40px;width:100%;max-width:430px;">
-    <div style="font-size:32px;text-align:center;margin-bottom:12px;">📧</div>
-    <div style="font-size:17px;font-weight:800;color:#F1F5F9;text-align:center;margin-bottom:8px;">Última etapa</div>
-    <div style="font-size:14px;color:#94A3B8;text-align:center;margin-bottom:20px;line-height:1.5;">Envie um e-mail para confirmar o cancelamento:</div>
-    <div style="background:#0F172A;border-radius:14px;padding:14px;margin-bottom:20px;">
-      <div style="font-size:11px;color:#64748B;margin-bottom:4px;">PARA</div>
-      <div style="font-size:14px;font-weight:700;color:#F1F5F9;">compradores@cakto.com.br</div>
-      <div style="font-size:11px;color:#64748B;margin-top:10px;margin-bottom:4px;">ASSUNTO</div>
-      <div style="font-size:13px;color:#F1F5F9;">Cancelamento OdontoDex - ${currentUser.email}</div>
-    </div>
-    <button onclick="navigator.clipboard.writeText('compradores@cakto.com.br').then(()=>showToast('Email copiado!','success'))" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:16px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">📋 Copiar email</button>
-    <button onclick="this.parentElement.parentElement.remove()" style="width:100%;background:none;border:none;color:#64748B;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Fechar</button>
-  </div>
-`;
-document.body.appendChild(instrDiv);
+    setTimeout(() => {
+      window.location.href = `mailto:compradores@cakto.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    }, 500);
     
   } catch (error) {
     console.error("Erro ao salvar cancelamento:", error);
@@ -2920,7 +2953,7 @@ function adicionarBannerEstudante() {
       line-height: 1;
     ">✕</button>
     <div style="margin-bottom: 4px;">
-      <strong>⚠️ ATENÇÃO ESTUDANTE:</strong>
+      <strong>⚠️ ATENÇÃO: MODO ESTUDANTE</strong>
     </div>
     <div style="margin-bottom: 6px;">
       Os protocolos clínicos exibidos neste app refletem práticas gerais da odontologia.
