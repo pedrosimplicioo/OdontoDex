@@ -2933,7 +2933,7 @@ function adicionarBannerEstudante() {
       line-height: 1;
     ">✕</button>
     <div style="margin-bottom: 4px;">
-      <strong>⚠️ ATENÇÃO: MODO ESTUDANTE</strong>
+      <strong>⚠️ ATENÇÃO ESTUDANTE:</strong>
     </div>
     <div style="margin-bottom: 6px;">
       Os protocolos clínicos exibidos neste app refletem práticas gerais da odontologia.
@@ -2964,6 +2964,34 @@ function fecharBannerEstudante() {
   const banner = document.getElementById('student-banner');
   if (banner) banner.remove();
   localStorage.setItem('studentBannerDismissed', 'true');
+}
+  async function iniciarPagamento() {
+  if (!currentUser) {
+    showToast("Faça login primeiro", "error");
+    return;
+  }
+  showLoading();
+  try {
+    const res = await fetch("/api/create-preference", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uid: currentUser.uid,
+        email: currentUser.email,
+      }),
+    });
+    const data = await res.json();
+    if (data.sandboxInitPoint) {
+      window.open(data.sandboxInitPoint, "_blank");
+    } else {
+      throw new Error("Sem link de pagamento");
+    }
+  } catch (error) {
+    showToast("Erro ao iniciar pagamento. Tente novamente.", "error");
+    console.error(error);
+  } finally {
+    hideLoading();
+  }
 }
 </script>
 </body>
