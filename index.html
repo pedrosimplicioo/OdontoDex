@@ -2676,288 +2676,280 @@ window.addEventListener('online', () => {
   });
 });
 
-// ==================== INICIALIZAÇÃO ====================
-document.addEventListener("DOMContentLoaded", () => {
-  initData();
-  initDarkMode();
+  // ==================== INICIALIZAÇÃO ====================
+  document.addEventListener("DOMContentLoaded", () => {
+    initData();
+    initDarkMode();
 
-  auth.onAuthStateChanged(async(user) => {
-    if(user) {
-      currentUser = user;
-      const em = document.getElementById("user-email-display");
-      if(em) em.textContent = user.email;
-      
-      // NOVO: Registrar acesso do usuário
-      await registrarAcessoUsuario(user.uid);
-      
-      // NOVO: Vincular sessionId da landing com o usuário (conversão)
-      await vincularSessionIdUsuario(user.uid);
-      
-     try {
-        const doc = await db.collection("users").doc(user.uid).get();
-        if (doc.exists && doc.data().premium === true) {
-          const expira = doc.data().premiumExpira;
-          if (expira && expira.toDate() > new Date()) {
-            window.userIsPremium = true;
+    auth.onAuthStateChanged(async(user) => {
+      if(user) {
+        currentUser = user;
+        const em = document.getElementById("user-email-display");
+        if(em) em.textContent = user.email;
+        
+        // Registrar acesso do usuário
+        await registrarAcessoUsuario(user.uid);
+        
+        // Vincular sessionId da landing com o usuário (conversão)
+        await vincularSessionIdUsuario(user.uid);
+        
+        try {
+          const doc = await db.collection("users").doc(user.uid).get();
+          if (doc.exists && doc.data().premium === true) {
+            const expira = doc.data().premiumExpira;
+            if (expira && expira.toDate() > new Date()) {
+              window.userIsPremium = true;
+            } else {
+              window.userIsPremium = false;
+            }
           } else {
             window.userIsPremium = false;
           }
-        } else {
+          
+          // Verifica se tem pagamento pendente
+          try {
+            const verificar = firebase.functions().httpsCallable("verificarPagamentoPendente");
+            const resultado = await verificar();
+            if (resultado.data && resultado.data.encontrado) {
+              window.userIsPremium = true;
+              const expDate = new Date(resultado.data.expiracao);
+              showToast("🎉 Premium ativado! Válido até " + expDate.toLocaleDateString("pt-BR"), "success");
+            }
+          } catch(e2) {
+            if (e2.code === 'functions/not-found' || e2.code === 'functions/unavailable') {
+              console.warn('Função não disponível — ignorando verificação de pagamento pendente');
+            } else {
+              console.error('Erro inesperado ao verificar pagamento:', e2.code, e2.message);
+            }
+          }
+          
+          updatePremiumUI();
+          
+        } catch(error) {
+          console.error("Erro ao carregar dados do usuário:", error);
           window.userIsPremium = false;
         }
-        // Verifica se tem pagamento pendente (comprou antes de criar conta)
-      try {
-  const verificar = firebase.functions().httpsCallable("verificarPagamentoPendente");
-  const resultado = await verificar();
-  if (resultado.data && resultado.data.encontrado) {
-    window.userIsPremium = true;
-    const expDate = new Date(resultado.data.expiracao);
-    showToast("🎉 Premium ativado! Válido até " + expDate.toLocaleDateString("pt-BR"), "success");
-  }
-} catch(e2) {
-  if (e2.code === 'functions/not-found' || e2.code === 'functions/unavailable') {
-    console.warn('Função não disponível — ignorando verificação de pagamento pendente');
-  } else {
-    console.error('Erro inesperado ao verificar pagamento:', e2.code, e2.message);
-    db.collection('erros_app').add({
-      tipo: 'verificarPagamentoPendente',
-      erro: e2.message,
-      codigo: e2.code,
-      userId: currentUser?.uid,
-      email: currentUser?.email,
-      timestamp: firebase.firestore.FieldValue.serverTimestamp()
-    }).catch(() => {});
-  }
-}
-// ============================================================
-// ========== CANCELAMENTO PREMIUM ============================
-// ============================================================
-
-let selectedCancelReason = null;
-
-// Função para ABRIR o modal de cancelamento
-function openCancelModal() {
-  if (!currentUser) {
-    showToast("Faça login para cancelar a assinatura", "error");
-    return;
-  }
-  setupCancelButtons();
-  
-  selectedCancelReason = null;
-  
-  const otherInput = document.getElementById('cancel-other-text');
-  const suggestionInput = document.getElementById('cancel-suggestion');
-  if (otherInput) otherInput.value = '';
-  if (suggestionInput) suggestionInput.value = '';
-  
-  const otherDiv = document.getElementById('other-reason-input');
-  if (otherDiv) otherDiv.style.display = 'none';
-  
-  document.querySelectorAll('.cancel-reason-btn').forEach(btn => {
-    btn.classList.remove('selected');
+        
+      } else {
+        showLoginScreen();
+      }
+    });
   });
-  
-  showOverlay('cancel-overlay');
-}
 
-// Função para FECHAR o modal de cancelamento
-function hideCancelModal() {
-  hideOverlay('cancel-overlay');
-}
-
-// Configura os botões de motivo
-function setupCancelButtons() {
-  document.querySelectorAll('.cancel-reason-btn').forEach(btn => {
-    btn.removeEventListener('click', handleCancelReasonClick);
-    btn.addEventListener('click', handleCancelReasonClick);
-  });
-}
-
-// O que acontece quando um botão de motivo é clicado
-function handleCancelReasonClick(e) {
-  const btn = e.currentTarget;
-  const reason = btn.getAttribute('data-reason');
+  // ==================== FUNÇÕES FALTANTES ====================
   
-  document.querySelectorAll('.cancel-reason-btn').forEach(b => {
-    b.classList.remove('selected');
-  });
-  
-  btn.classList.add('selected');
-  selectedCancelReason = reason;
-  
-  const otherDiv = document.getElementById('other-reason-input');
-  if (reason === 'Outro') {
-    if (otherDiv) otherDiv.style.display = 'block';
-    const otherText = document.getElementById('cancel-other-text');
-    if (otherText) otherText.focus();
-  } else {
-    if (otherDiv) otherDiv.style.display = 'none';
+  function updatePremiumUI() {
+    const cancelSection = document.getElementById('cancel-premium-section');
+    if (cancelSection) {
+      cancelSection.style.display = window.userIsPremium === true ? 'block' : 'none';
+    }
+    
+    // Atualiza a home se estiver visível
+    if (typeof renderHome === 'function' && document.getElementById('screen-app')?.classList.contains('active')) {
+      renderHome();
+    }
   }
-}
 
-// Função para ENVIAR o cancelamento
-async function submitCancel() {
-  if (!currentUser) {
-    showToast("Erro: usuário não encontrado", "error");
-    return;
+  function fecharBannerEstudante() {
+    const banner = document.getElementById('student-banner');
+    if (banner) banner.remove();
+    localStorage.setItem('studentBannerDismissed', 'true');
   }
+
+  function adicionarBannerEstudante() {
+    const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
+    
+    const bannerExistente = document.getElementById('student-banner');
+    if (bannerExistente) bannerExistente.remove();
+    
+    if (perfil !== 'estudante') return;
+    
+    const bannerFechado = localStorage.getItem('studentBannerDismissed');
+    if (bannerFechado === 'true') return;
+    
+    const header = document.getElementById('main-header');
+    if (!header) return;
+    
+    const banner = document.createElement('div');
+    banner.id = 'student-banner';
+    banner.style.cssText = `
+      background-color: #FFF3CD;
+      border-left: 4px solid #FFC107;
+      padding: 8px 24px 8px 12px;
+      width: 100%;
+      position: relative;
+      margin: 8px 0;
+      font-size: 11px;
+      line-height: 1.4;
+      border-radius: 4px;
+    `;
+    banner.innerHTML = `
+      <button class="student-banner-close" onclick="fecharBannerEstudante()" style="
+        position: absolute;
+        top: 4px;
+        right: 6px;
+        background: none;
+        border: none;
+        font-size: 12px;
+        cursor: pointer;
+        color: #856404;
+        padding: 2px 4px;
+        line-height: 1;
+      ">✕</button>
+      <div style="margin-bottom: 4px;">
+        <strong>⚠️ ATENÇÃO ESTUDANTE:</strong>
+      </div>
+      <div style="margin-bottom: 6px;">
+        Os protocolos clínicos exibidos neste app refletem práticas gerais da odontologia.
+        Cada faculdade ou universidade pode adotar técnicas, materiais ou fluxos diferentes.
+      </div>
+      <div>
+        <strong>⚠ PORTANTO:</strong><br>
+        • Este conteúdo NÃO substitui a orientação do seu professor<br>
+        • NÃO execute procedimentos sem supervisão adequada<br>
+        • Em caso de dúvida, CONSULTE seu supervisor
+      </div>
+    `;
+    
+    const nomeEl = header.querySelector('.hdr-nome');
+    const perguntaEl = header.querySelector('.hdr-pergunta');
+    
+    if (nomeEl && perguntaEl) {
+      header.insertBefore(banner, perguntaEl);
+    } else {
+      header.appendChild(banner);
+    }
+  }
+
+  // ==================== FUNÇÕES DE CANCELAMENTO ====================
   
-  let finalReason = selectedCancelReason;
-  
-  if (selectedCancelReason === 'Outro') {
-    const otherText = document.getElementById('cancel-other-text').value.trim();
-    if (!otherText) {
-      showToast("Por favor, digite o motivo do cancelamento", "error");
+  let selectedCancelReason = null;
+
+  function openCancelModal() {
+    if (!currentUser) {
+      showToast("Faça login para cancelar a assinatura", "error");
       return;
     }
-    finalReason = `Outro: ${otherText}`;
-  }
-  
-  if (!finalReason) {
-    showToast("Por favor, selecione um motivo", "error");
-    return;
-  }
-  
-  const suggestion = document.getElementById('cancel-suggestion').value.trim();
-  
-  showLoading();
-  
-  try {
-    await db.collection('cancelamentos').add({
-      userId: currentUser.uid,
-      userEmail: currentUser.email,
-      userName: currentUser.displayName || localStorage.getItem('guiaNome') || '',
-      motivo: finalReason,
-      sugestao: suggestion || '',
-      dataCancelamento: new Date().toISOString(),
-      status: 'pendente',
-      plataforma: 'PWA'
+    
+    setupCancelButtons();
+    selectedCancelReason = null;
+    
+    const otherInput = document.getElementById('cancel-other-text');
+    const suggestionInput = document.getElementById('cancel-suggestion');
+    if (otherInput) otherInput.value = '';
+    if (suggestionInput) suggestionInput.value = '';
+    
+    const otherDiv = document.getElementById('other-reason-input');
+    if (otherDiv) otherDiv.style.display = 'none';
+    
+    document.querySelectorAll('.cancel-reason-btn').forEach(btn => {
+      btn.classList.remove('selected');
     });
     
-    console.log("Cancelamento registrado no Firebase!");
-    
-    hideCancelModal();
-    
-    showToast("Solicitação registrada! Verifique seu e-mail.", "success");
-    
-    const subject = `Cancelamento assinatura OdontoDex - ${currentUser.email}`;
-    const body = `Olá,\n\nSolicito o cancelamento da minha assinatura OdontoDex Premium.\n\nMeus dados:\nE-mail: ${currentUser.email}\nNome: ${currentUser.displayName || ''}\nMotivo: ${finalReason}\n\nAgradeço pela atenção.`;
-    
-    hideCancelModal();
-showToast("Solicitação registrada com sucesso!", "success");
-
-// Mostra instrução inline
-const instrDiv = document.createElement('div');
-instrDiv.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:flex-end;justify-content:center;z-index:9999;';
-instrDiv.innerHTML = `
-  <div style="background:#1E293B;border-radius:28px 28px 0 0;padding:28px 20px 40px;width:100%;max-width:430px;">
-    <div style="font-size:32px;text-align:center;margin-bottom:12px;">📧</div>
-    <div style="font-size:17px;font-weight:800;color:#F1F5F9;text-align:center;margin-bottom:8px;">Última etapa</div>
-    <div style="font-size:14px;color:#94A3B8;text-align:center;margin-bottom:20px;line-height:1.5;">Envie um e-mail para confirmar o cancelamento:</div>
-    <div style="background:#0F172A;border-radius:14px;padding:14px;margin-bottom:20px;">
-      <div style="font-size:11px;color:#64748B;margin-bottom:4px;">PARA</div>
-      <div style="font-size:14px;font-weight:700;color:#F1F5F9;">compradores@cakto.com.br</div>
-      <div style="font-size:11px;color:#64748B;margin-top:10px;margin-bottom:4px;">ASSUNTO</div>
-      <div style="font-size:13px;color:#F1F5F9;">Cancelamento OdontoDex - ${currentUser.email}</div>
-    </div>
-    <button onclick="navigator.clipboard.writeText('compradores@cakto.com.br').then(()=>showToast('Email copiado!','success'))" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:16px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">📋 Copiar email</button>
-    <button onclick="this.parentElement.parentElement.remove()" style="width:100%;background:none;border:none;color:#64748B;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Fechar</button>
-  </div>
-`;
-document.body.appendChild(instrDiv);
-    
-  } catch (error) {
-    console.error("Erro ao salvar cancelamento:", error);
-    showToast("Erro ao processar. Tente novamente.", "error");
-  } finally {
-    hideLoading();
+    showOverlay('cancel-overlay');
   }
-}
 
-// Função para MOSTRAR/ESCONDER o botão de cancelamento (só para Premium)
-function updatePremiumUI() {
-  const cancelSection = document.getElementById('cancel-premium-section');
-  if (cancelSection) {
-    cancelSection.style.display = window.userIsPremium === true ? 'block' : 'none';
+  function hideCancelModal() {
+    hideOverlay('cancel-overlay');
   }
-}
-  // ==================== BANNER PARA ESTUDANTES ====================
-function adicionarBannerEstudante() {
-  const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
-  
-  // Remove banner antigo se existir
-  const bannerExistente = document.getElementById('student-banner');
-  if (bannerExistente) bannerExistente.remove();
-  
-  // Só mostra se for estudante
-  if (perfil !== 'estudante') return;
-  
-  // Verifica se o usuário já fechou o banner
-  const bannerFechado = localStorage.getItem('studentBannerDismissed');
-  if (bannerFechado === 'true') return;
-  
-  const header = document.getElementById('main-header');
-  if (!header) return;
-  
-  const banner = document.createElement('div');
-  banner.id = 'student-banner';
-  banner.style.cssText = `
-    background-color: #FFF3CD;
-    border-left: 4px solid #FFC107;
-    padding: 8px 24px 8px 12px;
-    width: 100%;
-    position: relative;
-    margin: 8px 0;
-    font-size: 11px;
-    line-height: 1.4;
-    border-radius: 4px;
-  `;
-  banner.innerHTML = `
-    <button class="student-banner-close" onclick="fecharBannerEstudante()" style="
-      position: absolute;
-      top: 4px;
-      right: 6px;
-      background: none;
-      border: none;
-      font-size: 12px;
-      cursor: pointer;
-      color: #856404;
-      padding: 2px 4px;
-      line-height: 1;
-    ">✕</button>
-    <div style="margin-bottom: 4px;">
-      <strong>⚠️ ATENÇÃO ESTUDANTE:</strong>
-    </div>
-    <div style="margin-bottom: 6px;">
-      Os protocolos clínicos exibidos neste app refletem práticas gerais da odontologia.
-      Cada faculdade ou universidade pode adotar técnicas, materiais ou fluxos diferentes.
-    </div>
-    <div>
-      <strong>⚠ PORTANTO:</strong><br>
-      • Este conteúdo NÃO substitui a orientação do seu professor<br>
-      • NÃO execute procedimentos sem supervisão adequada<br>
-      • Em caso de dúvida, CONSULTE seu supervisor
-    </div>
-  `;
-  
-  // 🔥 INSERE O BANNER ENTRE O .hdr-nome e o .hdr-pergunta
-  const nomeEl = header.querySelector('.hdr-nome');
-  const perguntaEl = header.querySelector('.hdr-pergunta');
-  
-  if (nomeEl && perguntaEl) {
-    // Insere o banner entre o nome e a pergunta
-    header.insertBefore(banner, perguntaEl);
-  } else {
-    // Fallback: adiciona no final do header
-    header.appendChild(banner);
-  }
-}
 
-function fecharBannerEstudante() {
-  const banner = document.getElementById('student-banner');
-  if (banner) banner.remove();
-  localStorage.setItem('studentBannerDismissed', 'true');
-}
+  function setupCancelButtons() {
+    document.querySelectorAll('.cancel-reason-btn').forEach(btn => {
+      btn.removeEventListener('click', handleCancelReasonClick);
+      btn.addEventListener('click', handleCancelReasonClick);
+    });
+  }
+
+  function handleCancelReasonClick(e) {
+    const btn = e.currentTarget;
+    const reason = btn.getAttribute('data-reason');
+    
+    document.querySelectorAll('.cancel-reason-btn').forEach(b => {
+      b.classList.remove('selected');
+    });
+    
+    btn.classList.add('selected');
+    selectedCancelReason = reason;
+    
+    const otherDiv = document.getElementById('other-reason-input');
+    if (reason === 'Outro') {
+      if (otherDiv) otherDiv.style.display = 'block';
+      const otherText = document.getElementById('cancel-other-text');
+      if (otherText) otherText.focus();
+    } else {
+      if (otherDiv) otherDiv.style.display = 'none';
+    }
+  }
+
+  async function submitCancel() {
+    if (!currentUser) {
+      showToast("Erro: usuário não encontrado", "error");
+      return;
+    }
+    
+    let finalReason = selectedCancelReason;
+    
+    if (selectedCancelReason === 'Outro') {
+      const otherText = document.getElementById('cancel-other-text').value.trim();
+      if (!otherText) {
+        showToast("Por favor, digite o motivo do cancelamento", "error");
+        return;
+      }
+      finalReason = `Outro: ${otherText}`;
+    }
+    
+    if (!finalReason) {
+      showToast("Por favor, selecione um motivo", "error");
+      return;
+    }
+    
+    const suggestion = document.getElementById('cancel-suggestion').value.trim();
+    
+    showLoading();
+    
+    try {
+      await db.collection('cancelamentos').add({
+        userId: currentUser.uid,
+        userEmail: currentUser.email,
+        userName: currentUser.displayName || localStorage.getItem('guiaNome') || '',
+        motivo: finalReason,
+        sugestao: suggestion || '',
+        dataCancelamento: new Date().toISOString(),
+        status: 'pendente',
+        plataforma: 'PWA'
+      });
+      
+      hideCancelModal();
+      showToast("Solicitação registrada com sucesso!", "success");
+      
+      const instrDiv = document.createElement('div');
+      instrDiv.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.7);display:flex;align-items:flex-end;justify-content:center;z-index:9999;';
+      instrDiv.innerHTML = `
+        <div style="background:#1E293B;border-radius:28px 28px 0 0;padding:28px 20px 40px;width:100%;max-width:430px;">
+          <div style="font-size:32px;text-align:center;margin-bottom:12px;">📧</div>
+          <div style="font-size:17px;font-weight:800;color:#F1F5F9;text-align:center;margin-bottom:8px;">Última etapa</div>
+          <div style="font-size:14px;color:#94A3B8;text-align:center;margin-bottom:20px;line-height:1.5;">Envie um e-mail para confirmar o cancelamento:</div>
+          <div style="background:#0F172A;border-radius:14px;padding:14px;margin-bottom:20px;">
+            <div style="font-size:11px;color:#64748B;margin-bottom:4px;">PARA</div>
+            <div style="font-size:14px;font-weight:700;color:#F1F5F9;">compradores@cakto.com.br</div>
+            <div style="font-size:11px;color:#64748B;margin-top:10px;margin-bottom:4px;">ASSUNTO</div>
+            <div style="font-size:13px;color:#F1F5F9;">Cancelamento OdontoDex - ${currentUser.email}</div>
+          </div>
+          <button onclick="navigator.clipboard.writeText('compradores@cakto.com.br').then(()=>showToast('Email copiado!','success'))" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:16px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:10px;">📋 Copiar email</button>
+          <button onclick="this.parentElement.parentElement.remove()" style="width:100%;background:none;border:none;color:#64748B;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;">Fechar</button>
+        </div>
+      `;
+      document.body.appendChild(instrDiv);
+      
+    } catch (error) {
+      console.error("Erro ao salvar cancelamento:", error);
+      showToast("Erro ao processar. Tente novamente.", "error");
+    } finally {
+      hideLoading();
+    }
+  }
+
+// Fim do script
 </script>
 </body>
 </html>
