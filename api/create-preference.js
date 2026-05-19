@@ -1,0 +1,65 @@
+module.exports = async (req, res) => {
+  if (req.method !== "POST") {
+    return res.status(405).json({ error: "Method not allowed" });
+  }
+
+  try {
+    const { uid, email } = req.body;
+
+    if (!uid || !email) {
+      return res.status(400).json({ error: "UID e email são obrigatórios" });
+    }
+
+    const mpResponse = await fetch(
+      "https://api.mercadopago.com/checkout/preferences",
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+        },
+        body: JSON.stringify({
+          items: [
+            {
+              title: "OdontoDex Premium",
+              description: "Acesso premium por 30 dias",
+              quantity: 1,
+              currency_id: "BRL",
+              unit_price: 9.90,
+            },
+          ],
+          payer: {
+            email: email,
+          },
+          metadata: {
+            uid: uid,
+          },
+          back_urls: {
+            success: "https://odontodex.vercel.app?payment=success",
+            failure: "https://odontodex.vercel.app?payment=failure",
+            pending: "https://odontodex.vercel.app?payment=pending",
+          },
+          auto_return: "approved",
+          notification_url: "https://guia-odonto1.vercel.app/api/webhook",
+          statement_descriptor: "ODONTODEX",
+        }),
+      }
+    );
+
+    const preference = await mpResponse.json();
+
+    if (!preference.id) {
+      throw new Error("Falha ao criar preferência: " + JSON.stringify(preference));
+    }
+
+    return res.status(200).json({
+      preferenceId: preference.id,
+      initPoint: preference.init_point,
+      sandboxInitPoint: preference.sandbox_init_point,
+    });
+
+  } catch (error) {
+    console.error("Erro ao criar preferência:", error);
+    return res.status(500).json({ error: error.message });
+  }
+};
