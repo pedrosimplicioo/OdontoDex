@@ -491,9 +491,6 @@ function adicionarBannerEstudante() {
   // Só mostra se for estudante
   if (perfil !== 'estudante') return;
   
-  // Verifica se o usuário já fechou o banner
-  const bannerFechado = localStorage.getItem('studentBannerDismissed');
-  if (bannerFechado === 'true') return;
   
   const header = document.getElementById('main-header');
   if (!header) return;
@@ -3085,7 +3082,6 @@ function adicionarBannerEstudante() {
 function fecharBannerEstudante() {
   const banner = document.getElementById('student-banner');
   if (banner) banner.remove();
-  localStorage.setItem('studentBannerDismissed', 'true');
 }
   async function iniciarPagamento() {
   if (!currentUser) {
