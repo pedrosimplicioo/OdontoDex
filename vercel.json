@@ -3,12 +3,7 @@
     {
       "source": "/(.*)",
       "destination": "/page.html",
-      "has": [{"type": "host", "value": "www.odontodex.com.br"}]
-    },
-    {
-      "source": "/(.*)",
-      "destination": "/index.html",
-      "has": [{"type": "host", "value": "app.odontodex.com.br"}]
+      "has": [{"type": "host", "value": "landing.odontodex.com.br"}]
     },
     {
       "source": "/(.*)",
