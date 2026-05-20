@@ -1447,21 +1447,6 @@ function atualizarSaudacao(){
     nomeEl.textContent = 'Olá!';
   }
   
-  // Lógica para recriar o banner se o perfil mudou para estudante
-  if (perfil === 'estudante') {
-    const bannerFechado = localStorage.getItem('studentBannerDismissed');
-    if (bannerFechado === 'true') {
-      const bannerExistente = document.getElementById('student-banner');
-      if (!bannerExistente && document.getElementById('screen-app').classList.contains('active')) {
-        localStorage.removeItem('studentBannerDismissed');
-        if (typeof adicionarBannerEstudante === 'function') {
-          adicionarBannerEstudante();
-        }
-      }
-    }
-  }
-}
-
 function renderSettings(){
   // Esconde linha de tratamento se for estudante
   var perfil = localStorage.getItem('guiaPerfil') || 'dentista';
