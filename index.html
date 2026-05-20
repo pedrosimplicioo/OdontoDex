@@ -1668,7 +1668,7 @@ function uid(){return Math.random().toString(36).slice(2,8);}
 // Lógica única e definitiva: goScreen empilha, goBack desempilha.
 // Cada tela sabe de onde voltou. Sem race condition, sem tela branca.
 
-ffunction _activateScreen(id) {
+function _activateScreen(id) {
   const screenId = (id === "home") ? "app" : id;
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   const sc = document.getElementById("screen-" + screenId);
