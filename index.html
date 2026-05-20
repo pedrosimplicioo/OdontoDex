@@ -1543,7 +1543,6 @@ function renderSettings(){
   if(tratRow) tratRow.style.display = perfil==='estudante' ? 'none' : 'flex';
 
   if(!currentUser) return;
-  const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
 const rawDn = currentUser.displayName || currentUser.email.split('@')[0] || '';
 const dn = perfil === 'estudante'
   ? rawDn.replace(/^(Dr\.|Dra\.)\s*/i, '').trim()
