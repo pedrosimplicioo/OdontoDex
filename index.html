@@ -3158,6 +3158,7 @@ async function iniciarBrick() {
       }),
     });
     const data = await res.json();
+    console.log("Preference data:", data);
     if (!data.preferenceId) throw new Error("Sem preferenceId");
 
     // Inicializa MP
@@ -3173,9 +3174,12 @@ async function iniciarBrick() {
       "paymentBrick_container",
       {
         initialization: {
-          amount: 9.90,
-          preferenceId: data.preferenceId,
-        },
+  amount: 9.90,
+  preferenceId: data.preferenceId,
+  payer: {
+    email: currentUser.email,
+  },
+},
         customization: {
           paymentMethods: {
             creditCard: "all",
