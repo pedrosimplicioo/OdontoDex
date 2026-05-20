@@ -623,54 +623,6 @@ body.dark .payment-security-txt {
   color: #94A3B8;
   font-size: 13px;
 }
-  /* ==================== BOTTOM NAV ==================== */
-.bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 430px;
-  background: #fff;
-  border-top: 1px solid #E2E8F0;
-  display: none;
-  align-items: center;
-  justify-content: space-around;
-  padding: 8px 0 20px;
-  z-index: 97;
-  box-shadow: 0 -4px 16px rgba(0,0,0,0.06);
-}
-.bottom-nav.visible { display: flex; }
-body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
-.nav-tab {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 3px;
-  cursor: pointer;
-  padding: 6px 16px;
-  border-radius: 14px;
-  background: none;
-  border: none;
-  transition: background 0.15s;
-  min-width: 60px;
-}
-.nav-tab:active { transform: scale(0.93); }
-.nav-tab-icon { font-size: 22px; line-height: 1; }
-.nav-tab-label {
-  font-size: 10px;
-  font-weight: 700;
-  color: #94A3B8;
-  letter-spacing: 0.2px;
-}
-.nav-tab.active .nav-tab-label { color: #7C3FA0; }
-.nav-tab-sos .nav-tab-icon {
-  background: #FEF2F2;
-  border-radius: 12px;
-  padding: 4px 8px;
-  font-size: 20px;
-}
-.nav-tab-sos.active .nav-tab-icon { background: #FECACA; }
 </style>
 </head>
 <body>
@@ -1142,25 +1094,6 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
     </div>
   </div>
 </div>
-  <!-- BOTTOM NAV -->
-<div class="bottom-nav" id="bottom-nav">
-  <button class="nav-tab active" id="nav-home" onclick="voltarParaHome()">
-    <span class="nav-tab-icon">🏠</span>
-    <span class="nav-tab-label">Início</span>
-  </button>
-  <button class="nav-tab" id="nav-favorites" onclick="goScreen('favorites')">
-    <span class="nav-tab-icon">⭐</span>
-    <span class="nav-tab-label">Favoritos</span>
-  </button>
-  <button class="nav-tab" id="nav-search" onclick="goScreen('search')">
-    <span class="nav-tab-icon">🔍</span>
-    <span class="nav-tab-label">Buscar</span>
-  </button>
-  <button class="nav-tab nav-tab-sos" id="nav-sos" onclick="abrirModalCrise()">
-    <span class="nav-tab-icon">🆘</span>
-    <span class="nav-tab-label">S.O.S.</span>
-  </button>
-</div>
 <!-- PASSWORD MODAL -->
 <script>
 // ==================== DADOS ====================
@@ -1543,6 +1476,7 @@ function renderSettings(){
   if(tratRow) tratRow.style.display = perfil==='estudante' ? 'none' : 'flex';
 
   if(!currentUser) return;
+  const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
 const rawDn = currentUser.displayName || currentUser.email.split('@')[0] || '';
 const dn = perfil === 'estudante'
   ? rawDn.replace(/^(Dr\.|Dra\.)\s*/i, '').trim()
@@ -1668,20 +1602,15 @@ function uid(){return Math.random().toString(36).slice(2,8);}
 // Cada tela sabe de onde voltou. Sem race condition, sem tela branca.
 
 function _activateScreen(id) {
-  const screenId = (id === "home") ? "app" : id;
+  // "home" vive dentro de "screen-app"
+  const screenId = (id === "home") ? "app" : id;  // settings, search, etc. mapeiam direto
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   const sc = document.getElementById("screen-" + screenId);
   if(sc) { sc.classList.add("active"); const b=sc.querySelector(".body"); if(b) b.scrollTop=0; }
-
-  // Telas que mostram a nav
-  const navScreens = ["home", "favorites", "search"];
-  const nav = document.getElementById("bottom-nav");
-  if(nav) nav.className = navScreens.includes(id) ? "bottom-nav visible" : "bottom-nav";
-
-  // Marca aba ativa
+  // Nav tabs — usa "home" para marcar o botão correto
   document.querySelectorAll(".nav-tab").forEach(t => t.classList.remove("active"));
-  const tab = document.getElementById("nav-" + id);
-  if(tab) tab.classList.add("active");
+  const nav = document.getElementById("nav-" + id);
+  if(nav) nav.classList.add("active");
 }
 
 function _renderScreen(id) {
