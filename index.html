@@ -2838,26 +2838,22 @@ document.addEventListener("DOMContentLoaded", () => {
     const em = document.getElementById("user-email-display");
     if(em) em.textContent = user.email;
     
-    await registrarAcessoUsuario(user.uid);
-    await vincularSessionIdUsuario(user.uid);
+    try { await registrarAcessoUsuario(user.uid); } catch(e) { console.log(e); }
+    try { await vincularSessionIdUsuario(user.uid); } catch(e) { console.log(e); }
     
     try {
       const doc = await db.collection("users").doc(user.uid).get();
       const userData = doc.data();
       
       if(doc.exists && userData.premium === true) {
-        // Verifica se o premium expirou
         if(userData.premiumExpira) {
           const expira = userData.premiumExpira.toDate();
           const agora = new Date();
           if(agora > expira) {
-            // Premium expirado — revoga
             await db.collection("users").doc(user.uid).update({ premium: false });
             window.userIsPremium = false;
-            console.log("Premium expirado — acesso revogado");
           } else {
             window.userIsPremium = true;
-            console.log("Premium válido até:", expira.toISOString());
           }
         } else {
           window.userIsPremium = true;
@@ -2866,6 +2862,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.userIsPremium = false;
       }
     } catch(e) {
+      console.log(e);
       window.userIsPremium = false;
     }
 
