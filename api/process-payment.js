@@ -38,7 +38,18 @@ module.exports = async (req, res) => {
     console.log("Payment status:", payment.status, payment.id);
 
     if (payment.status === "approved") {
-      await db.collection("users").doc(uid).update({ premium: true });
+      const agora = new Date();
+      const expira = new Date(agora);
+      expira.setDate(expira.getDate() + 30);
+
+      await db.collection("users").doc(uid).update({
+        premium: true,
+        premiumExpira: admin.firestore.Timestamp.fromDate(expira),
+        premiumAtivadoEm: admin.firestore.Timestamp.fromDate(agora),
+        ultimoPagamentoId: payment.id,
+      });
+
+      console.log(`Premium ativado para ${uid} até ${expira.toISOString()}`);
     }
 
     return res.status(200).json({
