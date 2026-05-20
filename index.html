@@ -1554,6 +1554,9 @@ function saveEditName(){
 }
 
 function openEditTratamento(){
+  const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
+  if(perfil === 'estudante') return;
+  
   const trat = localStorage.getItem('guiaTratamento') ?? 'Dr.';
   editTratSelected = trat;
   document.getElementById('trat-dr').className = 'cfg-sel-btn'+(trat==='Dr.'?' selected':'');
