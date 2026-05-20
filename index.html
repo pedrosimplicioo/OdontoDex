@@ -1476,8 +1476,12 @@ function renderSettings(){
   if(tratRow) tratRow.style.display = perfil==='estudante' ? 'none' : 'flex';
 
   if(!currentUser) return;
-  const dn = currentUser.displayName || currentUser.email.split('@')[0] || 'Doutor';
-  const dnFmt = dn.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1);}).join(' ');
+  const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
+const rawDn = currentUser.displayName || currentUser.email.split('@')[0] || '';
+const dn = perfil === 'estudante'
+  ? rawDn.replace(/^(Dr\.|Dra\.)\s*/i, '').trim()
+  : rawDn;
+const dnFmt = dn.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1);}).join(' ');
   // Avatar com iniciais
   const partes = dnFmt.split(' ').filter(function(p){return p.length>1;});
   const iniciais = partes.length>=2 ? partes[0][0]+partes[partes.length-1][0] : dnFmt.slice(0,2);
