@@ -3174,8 +3174,9 @@ async function iniciarBrick() {
       "paymentBrick_container",
       {
         initialization: {
-  amount: 9.90,
+   amount: 9.90,
   preferenceId: data.preferenceId,
+  mercadoPago: mpInstance,
   payer: {
     email: currentUser.email,
   },
