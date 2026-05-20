@@ -537,6 +537,86 @@ function fecharBannerEstudante() {
   if (banner) banner.remove();
   localStorage.setItem('studentBannerDismissed', 'true');
 }
+  /* ==================== PAYMENT SCREEN ==================== */
+.payment-screen-hdr {
+  background: #fff;
+  padding: 14px 16px;
+  border-bottom: 1px solid #E2E8F0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+body.dark .payment-screen-hdr {
+  background: #1E293B;
+  border-bottom-color: #475569;
+}
+.payment-screen-body {
+  flex: 1;
+  padding: 16px;
+  overflow-y: auto;
+  padding-bottom: 40px;
+}
+.payment-summary-card {
+  background: linear-gradient(135deg, #3D1260, #7C3FA0);
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 16px;
+  color: #fff;
+}
+.payment-summary-title {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.7;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.payment-summary-value {
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: -1px;
+  margin-bottom: 4px;
+}
+.payment-summary-desc {
+  font-size: 13px;
+  opacity: 0.7;
+}
+.payment-security-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  background: #F0FDF4;
+  border-radius: 14px;
+  margin-bottom: 16px;
+  border: 1px solid #BBF7D0;
+}
+body.dark .payment-security-row {
+  background: #0D2218;
+  border-color: #166534;
+}
+.payment-security-txt {
+  font-size: 12px;
+  color: #166534;
+  font-weight: 600;
+  line-height: 1.4;
+}
+body.dark .payment-security-txt {
+  color: #4ADE80;
+}
+#mp-brick-container {
+  min-height: 200px;
+}
+#mp-brick-container .loading-brick {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  gap: 12px;
+  color: #94A3B8;
+  font-size: 13px;
+}
 </style>
 </head>
 <body>
@@ -981,7 +1061,33 @@ function fecharBannerEstudante() {
     
   </div>
 </div>
-
+<!-- PAYMENT SCREEN -->
+<div class="screen" id="screen-payment">
+  <div class="payment-screen-hdr">
+    <button class="back-btn" onclick="goBackToLastScreen()">←</button>
+    <div>
+      <div style="font-size:17px;font-weight:800;color:#0F172A" class="top-title">Assinar Premium</div>
+      <div style="font-size:11px;color:#94A3B8;margin-top:1px">Pagamento seguro via Mercado Pago</div>
+    </div>
+  </div>
+  <div class="payment-screen-body">
+    <div class="payment-summary-card">
+      <div class="payment-summary-title">OdontoDex Premium</div>
+      <div class="payment-summary-value">R$ 9,90</div>
+      <div class="payment-summary-desc">por mês · acesso completo · cancele quando quiser</div>
+    </div>
+    <div class="payment-security-row">
+      <span style="font-size:20px">🔒</span>
+      <div class="payment-security-txt">Pagamento 100% seguro · Seus dados são protegidos pelo Mercado Pago · PCI DSS compliant</div>
+    </div>
+    <div id="mp-brick-container">
+      <div class="loading-brick">
+        <div class="spinner" style="border-color:#7C3FA0;border-top-color:transparent;"></div>
+        <span>Carregando formulário de pagamento...</span>
+      </div>
+    </div>
+  </div>
+</div>
 <!-- PASSWORD MODAL -->
 <script>
 // ==================== DADOS ====================
@@ -2992,6 +3098,167 @@ function fecharBannerEstudante() {
   } finally {
     hideLoading();
   }
+}
+  // ==================== MERCADO PAGO BRICKS ====================
+const MP_PUBLIC_KEY = "TEST-e0702cea-037c-4537-9231-15b2e4f68d7f";
+let mpInstance = null;
+let paymentBrickController = null;
+
+async function loadMPScript() {
+  return new Promise((resolve, reject) => {
+    if (window.MercadoPago) { resolve(); return; }
+    const script = document.createElement("script");
+    script.src = "https://sdk.mercadopago.com/js/v2";
+    script.onload = resolve;
+    script.onerror = reject;
+    document.head.appendChild(script);
+  });
+}
+
+async function abrirTelaPayment() {
+  if (!currentUser) {
+    showToast("Faça login primeiro", "error");
+    return;
+  }
+  // Fecha o modal premium se estiver aberto
+  hideOverlay("premium-overlay");
+  // Navega para a tela de pagamento
+  goScreen("payment");
+  // Inicializa o Brick
+  await iniciarBrick();
+}
+
+async function iniciarBrick() {
+  // Destrói instância anterior se existir
+  if (paymentBrickController) {
+    try { await paymentBrickController.unmount(); } catch(e) {}
+    paymentBrickController = null;
+  }
+
+  // Reseta o container
+  const container = document.getElementById("mp-brick-container");
+  if (!container) return;
+  container.innerHTML = `
+    <div class="loading-brick">
+      <div class="spinner" style="border-color:#7C3FA0;border-top-color:transparent;"></div>
+      <span>Carregando formulário...</span>
+    </div>`;
+
+  try {
+    // Carrega o SDK
+    await loadMPScript();
+
+    // Cria preferência no backend
+    const res = await fetch("/api/create-preference", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        uid: currentUser.uid,
+        email: currentUser.email,
+      }),
+    });
+    const data = await res.json();
+    if (!data.preferenceId) throw new Error("Sem preferenceId");
+
+    // Inicializa MP
+    mpInstance = new window.MercadoPago(MP_PUBLIC_KEY, { locale: "pt-BR" });
+    const bricksBuilder = mpInstance.bricks();
+
+    // Reseta container para o Brick
+    container.innerHTML = '<div id="paymentBrick_container"></div>';
+
+    // Renderiza o Payment Brick
+    paymentBrickController = await bricksBuilder.create(
+      "payment",
+      "paymentBrick_container",
+      {
+        initialization: {
+          amount: 9.90,
+          preferenceId: data.preferenceId,
+        },
+        customization: {
+          paymentMethods: {
+            creditCard: "all",
+            debitCard: "all",
+            ticket: "all",
+            bankTransfer: "all",
+            atm: "all",
+          },
+          visual: {
+            style: {
+              theme: document.body.classList.contains("dark") ? "dark" : "default",
+              customVariables: {
+                formBackgroundColor: document.body.classList.contains("dark") ? "#1E293B" : "#ffffff",
+                baseColor: "#7C3FA0",
+              },
+            },
+          },
+        },
+        callbacks: {
+          onReady: () => {
+            console.log("Brick pronto");
+          },
+          onSubmit: async ({ selectedPaymentMethod, formData }) => {
+            showLoading();
+            try {
+              const payRes = await fetch("/api/process-payment", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  ...formData,
+                  uid: currentUser.uid,
+                  email: currentUser.email,
+                }),
+              });
+              const payData = await payRes.json();
+              hideLoading();
+              if (payData.status === "approved") {
+                await onPaymentApproved();
+              } else if (payData.status === "in_process" || payData.status === "pending") {
+                showToast("Pagamento em processamento. Você será notificado.", "success");
+                goBackToLastScreen();
+              } else {
+                showToast("Pagamento não aprovado. Tente outro método.", "error");
+              }
+            } catch (e) {
+              hideLoading();
+              showToast("Erro ao processar pagamento. Tente novamente.", "error");
+              console.error(e);
+            }
+          },
+          onError: (error) => {
+            console.error("Brick error:", error);
+          },
+        },
+      }
+    );
+  } catch (e) {
+    console.error("Erro ao iniciar Brick:", e);
+    if (container) {
+      container.innerHTML = `
+        <div style="text-align:center;padding:30px 20px;color:#DC2626">
+          <div style="font-size:32px;margin-bottom:8px">⚠️</div>
+          <div style="font-size:14px;font-weight:700;margin-bottom:4px">Erro ao carregar pagamento</div>
+          <div style="font-size:12px;color:#94A3B8;margin-bottom:16px">Verifique sua conexão e tente novamente.</div>
+          <button onclick="iniciarBrick()" style="background:#7C3FA0;color:#fff;border:none;border-radius:20px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer;">Tentar novamente</button>
+        </div>`;
+    }
+  }
+}
+
+async function onPaymentApproved() {
+  // Atualiza local
+  window.userIsPremium = true;
+  updatePremiumUI();
+  // Atualiza Firestore
+  if (currentUser) {
+    try {
+      await db.collection("users").doc(currentUser.uid).update({ premium: true });
+    } catch(e) { console.error(e); }
+  }
+  showToast("🎉 Bem-vindo ao Premium!", "success");
+  voltarParaHome();
+  renderHome();
 }
 </script>
 </body>
