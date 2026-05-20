@@ -483,50 +483,60 @@ body.dark .cancel-reason-btn.selected {
   // ==================== BANNER PARA ESTUDANTES ====================
 function adicionarBannerEstudante() {
   const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
-  
-  // Remove banner antigo se existir
+
   const bannerExistente = document.getElementById('student-banner');
   if (bannerExistente) bannerExistente.remove();
-  
-  // Só mostra se for estudante
+
   if (perfil !== 'estudante') return;
-  
-  
+
+  const hoje = new Date().toISOString().split('T')[0];
+  const ultimaVez = localStorage.getItem('studentBannerLastDate');
+  if (ultimaVez === hoje) return;
+
   const header = document.getElementById('main-header');
   if (!header) return;
-  
+
   const banner = document.createElement('div');
   banner.id = 'student-banner';
-  banner.className = 'student-banner';
+  banner.style.cssText = `
+    background-color: #FFF3CD;
+    border-left: 4px solid #FFC107;
+    padding: 8px 24px 8px 12px;
+    width: 100%;
+    position: relative;
+    margin: 8px 0;
+    font-size: 11px;
+    line-height: 1.4;
+    border-radius: 4px;
+  `;
   banner.innerHTML = `
-    <button class="student-banner-close" onclick="fecharBannerEstudante()">✕</button>
-    <div class="student-banner-header">
-      <span class="student-banner-icon">🎓</span>
-      <span class="student-banner-title">ATENÇÃO: MODO ESTUDANTE</span>
-    </div>
-    <div class="student-banner-content">
+    <button onclick="fecharBannerEstudante()" style="
+      position: absolute; top: 4px; right: 6px;
+      background: none; border: none; font-size: 12px;
+      cursor: pointer; color: #856404; padding: 2px 4px; line-height: 1;
+    ">✕</button>
+    <div style="margin-bottom: 4px;"><strong>⚠️ ATENÇÃO ESTUDANTE:</strong></div>
+    <div style="margin-bottom: 6px;">
       Os protocolos clínicos exibidos neste app refletem práticas gerais da odontologia.
       Cada faculdade ou universidade pode adotar técnicas, materiais ou fluxos diferentes.
     </div>
-    <div class="student-banner-warning">
-      ⚠️ PORTANTO:<br>
+    <div>
+      <strong>⚠ PORTANTO:</strong><br>
       • Este conteúdo NÃO substitui a orientação do seu professor<br>
       • NÃO execute procedimentos sem supervisão adequada<br>
       • Em caso de dúvida, CONSULTE seu supervisor
     </div>
   `;
-  
-  // 🔥 INSERE O BANNER ENTRE O .hdr-nome e o .hdr-pergunta
+
   const nomeEl = header.querySelector('.hdr-nome');
   const perguntaEl = header.querySelector('.hdr-pergunta');
-  
   if (nomeEl && perguntaEl) {
-    // Insere o banner entre o nome e a pergunta
     header.insertBefore(banner, perguntaEl);
   } else {
-    // Fallback: adiciona no final do header
     header.appendChild(banner);
   }
+
+  localStorage.setItem('studentBannerLastDate', hoje);
 }
 
 function fecharBannerEstudante() {
@@ -2718,6 +2728,7 @@ async function doRegister(){
     // Salva perfil e tratamento no localStorage
     localStorage.setItem('guiaPerfil', selectedPerfil);
     if(selectedPerfil==='dentista') localStorage.setItem('guiaTratamento', selectedTratamento);
+    localStorage.removeItem('studentBannerLastDate');
     currentUser=res.user;
     const em=document.getElementById('user-email-display');if(em)em.textContent=currentUser.email;
     hideLoading();
