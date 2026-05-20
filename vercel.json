@@ -1,13 +1,13 @@
 {
-  "rewrites": [
+  "routes": [
     {
-      "source": "/(.*)",
-      "destination": "/page.html",
+      "src": "/(.*)",
+      "dest": "/page.html",
       "has": [{"type": "host", "value": "landing.odontodex.com.br"}]
     },
     {
-      "source": "/(.*)",
-      "destination": "/adm.html",
+      "src": "/(.*)",
+      "dest": "/adm.html",
       "has": [{"type": "host", "value": "adm.odontodex.com.br"}]
     }
   ]
