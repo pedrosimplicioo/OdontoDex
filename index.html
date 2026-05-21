@@ -899,28 +899,23 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
   <span style="font-size:14px;font-weight:800;color:#0F172A;">Prescrições</span>
 </div>
 <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;">
-  <div onclick="event.stopPropagation();abrirPrescricao('pos-extracao')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+  <div onclick="event.stopPropagation();abrirPrescricao('pos-extracao')" class="prescricao-mini-card" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
     <span style="font-size:18px;">🦷</span>
     <span style="font-size:12px;font-weight:600;color:#0F172A;">Pós-extração</span>
   </div>
-  <div onclick="event.stopPropagation();abrirPrescricao('abscesso-periapical')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+  <div onclick="event.stopPropagation();abrirPrescricao('abscesso-periapical')" class="prescricao-mini-card" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
     <span style="font-size:18px;">🔴</span>
     <span style="font-size:12px;font-weight:600;color:#0F172A;">Abscesso</span>
   </div>
-  <div onclick="event.stopPropagation();abrirPrescricao('urgencia-endo')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+  <div onclick="event.stopPropagation();abrirPrescricao('urgencia-endo')" class="prescricao-mini-card" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
     <span style="font-size:18px;">⚡</span>
     <span style="font-size:12px;font-weight:600;color:#0F172A;">Urgência endo</span>
   </div>
-  <div onclick="event.stopPropagation();goScreen('prescricoes')" style="background:#F5EEFB;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
-  <span style="font-size:16px;color:#7C3FA0;font-weight:800;">+9</span>
-  <span style="font-size:12px;font-weight:600;color:#7C3FA0;">situações</span>
-</div>
-</div>
-</div>
-    <div class="spacer"></div>
+  <div onclick="event.stopPropagation();goScreen('prescricoes')" id="card-mais-situacoes" style="background:#F5EEFB;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+    <span style="font-size:16px;color:#7C3FA0;font-weight:800;">+9</span>
+    <span style="font-size:12px;font-weight:600;color:#7C3FA0;">situações</span>
   </div>
 </div>
-
 <!-- SEARCH -->
 <div class="screen" id="screen-search">
   <div class="hdr"><div style="display:flex;align-items:center;gap:8px"><button class="back-btn" onclick="goBackToLastScreen()">←</button><input class="search-input-real" id="search-input" placeholder="pino, extração, abscesso..." oninput="doSearch(this.value)"></div></div>
@@ -2462,7 +2457,25 @@ async function saveEditTratamento(){
   renderSettings();
 }
 
-function toggleDarkMode(){document.body.classList.toggle("dark");const btn=document.getElementById("dark-toggle");if(btn)btn.textContent=document.body.classList.contains("dark")?"☀️":"🌙";localStorage.setItem("darkMode",document.body.classList.contains("dark"));}
+function toggleDarkMode(){
+  document.body.classList.toggle("dark");
+  const btn=document.getElementById("dark-toggle");
+  if(btn)btn.textContent=document.body.classList.contains("dark")?"☀️":"🌙";
+  localStorage.setItem("darkMode",document.body.classList.contains("dark"));
+  atualizarCardPrescricoesDark();
+}
+  function atualizarCardPrescricoesDark() {
+  const isDark = document.body.classList.contains('dark');
+  document.querySelectorAll('.prescricao-mini-card').forEach(el => {
+    el.style.background = isDark ? '#334155' : '#F8FAFC';
+    el.querySelectorAll('span').forEach(s => { s.style.color = isDark ? '#F1F5F9' : '#0F172A'; });
+  });
+  const cardMais = document.getElementById('card-mais-situacoes');
+  if(cardMais) {
+    cardMais.style.background = isDark ? '#2D1A45' : '#F5EEFB';
+    cardMais.querySelectorAll('span').forEach(s => { s.style.color = isDark ? '#D9B8F0' : '#7C3FA0'; });
+  }
+}
 function initDarkMode(){if(localStorage.getItem("darkMode")==="true"){document.body.classList.add("dark");const btn=document.getElementById("dark-toggle");if(btn)btn.textContent="☀️";}}
 function hideOverlay(id){const el=document.getElementById(id);if(el)el.classList.remove("active");}
 function showOverlay(id){const el=document.getElementById(id);if(el)el.classList.add("active");}
@@ -2712,6 +2725,7 @@ function renderHome(){
   }
   
   renderSOSButtons();
+  atualizarCardPrescricoesDark();
   // Categories
   const cs=document.getElementById("categories-scroll");
   if(cs){
