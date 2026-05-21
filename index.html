@@ -674,59 +674,91 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
 </style>
 </head>
 <body>
-<!-- AVISO BROWSER NÃO-SAFARI NO IPHONE -->
+<!-- AVISO IN-APP BROWSER -->
 <div id="ios-browser-warning" style="display:none;position:fixed;inset:0;background:#0F172A;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;overflow-y:auto;">
   <div style="max-width:380px;width:100%;">
     <div style="font-size:44px;margin-bottom:12px;">🎉</div>
     <div style="font-size:20px;font-weight:700;color:#F1F5F9;margin-bottom:10px;">Quase lá!</div>
-    <div style="font-size:13px;color:#94A3B8;margin-bottom:24px;line-height:1.6;">Para instalar o OdontoDex no seu iPhone, você precisa usar o Safari. É rapidinho!</div>
+    <div id="iab-subtitulo" style="font-size:13px;color:#94A3B8;margin-bottom:24px;line-height:1.6;"></div>
 
     <div style="background:#1E293B;border-radius:16px;padding:16px;text-align:left;margin-bottom:20px;">
       <div style="font-size:11px;font-weight:700;color:#64748B;letter-spacing:1px;margin-bottom:12px;">SIGA ESTES PASSOS</div>
-      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
-        <div style="min-width:22px;height:22px;border-radius:50%;background:#7C3FA0;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">1</div>
-        <div style="font-size:13px;color:#CBD5E1;line-height:1.5;">Copie o link abaixo</div>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
-        <div style="min-width:22px;height:22px;border-radius:50%;background:#7C3FA0;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">2</div>
-        <div style="font-size:13px;color:#CBD5E1;line-height:1.5;">Abra o Safari no seu iPhone</div>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;">
-        <div style="min-width:22px;height:22px;border-radius:50%;background:#7C3FA0;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">3</div>
-        <div style="font-size:13px;color:#CBD5E1;line-height:1.5;">Cole o link e acesse o app</div>
-      </div>
-      <div style="display:flex;align-items:flex-start;gap:10px;">
-        <div style="min-width:22px;height:22px;border-radius:50%;background:#7C3FA0;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">4</div>
-        <div style="font-size:13px;color:#CBD5E1;line-height:1.5;">Toque em "Compartilhar" e depois "Adicionar à Tela Inicial"</div>
-      </div>
+      <div id="iab-passos"></div>
     </div>
 
     <button onclick="copiarLinkOdontodex()" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:24px;padding:14px 24px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;font-family:inherit;">
       📋 Copiar link do OdontoDex
     </button>
 
-    <div style="font-size:12px;color:#475569;line-height:1.6;">O Safari é o único browser do iPhone que permite instalar apps assim. Prometo que vale a pena! 😊</div>
+    <div style="font-size:12px;color:#475569;line-height:1.6;">Prometo que vale a pena! 😊</div>
   </div>
 </div>
 
 <script>
+  var ua = navigator.userAgent;
+
+  function isInstagram() {
+    return /Instagram/i.test(ua);
+  }
+  function isFacebook() {
+    return /FBAN|FBAV/i.test(ua);
+  }
   function isIOS() {
-    return /iphone|ipad|ipod/i.test(navigator.userAgent);
+    return /iphone|ipad|ipod/i.test(ua);
   }
   function isSafari() {
-    return /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
+    return /^((?!chrome|android|crios|fxios).)*safari/i.test(ua);
+  }
+  function isInAppBrowser() {
+    return isInstagram() || isFacebook() || (!isIOS() && /Instagram|FBAN|FBAV/i.test(ua));
   }
   function copiarLinkOdontodex() {
     navigator.clipboard.writeText('https://www.odontodex.com.br').then(function() {
-      alert('Link copiado! Agora abra o Safari e cole na barra de endereço.');
+      alert('Link copiado! Agora abra o Chrome ou Safari e cole na barra de endereço.');
     }).catch(function() {
       alert('Copie o link: https://www.odontodex.com.br');
     });
   }
-  if (isIOS() && !isSafari()) {
+
+  function passoPasso(num, texto) {
+    return '<div style="display:flex;align-items:flex-start;gap:10px;margin-bottom:10px;"><div style="min-width:22px;height:22px;border-radius:50%;background:#7C3FA0;color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;">' + num + '</div><div style="font-size:13px;color:#CBD5E1;line-height:1.5;">' + texto + '</div></div>';
+  }
+
+  var mostrar = false;
+  var subtitulo = '';
+  var passos = '';
+
+  if (isInstagram() || isFacebook()) {
+    mostrar = true;
+    subtitulo = 'Você está acessando pelo app do Instagram. Para instalar o OdontoDex, abra no navegador do seu celular. É rapidinho!';
+    if (isIOS()) {
+      passos =
+        passoPasso(1, 'Toque nos 3 pontinhos (···) no canto inferior direito da tela') +
+        passoPasso(2, 'Escolha "Abrir no Safari"') +
+        passoPasso(3, 'No Safari, toque em "Compartilhar" e depois "Adicionar à Tela Inicial"');
+    } else {
+      passos =
+        passoPasso(1, 'Toque nos 3 pontinhos (⋮) no canto superior direito da tela') +
+        passoPasso(2, 'Escolha "Abrir no Chrome" ou "Abrir no navegador"') +
+        passoPasso(3, 'No Chrome, toque em "Instalar app" quando aparecer o banner');
+    }
+  } else if (isIOS() && !isSafari()) {
+    mostrar = true;
+    subtitulo = 'Para instalar o OdontoDex no seu iPhone, você precisa usar o Safari. É rapidinho!';
+    passos =
+      passoPasso(1, 'Copie o link abaixo') +
+      passoPasso(2, 'Abra o Safari no seu iPhone') +
+      passoPasso(3, 'Cole o link e acesse o app') +
+      passoPasso(4, 'Toque em "Compartilhar" e depois "Adicionar à Tela Inicial"');
+  }
+
+  if (mostrar) {
+    document.getElementById('iab-subtitulo').textContent = subtitulo;
+    document.getElementById('iab-passos').innerHTML = passos;
     var w = document.getElementById('ios-browser-warning');
     if (w) w.style.display = 'flex';
   }
+</script>
 </script>
 <div class="toast" id="toast"></div>
 <div class="loading-overlay" id="loading-overlay"><div class="spinner"></div></div>
