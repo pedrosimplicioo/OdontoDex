@@ -4186,11 +4186,10 @@ function abrirPrescricao(id) {
   renderPrescricaoDetalhe();
   goScreen('prescricao-detalhe');
   setTimeout(() => {
-    const body = document.getElementById('prescricao-detalhe-body');
-    if(body) body.scrollTop = 0;
-    const screen = document.getElementById('screen-prescricao-detalhe');
-    if(screen) screen.scrollTop = 0;
-  }, 50);
+    const els = document.querySelectorAll('#screen-prescricao-detalhe, #screen-prescricao-detalhe .body, #prescricao-detalhe-body');
+    els.forEach(el => { if(el) el.scrollTop = 0; });
+    window.scrollTo(0, 0);
+  }, 100);
 }
 
 function renderPrescricaoDetalhe() {
