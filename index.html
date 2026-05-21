@@ -919,7 +919,25 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
   </div>
   <div class="body" id="favs-list"></div>
 </div>
+<!-- PRESCRIÇÕES -->
+<div class="screen" id="screen-prescricoes">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goBackToLastScreen()">←</button>
+    <span class="top-title">💊 Prescrições</span>
+    <div style="width:36px"></div>
+  </div>
+  <div class="body" id="prescricoes-list"></div>
+</div>
 
+<!-- PRESCRIÇÃO DETALHE -->
+<div class="screen" id="screen-prescricao-detalhe">
+  <div class="top-bar" id="prescricao-detalhe-topbar">
+    <button class="back-btn" onclick="goBackToLastScreen()">←</button>
+    <span class="top-title" id="prescricao-detalhe-titulo"></span>
+    <div style="width:36px"></div>
+  </div>
+  <div class="body" id="prescricao-detalhe-body"></div>
+</div>
 <!-- SETTINGS -->
 <div class="screen" id="screen-settings">
   <div class="top-bar">
