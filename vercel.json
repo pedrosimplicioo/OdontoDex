@@ -9,6 +9,10 @@
       "src": "/(.*)",
       "dest": "/adm.html",
       "has": [{"type": "host", "value": "adm.odontodex.com.br"}]
+    },
+    {
+      "src": "/teste",
+      "dest": "/teste.html"
     }
   ]
 }
