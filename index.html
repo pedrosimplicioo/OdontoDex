@@ -4185,6 +4185,12 @@ function abrirPrescricao(id) {
   document.getElementById('prescricao-detalhe-titulo').textContent = data.titulo;
   renderPrescricaoDetalhe();
   goScreen('prescricao-detalhe');
+  setTimeout(() => {
+    const body = document.getElementById('prescricao-detalhe-body');
+    if(body) body.scrollTop = 0;
+    const screen = document.getElementById('screen-prescricao-detalhe');
+    if(screen) screen.scrollTop = 0;
+  }, 50);
 }
 
 function renderPrescricaoDetalhe() {
