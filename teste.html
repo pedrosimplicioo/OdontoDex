@@ -944,6 +944,11 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
     <span class="top-title">💊 Prescrições</span>
     <div style="width:36px"></div>
   </div>
+  <!-- ABAS -->
+  <div style="display:flex;border-bottom:1px solid #E2E8F0;background:#fff;" id="prescricoes-tabs">
+    <button id="tab-situacoes" onclick="switchPrescricaoTab('situacoes')" style="flex:1;padding:12px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;border-bottom:2px solid #7C3FA0;color:#7C3FA0;font-family:inherit;">Situações</button>
+    <button id="tab-especiais" onclick="switchPrescricaoTab('especiais')" style="flex:1;padding:12px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:#94A3B8;font-family:inherit;">Pacientes especiais</button>
+  </div>
   <div class="body" id="prescricoes-list"></div>
 </div>
 
@@ -1601,683 +1606,833 @@ let navigationHistory = [];
 // ==================== STORAGE ====================
 // ==================== PRESCRIÇÕES ====================
 const PRESCRICOES_LIST = [
-  {id:"pos-extracao", label:"Pós-extração", icon:"🦷", sub:"Simples e cirúrgica", free:true},
-  {id:"dor-pos-op", label:"Dor pós-operatória", icon:"😣", sub:"Sem infecção", free:true},
-  {id:"abscesso-periapical", label:"Abscesso periapical agudo", icon:"🔴", sub:"", free:true},
-  {id:"abscesso-periodontal", label:"Abscesso periodontal", icon:"🟠", sub:"", free:false},
-  {id:"alveolite", label:"Alveolite", icon:"🩸", sub:"", free:false},
-  {id:"urgencia-endo", label:"Urgência endodôntica", icon:"⚡", sub:"Dor pulpar", free:false},
-  {id:"pericoronarite", label:"Pericoronarite", icon:"🦷", sub:"", free:false},
-  {id:"profilaxia", label:"Profilaxia antibiótica", icon:"💉", sub:"", free:false},
-  {id:"candidíase", label:"Candidíase oral", icon:"🤍", sub:"", free:false},
-  {id:"herpes", label:"Herpes labial recorrente", icon:"💋", sub:"", free:false},
-  {id:"aftas", label:"Mucosite / Aftas", icon:"🔵", sub:"", free:false},
-  {id:"trauma", label:"Trauma dental com luxação", icon:"🦷", sub:"", free:false},
+  {id:"abscesso-periodontal", label:"Abscesso periodontal", icon:"🦷", free:true},
+  {id:"abscesso-periapical", label:"Abscesso periapical agudo", icon:"🔴", free:true},
+  {id:"alveolite", label:"Alveolite", icon:"🩸", free:true},
+  {id:"pericoronarite", label:"Pericoronarite", icon:"🦷", free:false},
+  {id:"profilaxia", label:"Profilaxia antibiótica", icon:"💉", free:false},
+  {id:"dentes-impactados", label:"Dentes impactados", icon:"⚕️", free:false},
+  {id:"gengivoestomatite", label:"Gengivoestomatite herpética primária", icon:"🦠", free:false},
+  {id:"candidíase", label:"Candidíase oral", icon:"🤍", free:false},
+  {id:"hemorragias", label:"Hemorragias", icon:"🩸", free:false},
+  {id:"herpes", label:"Herpes simples recorrente", icon:"💋", free:false},
+  {id:"ulceracoes", label:"Ulcerações aftosas recorrentes", icon:"🔵", free:false},
+  {id:"odontopediatria", label:"Odontopediatria", icon:"👶", free:false},
 ];
 
-const AVISO_LEGAL = `⚕️ Este conteúdo é uma referência clínica de apoio. A prescrição final é responsabilidade exclusiva do profissional habilitado. Adapte conforme o paciente, anamnese e condição clínica.`;
-
-const FILTROS_LIST = [
-  {id:"padrao", label:"Sem restrições"},
-  {id:"alergia", label:"Alérgico à penicilina"},
-  {id:"gravida", label:"Grávida / Lactante"},
-  {id:"crianca", label:"Criança"},
-  {id:"diabetico", label:"Diabético"},
-  {id:"hipertenso", label:"Hipertenso"},
-  {id:"cardiopata", label:"Cardiopata"},
-  {id:"renal", label:"Insuf. renal"},
-  {id:"hepatopata", label:"Hepatopata"},
-  {id:"idoso", label:"Idoso"},
+const PACIENTES_ESPECIAIS_LIST = [
+  {id:"idosos", label:"Idosos", icon:"👴", free:false},
+  {id:"epilepticos", label:"Epilépticos", icon:"🧠", free:false},
+  {id:"coagulopatas", label:"Coagulopatas", icon:"🩸", free:false},
+  {id:"gestantes", label:"Gestantes e lactantes", icon:"🤰", free:false},
+  {id:"nefropatas", label:"Nefropatas", icon:"🫘", free:false},
+  {id:"hepatopatas", label:"Hepatopatas", icon:"🍺", free:false},
+  {id:"cardiopatas", label:"Cardiopatas", icon:"🫀", free:false},
+  {id:"diabeticos", label:"Diabéticos", icon:"💉", free:false},
+  {id:"asmaticos", label:"Asmáticos", icon:"🫁", free:false},
 ];
 
 const PRESCRICOES_DATA = {
-  "pos-extracao": {
-    titulo: "Pós-extração",
-    conduta: [
-      "Hemostasia local com gaze por 30 min",
-      "Analgésico + anti-inflamatório por 3–5 dias",
-      "Antibiótico apenas se houver infecção ou risco sistêmico"
-    ],
+  "abscesso-periodontal": {
+    titulo: "Abscesso periodontal",
+    filtros: ["padrao", "alergia", "gravida"],
     blocos: {
       padrao: [
-        {secao:"ANTIBIÓTICO (só se indicado)", itens:["Amoxicilina 500mg — 1 cápsula de 8/8h por 7 dias"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400/600mg — 1 comprimido de 8/8h por 3–5 dias","Alternativa: Nimesulida 100mg — 1 comprimido de 12/12h por 3 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
+        {secao:"CONDUTA", itens:[
+          "Antibioticoterapia",
+          "Anti-inflamatório"
+        ]},
+        {secao:"ANTIBIÓTICO", itens:[
+          "Amoxicilina (cap. 500mg): 1 cápsula, de 8/8 horas, VO, durante 7 dias"
+        ]},
+        {secao:"ANTI-INFLAMATÓRIOS", itens:[
+          "Nimesulida (comp. 100mg): 1 comprimido de 12/12 horas, VO, durante 3 dias",
+          "Cetoprofeno (comp. 50mg): 1 comprimido de 8/8 horas, VO, durante 3 dias",
+          "Piroxicam (comp. 20mg): 1 comprimido de 8/8 horas, VO, durante 3 dias"
+        ]},
       ],
       alergia: [
-        {secao:"ANTIBIÓTICO (só se indicado)", itens:["Clindamicina 300mg — 1 comprimido de 8/8h por 7 dias","Alternativa simples: Azitromicina 500mg — 1x/dia por 3 dias"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400/600mg — 1 comprimido de 8/8h por 3–5 dias","Alternativa: Nimesulida 100mg — 1 comprimido de 12/12h por 3 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
+        {secao:"CONDUTA", itens:[
+          "Antibioticoterapia",
+          "Anti-inflamatório"
+        ]},
+        {secao:"ANTIBIÓTICO — ALERGIA À PENICILINA", itens:[
+          "Clindamicina (comp. 300mg): 1 comprimido de 8/8 horas, VO, durante 7 dias",
+          "Azitromicina (comp. 500mg): 1 comprimido por dia, VO, durante 3 dias"
+        ]},
+        {secao:"ANTI-INFLAMATÓRIOS", itens:[
+          "Nimesulida (comp. 100mg): 1 comprimido de 12/12 horas, VO, durante 3 dias",
+          "Cetoprofeno (comp. 50mg): 1 comprimido de 8/8 horas, VO, durante 3 dias",
+          "Piroxicam (comp. 20mg): 1 comprimido de 8/8 horas, VO, durante 3 dias"
+        ]},
       ],
       gravida: [
-        {secao:"ANTIBIÓTICO (só se indicado)", itens:["Amoxicilina 500mg — segura (categoria B)"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h — não ultrapassar 3g/dia"]},
-        {secao:"⚠️ ATENÇÃO", itens:["AINEs contraindicados na gestação — evitar Ibuprofeno e Nimesulida"]},
-      ],
-      crianca: [
-        {secao:"⚠️ ATENÇÃO", itens:["Para pacientes pediátricos, consulte um especialista ou referência de dosagem pediátrica específica. As doses variam conforme o peso e a idade."]},
-      ],
-      diabetico: [
-        {secao:"ANTIBIÓTICO (só se indicado)", itens:["Amoxicilina 500mg — 1 cápsula de 8/8h por 7 dias"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400/600mg — 1 comprimido de 8/8h por 3–5 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Reforçar controle glicêmico — evitar corticosteroide"]},
-      ],
-      hipertenso: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg isolada — 1 a 2 comprimidos de 6/6h","Se dor intensa: Paracetamol 500–750mg de 6/6h"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs — podem elevar a pressão arterial"]},
-      ],
-      cardiopata: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs","Se anticoagulado (varfarina/rivaroxabana): não suspender sem orientação médica","Usar hemostasia local reforçada — ácido tranexâmico tópico ou sutura"]},
-      ],
-      renal: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h + Dipirona 500mg se necessário"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs — nefrotóxicos","Ajuste de Amoxicilina: ClCr 10–30 → 500mg 12/12h; ClCr <10 → 500mg 24/24h"]},
-      ],
-      hepatopata: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — com cautela"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar Paracetamol em dose alta — hepatotóxico"]},
-      ],
-      idoso: [
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno — reduzir dose pela metade se necessário"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg 6/6h — primeira linha para dor leve"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Avaliar função renal antes de AINE"]},
-      ],
-    }
-  },
-
-  "dor-pos-op": {
-    titulo: "Dor pós-operatória",
-    conduta: [
-      "Descartar infecção antes de prescrever",
-      "Gelo nas primeiras 24h, dieta mole, repouso"
-    ],
-    blocos: {
-      padrao: [
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400mg de 8/8h — se dor intensa, 600mg de 8/8h, por 3–5 dias","Alternativa: Nimesulida 100mg — 1 comprimido de 12/12h por 3 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor","Alternativa: Paracetamol 500–750mg de 6/6h, não ultrapassar 3g/dia"]},
-      ],
-      alergia: [
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400mg de 8/8h — se dor intensa, 600mg de 8/8h, por 3–5 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
-        {secao:"ℹ️ OBSERVAÇÃO", itens:["Não se aplica antibiótico nesta situação"]},
-      ],
-      gravida: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h — não ultrapassar 3g/dia"]},
-        {secao:"⚠️ ATENÇÃO", itens:["AINEs contraindicados na gestação"]},
-      ],
-      crianca: [
-        {secao:"⚠️ ATENÇÃO", itens:["Para pacientes pediátricos, consulte um especialista ou referência de dosagem pediátrica específica. As doses variam conforme o peso e a idade."]},
-      ],
-      diabetico: [
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400mg de 8/8h — se dor intensa, 600mg de 8/8h, por 3–5 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
-        {secao:"ℹ️ OBSERVAÇÃO", itens:["Manter protocolo normal"]},
-      ],
-      hipertenso: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg isolada ou Paracetamol 500–750mg de 6/6h"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs — podem elevar a pressão arterial"]},
-      ],
-      cardiopata: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h — preferencial","Evitar Dipirona se em uso de varfarina (interação teórica)"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs"]},
-      ],
-      renal: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h + Dipirona 500mg se necessário"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs — nefrotóxicos"]},
-      ],
-      hepatopata: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — com cautela"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar Paracetamol em dose alta — hepatotóxico"]},
-      ],
-      idoso: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg 6/6h — primeira linha"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar ou reduzir AINE — avaliar função renal"]},
+        {secao:"CONDUTA", itens:[
+          "Antibioticoterapia",
+          "Anti-inflamatório"
+        ]},
+        {secao:"⚠️ ATENÇÃO", itens:[
+          "Consultar protocolo de Pacientes Gestantes e Lactantes para conduta completa"
+        ]},
+        {secao:"ANTIBIÓTICO", itens:[
+          "Amoxicilina (comp. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+          "Amoxicilina + Clavulanato de potássio (comp. 500mg): 1 comprimido de 8/8 horas, durante 7 dias"
+        ]},
+        {secao:"ANALGÉSICOS", itens:[
+          "Dipirona sódica (comp. 500mg): 1 comprimido de 6/6 horas enquanto houver dor",
+          "Paracetamol (comp. 750mg): 1 comprimido de 6/6 horas enquanto houver dor",
+          "⚠️ AAS é contraindicado"
+        ]},
       ],
     }
   },
 
   "abscesso-periapical": {
     titulo: "Abscesso periapical agudo",
-    conduta: [
-      "Drenagem é a prioridade — sem drenagem o antibiótico falha",
-      "Via canal ou incisão se flutuante — lâmina 11 ou 15, drenagem ativa + irrigação com soro",
-      "Se infecção localizada, bem drenada, sem sinais sistêmicos → apenas drenagem + AINE, reavaliar em 24h",
-      "Se edema comprometendo deglutição ou respiração → Dexametasona IV 4–8mg + encaminhamento hospitalar imediato",
-      "Encaminhar endodontista"
-    ],
+    filtros: ["padrao", "alergia", "gravida"],
     blocos: {
       padrao: [
-        {secao:"ANTIBIÓTICO (apenas se febre, trismo, edema difuso)", itens:["Amoxicilina 500mg — 1 cápsula de 8/8h por 5–7 dias","Reavaliar em 48–72h — se melhora, considerar reduzir para 5 dias","Infecção grave: Amoxicilina + Clavulanato 875mg — 1 comprimido de 12/12h por 7 dias"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400mg de 8/8h apenas se dor intensa — não de rotina","⚠️ AINE pode mascarar febre — monitorar sinais de piora"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
+        {secao:"CONDUTA", itens:[
+          "Antibioticoterapia de amplo espectro e penicilínase resistente",
+          "Dose inicial dupla",
+          "Anti-inflamatório e Analgésico"
+        ]},
+        {secao:"ANTIBIÓTICOS", itens:[
+          "Cefalexina (comp 500mg): 1 comprimido de 6/6 horas, VO, durante 7 dias",
+          "Amoxicilina + Clavulanato de potássio (comp. 500mg): 1 comprimido de 8/8 horas, VO, durante 7 dias",
+          "Amoxicilina (cap. 500mg): 1 cápsula de 8/8 horas, VO, durante 7 dias"
+        ]},
+        {secao:"ANALGÉSICOS", itens:[
+          "Dipirona sódica (comp. 500mg): 1 comprimido de 6/6 horas, VO, enquanto houver dor",
+          "Paracetamol (comp. 750mg): 1 comprimido de 6/6 horas, VO, enquanto houver dor"
+        ]},
+        {secao:"ANTI-INFLAMATÓRIOS", itens:[
+          "Nimesulida (comp. 100mg): 1 comprimido de 12/12 horas, VO, durante 3 dias",
+          "Cetoprofeno (comp. 50mg): 1 comprimido de 8/8 horas, VO, durante 3 dias",
+          "Piroxicam (comp. 20mg): 1 comprimido de 8/8 horas, VO, durante 3 dias"
+        ]},
+        {secao:"ANALGÉSICO CONTROLADO — DOR INTENSA", itens:[
+          "Codeína + Paracetamol (Tylex, comp. 30mg): 1 comprimido de 6/6 horas, VO, enquanto houver dor"
+        ]},
       ],
       alergia: [
-        {secao:"ANTIBIÓTICO", itens:["Clindamicina 300mg — 1 comprimido de 8/8h por 7 dias","Se alergia tipo I (anafilaxia): Azitromicina 500mg 1x/dia + Metronidazol 400mg 8/8h"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400mg de 8/8h apenas se dor intensa"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
+        {secao:"CONDUTA", itens:[
+          "Antibioticoterapia de amplo espectro e penicilínase resistente",
+          "Dose inicial dupla",
+          "Anti-inflamatório e Analgésico"
+        ]},
+        {secao:"ANTIBIÓTICOS — ALERGIA À PENICILINA", itens:[
+          "Clindamicina (comp. 300mg): 1 comprimido de 8/8 horas, VO, durante 7 dias",
+          "Azitromicina (comp. 500mg): 1 comprimido por dia, VO, durante 3 dias"
+        ]},
+        {secao:"ANALGÉSICOS", itens:[
+          "Dipirona sódica (comp. 500mg): 1 comprimido de 6/6 horas, VO, enquanto houver dor",
+          "Paracetamol (comp. 750mg): 1 comprimido de 6/6 horas, VO, enquanto houver dor"
+        ]},
+        {secao:"ANTI-INFLAMATÓRIOS", itens:[
+          "Nimesulida (comp. 100mg): 1 comprimido de 12/12 horas, VO, durante 3 dias",
+          "Cetoprofeno (comp. 50mg): 1 comprimido de 8/8 horas, VO, durante 3 dias",
+          "Piroxicam (comp. 20mg): 1 comprimido de 8/8 horas, VO, durante 3 dias"
+        ]},
+        {secao:"ANALGÉSICO CONTROLADO — DOR INTENSA", itens:[
+          "Codeína + Paracetamol (Tylex, comp. 30mg): 1 comprimido de 6/6 horas, VO, enquanto houver dor"
+        ]},
       ],
       gravida: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina 500mg — segura (categoria B)"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h — não ultrapassar 3g/dia"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs na gestação"]},
-      ],
-      crianca: [
-        {secao:"⚠️ ATENÇÃO", itens:["Para pacientes pediátricos, consulte um especialista ou referência de dosagem pediátrica específica. As doses variam conforme o peso e a idade."]},
-      ],
-      diabetico: [
-        {secao:"ANTIBIÓTICO", itens:["Amoxicilina 500mg — 1 cápsula de 8/8h por 5–7 dias — fortemente recomendado"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Controle glicêmico rigoroso — evitar corticosteroide"]},
-      ],
-      hipertenso: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina 500mg — 1 cápsula de 8/8h por 5–7 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg isolada; se dor intensa, Paracetamol 500–750mg"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs"]},
-      ],
-      cardiopata: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina 500mg — tratamento da infecção ativa, não profilaxia"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs","Verificar anticoagulante antes de incisar"]},
-      ],
-      renal: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina — ajuste: ClCr 10–30 → 500mg 12/12h; ClCr <10 → 500mg 24/24h","Metronidazol seguro até ClCr <10"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg + Dipirona se necessário"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs — nefrotóxicos"]},
-      ],
-      hepatopata: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — com cautela"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar Paracetamol em dose alta"]},
-      ],
-      idoso: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg 6/6h — primeira linha"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar ou reduzir AINE — avaliar função renal"]},
-      ],
-    }
-  },
-
-  "abscesso-periodontal": {
-    titulo: "Abscesso periodontal",
-    conduta: [
-      "Confirmar diagnóstico: testar vitalidade pulpar antes de tratar como periodontal",
-      "Drenagem pelo sulco com sonda periodontal — primeira prioridade",
-      "Se flutuante: incisão com lâmina 15, drenagem ativa + irrigar com soro fisiológico",
-      "Raspagem e alisamento radicular do sítio afetado",
-      "Bochecho com clorexidina 0,12% 2x/dia por 5 dias",
-      "Reavaliar em 48h — se piora: nova drenagem ou antibiótico",
-      "Encaminhar periodontista se bolsa >5mm após resolução"
-    ],
-    blocos: {
-      padrao: [
-        {secao:"ANTIBIÓTICO (apenas se febre, trismo ou edema difuso)", itens:["Amoxicilina 500mg — 1 cápsula de 8/8h por 7 dias","Se sem melhora em 48h: associar Metronidazol 250–400mg de 8/8h por 7 dias","⚠️ Não ingerir álcool durante e por 72h após o Metronidazol"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400mg de 8/8h apenas se dor intensa — não de rotina","Monitorar febre e progressão do edema"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
-      ],
-      alergia: [
-        {secao:"ANTIBIÓTICO", itens:["Clindamicina 300mg — 1 comprimido de 8/8h por 7 dias","Alternativa: Azitromicina 500mg — 1x/dia por 3 dias"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400mg de 8/8h apenas se dor intensa"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
-      ],
-      gravida: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina 500mg — segura (categoria B)","Metronidazol: evitar no 1º trimestre; usar no 2º e 3º apenas se estritamente necessário"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h — não ultrapassar 3g/dia"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs na gestação"]},
-      ],
-      crianca: [
-        {secao:"⚠️ ATENÇÃO", itens:["Para pacientes pediátricos, consulte um especialista ou referência de dosagem pediátrica específica. As doses variam conforme o peso e a idade."]},
-      ],
-      diabetico: [
-        {secao:"ANTIBIÓTICO", itens:["Amoxicilina 500mg — fortemente recomendado"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Controle glicêmico rigoroso — evitar corticosteroide"]},
-      ],
-      hipertenso: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg isolada; se dor intensa, Paracetamol 500–750mg"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs"]},
-      ],
-      cardiopata: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina 500mg — tratamento da infecção ativa","Se anticoagulado: incisão segura se INR <3,5 — hemostasia local + ácido tranexâmico tópico"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs"]},
-      ],
-      renal: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina — ajuste: ClCr 10–30 → 500mg 12/12h; ClCr <10 → 500mg 24/24h","Metronidazol seguro na maioria; ajustar se ClCr <10"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg + Dipirona se necessário"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs"]},
-      ],
-      hepatopata: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — com cautela"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar Paracetamol em dose alta"]},
-      ],
-      idoso: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg 6/6h — primeira linha"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar ou reduzir AINE — avaliar função renal"]},
+        {secao:"CONDUTA", itens:[
+          "Antibioticoterapia de amplo espectro e penicilínase resistente",
+          "Dose inicial dupla",
+          "Anti-inflamatório e Analgésico"
+        ]},
+        {secao:"⚠️ ATENÇÃO", itens:[
+          "Consultar protocolo de Pacientes Gestantes e Lactantes para conduta completa"
+        ]},
+        {secao:"ANTIBIÓTICOS", itens:[
+          "Amoxicilina (comp. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+          "Amoxicilina + Clavulanato de potássio (comp. 500mg): 1 comprimido de 8/8 horas, durante 7 dias"
+        ]},
+        {secao:"ANALGÉSICOS", itens:[
+          "Dipirona sódica (comp. 500mg): 1 comprimido de 6/6 horas enquanto houver dor",
+          "Paracetamol (comp. 750mg): 1 comprimido de 6/6 horas enquanto houver dor",
+          "⚠️ AAS é contraindicado"
+        ]},
       ],
     }
   },
 
   "alveolite": {
     titulo: "Alveolite",
-    conduta: [
-      "Diagnóstico: alvéolo vazio, dor intensa irradiada, halitose — 2–4 dias após extração",
-      "Anestesia local obrigatória antes de qualquer manipulação",
-      "Irrigação abundante com soro fisiológico",
-      "Curetagem suave para estimular sangramento e novo coágulo",
-      "Curativo com Alvogyl ou gaze iodofórmio — trocar a cada 48h por 1–2 semanas",
-      "Orientar: não fumar, não usar canudo, não cuspir, higiene suave"
-    ],
+    filtros: ["padrao", "alergia", "gravida"],
     blocos: {
       padrao: [
-        {secao:"ANTIBIÓTICO", itens:["Alveolite seca: não indicado rotineiramente","Alveolite úmida (pus, febre): Amoxicilina 500mg — 1 cápsula de 8/8h por 7 dias"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400/600mg — 1 comprimido de 8/8h por 3–5 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
+        {secao:"CONDUTA", itens:[
+          "Realizar Anestesia local",
+          "Limpeza do local com Soro Fisiológico",
+          "Remover espícula ou coágulo necrótico",
+          "Medicação local: Colocar Alveosan®, não suturar"
+        ]},
+        {secao:"ANTIBIÓTICO", itens:[
+          "Amoxicilina (cap. 500mg): Tomar 1 comprimido de 8/8 horas, durante 7 dias"
+        ]},
+        {secao:"ANALGÉSICOS", itens:[
+          "Dipirona sódica (comp. 500mg): Tomar 1 comprimido de 6/6 horas enquanto houver dor",
+          "Paracetamol (comp. 750mg): Tomar 1 comprimido de 6/6 horas enquanto houver dor"
+        ]},
+        {secao:"ANTI-INFLAMATÓRIOS", itens:[
+          "Nimesulida (comp. 100mg): Tomar 1 comprimido de 12/12 horas, durante 3 dias",
+          "Diclofenaco sódico (comp. 50mg): Tomar 1 comprimido de 8/8 horas, durante 3 dias"
+        ]},
       ],
       alergia: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Clindamicina 300mg — 1 comprimido de 8/8h por 7 dias"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400/600mg — 1 comprimido de 8/8h por 3–5 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
+        {secao:"CONDUTA", itens:[
+          "Realizar Anestesia local",
+          "Limpeza do local com Soro Fisiológico",
+          "Remover espícula ou coágulo necrótico",
+          "Medicação local: Colocar Alveosan®, não suturar"
+        ]},
+        {secao:"ANTIBIÓTICO — ALERGIA À PENICILINA", itens:[
+          "Clindamicina (comp. 300mg): Tomar 1 comprimido de 8/8 horas, durante 7 dias",
+          "Azitromicina (comp. 500mg): Tomar 1 comprimido diário durante 3 dias"
+        ]},
+        {secao:"ANALGÉSICOS", itens:[
+          "Dipirona sódica (comp. 500mg): Tomar 1 comprimido de 6/6 horas enquanto houver dor",
+          "Paracetamol (comp. 750mg): Tomar 1 comprimido de 6/6 horas enquanto houver dor"
+        ]},
+        {secao:"ANTI-INFLAMATÓRIOS", itens:[
+          "Nimesulida (comp. 100mg): Tomar 1 comprimido de 12/12 horas, durante 3 dias",
+          "Diclofenaco sódico (comp. 50mg): Tomar 1 comprimido de 8/8 horas, durante 3 dias"
+        ]},
       ],
       gravida: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina 500mg — segura (categoria B)"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h — não ultrapassar 3g/dia"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs na gestação"]},
-      ],
-      crianca: [
-        {secao:"⚠️ ATENÇÃO", itens:["Para pacientes pediátricos, consulte um especialista ou referência de dosagem pediátrica específica. As doses variam conforme o peso e a idade."]},
-      ],
-      diabetico: [
-        {secao:"ANTIBIÓTICO", itens:["Fortemente recomendado se mau controle glicêmico (HbA1c >8%) ou imunossupressão","Caso contrário: curativo + monitoramento"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
-      ],
-      hipertenso: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg isolada; se dor intensa, Paracetamol 500–750mg"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs — avaliar função renal antes"]},
-      ],
-      cardiopata: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs"]},
-      ],
-      renal: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina — ajuste: ClCr 10–30 → 500mg 12/12h; ClCr <10 → 500mg 24/24h"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg + Dipirona se necessário"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs — avaliar função renal"]},
-      ],
-      hepatopata: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — com cautela"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar Paracetamol em dose alta"]},
-      ],
-      idoso: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg 6/6h — primeira linha"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Principal fator de risco para alveolite — avaliar função renal antes de AINE"]},
-      ],
-    }
-  },
-
-  "urgencia-endo": {
-    titulo: "Urgência endodôntica",
-    conduta: [
-      "Abertura de urgência para alívio da pressão — a abertura é o principal analgésico",
-      "Remoção da polpa coronária",
-      "Irrigação com NaOCl 1–2,5%",
-      "Curativo com hidróxido de cálcio ou pellet de algodão seco",
-      "Selamento provisório com Cavit ou IRM",
-      "Encaminhar endodontista"
-    ],
-    blocos: {
-      padrao: [
-        {secao:"ANTIBIÓTICO (apenas se febre, trismo ou edema)", itens:["Amoxicilina 500mg — 1 cápsula de 8/8h por 7 dias"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400/600mg — 1 comprimido de 8/8h por 3–5 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
-      ],
-      alergia: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Clindamicina 300mg — 1 comprimido de 8/8h por 7 dias"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400/600mg — 1 comprimido de 8/8h por 3–5 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
-      ],
-      gravida: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina 500mg — segura (categoria B)"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h — não ultrapassar 3g/dia"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs na gestação"]},
-      ],
-      crianca: [
-        {secao:"⚠️ ATENÇÃO", itens:["Para pacientes pediátricos, consulte um especialista ou referência de dosagem pediátrica específica. As doses variam conforme o peso e a idade."]},
-      ],
-      diabetico: [
-        {secao:"ANTIBIÓTICO", itens:["Amoxicilina 500mg — fortemente recomendado"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Controle glicêmico rigoroso"]},
-      ],
-      hipertenso: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg isolada; se dor intensa, Paracetamol 500–750mg"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs"]},
-      ],
-      cardiopata: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h","Evitar Dipirona se em uso de varfarina"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs"]},
-      ],
-      renal: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina — ajuste: ClCr 10–30 → 500mg 12/12h; ClCr <10 → 500mg 24/24h"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg + Dipirona se necessário"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs"]},
-      ],
-      hepatopata: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — com cautela"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar Paracetamol em dose alta"]},
-      ],
-      idoso: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg 6/6h — primeira linha"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar ou reduzir AINE — avaliar função renal"]},
+        {secao:"CONDUTA", itens:[
+          "Realizar Anestesia local",
+          "Limpeza do local com Soro Fisiológico",
+          "Remover espícula ou coágulo necrótico",
+          "Medicação local: Colocar Alveosan®, não suturar"
+        ]},
+        {secao:"⚠️ ATENÇÃO", itens:[
+          "Consultar protocolo de Pacientes Gestantes e Lactantes para conduta completa"
+        ]},
+        {secao:"ANTIBIÓTICO", itens:[
+          "Amoxicilina (comp. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+          "Amoxicilina + Clavulanato de potássio (comp. 500mg): 1 comprimido de 8/8 horas, durante 7 dias"
+        ]},
+        {secao:"ANALGÉSICOS", itens:[
+          "Dipirona sódica (comp. 500mg): 1 comprimido de 6/6 horas enquanto houver dor",
+          "Paracetamol (comp. 750mg): 1 comprimido de 6/6 horas enquanto houver dor",
+          "⚠️ AAS é contraindicado"
+        ]},
       ],
     }
   },
 
   "pericoronarite": {
     titulo: "Pericoronarite",
-    conduta: [
-      "Irrigação abundante com soro fisiológico sob o opérculo",
-      "Bochecho com clorexidina 0,12% 3x/dia por 5 dias",
-      "Antibiótico se febre, trismo ou edema difuso",
-      "Avaliar indicação de remoção do opérculo ou extração do siso após resolução"
-    ],
+    filtros: ["padrao", "alergia", "gravida"],
     blocos: {
       padrao: [
-        {secao:"ANTIBIÓTICO (se sinais sistêmicos)", itens:["Amoxicilina 500mg 8/8h + Metronidazol 250–400mg 8/8h por 7 dias — preferencial em infecção moderada/grave","Alternativa leve: Amoxicilina 500mg isolada por 7 dias","⚠️ Não ingerir álcool durante e por 72h após o Metronidazol"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400/600mg — 1 comprimido de 8/8h por 3–5 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
+        {secao:"CONDUTA", itens:[
+          "Limpeza do local com Soro Fisiológico",
+          "Remover debris",
+          "Medicação Local: Colocar Clorexidina 0,12% ou agente oxidante"
+        ]},
+        {secao:"ANTIBIÓTICO", itens:[
+          "Amoxicilina (cap. 500mg): Tomar 1 comprimido de 8/8 horas, durante 7 dias"
+        ]},
+        {secao:"ANTI-INFLAMATÓRIO", itens:[
+          "Mioflex®: Tomar 1 comprimido de 6/6 horas, durante 3 dias"
+        ]},
       ],
       alergia: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Clindamicina 300mg — 1 comprimido de 8/8h por 7 dias"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400/600mg — 1 comprimido de 8/8h por 3–5 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
+        {secao:"CONDUTA", itens:[
+          "Limpeza do local com Soro Fisiológico",
+          "Remover debris",
+          "Medicação Local: Colocar Clorexidina 0,12% ou agente oxidante"
+        ]},
+        {secao:"ANTIBIÓTICO — ALERGIA À PENICILINA", itens:[
+          "Clindamicina (comp. 300mg): Tomar 1 comprimido de 8/8 horas, durante 7 dias",
+          "Azitromicina (comp. 500mg): Tomar 1 comprimido diário durante 3 dias"
+        ]},
+        {secao:"ANTI-INFLAMATÓRIO", itens:[
+          "Mioflex®: Tomar 1 comprimido de 6/6 horas, durante 3 dias"
+        ]},
       ],
       gravida: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina 500mg — segura (categoria B)","Metronidazol: evitar no 1º trimestre; usar no 2º e 3º apenas se necessário"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h — não ultrapassar 3g/dia"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs na gestação"]},
-      ],
-      crianca: [
-        {secao:"⚠️ ATENÇÃO", itens:["Raro em crianças. Para pacientes pediátricos, consulte um especialista ou referência de dosagem pediátrica específica."]},
-      ],
-      diabetico: [
-        {secao:"ANTIBIÓTICO", itens:["Amoxicilina + Metronidazol — fortemente recomendado"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Controle glicêmico rigoroso"]},
-      ],
-      hipertenso: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg isolada ou Paracetamol 500–750mg"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs"]},
-      ],
-      cardiopata: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs"]},
-      ],
-      renal: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina — ajuste: ClCr 10–30 → 500mg 12/12h; ClCr <10 → 500mg 24/24h","Metronidazol seguro até ClCr <10"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg + Dipirona se necessário"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs"]},
-      ],
-      hepatopata: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — com cautela"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar Paracetamol em dose alta"]},
-      ],
-      idoso: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg 6/6h — primeira linha"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar ou reduzir AINE — avaliar função renal"]},
+        {secao:"CONDUTA", itens:[
+          "Limpeza do local com Soro Fisiológico",
+          "Remover debris",
+          "Medicação Local: Colocar Clorexidina 0,12% ou agente oxidante"
+        ]},
+        {secao:"⚠️ ATENÇÃO", itens:[
+          "Consultar protocolo de Pacientes Gestantes e Lactantes para conduta completa"
+        ]},
+        {secao:"ANTIBIÓTICO", itens:[
+          "Amoxicilina (comp. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+          "Amoxicilina + Clavulanato de potássio (comp. 500mg): 1 comprimido de 8/8 horas, durante 7 dias"
+        ]},
       ],
     }
   },
 
   "profilaxia": {
     titulo: "Profilaxia antibiótica",
-    conduta: [
-      "Indicada em: prótese valvar cardíaca, endocardite prévia, cardiopatia cianótica não corrigida, transplantados imunossuprimidos",
-      "Prótese articular: não há recomendação atual (ADA 2015)",
-      "Administrar 30–60 min antes do procedimento — dose única",
-      "Procedimento eletivo em grávida: adiar se possível"
-    ],
+    filtros: ["padrao", "alergia", "crianca", "incapaz-oral", "incapaz-oral-alergia", "gravida"],
     blocos: {
       padrao: [
-        {secao:"ANTIBIÓTICO — DOSE ÚNICA", itens:["Amoxicilina 2g VO — 30–60 min antes do procedimento"]},
+        {secao:"INDICAÇÕES", itens:[
+          "Valvas cardíacas protéticas",
+          "Endocardite bacteriana prévia",
+          "Doenças cardíaca congênita cianótica",
+          "Disfunção valvar",
+          "Prolapso de válva mitral",
+          "Cardiomiopatia hipertrófica",
+          "Febre reumática com disfunção valvar"
+        ]},
+        {secao:"CONDUTA", itens:[
+          "Antibioticoterapia antes de procedimentos cirúrgicos para prevenção de Endocardite"
+        ]},
+        {secao:"ANTIBIÓTICO — ADULTOS", itens:[
+          "Amoxicilina (caps 500mg): 2g 1 hora antes do procedimento"
+        ]},
       ],
       alergia: [
-        {secao:"ANTIBIÓTICO — DOSE ÚNICA", itens:["Clindamicina 600mg VO — 30–60 min antes","Alternativa: Azitromicina 500mg ou Claritromicina 500mg — dose única"]},
-      ],
-      gravida: [
-        {secao:"ANTIBIÓTICO — DOSE ÚNICA", itens:["Amoxicilina 2g VO — segura (categoria B)"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Adiar procedimento eletivo se possível — confirmar com obstetra"]},
+        {secao:"INDICAÇÕES", itens:[
+          "Valvas cardíacas protéticas",
+          "Endocardite bacteriana prévia",
+          "Doenças cardíaca congênita cianótica",
+          "Disfunção valvar",
+          "Prolapso de válva mitral",
+          "Cardiomiopatia hipertrófica",
+          "Febre reumática com disfunção valvar"
+        ]},
+        {secao:"CONDUTA", itens:[
+          "Antibioticoterapia antes de procedimentos cirúrgicos para prevenção de Endocardite"
+        ]},
+        {secao:"ANTIBIÓTICO — ADULTOS COM ALERGIA À PENICILINA", itens:[
+          "Clindamicina (comp 300mg): 600mg 1 hora antes do procedimento"
+        ]},
       ],
       crianca: [
-        {secao:"ANTIBIÓTICO — DOSE ÚNICA", itens:["Amoxicilina 50mg/kg VO — dose única (máx 2g) — cálculo por peso"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Para pacientes pediátricos, confirme o peso e consulte referência pediátrica específica."]},
+        {secao:"INDICAÇÕES", itens:[
+          "Valvas cardíacas protéticas",
+          "Endocardite bacteriana prévia",
+          "Doenças cardíaca congênita cianótica",
+          "Disfunção valvar",
+          "Prolapso de válva mitral",
+          "Cardiomiopatia hipertrófica",
+          "Febre reumática com disfunção valvar"
+        ]},
+        {secao:"CONDUTA", itens:[
+          "Antibioticoterapia antes de procedimentos cirúrgicos para prevenção de Endocardite"
+        ]},
+        {secao:"ANTIBIÓTICO — CRIANÇAS", itens:[
+          "Amoxicilina (caps 250mg): 50mg/Kg, dose única, 1 hora antes do procedimento"
+        ]},
+        {secao:"ANTIBIÓTICO — CRIANÇAS COM ALERGIA À PENICILINA", itens:[
+          "Azitromicina (susp 200mg): 15mg/Kg, dose única, 1 hora antes do procedimento"
+        ]},
       ],
-      diabetico: [
-        {secao:"ANTIBIÓTICO — DOSE ÚNICA", itens:["Amoxicilina 2g VO — protocolo padrão"]},
-        {secao:"ℹ️ OBSERVAÇÃO", itens:["Sem alteração no protocolo"]},
+      "incapaz-oral": [
+        {secao:"ANTIBIÓTICO — ADULTOS INCAPAZES VIA ORAL", itens:[
+          "Ampicilina: 2g IM, aplicar 30 minutos antes do procedimento"
+        ]},
+        {secao:"ANTIBIÓTICO — CRIANÇAS INCAPAZES VIA ORAL", itens:[
+          "Ampicilina: 2g IM, aplicar 30 minutos antes do procedimento, não exceder dose de adultos"
+        ]},
       ],
-      hipertenso: [
-        {secao:"ANTIBIÓTICO — DOSE ÚNICA", itens:["Amoxicilina 2g VO — protocolo padrão"]},
-        {secao:"ℹ️ OBSERVAÇÃO", itens:["Sem alteração no protocolo"]},
+      "incapaz-oral-alergia": [
+        {secao:"ANTIBIÓTICO — ADULTOS INCAPAZES VIA ORAL + ALERGIA À PENICILINA", itens:[
+          "Clindamicina (600mg): 600mg IV, aplicar 30 minutos antes do procedimento"
+        ]},
+        {secao:"ANTIBIÓTICO — CRIANÇAS INCAPAZES VIA ORAL + ALERGIA À PENICILINA", itens:[
+          "Clindamicina (600mg): 20mg/Kg IV, aplicar 30 minutos antes do procedimento"
+        ]},
       ],
-      cardiopata: [
-        {secao:"ANTIBIÓTICO — DOSE ÚNICA", itens:["Amoxicilina 2g VO — 30–60 min antes","Confirmar necessidade com cardiologista"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Se anticoagulado: manter anticoagulante — não suspender sem orientação médica"]},
+      gravida: [
+        {secao:"⚠️ ATENÇÃO", itens:[
+          "Consultar protocolo de Pacientes Gestantes e Lactantes para conduta completa"
+        ]},
+        {secao:"ANTIBIÓTICO", itens:[
+          "Amoxicilina (comp. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+          "Amoxicilina + Clavulanato de potássio (comp. 500mg): 1 comprimido de 8/8 horas, durante 7 dias"
+        ]},
       ],
-      renal: [
-        {secao:"ANTIBIÓTICO — DOSE ÚNICA", itens:["Amoxicilina 2g VO — dose única segura mesmo em diálise"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Confirmar com nefrologista se dúvida"]},
+    }
+  },
+
+  "dentes-impactados": {
+    titulo: "Dentes impactados",
+    filtros: ["padrao", "alergia", "gravida", "asmatico"],
+    blocos: {
+      padrao: [
+        {secao:"CONDUTA", itens:[
+          "Antibioticoterapia (Dose Inicial Dupla)",
+          "Anti-inflamatório e Analgésico"
+        ]},
+        {secao:"ANTIBIÓTICO", itens:[
+          "Amoxicilina (cap. 500mg): 1gr antes do procedimento e 1 comprimido de 8/8 horas, durante 7 dias"
+        ]},
+        {secao:"ANTI-INFLAMATÓRIOS", itens:[
+          "Nimesulida (comp. 100mg): 1 comprimido de 12/12 horas, durante 3 dias",
+          "Diclofenaco sódico (comp. 50mg): 1 comprimido de 8/8 horas, durante 3 dias"
+        ]},
+        {secao:"ANALGÉSICOS", itens:[
+          "Dipirona sódica (comp. 500mg): 1 comprimido de 6/6 horas VO, durante 3 dias. Iniciar 1 hora antes do procedimento",
+          "Paracetamol (comp. 750mg): 1 comprimido de 6/6 horas, enquanto houver dor"
+        ]},
       ],
-      hepatopata: [
-        {secao:"ANTIBIÓTICO — DOSE ÚNICA", itens:["Amoxicilina 2g VO — segura em dose única"]},
+      alergia: [
+        {secao:"CONDUTA", itens:[
+          "Antibioticoterapia (Dose Inicial Dupla)",
+          "Anti-inflamatório e Analgésico"
+        ]},
+        {secao:"ANTIBIÓTICO — ALERGIA À PENICILINA", itens:[
+          "Clindamicina (cap. 300mg): 600gr, antes do procedimento e 1 comprimido de 8/8 horas, durante 7 dias",
+          "Azitromicina (comp. 500mg): 1gr, antes do procedimento e 1 comprimido diário, durante 3 dias"
+        ]},
+        {secao:"ANTI-INFLAMATÓRIOS", itens:[
+          "Nimesulida (comp. 100mg): 1 comprimido de 12/12 horas, durante 3 dias",
+          "Diclofenaco sódico (comp. 50mg): 1 comprimido de 8/8 horas, durante 3 dias"
+        ]},
+        {secao:"ANALGÉSICOS", itens:[
+          "Dipirona sódica (comp. 500mg): 1 comprimido de 6/6 horas VO, durante 3 dias. Iniciar 1 hora antes do procedimento",
+          "Paracetamol (comp. 750mg): 1 comprimido de 6/6 horas, enquanto houver dor"
+        ]},
       ],
-      idoso: [
-        {secao:"ANTIBIÓTICO — DOSE ÚNICA", itens:["Amoxicilina 2g VO — protocolo padrão"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Atenção à função renal"]},
+      gravida: [
+        {secao:"CONDUTA", itens:[
+          "Antibioticoterapia (Dose Inicial Dupla)",
+          "Anti-inflamatório e Analgésico"
+        ]},
+        {secao:"⚠️ ATENÇÃO", itens:[
+          "Consultar protocolo de Pacientes Gestantes e Lactantes para conduta completa"
+        ]},
+        {secao:"ANTIBIÓTICO", itens:[
+          "Amoxicilina (comp. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+          "Amoxicilina + Clavulanato de potássio (comp. 500mg): 1 comprimido de 8/8 horas, durante 7 dias"
+        ]},
+        {secao:"ANALGÉSICOS", itens:[
+          "Dipirona sódica (comp. 500mg): 1 comprimido de 6/6 horas enquanto houver dor",
+          "Paracetamol (comp. 750mg): 1 comprimido de 6/6 horas enquanto houver dor",
+          "⚠️ AAS é contraindicado"
+        ]},
+      ],
+      asmatico: [
+        {secao:"CONDUTA", itens:[
+          "Antibioticoterapia (Dose Inicial Dupla)",
+          "Anti-inflamatório e Analgésico"
+        ]},
+        {secao:"⚠️ ATENÇÃO", itens:[
+          "Consultar protocolo de Pacientes Asmáticos para conduta completa"
+        ]},
+        {secao:"CONTROLE DA DOR", itens:[
+          "Dipirona: 500mg a cada 4 horas",
+          "Paracetamol: 750mg a cada 6 horas"
+        ]},
+        {secao:"ANTI-INFLAMATÓRIOS", itens:[
+          "Betametasona ou Dexametasona 4mg em dose única, 1 hora antes do procedimento"
+        ]},
+      ],
+    }
+  },
+
+  "gengivoestomatite": {
+    titulo: "Gengivoestomatite herpética primária",
+    filtros: [],
+    blocos: {
+      padrao: [
+        {secao:"CONDUTAS", itens:[
+          "Dieta líquida ou pastosa e fria",
+          "Repouso"
+        ]},
+        {secao:"MEDICAMENTOS", itens:[
+          "Paracetamol (Sol. gotas): 1 gota/kg de peso corporal com intervalos de 4 horas, em no máximo 4 doses/dia",
+          "Gluconato de clorexedina (gel 1%): Aplicar no local com auxílio de gaze, 3x/dia, durante 5 dias; Bochechos 2x/dia"
+        ]},
       ],
     }
   },
 
   "candidíase": {
     titulo: "Candidíase oral",
-    conduta: [
-      "Identificar e eliminar fator predisponente (antibiótico prolongado, imunossupressão, prótese mal adaptada, xerostomia)",
-      "Higiene rigorosa da prótese se presente",
-      "Antifúngico tópico como primeira linha"
-    ],
+    filtros: ["leve", "severo", "queilite"],
+    blocos: {
+      leve: [
+        {secao:"CANDIDOSES DE GRAU LEVE", itens:[
+          "Remoção da causa",
+          "Higienização bucal",
+          "Higienização da prótese com uma colher das de sopa hipoclorito de sódio a 1% diluído em um copo de água"
+        ]},
+        {secao:"MEDICAMENTOS", itens:[
+          "Nistatina 100.000 u/ml sus., fracos 50ml: Bochechar 5ml da suspensão, 4x/dia, durante 15 dias, retendo na boca por 1 minuto e depois deglutir; Tratamento deve durar pelo menos 48 horas após os sintomas terem desaparecido",
+          "Miconazol (gel oral): Recobrir a prótese 3x/dia, durante 14 dias"
+        ]},
+      ],
+      severo: [
+        {secao:"CANDIDOSES DE GRAU SEVERO", itens:[
+          "Cetoconazol (comp. 200mg): 1 comprimido ao dia durante 7 dias"
+        ]},
+      ],
+      queilite: [
+        {secao:"QUEILITE ANGULAR", itens:[
+          "Cetoconazol (creme): 1-2x/dia, durante até 3 dias após desaparecerem os sintomas"
+        ]},
+      ],
+    }
+  },
+
+  "hemorragias": {
+    titulo: "Hemorragias",
+    filtros: [],
     blocos: {
       padrao: [
-        {secao:"ANTIFÚNGICO TÓPICO — PRIMEIRA LINHA", itens:["Nistatina suspensão 100.000 UI/ml — 1–2ml bochecho + deglutir 4x/dia por 7–14 dias"]},
-        {secao:"ANTIFÚNGICO SISTÊMICO (formas extensas ou refratárias)", itens:["Fluconazol 150mg — 1 comprimido/dia por 7–14 dias"]},
-      ],
-      alergia: [
-        {secao:"ANTIFÚNGICO", itens:["Nistatina suspensão — protocolo padrão","Fluconazol se necessário — não tem relação com alergia à penicilina"]},
-      ],
-      gravida: [
-        {secao:"ANTIFÚNGICO", itens:["Nistatina tópica — segura na gestação"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar Fluconazol sistêmico na gestação"]},
-      ],
-      crianca: [
-        {secao:"ANTIFÚNGICO", itens:["Nistatina suspensão — cálculo por peso"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Para pacientes pediátricos, consulte referência pediátrica específica para dosagem."]},
-      ],
-      diabetico: [
-        {secao:"ANTIFÚNGICO", itens:["Nistatina suspensão — protocolo padrão"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Controle glicêmico rigoroso — principal fator predisponente"]},
-      ],
-      hipertenso: [
-        {secao:"ANTIFÚNGICO", itens:["Nistatina suspensão — protocolo padrão"]},
-      ],
-      cardiopata: [
-        {secao:"ANTIFÚNGICO", itens:["Nistatina tópica — preferencial"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Fluconazol pode prolongar QT e interagir com varfarina (aumenta INR) — evitar se possível"]},
-      ],
-      renal: [
-        {secao:"ANTIFÚNGICO", itens:["Nistatina tópica — preferencial","Fluconazol: ajuste de dose se ClCr reduzido"]},
-      ],
-      hepatopata: [
-        {secao:"ANTIFÚNGICO", itens:["Nistatina tópica — preferencial"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar Fluconazol — hepatotóxico","Se indispensável: dose reduzida + monitorar enzimas hepáticas"]},
-      ],
-      idoso: [
-        {secao:"ANTIFÚNGICO", itens:["Nistatina tópica — preferencial"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Fluconazol pode prolongar QT e causar interações — preferir tópico"]},
+        {secao:"CONDUTAS", itens:[
+          "Rever sutura",
+          "Verificar origem do sangramento",
+          "Esponja de Fibrina: Hemospon, Cera para osso",
+          "Compressa com gaze umededida em soro fisiológico gelado",
+          "Sutura"
+        ]},
+        {secao:"MEDICAÇÃO SISTÊMICA", itens:[
+          "Vitamina K amp. 10mg: 1 amp. ao dia, VI, durante 3 dias no máximo"
+        ]},
       ],
     }
   },
 
   "herpes": {
-    titulo: "Herpes labial recorrente",
-    conduta: [
-      "Iniciar antiviral o mais precocemente possível — idealmente na fase prodrômica (ardor, prurido)",
-      "Orientar: não manipular a lesão, higiene das mãos, evitar contato com mucosas"
-    ],
+    titulo: "Herpes simples recorrente",
+    filtros: [],
     blocos: {
       padrao: [
-        {secao:"ANTIVIRAL TÓPICO — PRIMEIRA LINHA", itens:["Aciclovir creme 5% — aplicar 5x/dia por 4–5 dias"]},
-        {secao:"ANTIVIRAL SISTÊMICO (formas extensas ou imunossuprimidos)", itens:["Aciclovir 200–400mg VO — 5x/dia por 5 dias","Alternativa: Valaciclovir 2g VO de 12/12h por 1 dia — alta eficácia"]},
-      ],
-      alergia: [
-        {secao:"ANTIVIRAL", itens:["Aciclovir creme 5% — protocolo padrão","Não tem relação com alergia à penicilina"]},
-      ],
-      gravida: [
-        {secao:"ANTIVIRAL", itens:["Aciclovir tópico — seguro na gestação"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Sistêmico: evitar no 1º trimestre se possível — confirmar com obstetra"]},
-      ],
-      crianca: [
-        {secao:"ANTIVIRAL", itens:["Aciclovir tópico — seguro","Sistêmico: 20mg/kg/dose 5x/dia por 5 dias (máx 400mg/dose)"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Confirme o peso e consulte referência pediátrica específica."]},
-      ],
-      diabetico: [
-        {secao:"ANTIVIRAL", itens:["Aciclovir creme 5% — protocolo padrão"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Maior frequência de recorrência — reforçar cuidados"]},
-      ],
-      hipertenso: [
-        {secao:"ANTIVIRAL", itens:["Aciclovir creme 5% — protocolo padrão"]},
-      ],
-      cardiopata: [
-        {secao:"ANTIVIRAL", itens:["Aciclovir creme 5% — protocolo padrão"]},
-      ],
-      renal: [
-        {secao:"ANTIVIRAL", itens:["Aciclovir tópico — seguro"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Aciclovir sistêmico: ajuste se ClCr <25 → 200mg de 12/12h"]},
-      ],
-      hepatopata: [
-        {secao:"ANTIVIRAL", itens:["Aciclovir creme 5% — protocolo padrão — seguro"]},
-      ],
-      idoso: [
-        {secao:"ANTIVIRAL", itens:["Aciclovir creme 5% — protocolo padrão"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Atenção à função renal se sistêmico"]},
+        {secao:"TRATAMENTO", itens:[
+          "Aciclovir (Creme Dermatológico): Aplicar 5x/dia, durante 5 dias",
+          "Aciclovir (Comp. 200mg): 5x/dia, VO, durante 5 dias"
+        ]},
       ],
     }
   },
 
-  "aftas": {
-    titulo: "Mucosite / Aftas",
-    conduta: [
-      "Identificar fator desencadeante (trauma, estresse, deficiência nutricional)",
-      "Investigar deficiência de vitamina B12, ferro e folato em aftas recorrentes",
-      "Orientar: evitar alimentos ácidos, picantes e abrasivos"
-    ],
+  "ulceracoes": {
+    titulo: "Ulcerações aftosas recorrentes",
+    filtros: [],
     blocos: {
       padrao: [
-        {secao:"TÓPICO — PRIMEIRA LINHA", itens:["Triamcinolona acetonida 0,1% em orabase — aplicar após refeições e antes de dormir, 2–3x/dia por 7 dias","Alternativa: Amlexanox 5% pasta — aplicar 4x/dia por 7 dias","Alívio imediato: Lidocaína gel 2% — antes das refeições se dor intensa"]},
-        {secao:"SISTÊMICO (aftas extensas ou múltiplas)", itens:["Prednisolona 20mg — 1 comprimido/dia por 3–5 dias"]},
-      ],
-      alergia: [
-        {secao:"TÓPICO", itens:["Triamcinolona 0,1% em orabase — protocolo padrão","Não tem relação com alergia à penicilina"]},
-      ],
-      gravida: [
-        {secao:"TÓPICO", itens:["Triamcinolona 0,1% em orabase — tópico seguro"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar corticosteroide sistêmico na gestação"]},
-      ],
-      crianca: [
-        {secao:"TÓPICO", itens:["Lidocaína gel 2% antes das refeições — alívio imediato"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar Triamcinolona em crianças pequenas","Sistêmico: evitar abaixo de 12 anos sem avaliação especializada"]},
-      ],
-      diabetico: [
-        {secao:"TÓPICO", itens:["Triamcinolona 0,1% em orabase — preferencial"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar corticosteroide sistêmico — piora glicemia"]},
-      ],
-      hipertenso: [
-        {secao:"TÓPICO", itens:["Triamcinolona 0,1% em orabase — preferencial"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar corticosteroide sistêmico — pode elevar PA"]},
-      ],
-      cardiopata: [
-        {secao:"TÓPICO", itens:["Triamcinolona 0,1% em orabase — preferencial"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar corticosteroide sistêmico"]},
-      ],
-      renal: [
-        {secao:"TÓPICO", itens:["Triamcinolona 0,1% em orabase — preferencial"]},
-      ],
-      hepatopata: [
-        {secao:"TÓPICO", itens:["Triamcinolona 0,1% em orabase — preferencial"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar corticosteroide sistêmico"]},
-      ],
-      idoso: [
-        {secao:"TÓPICO", itens:["Triamcinolona 0,1% em orabase — preferencial"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Corticosteroide sistêmico com cautela"]},
+        {secao:"CONDUTA", itens:[
+          "Identificar e remover o fator desencadeante",
+          "Utilizar antibiótico bactericida, de amplo espectro e penicilínase resistente",
+          "Manter a concentração inibitória mínima durante a prescrição",
+          "Dose inicial preferencial dupla",
+          "Prescrever um AINES",
+          "Analgésico puro"
+        ]},
+        {secao:"MEDICAMENTOS", itens:[
+          "Acetonido de triamcinolona (tubo 10mg): Aplicar pequena quantidade sobre lesão, 2 a 3 vezes ao dia, após as refeições e ao deitar",
+          "Cloridrato de difenidramina - anti-histamínico (Benadryl, vidro com 120ml): Bochechar com o conteúdo de 1 colher de sopa, 3 vezes ao dia, para lesões múltiplas",
+          "Gluconato de clorexedina (sol. 0,12%): Bochechos 2x/dia",
+          "Gluconato de clorexedina gel 1%: Aplicar no local 3x/dia"
+        ]},
       ],
     }
   },
 
-  "trauma": {
-    titulo: "Trauma dental com luxação",
-    conduta: [
-      "Avaliar tipo de luxação: concussão, subluxação, luxação lateral, extrusão, intrusão ou avulsão",
-      "RX periapical obrigatório",
-      "Teste de vitalidade pulpar imediato — repetir em 30, 90 e 180 dias",
-      "Ferulização elástica se mobilidade — fio de nylon 0,25mm + resina",
-      "Avulsão: reimplantar em até 30 min — transporte em soro fisiológico ou leite",
-      "Dente decíduo: NÃO reimplantar — risco de lesão ao germe do permanente",
-      "Verificar esquema vacinal antitetânico se contaminação por solo ou ferrugem",
-      "Encaminhar endodontista para acompanhamento"
-    ],
+  "odontopediatria": {
+    titulo: "Odontopediatria",
+    filtros: ["moderada", "grave"],
     blocos: {
-      padrao: [
-        {secao:"ANTIBIÓTICO", itens:["Avulsão com reimplante: Amoxicilina 500mg — 1 cápsula de 8/8h por 7 dias","Demais luxações: antibiótico não indicado rotineiramente"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400/600mg — 1 comprimido de 8/8h por 3 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
+      moderada: [
+        {secao:"ANTIBIÓTICO — INFECÇÃO MODERADA", itens:[
+          "Amoxicilina susp. 250mg: 40mg/kg peso de 8/8 horas VO, 7 dias"
+        ]},
+        {secao:"ANTI-INFLAMATÓRIOS", itens:[
+          "Ibuprofeno 1 gota + 0,5mg / 1 gota/1kg de 12/12 horas (máx 35 gotas) 3 dias VO — Gotas 50mg/1ml, Comprimido 100mg",
+          "Ibuprofeno 1-2 gota/1kg de 6/6 horas (máx 35 gotas) VO — Gotas 100mg/1ml, Suspensão 100mg/5ml",
+          "Paracetamol 1 gota/kg de 6/6 horas, máx 35 gotas, VO — Suspensão 32mg/1ml embrança / Suspensão 100mg/1ml bebê"
+        ]},
+        {secao:"DOSAGEM PARACETAMOL SUSPENSÃO", itens:[
+          "3kg: 0,4ml · 5kg: 0,6ml · 8kg: 0,8ml · 10kg: 1,3ml",
+          "11–15kg: 5ml · 16–21kg: 7,5ml · 22–26kg: 10ml · 27–31kg: 12,5ml · 32–43kg: 15ml"
+        ]},
+        {secao:"DIPIRONA SÓDICA", itens:[
+          "1 gota/2kg peso, de 6/6 horas — Solução: 2,5 a 5ml, de 6/6 horas",
+          "Dosagem suspensão 50mg/1ml: 5–8kg: 1,25–2,5ml · 9–15kg: 2,5–5ml · 16–23kg: 5–7,5ml · 24–30kg: 5–10ml · 31–45kg: 7,5–15ml · 46–53kg: 8,75–17,5ml"
+        ]},
+        {secao:"CORTICÓIDES", itens:[
+          "Betametasona: Dose única (30min antes), 0,05–0,05mg/kg — Elixir 0,5mg/5ml, Gotas 0,5mg/1ml"
+        ]},
+        {secao:"AINEs", itens:[
+          "Ibuprofeno: 1–2 gotas/1kg, de 6–8 horas — Gotas 50mg/1ml, Gotas 100mg/1ml"
+        ]},
+        {secao:"ANESTÉSICOS LOCAIS", itens:[
+          "Prilocaína com vasoconstrictor: Citanest, Biogress, Cliocaína",
+          "Lidocaína com vasoconstrictor: Lidocaína"
+        ]},
       ],
-      alergia: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Clindamicina 300mg — 1 comprimido de 8/8h por 7 dias"]},
-        {secao:"ANTI-INFLAMATÓRIO", itens:["Ibuprofeno 400/600mg — 1 comprimido de 8/8h por 3 dias"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
-      ],
-      gravida: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina 500mg — segura (categoria B)"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h — não ultrapassar 3g/dia"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs na gestação"]},
-      ],
-      crianca: [
-        {secao:"⚠️ ATENÇÃO", itens:["Muito comum em crianças","Dente decíduo: NÃO reimplantar","Para dosagem pediátrica, consulte referência específica."]},
-      ],
-      diabetico: [
-        {secao:"ANTIBIÓTICO", itens:["Amoxicilina 500mg — fortemente recomendado em reimplante"]},
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — 1 a 2 comprimidos de 6/6h se dor"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Controle glicêmico rigoroso"]},
-      ],
-      hipertenso: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg isolada ou Paracetamol 500–750mg"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs"]},
-      ],
-      cardiopata: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg de 6/6h"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs","Se anticoagulado: reimplante é urgente — manter anticoagulante — hemostasia local + ácido tranexâmico tópico"]},
-      ],
-      renal: [
-        {secao:"ANTIBIÓTICO (se indicado)", itens:["Amoxicilina — ajuste: ClCr 10–30 → 500mg 12/12h; ClCr <10 → 500mg 24/24h"]},
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg + Dipirona se necessário"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar AINEs"]},
-      ],
-      hepatopata: [
-        {secao:"ANALGÉSICO", itens:["Dipirona 500mg — com cautela"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Evitar Paracetamol em dose alta"]},
-      ],
-      idoso: [
-        {secao:"ANALGÉSICO", itens:["Paracetamol 500–750mg 6/6h — primeira linha"]},
-        {secao:"⚠️ ATENÇÃO", itens:["Investigar causa da queda — avaliar função renal antes de AINE"]},
+      grave: [
+        {secao:"ANTIBIÓTICO — INFECÇÃO GRAVE", itens:[
+          "Cefalexina susp. 250mg/5ml: peso de 8/8 horas por 7 dias, VO",
+          "Azitromicina susp. 200mg/5ml: peso/dose única, por 3 dias VO",
+          "Clindamicina susp. 150mg/5ml: peso/8/8 horas por 7 dias, VO"
+        ]},
+        {secao:"ANTI-INFLAMATÓRIOS", itens:[
+          "Ibuprofeno 1 gota + 0,5mg / 1 gota/1kg de 12/12 horas (máx 35 gotas) 3 dias VO — Gotas 50mg/1ml, Comprimido 100mg",
+          "Ibuprofeno 1-2 gota/1kg de 6/6 horas (máx 35 gotas) VO — Gotas 100mg/1ml, Suspensão 100mg/5ml",
+          "Paracetamol 1 gota/kg de 6/6 horas, máx 35 gotas, VO — Suspensão 32mg/1ml embrança / Suspensão 100mg/1ml bebê"
+        ]},
+        {secao:"DOSAGEM PARACETAMOL SUSPENSÃO", itens:[
+          "3kg: 0,4ml · 5kg: 0,6ml · 8kg: 0,8ml · 10kg: 1,3ml",
+          "11–15kg: 5ml · 16–21kg: 7,5ml · 22–26kg: 10ml · 27–31kg: 12,5ml · 32–43kg: 15ml"
+        ]},
+        {secao:"DIPIRONA SÓDICA", itens:[
+          "1 gota/2kg peso, de 6/6 horas — Solução: 2,5 a 5ml, de 6/6 horas",
+          "Dosagem suspensão 50mg/1ml: 5–8kg: 1,25–2,5ml · 9–15kg: 2,5–5ml · 16–23kg: 5–7,5ml · 24–30kg: 5–10ml · 31–45kg: 7,5–15ml · 46–53kg: 8,75–17,5ml"
+        ]},
+        {secao:"CORTICÓIDES", itens:[
+          "Betametasona: Dose única (30min antes), 0,05–0,05mg/kg — Elixir 0,5mg/5ml, Gotas 0,5mg/1ml"
+        ]},
+        {secao:"AINEs", itens:[
+          "Ibuprofeno: 1–2 gotas/1kg, de 6–8 horas — Gotas 50mg/1ml, Gotas 100mg/1ml"
+        ]},
+        {secao:"ANESTÉSICOS LOCAIS", itens:[
+          "Prilocaína com vasoconstrictor: Citanest, Biogress, Cliocaína",
+          "Lidocaína com vasoconstrictor: Lidocaína"
+        ]},
       ],
     }
+  },
+};
+
+const PACIENTES_ESPECIAIS_DATA = {
+  "idosos": {
+    titulo: "Pacientes Idosos",
+    blocos: [
+      {secao:"ANTIBIÓTICOS — SEM ALERGIA À PENICILINA", itens:[
+        "Cefalexina (comp. 500mg): 1 comprimido de 6/6 horas VO, durante 7 dias",
+        "Amoxicilina + Clavulanato de potássio (comp. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+        "Amoxicilina (caps. 600mg): 1 cápsula de 8/8 horas VO, durante 7 dias"
+      ]},
+      {secao:"ANTIBIÓTICOS — ALERGIA À PENICILINA", itens:[
+        "Clindamicina (comp. 300mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+        "Azitromicina (comp. 500mg): 1 comprimido/dia, durante 3 dias VO"
+      ]},
+      {secao:"ANTI-INFLAMATÓRIOS", itens:[
+        "Betametasona (comp. 2mg): 2 comprimidos, dose única VO",
+        "Dexametasona (comp. 4mg): 1 comprimido, dose única VO"
+      ]},
+      {secao:"ANSIOLÍTICOS", itens:[
+        "Lorazepam (1mg/Lorax): 1 comprimido 2 horas antes da intervenção"
+      ]},
+      {secao:"ANALGÉSICOS", itens:[
+        "Dipirona sódica ou magnésica (500mg, evitar em diabéticos): 1 comprimido de 6/6 horas VO, enquanto tiver dor",
+        "Paracetamol (500mg e 750mg, evitar em hepatopata): 1 comprimido de 6/6 horas VO, enquanto houver dor"
+      ]},
+      {secao:"ANESTÉSICOS LOCAIS", itens:[
+        "Lidocaína 2% com vasoconstrictor - adrenalina 1:100.000: Xilocaína, Lidocaína com adrenalina",
+        "Mepivacaína 2% com adrenalina (1:100.000): Mepivacaína 2%"
+      ]},
+    ]
+  },
+
+  "epilepticos": {
+    titulo: "Pacientes Epilépticos",
+    blocos: [
+      {secao:"ANTIBIÓTICOS — SEM ALERGIA À PENICILINA", itens:[
+        "Cefalexina (comp. 500mg): 1 comprimido de 6/6 horas VO, durante 7 dias",
+        "Amoxicilina + Clavulanato de potássio (comp. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+        "Amoxicilina (caps. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias"
+      ]},
+      {secao:"ANTIBIÓTICOS — ALERGIA À PENICILINA", itens:[
+        "Clindamicina (comp. 300mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+        "Azitromicina (comp. 500mg): 1 comprimido/dia VO, durante 3 dias"
+      ]},
+      {secao:"ANTI-INFLAMATÓRIOS", itens:[
+        "Nimesulida (comp. 100mg): 1 comprimido de 12/12 horas VO, durante 3 dias"
+      ]},
+      {secao:"ANESTÉSICOS LOCAIS", itens:[
+        "Prilocaína com vasoconstrictor: Citanest, Citocaína, Biopressin",
+        "Mepivacaína 3% sem vasoconstrictor: Mepivacaine 3%, Scandicaine 3%"
+      ]},
+    ]
+  },
+
+  "coagulopatas": {
+    titulo: "Pacientes Coagulopatas",
+    blocos: [
+      {secao:"ANTIBIÓTICOS — SEM ALERGIA À PENICILINA", itens:[
+        "Cefalexina (comp. 500mg): 1 comprimido de 6/6 horas VO, durante 7 dias",
+        "Amoxicilina + Clavulanato de potássio (comp. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+        "Amoxicilina (caps. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias"
+      ]},
+      {secao:"ANTIBIÓTICOS — ALERGIA À PENICILINA", itens:[
+        "Clindamicina (comp. 300mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+        "Azitromicina (comp. 500mg): 1 comprimido/dia VO, durante 3 dias"
+      ]},
+      {secao:"ANTI-INFLAMATÓRIOS", itens:[
+        "Betametasona (comp. 2mg): 2 comprimidos VO, dose única",
+        "Dexametasona (comp. 4mg): 1 comprimido VO, dose única"
+      ]},
+      {secao:"ANALGÉSICOS", itens:[
+        "Paracetamol (comp. 500mg): 1 comprimido de 6/6 horas VO, enquanto houver dor",
+        "Dipirona (comp. ou gota de 500mg): 1 comprimido de 6/6 horas ou 35 gotas de 6/6 horas VO, enquanto houver dor"
+      ]},
+      {secao:"ANESTÉSICOS LOCAIS", itens:[
+        "Prilocaína com vasoconstrictor: Citanest, Citocaína, Biopressin",
+        "Mepivacaína 3% sem vasoconstrictor: Mepivacaine 3%, Scandicaine 3%"
+      ]},
+    ]
+  },
+
+  "gestantes": {
+    titulo: "Pacientes Gestantes e Lactantes",
+    blocos: [
+      {secao:"ANTIBIÓTICOS — SEM ALERGIA À PENICILINA", itens:[
+        "Amoxicilina (comp. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+        "Amoxicilina + Clavulanato de potássio (comp. 500mg): 1 comprimido de 8/8 horas, durante 7 dias"
+      ]},
+      {secao:"ANTIBIÓTICOS — ALERGIA À PENICILINA", itens:[
+        "Clindamicina (comp. 300mg): 1 comprimido de 8/8 horas VO, durante 7 dias"
+      ]},
+      {secao:"ANTI-INFLAMATÓRIOS", itens:[
+        "Betametasona (comp. 2mg): 2 comprimidos VO, dose única — ⚠️ Evitar último trimestre da gravidez!",
+        "Dexametasona (comp. 4mg): 1 comprimido VO, dose única — ⚠️ Pacientes sem hipertensão!"
+      ]},
+      {secao:"ANALGÉSICOS", itens:[
+        "Dipirona sódica (comp. 500mg): 1 comprimido de 6/6 horas enquanto houver dor",
+        "Paracetamol (comp. 750mg): 1 comprimido de 6/6 horas enquanto houver dor",
+        "⚠️ AAS é contraindicado"
+      ]},
+      {secao:"ANESTÉSICOS LOCAIS", itens:[
+        "Lidocaína 2% com adrenalina 1:100.000: Xilocaína®, Lidocaína® 2% Adrenalina",
+        "⚠️ Evitar Prilocaína (Citanest®, Biopressin®) e Fenilefrina — tóxicos ao feto e recém-nascido",
+        "⚠️ Contactar sempre o Obstetra da paciente"
+      ]},
+    ]
+  },
+
+  "nefropatas": {
+    titulo: "Pacientes Nefropatas",
+    blocos: [
+      {secao:"ANTIBIÓTICOS — ALERGIA À PENICILINA", itens:[
+        "Clindamicina (comp. 300mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+        "Azitromicina (comp. 500mg): 1 comprimido/dia VO, durante 3 dias"
+      ]},
+      {secao:"ANTI-INFLAMATÓRIOS", itens:[
+        "Benzidamina (comp. 50mg): 1 comprimido de 8/8 horas VO, durante 3 dias"
+      ]},
+      {secao:"ANALGÉSICOS", itens:[
+        "Paracetamol (comp. 500mg): 1 comprimido de 6/6 horas VO, enquanto houver dor",
+        "Dipirona (comp. ou gota de 500mg): 1 comprimido de 6/6 horas ou 35 gotas de 6/6 horas VO, enquanto houver dor"
+      ]},
+      {secao:"ANESTÉSICOS LOCAIS", itens:[
+        "Prilocaína com vasoconstrictor: Citanest, Citocaína, Biopressin",
+        "Mepivacaína 3% sem vasoconstrictor: Mepivacaine 3%, Scandicaine 3%"
+      ]},
+    ]
+  },
+
+  "hepatopatas": {
+    titulo: "Pacientes Hepatopatas",
+    blocos: [
+      {secao:"ANTIBIÓTICOS — SEM ALERGIA À PENICILINA", itens:[
+        "Cefalosporina (caps. 500mg): 1 comprimido de 6/6 horas, durante 7 dias",
+        "Amoxicilina + Clavulanato de potássio (comp. 500mg): 1 comprimido de 8/8 horas, durante 7 dias"
+      ]},
+      {secao:"ANTIBIÓTICOS — ALERGIA À PENICILINA", itens:[
+        "Azitromicina (comp. 500mg): 1 comprimido diário durante 3 dias"
+      ]},
+      {secao:"ANALGÉSICOS", itens:[
+        "Dipirona sódica (comp. 500mg): 1 comprimido de 6/6 horas enquanto houver dor",
+        "Paracetamol (comp. 750mg): 1 comprimido de 6/6 horas enquanto houver dor — ⚠️ Não receber AAS"
+      ]},
+      {secao:"ANTI-INFLAMATÓRIO", itens:[
+        "Benzidamina (comp. 50mg): 1 comprimido de 8/8 horas, durante 3 dias"
+      ]},
+      {secao:"⚠️ RECOMENDAÇÕES", itens:[
+        "Evitar receitação de Diclofenaco, Piroxicam, Nimesulida e Corticóides pela sobrecarga hepática"
+      ]},
+      {secao:"ANESTÉSICOS LOCAIS", itens:[
+        "Prilocaína com vasoconstrictor: Citanest®, Citocainca®, Biopressin®",
+        "Mepivacaína 3% sem vasoconstrictor: Mepivacaine® 3%, Scandicaine® 3%"
+      ]},
+    ]
+  },
+
+  "cardiopatas": {
+    titulo: "Pacientes Cardiopatas",
+    blocos: [
+      {secao:"ANTIBIÓTICOS — SEM ALERGIA À PENICILINA", itens:[
+        "Cefalexina (comp. 500mg): 1 comprimido de 6/6 horas VO, durante 7 dias",
+        "Amoxicilina + Clavulanato de potássio (comp. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+        "Amoxicilina (caps. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias"
+      ]},
+      {secao:"ANTIBIÓTICOS — ALERGIA À PENICILINA", itens:[
+        "Clindamicina (comp. 300mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+        "Azitromicina (comp. 500mg): 1 comprimido/dia VO, durante 3 dias"
+      ]},
+      {secao:"ANTI-INFLAMATÓRIOS", itens:[
+        "Nimesulida (comp. 100mg): 1 comprimido de 12/12 horas VO, durante 3 dias",
+        "Ácido Mefenâmico (500mg): 1 comprimido de 8/8 horas VO, durante 3 dias"
+      ]},
+      {secao:"ANESTÉSICOS LOCAIS", itens:[
+        "Prilocaína com vasoconstrictor: Citanest, Citocaína, Biopressin",
+        "Mepivacaína 3% sem vasoconstrictor: Mepivacaine 3%, Scandicaine 3%"
+      ]},
+      {secao:"ANSIOLÍTICOS", itens:[
+        "Diazepam (comp. 5mg): 1 comprimido a noite anterior e outro 1 hora antes do atendimento"
+      ]},
+    ]
+  },
+
+  "diabeticos": {
+    titulo: "Pacientes Diabéticos",
+    blocos: [
+      {secao:"ANTIBIÓTICOS — SEM ALERGIA À PENICILINA", itens:[
+        "Cefalexina (comp. 500mg): 1 comprimido de 6/6 horas VO, durante 7 dias",
+        "Amoxicilina + Clavulanato de potássio (comp. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+        "Amoxicilina (caps. 500mg): 1 comprimido de 8/8 horas VO, durante 7 dias"
+      ]},
+      {secao:"ANTIBIÓTICOS — ALERGIA À PENICILINA", itens:[
+        "Clindamicina (comp. 300mg): 1 comprimido de 8/8 horas VO, durante 7 dias",
+        "Azitromicina (comp. 500mg): 1 comprimido/dia VO, durante 3 dias"
+      ]},
+      {secao:"ANTI-INFLAMATÓRIOS", itens:[
+        "Betametasona (comp. 2mg): 2 comprimidos VO, dose única",
+        "Dexametasona (comp. 4mg): 1 comprimido VO, dose única"
+      ]},
+      {secao:"ANALGÉSICOS", itens:[
+        "Paracetamol (comp. 500mg): 1 comprimido de 6/6 horas VO, enquanto houver dor",
+        "Dipirona (comp. ou gt. 500mg): 1 comprimido de 6/6 horas ou 35 gotas de 6/6 horas VO, enquanto tiver dor"
+      ]},
+      {secao:"ANESTÉSICOS LOCAIS", itens:[
+        "Prilocaína com vasoconstrictor: Citanest, Citocaína, Biopressin"
+      ]},
+    ]
+  },
+
+  "asmaticos": {
+    titulo: "Pacientes Asmáticos",
+    blocos: [
+      {secao:"SEDAÇÃO MÍNIMA", itens:[
+        "Via respiratória: Evitar em pacientes com asma severa persistente",
+        "Via Oral: Midazolam 7,5mg, 20-30 minutos antes do procedimento",
+        "Lorazepam: 1mg (para idosos) 2h antes do procedimento"
+      ]},
+      {secao:"ANESTESIA LOCAL", itens:[
+        "Lidocaína 2%, Mepivacaína 2% ou Articaína 4% com epinefrina 1:100.000 ou 1:200.000",
+        "Pacientes alérgicos aos sulfitos: Prilocaína 3% com felipressina 0,03 UI/ml"
+      ]},
+      {secao:"CONTROLE DA DOR", itens:[
+        "Dipirona: 500mg a cada 4 horas",
+        "Paracetamol: 750mg a cada 6 horas"
+      ]},
+      {secao:"ANTI-INFLAMATÓRIOS", itens:[
+        "Betametasona ou Dexametasona 4mg em dose única, 1 hora antes do procedimento"
+      ]},
+      {secao:"TRATAMENTO DAS INFECÇÕES BACTERIANAS", itens:[
+        "Descontaminação do local",
+        "Prescrição de antibiótico na presença de sinais locais ou manifestações sistêmicas de infecção"
+      ]},
+    ]
   },
 };
   function initData(){
@@ -4147,45 +4302,102 @@ async function onPaymentApproved() {
   renderHome();
 }
   // ==================== FUNÇÕES PRESCRIÇÕES ====================
+const FILTROS_LABELS = {
+  padrao: "Sem restrições",
+  alergia: "Alergia à penicilina",
+  gravida: "Grávida / Lactante",
+  asmatico: "Asmático",
+  crianca: "Criança",
+  "incapaz-oral": "Incapaz via oral",
+  "incapaz-oral-alergia": "Incapaz + alergia",
+  leve: "Grau leve",
+  severo: "Grau severo",
+  queilite: "Queilite angular",
+  moderada: "Infecção moderada",
+  grave: "Infecção grave",
+};
+
+let abaAtivaPrescricao = 'situacoes';
 let filtroAtivoPrescricao = 'padrao';
 let prescricaoAtualId = '';
+
+function switchPrescricaoTab(aba) {
+  abaAtivaPrescricao = aba;
+  const tabSit = document.getElementById('tab-situacoes');
+  const tabEsp = document.getElementById('tab-especiais');
+  if(aba === 'situacoes') {
+    tabSit.style.borderBottom = '2px solid #7C3FA0';
+    tabSit.style.color = '#7C3FA0';
+    tabEsp.style.borderBottom = '2px solid transparent';
+    tabEsp.style.color = '#94A3B8';
+  } else {
+    tabEsp.style.borderBottom = '2px solid #7C3FA0';
+    tabEsp.style.color = '#7C3FA0';
+    tabSit.style.borderBottom = '2px solid transparent';
+    tabSit.style.color = '#94A3B8';
+  }
+  renderPrescricoesList();
+}
 
 function renderPrescricoesList() {
   const list = document.getElementById('prescricoes-list');
   if(!list) return;
   list.innerHTML = '';
 
-  // Aviso legal
   const aviso = document.createElement('div');
   aviso.style.cssText = 'background:#FFF3CD;border-left:3px solid #F59E0B;border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:#856404;line-height:1.5;';
   aviso.textContent = AVISO_LEGAL;
   list.appendChild(aviso);
 
-  PRESCRICOES_LIST.forEach(rx => {
-    const locked = !rx.free && !window.userIsPremium;
-    const btn = document.createElement('button');
-    btn.className = 'list-btn';
-    btn.innerHTML = `
-      <span style="font-size:22px;margin-right:4px;">${rx.icon}</span>
-      <div style="flex:1;text-align:left;">
-        <div class="list-txt">${rx.label}</div>
-        ${rx.sub ? `<div style="font-size:11px;color:#94A3B8;margin-top:2px;">${rx.sub}</div>` : ''}
-      </div>
-      ${locked ? '<span class="prem-tag">🔒 Premium</span>' : '<span class="arr">›</span>'}
-    `;
-    btn.onclick = () => {
-      if(locked) { showUpgradeModal(null); return; }
-      abrirPrescricao(rx.id);
-    };
-    list.appendChild(btn);
-  });
+  if(abaAtivaPrescricao === 'situacoes') {
+    PRESCRICOES_LIST.forEach(rx => {
+      const locked = !rx.free && !window.userIsPremium;
+      const btn = document.createElement('button');
+      btn.className = 'list-btn';
+      btn.innerHTML = `
+        <span style="font-size:22px;margin-right:4px;">${rx.icon}</span>
+        <div style="flex:1;text-align:left;">
+          <div class="list-txt">${rx.label}</div>
+        </div>
+        ${locked ? '<span class="prem-tag">🔒 Premium</span>' : '<span class="arr">›</span>'}
+      `;
+      btn.onclick = () => {
+        if(locked) { showUpgradeModal(null); return; }
+        abrirPrescricao(rx.id);
+      };
+      list.appendChild(btn);
+    });
+  } else {
+    const grid = document.createElement('div');
+    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;';
+    PACIENTES_ESPECIAIS_LIST.forEach(pe => {
+      const locked = !pe.free && !window.userIsPremium;
+      const btn = document.createElement('button');
+      btn.style.cssText = `background:${locked ? '#F8FAFC' : '#fff'};border:1px solid #E2E8F0;border-radius:16px;padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;position:relative;`;
+      btn.innerHTML = `
+        <span style="font-size:28px;">${pe.icon}</span>
+        <span style="font-size:12px;font-weight:700;color:#0F172A;text-align:center;line-height:1.3;">${pe.label}</span>
+        ${locked ? '<span style="position:absolute;top:6px;right:8px;font-size:10px;">🔒</span>' : ''}
+      `;
+      btn.onclick = () => {
+        if(locked) { showUpgradeModal(null); return; }
+        abrirPacienteEspecial(pe.id);
+      };
+      grid.appendChild(btn);
+    });
+    list.appendChild(grid);
+  }
 }
 
 function abrirPrescricao(id) {
   prescricaoAtualId = id;
-  filtroAtivoPrescricao = 'padrao';
   const data = PRESCRICOES_DATA[id];
   if(!data) return;
+  if(data.filtros && data.filtros.length > 0) {
+    filtroAtivoPrescricao = data.filtros[0];
+  } else {
+    filtroAtivoPrescricao = 'padrao';
+  }
   document.getElementById('prescricao-detalhe-titulo').textContent = data.titulo;
   renderPrescricaoDetalhe();
   goScreen('prescricao-detalhe');
@@ -4196,33 +4408,69 @@ function abrirPrescricao(id) {
   }, 100);
 }
 
+function abrirPacienteEspecial(id) {
+  const data = PACIENTES_ESPECIAIS_DATA[id];
+  if(!data) return;
+  document.getElementById('prescricao-detalhe-titulo').textContent = data.titulo;
+  renderPacienteEspecialDetalhe(id);
+  goScreen('prescricao-detalhe');
+}
+
+function renderPacienteEspecialDetalhe(id) {
+  const body = document.getElementById('prescricao-detalhe-body');
+  if(!body) return;
+  const data = PACIENTES_ESPECIAIS_DATA[id];
+  if(!data) return;
+
+  let blocosHtml = '';
+  data.blocos.forEach(bloco => {
+    const isAlerta = bloco.secao.includes('⚠️');
+    const bgColor = isAlerta ? '#FEF2F2' : '#fff';
+    const borderColor = isAlerta ? '#FECACA' : '#E2E8F0';
+    const labelColor = isAlerta ? '#DC2626' : '#64748B';
+
+    blocosHtml += `<div style="border:0.5px solid ${borderColor};border-radius:16px;overflow:hidden;margin-bottom:10px;background:${bgColor};">
+      <div style="padding:10px 14px;border-bottom:0.5px solid ${borderColor};">
+        <div style="font-size:11px;font-weight:700;color:${labelColor};letter-spacing:1px;">${bloco.secao}</div>
+      </div>
+      <div style="padding:12px 16px;">`;
+    bloco.itens.forEach(item => {
+      blocosHtml += `<div style="font-size:13px;color:#1E293B;line-height:1.6;margin-bottom:6px;display:flex;gap:8px;align-items:flex-start;"><span style="flex-shrink:0;color:#7C3FA0;">•</span><span>${item}</span></div>`;
+    });
+    blocosHtml += `</div></div>`;
+  });
+
+  const avisoHtml = `<div style="background:#FFF3CD;border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:11px;color:#856404;line-height:1.5;">${AVISO_LEGAL}</div>`;
+  const btnHtml = `
+    <button onclick="copiarPacienteEspecial('${id}')" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:24px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:16px;">
+      📋 Copiar prescrição
+    </button>`;
+
+  body.innerHTML = blocosHtml + avisoHtml + btnHtml;
+  body.scrollTop = 0;
+}
+
 function renderPrescricaoDetalhe() {
   const body = document.getElementById('prescricao-detalhe-body');
   if(!body) return;
   const data = PRESCRICOES_DATA[prescricaoAtualId];
   if(!data) return;
 
-  const blocos = data.blocos[filtroAtivoPrescricao] || data.blocos['padrao'];
+  const filtroAtual = filtroAtivoPrescricao;
+  const blocos = data.blocos[filtroAtual] || data.blocos[data.filtros[0]] || data.blocos['padrao'];
 
-  // Monta filtros
-  let filtrosHtml = `<div style="margin-bottom:16px;">
-    <div style="font-size:11px;font-weight:700;color:#64748B;letter-spacing:1px;margin-bottom:8px;">PERFIL DO PACIENTE</div>
-    <div style="display:flex;gap:6px;flex-wrap:wrap;">`;
-  FILTROS_LIST.forEach(f => {
-    const ativo = f.id === filtroAtivoPrescricao;
-    filtrosHtml += `<button onclick="selecionarFiltro('${f.id}')" style="border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;border:${ativo ? '1.5px solid #7C3FA0' : '0.5px solid #E2E8F0'};background:${ativo ? '#F5EEFB' : '#F8FAFC'};color:${ativo ? '#7C3FA0' : '#64748B'};font-family:inherit;">${f.label}</button>`;
-  });
-  filtrosHtml += `</div></div>`;
+  let filtrosHtml = '';
+  if(data.filtros && data.filtros.length > 0) {
+    filtrosHtml = `<div style="margin-bottom:16px;">
+      <div style="font-size:11px;font-weight:700;color:#64748B;letter-spacing:1px;margin-bottom:8px;">PERFIL DO PACIENTE</div>
+      <div style="display:flex;gap:6px;flex-wrap:wrap;">`;
+    data.filtros.forEach(f => {
+      const ativo = f === filtroAtual;
+      filtrosHtml += `<button onclick="selecionarFiltro('${f}')" style="border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;border:${ativo ? '1.5px solid #7C3FA0' : '0.5px solid #E2E8F0'};background:${ativo ? '#F5EEFB' : '#F8FAFC'};color:${ativo ? '#7C3FA0' : '#64748B'};font-family:inherit;">${FILTROS_LABELS[f] || f}</button>`;
+    });
+    filtrosHtml += `</div></div>`;
+  }
 
-  // Monta conduta
-  let condutaHtml = `<div style="background:#F5EEFB;border-left:3px solid #7C3FA0;border-radius:12px;padding:14px 16px;margin-bottom:12px;">
-    <div style="font-size:11px;font-weight:700;color:#7C3FA0;letter-spacing:1px;margin-bottom:8px;">CONDUTA</div>`;
-  data.conduta.forEach(c => {
-    condutaHtml += `<div style="font-size:13px;color:#1E293B;line-height:1.6;margin-bottom:4px;">• ${c}</div>`;
-  });
-  condutaHtml += `</div>`;
-
-  // Monta blocos de medicamentos
   let blocosHtml = '';
   blocos.forEach(bloco => {
     const isAlerta = bloco.secao.includes('⚠️');
@@ -4242,10 +4490,7 @@ function renderPrescricaoDetalhe() {
     blocosHtml += `</div></div>`;
   });
 
-  // Aviso legal
-  const avisoHtml = `<div style="background:#FFF3CD;border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:11px;color:#856404;line-height:1.5;">⚕️ ${AVISO_LEGAL}</div>`;
-
-  // Botão copiar
+  const avisoHtml = `<div style="background:#FFF3CD;border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:11px;color:#856404;line-height:1.5;">${AVISO_LEGAL}</div>`;
   const btnHtml = `
     <button onclick="copiarPrescricao()" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:24px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;">
       📋 Copiar prescrição
@@ -4253,7 +4498,7 @@ function renderPrescricaoDetalhe() {
     <div style="font-size:11px;color:#94A3B8;text-align:center;line-height:1.5;margin-bottom:16px;">Ao copiar, confirmo que sou profissional habilitado e que adaptei a prescrição conforme o paciente.</div>
   `;
 
-  body.innerHTML = filtrosHtml + condutaHtml + blocosHtml + avisoHtml + btnHtml;
+  body.innerHTML = filtrosHtml + blocosHtml + avisoHtml + btnHtml;
   body.scrollTop = 0;
 }
 
@@ -4265,15 +4510,28 @@ function selecionarFiltro(id) {
 function copiarPrescricao() {
   const data = PRESCRICOES_DATA[prescricaoAtualId];
   if(!data) return;
-  const filtro = FILTROS_LIST.find(f => f.id === filtroAtivoPrescricao);
-  const blocos = data.blocos[filtroAtivoPrescricao] || data.blocos['padrao'];
+  const filtroLabel = FILTROS_LABELS[filtroAtivoPrescricao] || 'Sem restrições';
+  const blocos = data.blocos[filtroAtivoPrescricao] || data.blocos[data.filtros[0]] || data.blocos['padrao'];
 
   let texto = `PRESCRIÇÃO — ${data.titulo}\n`;
-  texto += `Perfil: ${filtro ? filtro.label : 'Sem restrições'}\n\n`;
-  texto += `CONDUTA:\n`;
-  data.conduta.forEach(c => { texto += `• ${c}\n`; });
-  texto += `\n`;
+  texto += `Perfil: ${filtroLabel}\n\n`;
   blocos.forEach(bloco => {
+    texto += `${bloco.secao}:\n`;
+    bloco.itens.forEach(item => { texto += `• ${item}\n`; });
+    texto += `\n`;
+  });
+  texto += `---\n${AVISO_LEGAL}`;
+
+  navigator.clipboard.writeText(texto).catch(() => {});
+  showToast('Prescrição copiada!', 'success');
+}
+
+function copiarPacienteEspecial(id) {
+  const data = PACIENTES_ESPECIAIS_DATA[id];
+  if(!data) return;
+
+  let texto = `PRESCRIÇÃO — ${data.titulo}\n\n`;
+  data.blocos.forEach(bloco => {
     texto += `${bloco.secao}:\n`;
     bloco.itens.forEach(item => { texto += `• ${item}\n`; });
     texto += `\n`;
