@@ -893,30 +893,30 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
       </div>
       <div class="fav-chips" id="fav-chips"></div>
     </div>
-    <!-- CARD PRESCRIÇÕES NA HOME -->
+ <!-- CARD PRESCRIÇÕES NA HOME -->
 <div class="quick-card" onclick="goScreen('prescricoes')" style="cursor:pointer;">
- <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-  <span style="font-size:20px;">💊</span>
-  <span style="font-size:14px;font-weight:800;color:#0F172A;">Prescrições</span>
-</div>
-<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;">
-  <div onclick="event.stopPropagation();abrirPrescricao('pos-extracao')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
-    <span style="font-size:18px;">🦷</span>
-    <span style="font-size:12px;font-weight:600;color:#0F172A;">Pós-extração</span>
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+    <span style="font-size:20px;">💊</span>
+    <span style="font-size:14px;font-weight:800;color:#0F172A;">Prescrições</span>
   </div>
-  <div onclick="event.stopPropagation();abrirPrescricao('abscesso-periapical')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
-    <span style="font-size:18px;">🔴</span>
-    <span style="font-size:12px;font-weight:600;color:#0F172A;">Abscesso</span>
+  <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;">
+    <div onclick="event.stopPropagation();abrirPrescricao('abscesso-periodontal')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+      <span style="font-size:18px;">🦷</span>
+      <span style="font-size:12px;font-weight:600;color:#0F172A;">Abscesso periodontal</span>
+    </div>
+    <div onclick="event.stopPropagation();abrirPrescricao('abscesso-periapical')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+      <span style="font-size:18px;">🔴</span>
+      <span style="font-size:12px;font-weight:600;color:#0F172A;">Abscesso periapical</span>
+    </div>
+    <div onclick="event.stopPropagation();abrirPrescricao('alveolite')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+      <span style="font-size:18px;">🩸</span>
+      <span style="font-size:12px;font-weight:600;color:#0F172A;">Alveolite</span>
+    </div>
+    <div onclick="event.stopPropagation();goScreen('prescricoes')" style="background:#F5EEFB;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+      <span style="font-size:16px;color:#7C3FA0;font-weight:800;">+9</span>
+      <span style="font-size:12px;font-weight:600;color:#7C3FA0;">situações</span>
+    </div>
   </div>
-  <div onclick="event.stopPropagation();abrirPrescricao('urgencia-endo')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
-    <span style="font-size:18px;">⚡</span>
-    <span style="font-size:12px;font-weight:600;color:#0F172A;">Urgência endo</span>
-  </div>
-  <div onclick="event.stopPropagation();goScreen('prescricoes')" style="background:#F5EEFB;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
-  <span style="font-size:16px;color:#7C3FA0;font-weight:800;">+9</span>
-  <span style="font-size:12px;font-weight:600;color:#7C3FA0;">situações</span>
-</div>
-</div>
 </div>
     <div class="spacer"></div>
   </div>
