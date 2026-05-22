@@ -4372,13 +4372,16 @@ async function iniciarBrick() {
   }
 }
 async function onPaymentApproved() {
-  // Atualiza local
   window.userIsPremium = true;
   updatePremiumUI();
-  // Atualiza Firestore
   if (currentUser) {
     try {
-      await db.collection("users").doc(currentUser.uid).update({ premium: true });
+      const premiumExpira = new Date();
+      premiumExpira.setDate(premiumExpira.getDate() + 30);
+      await db.collection("users").doc(currentUser.uid).update({ 
+        premium: true,
+        premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira)
+      });
     } catch(e) { console.error(e); }
   }
   showToast("🎉 Bem-vindo ao Premium!", "success");
