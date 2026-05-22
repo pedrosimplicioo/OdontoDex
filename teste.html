@@ -3667,14 +3667,23 @@ function showAppScreen(){
   navigationHistory = [];
   _activateScreen("home");
   // RAF duplo garante que display:flex foi aplicado antes de renderizar
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      if(DATA && typeof renderHome === "function") renderHome();
-      atualizarSaudacao();
-       adicionarBannerEstudante();
+ requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        if(DATA && typeof renderHome === "function") renderHome();
+        atualizarSaudacao();
+        adicionarBannerEstudante();
+        
+        if(window._premiumExpirou) {
+          window._premiumExpirou = false;
+          setTimeout(() => mostrarModalExpirado(), 800);
+        }
+
+        if(window._trialRecemAtivado) {
+          window._trialRecemAtivado = false;
+          setTimeout(() => mostrarModalTrialBoasVindas(), 1000);
+        }
+      });
     });
-  });
-}
 
 function showLogin(){
   document.getElementById("login-form").style.display="block";
@@ -3785,8 +3794,9 @@ async function doRegister(){
     currentUser=res.user;
     const em=document.getElementById('user-email-display');if(em)em.textContent=currentUser.email;
     hideLoading();
-    showToast('Conta criada com sucesso!','success');
-    showAppScreen();
+showToast('Conta criada com sucesso!','success');
+window._trialRecemAtivado = true;
+showAppScreen();
   }catch(e){
     hideLoading();
     if(err){
@@ -3818,6 +3828,57 @@ async function logout(){
   hideLoading();
   showToast("Logout realizado","success");
   showLoginScreen();
+}
+  function mostrarModalExpirado() {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay active';
+  overlay.innerHTML = `
+    <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
+      <div style="font-size:52px;margin-bottom:4px;">😢</div>
+      <h2 class="modal-title" style="font-size:20px;">Seu acesso Premium expirou</h2>
+      <p class="modal-sub" style="margin:8px 0 16px;">Você perdeu o acesso a mais de 50 protocolos clínicos, S.O.S. completo e prescrições.</p>
+      <div style="background:#F5EEFB;border-radius:16px;padding:14px 16px;margin-bottom:20px;text-align:left;width:100%;">
+        <div style="font-size:13px;font-weight:700;color:#7C3FA0;margin-bottom:8px;">O que você perde sem o Premium:</div>
+        <div style="font-size:13px;color:#1E293B;line-height:1.8;">
+          🔒 Prótese, Endodontia, Cirurgia, Periodontia<br>
+          🔒 S.O.S. Clínico completo<br>
+          🔒 Prescrições detalhadas<br>
+          🔒 Modo Pânico em todos os protocolos
+        </div>
+      </div>
+      <button class="btn-primary" onclick="this.closest('.overlay').remove();abrirTelaPayment();" style="margin-bottom:10px;">
+        🔓 Renovar por R$9,90/mês
+      </button>
+      <button class="btn-ghost" onclick="this.closest('.overlay').remove()">Continuar sem Premium</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function mostrarModalTrialBoasVindas() {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay active';
+  overlay.innerHTML = `
+    <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
+      <div style="font-size:52px;margin-bottom:4px;">🎉</div>
+      <h2 class="modal-title" style="font-size:20px;">Bem-vindo ao OdontoDex!</h2>
+      <p class="modal-sub" style="margin:8px 0 16px;">Você ganhou <strong>7 dias de acesso completo</strong> a todos os protocolos, prescrições e ferramentas do app.</p>
+      <div style="background:#F5EEFB;border-radius:16px;padding:14px 16px;margin-bottom:20px;text-align:left;width:100%;">
+        <div style="font-size:13px;font-weight:700;color:#7C3FA0;margin-bottom:8px;">✅ O que você tem acesso agora:</div>
+        <div style="font-size:13px;color:#1E293B;line-height:1.8;">
+          🔓 Todos os protocolos clínicos<br>
+          🔓 Prescrições completas<br>
+          🔓 S.O.S. Clínico completo<br>
+          🔓 Pacientes especiais
+        </div>
+      </div>
+      <p class="modal-sub" style="margin-bottom:20px;font-size:12px;">Após os 7 dias, você migra automaticamente para o plano gratuito. Para continuar com acesso completo, assine o Premium por R$9,90/mês.</p>
+      <button class="btn-primary" onclick="this.closest('.overlay').remove();">
+        🚀 Começar a usar
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
 }
 // ==================== PWA INSTALL ====================
 let deferredPrompt = null;
