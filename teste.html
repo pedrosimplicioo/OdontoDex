@@ -3965,7 +3965,18 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const doc = await db.collection("users").doc(user.uid).get();
       const userData = doc.data();
-      
+       // Se usuário antigo sem trial, dar 7 dias automaticamente
+      if(doc.exists && !userData.trialAtivado) {
+        const premiumExpira = new Date();
+        premiumExpira.setDate(premiumExpira.getDate() + 7);
+        await db.collection('users').doc(user.uid).update({
+          premium: true,
+          premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira),
+          trialAtivado: true
+        });
+        window.userIsPremium = true;
+        window._trialRecemAtivado = true;
+      }
       if(doc.exists && userData.premium === true) {
         if(userData.premiumExpira) {
           const expira = userData.premiumExpira.toDate();
