@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v1';
+const CACHE_NAME = 'odontodex-v2';
 
 const ARQUIVOS = [
   '/',
