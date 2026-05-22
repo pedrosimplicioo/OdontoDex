@@ -2472,48 +2472,7 @@ async function saveEditTratamento(){
   showToast('Tratamento atualizado!','success');
   renderSettings();
 }
-function mostrarModalPremiumExpirado() {
-  const overlay = document.createElement('div');
-  overlay.id = 'premium-expirado-overlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.65);display:flex;align-items:flex-end;justify-content:center;z-index:9999;';
 
-  const sheet = document.createElement('div');
-  sheet.style.cssText = 'background:#1E293B;border-radius:28px 28px 0 0;width:100%;max-width:430px;padding:0 0 36px;overflow:hidden;';
-
-  const handle = document.createElement('div');
-  handle.style.cssText = 'width:36px;height:4px;background:rgba(255,255,255,0.15);border-radius:4px;margin:12px auto 0;';
-
-  const header = document.createElement('div');
-  header.style.cssText = 'background:linear-gradient(135deg,#3D1260,#7C3FA0);padding:36px 28px 32px;text-align:center;';
-  header.innerHTML = '<div style="width:60px;height:60px;background:rgba(255,255,255,0.12);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 18px;border:1.5px solid rgba(255,255,255,0.2);font-size:26px;">&#x1F451;</div><div style="font-size:20px;font-weight:800;color:#F1F5F9;margin-bottom:8px;letter-spacing:-0.3px;">Seu per\u00EDodo Premium encerrou</div><div style="font-size:14px;color:rgba(255,255,255,0.65);line-height:1.6;">Durante esse tempo, voc\u00EA teve acesso a tudo que o OdontoDex tem de melhor. Esperamos que tenha feito diferen\u00E7a nos seus atendimentos.</div>';
-
-  const middle = document.createElement('div');
-  middle.style.cssText = 'padding:28px 28px 24px;text-align:center;border-bottom:0.5px solid #334155;';
-  middle.innerHTML = '<p style="font-size:14px;color:#64748B;line-height:1.7;margin:0;">Para continuar com acesso completo, renove sua assinatura a qualquer momento.</p>';
-
-  const actions = document.createElement('div');
-  actions.style.cssText = 'padding:24px 24px 0;display:flex;flex-direction:column;gap:10px;';
-
-  const btn1 = document.createElement('button');
-  btn1.style.cssText = 'width:100%;padding:16px;background:#7C3FA0;color:#fff;border:none;border-radius:14px;font-size:15px;font-weight:700;cursor:pointer;';
-  btn1.textContent = 'Manter acesso completo';
-  btn1.onclick = function() { abrirTelaPayment(); overlay.remove(); };
-
-  const btn2 = document.createElement('button');
-  btn2.style.cssText = 'width:100%;padding:13px;background:transparent;color:#64748B;border:none;border-radius:14px;font-size:14px;cursor:pointer;';
-  btn2.textContent = 'Continuar com a vers\u00E3o gratuita';
-  btn2.onclick = function() { overlay.remove(); };
-
-  actions.appendChild(btn1);
-  actions.appendChild(btn2);
-  sheet.appendChild(handle);
-  sheet.appendChild(header);
-  sheet.appendChild(middle);
-  sheet.appendChild(actions);
-  overlay.appendChild(sheet);
-  document.body.appendChild(overlay);
-}
-  
 function toggleDarkMode(){document.body.classList.toggle("dark");const btn=document.getElementById("dark-toggle");if(btn)btn.textContent=document.body.classList.contains("dark")?"☀️":"🌙";localStorage.setItem("darkMode",document.body.classList.contains("dark"));}
 function initDarkMode(){if(localStorage.getItem("darkMode")==="true"){document.body.classList.add("dark");const btn=document.getElementById("dark-toggle");if(btn)btn.textContent="☀️";}}
 function hideOverlay(id){const el=document.getElementById(id);if(el)el.classList.remove("active");}
@@ -3658,8 +3617,7 @@ async function doRegister(){
         criadoEm:new Date().toISOString(),
         dataPrimeiroAcesso: firebase.firestore.FieldValue.serverTimestamp(),
         acessosPorDia: {},
-        premium: false, 
-        premiumExpira: null, 
+        premium: false
       });
     }catch(e){console.log('Firestore indisponível',e);}
     // Salva perfil e tratamento no localStorage
