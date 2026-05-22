@@ -3953,7 +3953,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initData();
   initDarkMode();
 
- auth.onAuthStateChanged(async(user) => {
+auth.onAuthStateChanged(async(user) => {
   if(user) {
     currentUser = user;
     const em = document.getElementById("user-email-display");
@@ -3965,7 +3965,8 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const doc = await db.collection("users").doc(user.uid).get();
       const userData = doc.data();
-       // Se usuário antigo sem trial, dar 7 dias automaticamente
+
+      // Se usuário sem trial, dar 7 dias automaticamente
       if(doc.exists && !userData.trialAtivado) {
         const premiumExpira = new Date();
         premiumExpira.setDate(premiumExpira.getDate() + 7);
@@ -3976,29 +3977,27 @@ document.addEventListener("DOMContentLoaded", () => {
         });
         window.userIsPremium = true;
         window._trialRecemAtivado = true;
-      }
-      if(!window.userIsPremium) {
-  const docAtualizado = await db.collection("users").doc(user.uid).get();
-  const dataAtualizada = docAtualizado.data();
-  
-  if(docAtualizado.exists && dataAtualizada.premium === true) {
-    if(dataAtualizada.premiumExpira) {
-      const expira = dataAtualizada.premiumExpira.toDate();
-      const agora = new Date();
-      if(agora > expira) {
-        await db.collection("users").doc(user.uid).update({ premium: false });
-        window.userIsPremium = false;
-        window._premiumExpirou = true;
       } else {
-        window.userIsPremium = true;
+        // Usuário já tem trial — verifica se premium ainda é válido
+        if(doc.exists && userData.premium === true) {
+          if(userData.premiumExpira) {
+            const expira = userData.premiumExpira.toDate();
+            const agora = new Date();
+            if(agora > expira) {
+              await db.collection("users").doc(user.uid).update({ premium: false });
+              window.userIsPremium = false;
+              window._premiumExpirou = true;
+            } else {
+              window.userIsPremium = true;
+            }
+          } else {
+            window.userIsPremium = true;
+          }
+        } else {
+          window.userIsPremium = false;
+        }
       }
-    } else {
-      window.userIsPremium = true;
-    }
-  } else {
-    window.userIsPremium = false;
-  }
-}
+
     } catch(e) {
       console.log(e);
       window.userIsPremium = false;
@@ -4010,7 +4009,6 @@ document.addEventListener("DOMContentLoaded", () => {
     showLoginScreen();
   }
 });
-  });
 // ============================================================
 // ========== CANCELAMENTO PREMIUM ============================
 // ============================================================
