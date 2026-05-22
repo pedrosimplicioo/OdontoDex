@@ -3796,7 +3796,7 @@ document.addEventListener("DOMContentLoaded", () => {
           if(agora > expira) {
             await db.collection("users").doc(user.uid).update({ premium: false });
             window.userIsPremium = false;
-            setTimeout(() => mostrarModalPremiumExpirado(), 30000);
+            setTimeout(() => mostrarModalPremiumExpirado(), 1500);
           } else {
             window.userIsPremium = true;
           }
