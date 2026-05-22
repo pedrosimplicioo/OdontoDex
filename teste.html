@@ -3977,22 +3977,28 @@ document.addEventListener("DOMContentLoaded", () => {
         window.userIsPremium = true;
         window._trialRecemAtivado = true;
       }
-      if(!window.userIsPremium && doc.exists && userData.premium === true) {
-        if(userData.premiumExpira) {
-          const expira = userData.premiumExpira.toDate();
-          const agora = new Date();
-          if(agora > expira) {
-            await db.collection("users").doc(user.uid).update({ premium: false });
-            window.userIsPremium = false;
-          } else {
-            window.userIsPremium = true;
-          }
-        } else {
-          window.userIsPremium = true;
-        }
-      } else {
+      if(!window.userIsPremium) {
+  const docAtualizado = await db.collection("users").doc(user.uid).get();
+  const dataAtualizada = docAtualizado.data();
+  
+  if(docAtualizado.exists && dataAtualizada.premium === true) {
+    if(dataAtualizada.premiumExpira) {
+      const expira = dataAtualizada.premiumExpira.toDate();
+      const agora = new Date();
+      if(agora > expira) {
+        await db.collection("users").doc(user.uid).update({ premium: false });
         window.userIsPremium = false;
+        window._premiumExpirou = true;
+      } else {
+        window.userIsPremium = true;
       }
+    } else {
+      window.userIsPremium = true;
+    }
+  } else {
+    window.userIsPremium = false;
+  }
+}
     } catch(e) {
       console.log(e);
       window.userIsPremium = false;
