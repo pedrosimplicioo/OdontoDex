@@ -3760,8 +3760,11 @@ async function doRegister(){
     const primeiroNome=name.split(' ')[0];
     const displayName=(selectedPerfil==='estudante')?primeiroNome:selectedTratamento+' '+primeiroNome;
     await res.user.updateProfile({displayName});
-    // Salva perfil no Firestore para uso futuro (plano estudante)
+    // Salva perfil no Firestore
     try{
+      const premiumExpira = new Date();
+      premiumExpira.setDate(premiumExpira.getDate() + 7);
+
       await db.collection('users').doc(res.user.uid).set({
         nome:name,
         tratamento:selectedTratamento,
@@ -3770,7 +3773,9 @@ async function doRegister(){
         criadoEm:new Date().toISOString(),
         dataPrimeiroAcesso: firebase.firestore.FieldValue.serverTimestamp(),
         acessosPorDia: {},
-        premium: false
+        premium: true,
+        premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira),
+        trialAtivado: true
       });
     }catch(e){console.log('Firestore indisponível',e);}
     // Salva perfil e tratamento no localStorage
