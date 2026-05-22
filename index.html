@@ -3617,7 +3617,8 @@ async function doRegister(){
         criadoEm:new Date().toISOString(),
         dataPrimeiroAcesso: firebase.firestore.FieldValue.serverTimestamp(),
         acessosPorDia: {},
-        premium: false
+        premium: false 
+        premiumExpira: null, 
       });
     }catch(e){console.log('Firestore indisponível',e);}
     // Salva perfil e tratamento no localStorage
