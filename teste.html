@@ -3977,7 +3977,7 @@ document.addEventListener("DOMContentLoaded", () => {
         window.userIsPremium = true;
         window._trialRecemAtivado = true;
       }
-      if(doc.exists && userData.premium === true) {
+      if(!window.userIsPremium && doc.exists && userData.premium === true) {
         if(userData.premiumExpira) {
           const expira = userData.premiumExpira.toDate();
           const agora = new Date();
