@@ -3667,15 +3667,24 @@ function showAppScreen(){
   navigationHistory = [];
   _activateScreen("home");
   // RAF duplo garante que display:flex foi aplicado antes de renderizar
-  requestAnimationFrame(()=>{
-    requestAnimationFrame(()=>{
-      if(DATA && typeof renderHome === "function") renderHome();
-      atualizarSaudacao();
-       adicionarBannerEstudante();
-    });
-  });
-}
+ requestAnimationFrame(()=>{
+      requestAnimationFrame(()=>{
+        if(DATA && typeof renderHome === "function") renderHome();
+        atualizarSaudacao();
+        adicionarBannerEstudante();
+        
+        if(window._premiumExpirou) {
+          window._premiumExpirou = false;
+          setTimeout(() => mostrarModalExpirado(), 800);
+        }
 
+        if(window._trialRecemAtivado) {
+          window._trialRecemAtivado = false;
+          setTimeout(() => mostrarModalTrialBoasVindas(), 1000);
+        }
+      });
+    });
+}
 function showLogin(){
   document.getElementById("login-form").style.display="block";
   document.getElementById("register-form").style.display="none";
@@ -3760,8 +3769,11 @@ async function doRegister(){
     const primeiroNome=name.split(' ')[0];
     const displayName=(selectedPerfil==='estudante')?primeiroNome:selectedTratamento+' '+primeiroNome;
     await res.user.updateProfile({displayName});
-    // Salva perfil no Firestore para uso futuro (plano estudante)
+    // Salva perfil no Firestore
     try{
+      const premiumExpira = new Date();
+      premiumExpira.setDate(premiumExpira.getDate() + 7);
+
       await db.collection('users').doc(res.user.uid).set({
         nome:name,
         tratamento:selectedTratamento,
@@ -3770,7 +3782,9 @@ async function doRegister(){
         criadoEm:new Date().toISOString(),
         dataPrimeiroAcesso: firebase.firestore.FieldValue.serverTimestamp(),
         acessosPorDia: {},
-        premium: false
+        premium: true,
+        premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira),
+        trialAtivado: true
       });
     }catch(e){console.log('Firestore indisponível',e);}
     // Salva perfil e tratamento no localStorage
@@ -3780,8 +3794,9 @@ async function doRegister(){
     currentUser=res.user;
     const em=document.getElementById('user-email-display');if(em)em.textContent=currentUser.email;
     hideLoading();
-    showToast('Conta criada com sucesso!','success');
-    showAppScreen();
+showToast('Conta criada com sucesso!','success');
+window._trialRecemAtivado = true;
+showAppScreen();
   }catch(e){
     hideLoading();
     if(err){
@@ -3813,6 +3828,57 @@ async function logout(){
   hideLoading();
   showToast("Logout realizado","success");
   showLoginScreen();
+}
+  function mostrarModalExpirado() {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay active';
+  overlay.innerHTML = `
+    <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
+      <div style="font-size:52px;margin-bottom:4px;">😢</div>
+      <h2 class="modal-title" style="font-size:20px;">Seu acesso Premium expirou</h2>
+      <p class="modal-sub" style="margin:8px 0 16px;">Você perdeu o acesso a mais de 50 protocolos clínicos, S.O.S. completo e prescrições.</p>
+      <div style="background:#F5EEFB;border-radius:16px;padding:14px 16px;margin-bottom:20px;text-align:left;width:100%;">
+        <div style="font-size:13px;font-weight:700;color:#7C3FA0;margin-bottom:8px;">O que você perde sem o Premium:</div>
+        <div style="font-size:13px;color:#1E293B;line-height:1.8;">
+          🔒 Prótese, Endodontia, Cirurgia, Periodontia<br>
+          🔒 S.O.S. Clínico completo<br>
+          🔒 Prescrições detalhadas<br>
+          🔒 Modo Pânico em todos os protocolos
+        </div>
+      </div>
+      <button class="btn-primary" onclick="this.closest('.overlay').remove();abrirTelaPayment();" style="margin-bottom:10px;">
+        🔓 Renovar por R$9,90/mês
+      </button>
+      <button class="btn-ghost" onclick="this.closest('.overlay').remove()">Continuar sem Premium</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function mostrarModalTrialBoasVindas() {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay active';
+  overlay.innerHTML = `
+    <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
+      <div style="font-size:52px;margin-bottom:4px;">🎉</div>
+      <h2 class="modal-title" style="font-size:20px;">Bem-vindo ao OdontoDex!</h2>
+      <p class="modal-sub" style="margin:8px 0 16px;">Você ganhou <strong>7 dias de acesso completo</strong> a todos os protocolos, prescrições e ferramentas do app.</p>
+      <div style="background:#F5EEFB;border-radius:16px;padding:14px 16px;margin-bottom:20px;text-align:left;width:100%;">
+        <div style="font-size:13px;font-weight:700;color:#7C3FA0;margin-bottom:8px;">✅ O que você tem acesso agora:</div>
+        <div style="font-size:13px;color:#1E293B;line-height:1.8;">
+          🔓 Todos os protocolos clínicos<br>
+          🔓 Prescrições completas<br>
+          🔓 S.O.S. Clínico completo<br>
+          🔓 Pacientes especiais
+        </div>
+      </div>
+      <p class="modal-sub" style="margin-bottom:20px;font-size:12px;">Após os 7 dias, você migra automaticamente para o plano gratuito. Para continuar com acesso completo, assine o Premium por R$9,90/mês.</p>
+      <button class="btn-primary" onclick="this.closest('.overlay').remove();">
+        🚀 Começar a usar
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
 }
 // ==================== PWA INSTALL ====================
 let deferredPrompt = null;
@@ -3887,7 +3953,7 @@ document.addEventListener("DOMContentLoaded", () => {
   initData();
   initDarkMode();
 
- auth.onAuthStateChanged(async(user) => {
+auth.onAuthStateChanged(async(user) => {
   if(user) {
     currentUser = user;
     const em = document.getElementById("user-email-display");
@@ -3899,23 +3965,39 @@ document.addEventListener("DOMContentLoaded", () => {
     try {
       const doc = await db.collection("users").doc(user.uid).get();
       const userData = doc.data();
-      
-      if(doc.exists && userData.premium === true) {
-        if(userData.premiumExpira) {
-          const expira = userData.premiumExpira.toDate();
-          const agora = new Date();
-          if(agora > expira) {
-            await db.collection("users").doc(user.uid).update({ premium: false });
-            window.userIsPremium = false;
+
+      // Se usuário sem trial, dar 7 dias automaticamente
+      if(doc.exists && !userData.trialAtivado) {
+        const premiumExpira = new Date();
+        premiumExpira.setDate(premiumExpira.getDate() + 7);
+        await db.collection('users').doc(user.uid).update({
+          premium: true,
+          premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira),
+          trialAtivado: true
+        });
+        window.userIsPremium = true;
+        window._trialRecemAtivado = true;
+      } else {
+        // Usuário já tem trial — verifica se premium ainda é válido
+        if(doc.exists && userData.premium === true) {
+          if(userData.premiumExpira) {
+            const expira = userData.premiumExpira.toDate();
+            const agora = new Date();
+            if(agora > expira) {
+              await db.collection("users").doc(user.uid).update({ premium: false });
+              window.userIsPremium = false;
+              window._premiumExpirou = true;
+            } else {
+              window.userIsPremium = true;
+            }
           } else {
             window.userIsPremium = true;
           }
         } else {
-          window.userIsPremium = true;
+          window.userIsPremium = false;
         }
-      } else {
-        window.userIsPremium = false;
       }
+
     } catch(e) {
       console.log(e);
       window.userIsPremium = false;
@@ -3927,7 +4009,7 @@ document.addEventListener("DOMContentLoaded", () => {
     showLoginScreen();
   }
 });
-  });
+});
 // ============================================================
 // ========== CANCELAMENTO PREMIUM ============================
 // ============================================================
