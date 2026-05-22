@@ -11,6 +11,14 @@
       "has": [{"type": "host", "value": "adm.odontodex.com.br"}]
     },
     {
+      "src": "/termos",
+      "dest": "/termos.html"
+    },
+    {
+      "src": "/privacidade",
+      "dest": "/privacidade.html"
+    },
+    {
       "src": "/teste",
       "dest": "/teste.html"
     }
