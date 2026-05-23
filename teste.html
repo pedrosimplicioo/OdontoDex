@@ -3976,6 +3976,7 @@ auth.onAuthStateChanged(async(user) => {
           trialAtivado: true
         });
         window.userIsPremium = true;
+        localStorage.setItem('userIsPremium', 'true');
         window._trialRecemAtivado = true;
       } else {
         // Usuário já tem trial — verifica se premium ainda é válido
@@ -3986,27 +3987,42 @@ auth.onAuthStateChanged(async(user) => {
             if(agora > expira) {
               await db.collection("users").doc(user.uid).update({ premium: false });
               window.userIsPremium = false;
+              localStorage.setItem('userIsPremium', 'false');
               window._premiumExpirou = true;
             } else {
               window.userIsPremium = true;
+              localStorage.setItem('userIsPremium', 'true');
             }
           } else {
             window.userIsPremium = true;
+            localStorage.setItem('userIsPremium', 'true');
           }
         } else {
           window.userIsPremium = false;
+          localStorage.setItem('userIsPremium', 'false');
         }
       }
 
     } catch(e) {
       console.log(e);
-      window.userIsPremium = false;
+      // Sem internet ou Firestore fora — usa último estado conhecido
+      const ultimoEstado = localStorage.getItem('userIsPremium');
+      window.userIsPremium = ultimoEstado === 'true';
+      if(!navigator.onLine) {
+        showToast("Você está offline. Usando dados do último acesso.", "success");
+      }
     }
 
     updatePremiumUI();
     showAppScreen();
   } else {
-    showLoginScreen();
+    if(!navigator.onLine && localStorage.getItem('userIsPremium') !== null) {
+      window.userIsPremium = localStorage.getItem('userIsPremium') === 'true';
+      updatePremiumUI();
+      showAppScreen();
+    } else {
+      showLoginScreen();
+    }
   }
 });
 });
@@ -4372,13 +4388,17 @@ async function iniciarBrick() {
   }
 }
 async function onPaymentApproved() {
-  // Atualiza local
   window.userIsPremium = true;
+  localStorage.setItem('userIsPremium', 'true');
   updatePremiumUI();
-  // Atualiza Firestore
   if (currentUser) {
     try {
-      await db.collection("users").doc(currentUser.uid).update({ premium: true });
+      const premiumExpira = new Date();
+      premiumExpira.setDate(premiumExpira.getDate() + 30);
+      await db.collection("users").doc(currentUser.uid).update({ 
+        premium: true,
+        premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira)
+      });
     } catch(e) { console.error(e); }
   }
   showToast("🎉 Bem-vindo ao Premium!", "success");
