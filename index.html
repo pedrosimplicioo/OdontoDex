@@ -3976,6 +3976,7 @@ auth.onAuthStateChanged(async(user) => {
           trialAtivado: true
         });
         window.userIsPremium = true;
+        localStorage.setItem('userIsPremium', 'true');
         window._trialRecemAtivado = true;
       } else {
         // Usuário já tem trial — verifica se premium ainda é válido
@@ -3986,21 +3987,30 @@ auth.onAuthStateChanged(async(user) => {
             if(agora > expira) {
               await db.collection("users").doc(user.uid).update({ premium: false });
               window.userIsPremium = false;
+              localStorage.setItem('userIsPremium', 'false');
               window._premiumExpirou = true;
             } else {
               window.userIsPremium = true;
+              localStorage.setItem('userIsPremium', 'true');
             }
           } else {
             window.userIsPremium = true;
+            localStorage.setItem('userIsPremium', 'true');
           }
         } else {
           window.userIsPremium = false;
+          localStorage.setItem('userIsPremium', 'false');
         }
       }
 
     } catch(e) {
       console.log(e);
-      window.userIsPremium = false;
+      // Sem internet ou Firestore fora — usa último estado conhecido
+      const ultimoEstado = localStorage.getItem('userIsPremium');
+      window.userIsPremium = ultimoEstado === 'true';
+      if(!navigator.onLine) {
+        showToast("Você está offline. Usando dados do último acesso.", "success");
+      }
     }
 
     updatePremiumUI();
@@ -4373,6 +4383,7 @@ async function iniciarBrick() {
 }
 async function onPaymentApproved() {
   window.userIsPremium = true;
+  localStorage.setItem('userIsPremium', 'true');
   updatePremiumUI();
   if (currentUser) {
     try {
