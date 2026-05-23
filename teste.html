@@ -763,7 +763,11 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
 <div class="toast" id="toast"></div>
 <div class="loading-overlay" id="loading-overlay"><div class="spinner"></div></div>
 
-
+<!-- LOADING INICIAL -->
+<div id="initial-loading" style="position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:9999;">
+  <div class="spinner" style="border-color:#7C3FA0;border-top-color:transparent;"></div>
+</div>
+  
 <!-- LOGIN -->
 <div class="screen active" id="screen-login">
   <div class="login-screen">
@@ -3954,6 +3958,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initDarkMode();
 
 auth.onAuthStateChanged(async(user) => {
+    const il = document.getElementById('initial-loading');
+  if(il) il.style.display = 'none';
   if(user) {
     currentUser = user;
     const em = document.getElementById("user-email-display");
