@@ -4016,7 +4016,13 @@ auth.onAuthStateChanged(async(user) => {
     updatePremiumUI();
     showAppScreen();
   } else {
-    showLoginScreen();
+    if(!navigator.onLine && localStorage.getItem('userIsPremium') !== null) {
+      window.userIsPremium = localStorage.getItem('userIsPremium') === 'true';
+      updatePremiumUI();
+      showAppScreen();
+    } else {
+      showLoginScreen();
+    }
   }
 });
 });
