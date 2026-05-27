@@ -3799,6 +3799,8 @@ async function doRegister(){
     const em=document.getElementById('user-email-display');if(em)em.textContent=currentUser.email;
     hideLoading();
 showToast('Conta criada com sucesso!','success');
+    window.userIsPremium = true;                       
+localStorage.setItem('userIsPremium', 'true');       
 window._trialRecemAtivado = true;
 showAppScreen();
   }catch(e){
