@@ -1274,6 +1274,17 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
       <div class="payment-security-txt">Pagamento 100% seguro · Seus dados são protegidos pelo Mercado Pago · PCI DSS compliant</div>
     </div>
     <div style="font-size:12px;color:#64748B;line-height:1.6;padding:12px 0 4px;text-align:center;">Ao assinar, você concorda com nossos <a href="/termos" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Termos de Uso</a> e nossa <a href="/privacidade" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Política de Privacidade</a>. Cancele quando quiser.</div>
+    <!-- CAMPO CÓDIGO DE PARCEIRO -->
+<div id="cupom-box" style="background:#fff;border:0.5px solid #E2E8F0;border-radius:16px;padding:14px 16px;margin-bottom:16px;">
+  <div style="font-size:11px;font-weight:700;color:#64748B;letter-spacing:0.5px;margin-bottom:8px;">CÓDIGO DE PARCEIRO</div>
+  <div style="display:flex;gap:8px;align-items:center;">
+    <input type="text" id="cupom-input" placeholder="Digite o código (opcional)" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
+      style="flex:1;border:0.5px solid #E2E8F0;border-radius:10px;padding:10px 12px;font-size:14px;background:#F8FAFC;color:#0F172A;outline:none;font-family:inherit;transition:border-color 0.2s;"
+      oninput="verificarCupom(this.value)">
+    <div id="cupom-icon" style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
+  </div>
+  <div id="cupom-msg" style="font-size:12px;margin-top:8px;display:none;"></div>
+</div>
     <div id="mp-brick-container">
       <div class="loading-brick">
         <div class="spinner" style="border-color:#7C3FA0;border-top-color:transparent;"></div>
@@ -4393,7 +4404,69 @@ async function iniciarBrick() {
       </div>`;
   }
 }
+  let cupomTimer = null;
+window.cupomValidado = null;
+
+async function verificarCupom(valor) {
+  const input = document.getElementById('cupom-input');
+  const icon = document.getElementById('cupom-icon');
+  const msg = document.getElementById('cupom-msg');
+  window.cupomValidado = null;
+
+  if(!valor || valor.length < 3) {
+    input.style.borderColor = '#E2E8F0';
+    icon.innerHTML = '';
+    msg.style.display = 'none';
+    return;
+  }
+
+  clearTimeout(cupomTimer);
+  icon.innerHTML = '<div style="width:20px;height:20px;border-radius:50%;border:2px solid #E2E8F0;border-top-color:#7C3FA0;animation:spin 0.8s linear infinite;"></div>';
+  msg.style.display = 'none';
+
+  cupomTimer = setTimeout(async () => {
+    try {
+      const codigo = valor.trim().toUpperCase();
+      const doc = await db.collection('cupons').doc(codigo).get();
+      if(doc.exists && doc.data().ativo === true) {
+        window.cupomValidado = { id: codigo, nome: doc.data().nome };
+        input.style.borderColor = '#059669';
+        icon.innerHTML = '<div style="width:32px;height:32px;border-radius:50%;background:#DCFCE7;display:flex;align-items:center;justify-content:center;"><span style="color:#059669;font-size:18px;font-weight:700;">✓</span></div>';
+        msg.style.cssText = 'font-size:12px;margin-top:8px;display:flex;align-items:center;gap:4px;color:#059669;';
+        msg.textContent = '✓ Indicado por ' + doc.data().nome;
+      } else {
+        window.cupomValidado = null;
+        input.style.borderColor = '#DC2626';
+        icon.innerHTML = '<div style="width:32px;height:32px;border-radius:50%;background:#FEE2E2;display:flex;align-items:center;justify-content:center;"><span style="color:#DC2626;font-size:18px;font-weight:700;">✕</span></div>';
+        msg.style.cssText = 'font-size:12px;margin-top:8px;display:flex;align-items:center;gap:4px;color:#DC2626;';
+        msg.textContent = '✕ Código não encontrado';
+      }
+    } catch(e) {
+      icon.innerHTML = '';
+      msg.style.display = 'none';
+    }
+  }, 600);
+}
+
+async function registrarConversaoCupom() {
+  if(!currentUser || !window.cupomValidado) return;
+  try {
+    await db.collection('conversoes_cupom').add({
+      cupomId: window.cupomValidado.id,
+      nomeParceiro: window.cupomValidado.nome,
+      userId: currentUser.uid,
+      userEmail: currentUser.email,
+      dataConversao: firebase.firestore.FieldValue.serverTimestamp(),
+      valor: 9.90,
+      comissao: 3.00
+    });
+    await db.collection('cupons').doc(window.cupomValidado.id).update({
+      conversoes: firebase.firestore.FieldValue.increment(1)
+    });
+  } catch(e) { console.error(e); }
+}
 async function onPaymentApproved() {
+  if(window.cupomValidado) registrarConversaoCupom();
   window.userIsPremium = true;
   localStorage.setItem('userIsPremium', 'true');
   updatePremiumUI();
