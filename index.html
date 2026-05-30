@@ -3958,7 +3958,6 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener("DOMContentLoaded", () => {
   initData();
   initDarkMode();
-
 auth.onAuthStateChanged(async(user) => {
     const il = document.getElementById('initial-loading');
   if(il) il.style.display = 'none';
@@ -3973,7 +3972,6 @@ auth.onAuthStateChanged(async(user) => {
     try {
       const doc = await db.collection("users").doc(user.uid).get();
       const userData = doc.data();
-
       // Se usuário sem trial, dar 7 dias automaticamente
       if(doc.exists && !userData.trialAtivado) {
         const premiumExpira = new Date();
@@ -3990,7 +3988,14 @@ auth.onAuthStateChanged(async(user) => {
         // Usuário já tem trial — verifica se premium ainda é válido
         if(doc.exists && userData.premium === true) {
           if(userData.premiumExpira) {
-            const expira = userData.premiumExpira.toDate();
+            let expira;
+            try {
+              expira = userData.premiumExpira.toDate
+                ? userData.premiumExpira.toDate()
+                : new Date(userData.premiumExpira);
+            } catch(e) {
+              expira = new Date(userData.premiumExpira);
+            }
             const agora = new Date();
             if(agora > expira) {
               await db.collection("users").doc(user.uid).update({ premium: false });
@@ -4010,7 +4015,6 @@ auth.onAuthStateChanged(async(user) => {
           localStorage.setItem('userIsPremium', 'false');
         }
       }
-
     } catch(e) {
       console.log(e);
       // Sem internet ou Firestore fora — usa último estado conhecido
@@ -4020,7 +4024,6 @@ auth.onAuthStateChanged(async(user) => {
         showToast("Você está offline. Usando dados do último acesso.", "success");
       }
     }
-
     updatePremiumUI();
     showAppScreen();
   } else {
