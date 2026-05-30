@@ -4321,37 +4321,30 @@ function fecharBannerEstudante() {
   } finally {
     hideLoading();
   }
-    // ==================== CUPOM PARCEIRO ====================
+}
+
+// ==================== CUPOM PARCEIRO ====================
 let cupomValido = '';
 
 async function verificarCupom(valor) {
-  const input = document.getElementById('cupom-input');
   const row = document.getElementById('cupom-row');
   const status = document.getElementById('cupom-status');
   const feedback = document.getElementById('cupom-feedback');
-
-  // Reset
   row.style.borderColor = '#E2E8F0';
   row.style.background = '#F8FAFC';
   status.textContent = '';
   feedback.style.display = 'none';
   cupomValido = '';
-
   if (!valor || valor.length < 3) return;
-
   status.textContent = '⏳';
-
   try {
     const doc = await db.collection('CUPONS').doc(valor.toUpperCase()).get();
-
     if (doc.exists && doc.data().ativo === true) {
       const nome = doc.data().nome;
       cupomValido = valor.toUpperCase();
-
       row.style.borderColor = '#059669';
       row.style.background = '#F0FDF4';
       status.textContent = '✅';
-
       feedback.style.display = 'block';
       feedback.style.background = '#F0FDF4';
       feedback.style.border = '1px solid #BBF7D0';
@@ -4361,7 +4354,6 @@ async function verificarCupom(valor) {
       row.style.borderColor = '#DC2626';
       row.style.background = '#FEF2F2';
       status.textContent = '❌';
-
       feedback.style.display = 'block';
       feedback.style.background = '#FEF2F2';
       feedback.style.border = '1px solid #FECACA';
@@ -4373,7 +4365,7 @@ async function verificarCupom(valor) {
     feedback.style.display = 'none';
   }
 }
-    }
+
   // ==================== PIX ====================
 let pixCode = '';
 
