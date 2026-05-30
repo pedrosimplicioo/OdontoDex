@@ -60,12 +60,11 @@ if (!uid) {
     expiresAt.setDate(expiresAt.getDate() + 30);
 
     await db.collection("users").doc(uid).update({
-      premium: true,
-      subscriptionStatus: "active",
-      subscriptionExpiresAt: admin.firestore.Timestamp.fromDate(expiresAt),
-      lastPaymentId: String(paymentId),
-      lastPaymentDate: admin.firestore.FieldValue.serverTimestamp(),
-    });
+  premium: true,
+  premiumExpira: admin.firestore.Timestamp.fromDate(expiresAt),
+  premiumAtivadoEm: admin.firestore.FieldValue.serverTimestamp(),
+  ultimoPagamentoId: String(paymentId),
+});
 
     return res.status(200).json({ ok: true, uid, expiresAt });
 
