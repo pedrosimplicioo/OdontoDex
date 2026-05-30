@@ -11,8 +11,6 @@
   <style>
     *{margin:0;padding:0;box-sizing:border-box}
     body{font-family:'Inter',system-ui,sans-serif;background:#F1F5F9;height:100vh;overflow:hidden;color:#0F172A}
-
-    /* LOGIN */
     .login-container{display:flex;align-items:center;justify-content:center;height:100vh;background:linear-gradient(135deg,#7C3FA0 0%,#4A1D6E 100%)}
     .login-box{background:#fff;padding:40px;border-radius:32px;width:100%;max-width:400px;box-shadow:0 20px 40px rgba(0,0,0,0.2)}
     .login-box h2{color:#0F172A;margin-bottom:8px;font-size:24px;font-weight:800}
@@ -22,8 +20,6 @@
     .login-btn{width:100%;background:#7C3FA0;color:#fff;border:none;padding:14px;border-radius:16px;font-weight:700;font-size:16px;cursor:pointer;font-family:inherit}
     .login-btn:hover{background:#6B2F8E}
     .login-error{color:#DC2626;text-align:center;margin-top:16px;font-size:13px}
-
-    /* LAYOUT */
     .dashboard-container{display:none;height:100vh;overflow:hidden}
     .sidebar{position:fixed;left:0;top:0;height:100vh;background:linear-gradient(180deg,#1E1B2E 0%,#0F0A1A 100%);color:#fff;display:flex;flex-direction:column;z-index:100;transition:width .3s ease;overflow-x:hidden;box-shadow:2px 0 10px rgba(0,0,0,0.1)}
     .sidebar.expanded{width:240px}
@@ -44,18 +40,10 @@
     .logout-sidebar{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:12px;cursor:pointer;color:rgba(255,255,255,0.6);transition:all .15s}
     .logout-sidebar:hover{background:rgba(220,38,38,0.2);color:#FCA5A5}
     .sidebar.collapsed .logout-sidebar span:last-child{display:none}
-
-    /* MAIN */
     .main-content{transition:margin-left .3s ease;height:100vh;overflow-y:auto;padding:24px 28px}
     .sidebar.expanded~.main-content{margin-left:240px}
     .sidebar.collapsed~.main-content{margin-left:64px}
-    @media(max-width:768px){
-      .sidebar.expanded{width:100%;position:fixed;z-index:200}
-      .sidebar.collapsed~.main-content{margin-left:0}
-      .main-content{padding:16px}
-    }
-
-    /* CARDS */
+    @media(max-width:768px){.sidebar.expanded{width:100%;position:fixed;z-index:200}.sidebar.collapsed~.main-content{margin-left:0}.main-content{padding:16px}}
     .page-header{margin-bottom:24px}
     .page-header h1{font-size:22px;font-weight:800;color:#0F172A;letter-spacing:-0.5px}
     .page-header p{color:#64748B;margin-top:4px;font-size:13px}
@@ -75,19 +63,13 @@
     .card-red .card-number{color:#EF4444}
     .card-orange .card-number{color:#F97316}
     .card-cyan .card-number{color:#06B6D4}
-
-    /* SECTION */
     .section{background:#fff;border-radius:18px;padding:20px;margin-bottom:20px;border:1px solid #E2E8F0}
     .section-title{font-size:13px;font-weight:800;color:#0F172A;margin-bottom:16px;display:flex;align-items:center;gap:8px;text-transform:uppercase;letter-spacing:.5px}
-
-    /* FILTROS */
     .filters-row{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;align-items:center}
     .filter-input{padding:9px 14px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:13px;font-family:inherit;outline:none;min-width:200px}
     .filter-input:focus{border-color:#7C3FA0}
     .filter-select{padding:9px 14px;border:1.5px solid #E2E8F0;border-radius:12px;font-size:13px;font-family:inherit;outline:none;cursor:pointer;background:#fff}
     .filter-select:focus{border-color:#7C3FA0}
-
-    /* TABELA */
     .table-wrapper{overflow-x:auto}
     table{width:100%;border-collapse:collapse;font-size:13px}
     th,td{text-align:left;padding:11px 10px;border-bottom:1px solid #F1F5F9}
@@ -96,8 +78,6 @@
     td{color:#0F172A;vertical-align:middle}
     tr:hover td{background:#F8FAFC}
     tr:last-child td{border-bottom:none}
-
-    /* BADGES */
     .badge{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;white-space:nowrap}
     .badge-premium{background:#FEF3C7;color:#D97706}
     .badge-trial{background:#DBEAFE;color:#1D4ED8}
@@ -105,8 +85,6 @@
     .badge-test{background:#FEE2E2;color:#DC2626}
     .badge-green{background:#DCFCE7;color:#166534}
     .badge-red{background:#FEE2E2;color:#DC2626}
-
-    /* BOTÕES */
     .btn{padding:7px 14px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:all .15s;display:inline-flex;align-items:center;gap:5px}
     .btn-purple{background:#7C3FA0;color:#fff}
     .btn-purple:hover{background:#6B2F8E}
@@ -117,15 +95,11 @@
     .btn-gray{background:#F1F5F9;color:#475569;border:1px solid #E2E8F0}
     .btn-gray:hover{background:#E2E8F0}
     .btn-sm{padding:5px 10px;font-size:11px;border-radius:8px}
-
-    /* PAGINAÇÃO */
     .pagination{display:flex;justify-content:center;gap:6px;margin-top:20px;flex-wrap:wrap}
     .page-btn{background:#fff;border:1px solid #E2E8F0;padding:6px 12px;border-radius:8px;cursor:pointer;font-family:inherit;font-weight:500;font-size:12px}
     .page-btn:hover{background:#F1F5F9}
     .page-btn.active{background:#7C3FA0;color:#fff;border-color:#7C3FA0}
     .page-btn:disabled{opacity:.4;cursor:not-allowed}
-
-    /* PAINEL LATERAL */
     .side-panel{position:fixed;right:-420px;top:0;height:100vh;width:420px;background:#fff;box-shadow:-4px 0 20px rgba(0,0,0,0.12);z-index:300;transition:right .3s ease;overflow-y:auto;padding:24px}
     .side-panel.open{right:0}
     .side-panel-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:299;display:none}
@@ -133,8 +107,6 @@
     .side-panel-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:20px}
     .side-panel-title{font-size:16px;font-weight:800;color:#0F172A}
     .side-panel-close{background:none;border:none;font-size:20px;cursor:pointer;color:#64748B;padding:4px}
-
-    /* MODAL */
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:400;display:none;align-items:center;justify-content:center}
     .modal-overlay.open{display:flex}
     .modal{background:#fff;border-radius:24px;padding:28px;width:100%;max-width:440px;margin:20px}
@@ -145,25 +117,19 @@
     .modal-field input:focus,.modal-field select:focus{border-color:#7C3FA0}
     .modal-actions{display:flex;gap:10px;margin-top:20px}
     .modal-actions .btn{flex:1;justify-content:center;padding:12px}
-
-    /* TOAST */
     .toast-admin{position:fixed;bottom:24px;right:24px;padding:12px 20px;border-radius:14px;font-size:13px;font-weight:600;color:#fff;z-index:999;box-shadow:0 4px 16px rgba(0,0,0,0.15);animation:toastIn .3s ease}
     @keyframes toastIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-
-    /* RANKING PARCEIRO */
     .parceiro-card{background:#F8FAFC;border:1px solid #E2E8F0;border-radius:16px;padding:16px;margin-bottom:12px}
     .parceiro-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
     .parceiro-nome{font-size:15px;font-weight:700}
     .parceiro-cupom{font-size:12px;color:#7C3FA0;font-weight:700;background:#F5EEFB;padding:3px 10px;border-radius:20px}
     .parceiro-stats{display:flex;gap:16px;font-size:12px;color:#64748B;margin-bottom:10px}
-    .parceiro-stat strong{color:#0F172A;font-weight:700}
     .parceiro-pix{display:flex;align-items:center;gap:8px;background:#fff;border:1px solid #E2E8F0;border-radius:10px;padding:8px 12px;font-size:12px;color:#475569}
     .parceiro-actions{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}
   </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="login-container" class="login-container">
   <div class="login-box">
     <h2>🦷 OdontoDex Admin</h2>
@@ -175,10 +141,7 @@
   </div>
 </div>
 
-<!-- DASHBOARD -->
 <div id="dashboard-container" class="dashboard-container">
-
-  <!-- SIDEBAR -->
   <div id="sidebar" class="sidebar expanded">
     <button class="sidebar-toggle" onclick="toggleSidebar()">☰</button>
     <div class="sidebar-logo">
@@ -193,15 +156,11 @@
       <div class="logout-sidebar" onclick="logout()"><span>🚪</span><span>Sair</span></div>
     </div>
   </div>
-
-  <!-- CONTEÚDO -->
   <div class="main-content">
     <div id="content-area"></div>
   </div>
-
 </div>
 
-<!-- PAINEL LATERAL USUÁRIO -->
 <div class="side-panel-overlay" id="panel-overlay" onclick="fecharPainel()"></div>
 <div class="side-panel" id="side-panel">
   <div class="side-panel-header">
@@ -211,13 +170,13 @@
   <div id="panel-content"></div>
 </div>
 
-<!-- MODAL GENÉRICO -->
 <div class="modal-overlay" id="modal-overlay" onclick="fecharModal()">
   <div class="modal" onclick="event.stopPropagation()">
     <div class="modal-title" id="modal-titulo"></div>
     <div id="modal-content"></div>
   </div>
 </div>
+
 <script>
 const firebaseConfig = {
   apiKey: "AIzaSyBGYluL3f0yuaZnpc-fX8sIQhlCeVo6bwk",
@@ -227,16 +186,13 @@ const firebaseConfig = {
   messagingSenderId: "822223061470",
   appId: "1:822223061470:web:8b1447dcfb37e7eeda1d4f"
 };
-
 firebase.initializeApp(firebaseConfig);
 const auth = firebase.auth();
 const db = firebase.firestore();
-
 const ADMIN_EMAIL = "pedrosimplicio.sousa@gmail.com";
 let currentUser = null;
 let currentSection = 'visaogeral';
 
-// ========== UTILS ==========
 function toast(msg, tipo = 'success') {
   const t = document.createElement('div');
   t.className = 'toast-admin';
@@ -273,35 +229,22 @@ function diasAte(val) {
   if (val?.toDate) d = val.toDate();
   else if (val?.seconds) d = new Date(val.seconds * 1000);
   else d = new Date(val);
-  const diff = Math.ceil((d - new Date()) / (1000 * 60 * 60 * 24));
-  return diff;
+  return Math.ceil((d - new Date()) / (1000 * 60 * 60 * 24));
 }
 
-function mesAtual() {
-  return new Date().toISOString().substring(0, 7);
-}
+function mesAtual() { return new Date().toISOString().substring(0, 7); }
+function hojeStr() { return new Date().toISOString().split('T')[0]; }
 
-function hojeStr() {
-  return new Date().toISOString().split('T')[0];
-}
-
-// ========== LOGIN ==========
 async function doAdminLogin() {
   const email = document.getElementById('admin-email').value;
   const password = document.getElementById('admin-password').value;
   const errorDiv = document.getElementById('login-error');
   try {
     const res = await auth.signInWithEmailAndPassword(email, password);
-    if (res.user.email !== ADMIN_EMAIL) {
-      await auth.signOut();
-      errorDiv.textContent = "Acesso negado.";
-      return;
-    }
+    if (res.user.email !== ADMIN_EMAIL) { await auth.signOut(); errorDiv.textContent = "Acesso negado."; return; }
     currentUser = res.user;
     iniciarDashboard();
-  } catch(e) {
-    errorDiv.textContent = "Email ou senha incorretos";
-  }
+  } catch(e) { errorDiv.textContent = "Email ou senha incorretos"; }
 }
 
 async function iniciarDashboard() {
@@ -318,7 +261,6 @@ function logout() {
   document.getElementById('dashboard-container').style.display = 'none';
 }
 
-// ========== SIDEBAR ==========
 function toggleSidebar() {
   const s = document.getElementById('sidebar');
   s.classList.toggle('expanded');
@@ -336,26 +278,19 @@ function initMenu() {
   });
 }
 
-// ========== NAVEGAÇÃO ==========
 function renderSecao() {
-  const area = document.getElementById('content-area');
-  if (!area) return;
   if (currentSection === 'visaogeral') renderVisaoGeral();
   if (currentSection === 'parceiros') renderParceiros();
 }
 
-// ========== MODAL ==========
 function abrirModal(titulo, html) {
   document.getElementById('modal-titulo').textContent = titulo;
   document.getElementById('modal-content').innerHTML = html;
   document.getElementById('modal-overlay').classList.add('open');
 }
 
-function fecharModal() {
-  document.getElementById('modal-overlay').classList.remove('open');
-}
+function fecharModal() { document.getElementById('modal-overlay').classList.remove('open'); }
 
-// ========== PAINEL LATERAL ==========
 function abrirPainel(titulo, html) {
   document.getElementById('panel-titulo').textContent = titulo;
   document.getElementById('panel-content').innerHTML = html;
@@ -368,14 +303,11 @@ function fecharPainel() {
   document.getElementById('panel-overlay').classList.remove('open');
 }
 
-// ========== AUTH STATE ==========
 auth.onAuthStateChanged(async user => {
-  if (user && user.email === ADMIN_EMAIL) {
-    currentUser = user;
-    iniciarDashboard();
-  }
+  if (user && user.email === ADMIN_EMAIL) { currentUser = user; iniciarDashboard(); }
 });
-// ========== DADOS GLOBAIS ==========
+
+// ========== DADOS ==========
 let dadosUsuarios = [];
 let dadosCupons = [];
 let dadosPagamentos = [];
@@ -386,167 +318,83 @@ let filtroBusca = '';
 let currentPage = 1;
 const itemsPerPage = 15;
 
-// ========== CARREGAR TUDO ==========
 async function carregarTodos() {
-  await Promise.all([
-    carregarUsuarios(),
-    carregarCupons(),
-    carregarPagamentos(),
-    carregarRepasses(),
-  ]);
+  await Promise.all([carregarUsuarios(), carregarCupons(), carregarPagamentos(), carregarRepasses()]);
 }
 
-// ========== USUÁRIOS ==========
 async function carregarUsuarios() {
   try {
     const hoje = hojeStr();
     const snapshot = await db.collection('users').get();
     dadosUsuarios = [];
-
     snapshot.forEach(doc => {
       const d = doc.data();
       const premiumExpira = d.premiumExpira;
       let status = 'free';
       let expiracaoDate = null;
-
       if (d.premium === true && premiumExpira) {
         let expDate;
         if (premiumExpira?.toDate) expDate = premiumExpira.toDate();
         else if (premiumExpira?.seconds) expDate = new Date(premiumExpira.seconds * 1000);
         else expDate = new Date(premiumExpira);
-
         expiracaoDate = expDate;
-        const agora = new Date();
-
-        if (expDate > agora) {
-          // Verifica se é trial (trialAtivado e não tem ultimoPagamentoId)
-          if (d.trialAtivado && !d.ultimoPagamentoId) {
-            status = 'trial';
-          } else {
-            status = 'premium';
-          }
-        } else {
-          status = 'free';
+        if (expDate > new Date()) {
+          status = (d.trialAtivado && !d.ultimoPagamentoId) ? 'trial' : 'premium';
         }
       }
-
       const acessosPorDia = d.acessosPorDia || {};
       const usosHoje = acessosPorDia[hoje] || 0;
-
-      // Usos semana
       let usosSemana = 0;
-      const seteDiasAtras = new Date();
-      seteDiasAtras.setDate(seteDiasAtras.getDate() - 7);
-      Object.entries(acessosPorDia).forEach(([data, count]) => {
-        if (new Date(data) >= seteDiasAtras) usosSemana += count;
-      });
-
-      // Usos mês
+      const seteDiasAtras = new Date(); seteDiasAtras.setDate(seteDiasAtras.getDate() - 7);
+      Object.entries(acessosPorDia).forEach(([data, count]) => { if (new Date(data) >= seteDiasAtras) usosSemana += count; });
       let usosMes = 0;
       const mesAtu = mesAtual();
-      Object.entries(acessosPorDia).forEach(([data, count]) => {
-        if (data.startsWith(mesAtu)) usosMes += count;
-      });
-
-      // Usos total
+      Object.entries(acessosPorDia).forEach(([data, count]) => { if (data.startsWith(mesAtu)) usosMes += count; });
       const usosTotal = Object.values(acessosPorDia).reduce((a, b) => a + b, 0);
-
       dadosUsuarios.push({
-        id: doc.id,
-        nome: d.nome || '-',
-        email: d.email || '',
-        status,
-        premium: d.premium === true,
-        trialAtivado: d.trialAtivado || false,
-        ultimoPagamentoId: d.ultimoPagamentoId || null,
-        premiumExpira: expiracaoDate,
-        ultimoAcesso: d.ultimoAcesso || null,
-        criadoEm: d.criadoEm || null,
-        dataPrimeiroAcesso: d.dataPrimeiroAcesso || null,
-        isTest: d.isTest || false,
-        usosHoje,
-        usosSemana,
-        usosMes,
-        usosTotal,
-        acessosPorDia,
+        id: doc.id, nome: d.nome || '-', email: d.email || '', status,
+        premium: d.premium === true, trialAtivado: d.trialAtivado || false,
+        ultimoPagamentoId: d.ultimoPagamentoId || null, premiumExpira: expiracaoDate,
+        ultimoAcesso: d.ultimoAcesso || null, criadoEm: d.criadoEm || null,
+        dataPrimeiroAcesso: d.dataPrimeiroAcesso || null, isTest: d.isTest || false,
+        usosHoje, usosSemana, usosMes, usosTotal, acessosPorDia,
       });
     });
-  } catch(e) {
-    console.error('Erro ao carregar usuários:', e);
-  }
+  } catch(e) { console.error('Erro ao carregar usuários:', e); }
 }
 
-// ========== CUPONS ==========
 async function carregarCupons() {
   try {
     const snapshot = await db.collection('CUPONS').get();
     dadosCupons = [];
-    snapshot.forEach(doc => {
-      dadosCupons.push({ id: doc.id, ...doc.data() });
-    });
-  } catch(e) {
-    console.error('Erro ao carregar cupons:', e);
-  }
+    snapshot.forEach(doc => dadosCupons.push({ id: doc.id, ...doc.data() }));
+  } catch(e) { console.error('Erro ao carregar cupons:', e); }
 }
 
-// ========== PAGAMENTOS ==========
 async function carregarPagamentos() {
   try {
-    const snapshot = await db.collection('conversoes_cupom')
-      .orderBy('timestamp', 'desc')
-      .limit(200)
-      .get();
+    const snapshot = await db.collection('conversoes_cupom').orderBy('timestamp', 'desc').limit(200).get();
     dadosPagamentos = [];
-    snapshot.forEach(doc => {
-      dadosPagamentos.push({ id: doc.id, ...doc.data() });
-    });
-  } catch(e) {
-    console.error('Erro ao carregar pagamentos:', e);
-  }
+    snapshot.forEach(doc => dadosPagamentos.push({ id: doc.id, ...doc.data() }));
+  } catch(e) { console.error('Erro ao carregar pagamentos:', e); }
 }
 
-// ========== REPASSES ==========
 async function carregarRepasses() {
   try {
     const snapshot = await db.collection('repasses').get();
     dadosRepasses = [];
-    snapshot.forEach(doc => {
-      dadosRepasses.push({ id: doc.id, ...doc.data() });
-    });
-  } catch(e) {
-    console.error('Erro ao carregar repasses:', e);
-  }
+    snapshot.forEach(doc => dadosRepasses.push({ id: doc.id, ...doc.data() }));
+  } catch(e) { console.error('Erro ao carregar repasses:', e); }
 }
 
-// ========== FILTROS ==========
 function getUsuariosFiltrados() {
-  let lista = [...dadosUsuarios];
-
-  // Filtro tipo
-  if (filtroTipo !== 'todos') {
-    lista = lista.filter(u => u.status === filtroTipo);
-  }
-
-  // Filtro busca
+  let lista = [...dadosUsuarios].filter(u => !u.isTest);
+  if (filtroTipo !== 'todos') lista = lista.filter(u => u.status === filtroTipo);
   if (filtroBusca) {
     const b = filtroBusca.toLowerCase();
-    lista = lista.filter(u =>
-      u.nome.toLowerCase().includes(b) ||
-      u.email.toLowerCase().includes(b)
-    );
+    lista = lista.filter(u => u.nome.toLowerCase().includes(b) || u.email.toLowerCase().includes(b));
   }
-
-  // Ordenar por usos do período selecionado
-  lista.sort((a, b) => {
-    const getUsos = u => {
-      if (filtroUsos === 'hoje') return u.usosHoje;
-      if (filtroUsos === 'semana') return u.usosSemana;
-      if (filtroUsos === 'mes') return u.usosMes;
-      return u.usosTotal;
-    };
-    return getUsos(b) - getUsos(a);
-  });
-
+  lista.sort((a, b) => getUsosExibir(b) - getUsosExibir(a));
   return lista;
 }
 
@@ -562,26 +410,135 @@ async function refreshDados() {
   renderSecao();
   toast('Dados atualizados!');
 }
-async function refreshDados() {
-  await carregarTodos();
-  renderSecao();
-  toast('Dados atualizados!');
+
+// ========== VISÃO GERAL ==========
+function renderVisaoGeral() {
+  const hoje = hojeStr();
+  const mes = mesAtual();
+  const naoTeste = dadosUsuarios.filter(u => !u.isTest);
+  const total = naoTeste.length;
+  const premium = naoTeste.filter(u => u.status === 'premium').length;
+  const trial = naoTeste.filter(u => u.status === 'trial').length;
+  const free = naoTeste.filter(u => u.status === 'free').length;
+  const abriramHoje = naoTeste.filter(u => u.usosHoje > 0).length;
+  const novosHoje = naoTeste.filter(u => u.criadoEm && new Date(u.criadoEm).toISOString().split('T')[0] === hoje).length;
+  const novosMes = naoTeste.filter(u => u.criadoEm && new Date(u.criadoEm).toISOString().substring(0,7) === mes).length;
+  const assinaramMes = naoTeste.filter(u => {
+    if (u.status !== 'premium' || !u.premiumExpira || !u.ultimoPagamentoId) return false;
+    const ativadoEm = new Date(u.premiumExpira); ativadoEm.setDate(ativadoEm.getDate() - 30);
+    return ativadoEm.toISOString().substring(0,7) === mes;
+  }).length;
+  const expirandoSemana = naoTeste.filter(u => { const d = diasAte(u.premiumExpira); return d !== null && d >= 0 && d <= 7; }).length;
+  const churnMes = naoTeste.filter(u => {
+    if (u.status !== 'free' || !u.premiumExpira) return false;
+    return u.premiumExpira.toISOString && u.premiumExpira.toISOString().substring(0,7) === mes;
+  }).length;
+
+  const area = document.getElementById('content-area');
+  area.innerHTML = `
+    <div class="page-header"><h1>📊 Visão Geral</h1><p>Resumo do OdontoDex · Atualizado agora</p></div>
+    <div class="cards-grid">
+      <div class="card card-blue"><div class="card-icon">👥</div><div class="card-number">${total}</div><div class="card-label">Total de usuários</div></div>
+      <div class="card card-cyan"><div class="card-icon">⏳</div><div class="card-number">${trial}</div><div class="card-label">Em trial</div></div>
+      <div class="card card-gray"><div class="card-icon">🆓</div><div class="card-number">${free}</div><div class="card-label">Free</div></div>
+      <div class="card card-amber"><div class="card-icon">💎</div><div class="card-number">${premium}</div><div class="card-label">Premium</div></div>
+      <div class="card card-green"><div class="card-icon">📱</div><div class="card-number">${abriramHoje}</div><div class="card-label">Abriram hoje</div></div>
+    </div>
+    <div class="cards-grid">
+      <div class="card card-purple"><div class="card-icon">🆕</div><div class="card-number">${novosHoje}</div><div class="card-label">Novos hoje</div></div>
+      <div class="card card-purple"><div class="card-icon">📅</div><div class="card-number">${novosMes}</div><div class="card-label">Novos no mês</div></div>
+      <div class="card card-green"><div class="card-icon">💳</div><div class="card-number">${assinaramMes}</div><div class="card-label">Assinaram no mês</div></div>
+      <div class="card card-orange"><div class="card-icon">⚠️</div><div class="card-number">${expirandoSemana}</div><div class="card-label">Expiram em 7 dias</div></div>
+      <div class="card card-red"><div class="card-icon">📉</div><div class="card-number">${churnMes}</div><div class="card-label">Churn no mês</div></div>
+    </div>
+    <div class="section">
+      <div class="section-title">👥 Usuários</div>
+      <div class="filters-row">
+        <input class="filter-input" placeholder="🔍 Buscar nome ou email..." oninput="filtroBusca=this.value;currentPage=1;renderListaUsuarios()" value="${filtroBusca}">
+        <select class="filter-select" onchange="filtroTipo=this.value;currentPage=1;renderListaUsuarios()">
+          <option value="todos" ${filtroTipo==='todos'?'selected':''}>Todos</option>
+          <option value="trial" ${filtroTipo==='trial'?'selected':''}>Trial</option>
+          <option value="free" ${filtroTipo==='free'?'selected':''}>Free</option>
+          <option value="premium" ${filtroTipo==='premium'?'selected':''}>Premium</option>
+        </select>
+        <select class="filter-select" onchange="filtroUsos=this.value;currentPage=1;renderListaUsuarios()">
+          <option value="sempre" ${filtroUsos==='sempre'?'selected':''}>Usos — sempre</option>
+          <option value="hoje" ${filtroUsos==='hoje'?'selected':''}>Usos — hoje</option>
+          <option value="semana" ${filtroUsos==='semana'?'selected':''}>Usos — semana</option>
+          <option value="mes" ${filtroUsos==='mes'?'selected':''}>Usos — mês</option>
+        </select>
+        <button class="btn btn-gray" onclick="refreshDados()">⟳ Atualizar</button>
+      </div>
+      <div id="lista-usuarios"></div>
+    </div>
+  `;
+  renderListaUsuarios();
 }
-  // ========== PAINEL USUÁRIO ==========
+
+function renderListaUsuarios() {
+  const lista = getUsuariosFiltrados();
+  const totalPag = Math.ceil(lista.length / itemsPerPage);
+  const inicio = (currentPage - 1) * itemsPerPage;
+  const paginated = lista.slice(inicio, inicio + itemsPerPage);
+
+  const badgeStatus = u => {
+    if (u.isTest) return '<span class="badge badge-test">🧪 Teste</span>';
+    if (u.status === 'premium') return '<span class="badge badge-premium">💎 Premium</span>';
+    if (u.status === 'trial') return '<span class="badge badge-trial">⏳ Trial</span>';
+    return '<span class="badge badge-free">🆓 Free</span>';
+  };
+
+  const expiracao = u => {
+    if (!u.premiumExpira) return '-';
+    const dias = diasAte(u.premiumExpira);
+    const dataStr = formatDate(u.premiumExpira);
+    if (dias < 0) return `<span style="color:#EF4444">${dataStr}</span>`;
+    if (dias <= 7) return `<span style="color:#F59E0B">${dataStr} (${dias}d)</span>`;
+    return dataStr;
+  };
+
+  const html = `
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>Nome</th><th>Email</th><th>Status</th><th>Expira</th><th>Usos</th><th>Último acesso</th><th>Ações</th></tr></thead>
+        <tbody>
+          ${paginated.map(u => `
+            <tr style="cursor:pointer" onclick="abrirUsuario('${u.id}')">
+              <td><strong>${u.nome}</strong></td>
+              <td style="color:#64748B">${u.email}</td>
+              <td>${badgeStatus(u)}</td>
+              <td style="font-size:12px">${expiracao(u)}</td>
+              <td><strong>${getUsosExibir(u)}</strong></td>
+              <td style="font-size:12px;color:#64748B">${formatDate(u.ultimoAcesso)}</td>
+              <td onclick="event.stopPropagation()">
+                <button class="btn btn-sm btn-purple" onclick="abrirUsuario('${u.id}')">Ver</button>
+              </td>
+            </tr>
+          `).join('')}
+          ${paginated.length === 0 ? '<tr><td colspan="7" style="text-align:center;color:#94A3B8;padding:30px">Nenhum usuário encontrado</td></tr>' : ''}
+        </tbody>
+      </table>
+    </div>
+    <div class="pagination">
+      <button class="page-btn" onclick="currentPage=1;renderListaUsuarios()" ${currentPage===1?'disabled':''}>«</button>
+      <button class="page-btn" onclick="currentPage--;renderListaUsuarios()" ${currentPage===1?'disabled':''}>‹</button>
+      ${Array.from({length:totalPag},(_,i)=>i+1).filter(p=>Math.abs(p-currentPage)<=2).map(p=>`<button class="page-btn ${p===currentPage?'active':''}" onclick="currentPage=${p};renderListaUsuarios()">${p}</button>`).join('')}
+      <button class="page-btn" onclick="currentPage++;renderListaUsuarios()" ${currentPage===totalPag||totalPag===0?'disabled':''}>›</button>
+      <button class="page-btn" onclick="currentPage=${totalPag};renderListaUsuarios()" ${currentPage===totalPag||totalPag===0?'disabled':''}>»</button>
+    </div>
+    <div style="text-align:center;margin-top:12px;font-size:11px;color:#94A3B8">Mostrando ${Math.min(itemsPerPage,lista.length)} de ${lista.length} usuários</div>
+  `;
+  document.getElementById('lista-usuarios').innerHTML = html;
+}
+
+// ========== PAINEL USUÁRIO ==========
 async function abrirUsuario(uid) {
   const u = dadosUsuarios.find(x => x.id === uid);
   if (!u) return;
-
   const pagamentos = dadosPagamentos.filter(p => p.userId === uid);
-
-  const acessosPorDia = Object.entries(u.acessosPorDia)
-    .sort((a, b) => b[0].localeCompare(a[0]))
-    .slice(0, 10);
-
+  const acessosPorDia = Object.entries(u.acessosPorDia).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,10);
   const html = `
     <div style="display:flex;flex-direction:column;gap:16px;">
-
-      <!-- INFO BÁSICA -->
       <div style="background:#F8FAFC;border-radius:14px;padding:14px;">
         <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:#0F172A;">👤 Informações</div>
         <div style="font-size:12px;color:#64748B;line-height:2;">
@@ -597,232 +554,149 @@ async function abrirUsuario(uid) {
           <div><strong>Conta teste:</strong> ${u.isTest ? 'Sim' : 'Não'}</div>
         </div>
       </div>
-
-      <!-- AÇÕES -->
       <div style="background:#F8FAFC;border-radius:14px;padding:14px;">
         <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:#0F172A;">⚡ Ações</div>
         <div style="display:flex;flex-direction:column;gap:8px;">
           <button class="btn btn-green" onclick="abrirModalPremium('${uid}')">💎 Ativar / Alterar Premium</button>
           <button class="btn btn-red" onclick="desativarPremium('${uid}')" ${u.status==='free'?'disabled':''}>🚫 Remover Premium</button>
-          <button class="btn ${u.isTest?'btn-gray':'btn-gray'}" onclick="toggleTeste('${uid}', ${!u.isTest})">
-            ${u.isTest ? '✅ Remover marcação de teste' : '🧪 Marcar como conta teste'}
-          </button>
+          <button class="btn btn-gray" onclick="toggleTeste('${uid}', ${!u.isTest})">${u.isTest ? '✅ Remover marcação de teste' : '🧪 Marcar como conta teste'}</button>
         </div>
       </div>
-
-      <!-- HISTÓRICO DE ACESSOS -->
       <div style="background:#F8FAFC;border-radius:14px;padding:14px;">
         <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:#0F172A;">📅 Últimos acessos</div>
-        ${acessosPorDia.length > 0 ? acessosPorDia.map(([data, count]) => `
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #E2E8F0;font-size:12px;">
-            <span style="color:#475569;">${data}</span>
-            <span style="font-weight:700;color:#7C3FA0;">${count} uso${count > 1 ? 's' : ''}</span>
-          </div>
-        `).join('') : '<div style="font-size:12px;color:#94A3B8;">Sem histórico de acessos</div>'}
+        ${acessosPorDia.length > 0 ? acessosPorDia.map(([data,count])=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #E2E8F0;font-size:12px;"><span style="color:#475569;">${data}</span><span style="font-weight:700;color:#7C3FA0;">${count} uso${count>1?'s':''}</span></div>`).join('') : '<div style="font-size:12px;color:#94A3B8;">Sem histórico</div>'}
       </div>
-
-      <!-- PAGAMENTOS -->
       <div style="background:#F8FAFC;border-radius:14px;padding:14px;">
         <div style="font-size:13px;font-weight:700;margin-bottom:10px;color:#0F172A;">💳 Pagamentos via cupom</div>
-        ${pagamentos.length > 0 ? pagamentos.map(p => `
-          <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #E2E8F0;font-size:12px;">
-            <span style="color:#475569;">${formatDateTime(p.timestamp)}</span>
-            <span style="font-weight:700;color:#059669;">Cupom: ${p.cupom}</span>
-          </div>
-        `).join('') : '<div style="font-size:12px;color:#94A3B8;">Nenhum pagamento via cupom</div>'}
+        ${pagamentos.length > 0 ? pagamentos.map(p=>`<div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #E2E8F0;font-size:12px;"><span style="color:#475569;">${formatDateTime(p.timestamp)}</span><span style="font-weight:700;color:#059669;">Cupom: ${p.cupom}</span></div>`).join('') : '<div style="font-size:12px;color:#94A3B8;">Nenhum pagamento via cupom</div>'}
       </div>
-
     </div>
   `;
-
   abrirPainel(u.nome, html);
 }
 
 async function abrirModalPremium(uid) {
-  const html = `
-    <div class="modal-field">
-      <label>Quantos dias de acesso?</label>
-      <input type="number" id="premium-dias" value="30" min="1" max="365">
-    </div>
+  abrirModal('💎 Ativar Premium', `
+    <div class="modal-field"><label>Quantos dias de acesso?</label><input type="number" id="premium-dias" value="30" min="1" max="365"></div>
     <div class="modal-actions">
       <button class="btn btn-gray" onclick="fecharModal()">Cancelar</button>
       <button class="btn btn-purple" onclick="ativarPremium('${uid}')">Ativar Premium</button>
     </div>
-  `;
-  abrirModal('💎 Ativar Premium', html);
+  `);
 }
 
 async function ativarPremium(uid) {
   const dias = parseInt(document.getElementById('premium-dias').value) || 30;
   try {
-    await fetch('/api/set-premium', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid, premium: true, dias }),
-    });
-    fecharModal();
-    fecharPainel();
-    await carregarUsuarios();
-    renderVisaoGeral();
+    await fetch('/api/set-premium', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, premium:true, dias}) });
+    fecharModal(); fecharPainel();
+    await carregarUsuarios(); renderVisaoGeral();
     toast(`Premium ativado por ${dias} dias!`);
-  } catch(e) {
-    toast('Erro ao ativar premium', 'error');
-  }
+  } catch(e) { toast('Erro ao ativar premium', 'error'); }
 }
 
 async function desativarPremium(uid) {
   if (!confirm('Remover premium deste usuário?')) return;
   try {
-    await fetch('/api/set-premium', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid, premium: false }),
-    });
-    fecharPainel();
-    await carregarUsuarios();
-    renderVisaoGeral();
+    await fetch('/api/set-premium', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, premium:false}) });
+    fecharPainel(); await carregarUsuarios(); renderVisaoGeral();
     toast('Premium removido!', 'warning');
-  } catch(e) {
-    toast('Erro ao remover premium', 'error');
-  }
+  } catch(e) { toast('Erro ao remover premium', 'error'); }
 }
 
 async function toggleTeste(uid, isTest) {
   try {
-    await fetch('/api/set-test-user', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid, isTest }),
-    });
-    fecharPainel();
-    await carregarUsuarios();
-    renderVisaoGeral();
+    await fetch('/api/set-test-user', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, isTest}) });
+    fecharPainel(); await carregarUsuarios(); renderVisaoGeral();
     toast(isTest ? '🧪 Marcado como teste' : '✅ Removido de teste', 'info');
-  } catch(e) {
-    toast('Erro ao alterar', 'error');
-  }
+  } catch(e) { toast('Erro ao alterar', 'error'); }
 }
-  // ========== PARCEIROS ==========
+
+// ========== PARCEIROS ==========
 function renderParceiros() {
   const mes = mesAtual();
   const area = document.getElementById('content-area');
-
-  // Calcular totais do mês
   const pagamentosMes = dadosPagamentos.filter(p => {
     if (!p.timestamp) return false;
     let d = p.timestamp?.toDate ? p.timestamp.toDate() : new Date(p.timestamp?.seconds * 1000);
-    return d.toISOString().substring(0, 7) === mes;
+    return d.toISOString().substring(0,7) === mes;
   });
-
-  const totalRepassarMes = dadosCupons.reduce((acc, cupom) => {
+  const totalRepassarMes = dadosCupons.reduce((acc,cupom) => {
     const convMes = pagamentosMes.filter(p => p.cupom === cupom.id).length;
     return acc + (convMes * (cupom.valorRepasse || 3));
   }, 0);
-
-  const totalConversoesMes = pagamentosMes.length;
-
-  // Ranking do mês
   const rankingMes = dadosCupons.map(cupom => {
     const convMes = pagamentosMes.filter(p => p.cupom === cupom.id).length;
     const repasseMes = convMes * (cupom.valorRepasse || 3);
     const repassePago = dadosRepasses.find(r => r.cupom === cupom.id && r.mes === mes)?.status === 'pago';
     return { ...cupom, convMes, repasseMes, repassePago };
-  }).sort((a, b) => b.convMes - a.convMes);
+  }).sort((a,b) => b.convMes - a.convMes);
 
   area.innerHTML = `
-    <div class="page-header">
-      <h1>🤝 Parceiros</h1>
-      <p>Gerencie cupons e repasses · ${mes}</p>
-    </div>
-
+    <div class="page-header"><h1>🤝 Parceiros</h1><p>Gerencie cupons e repasses · ${mes}</p></div>
     <div class="cards-grid" style="grid-template-columns:repeat(3,1fr)">
       <div class="card card-purple"><div class="card-icon">🤝</div><div class="card-number">${dadosCupons.length}</div><div class="card-label">Parceiros cadastrados</div></div>
-      <div class="card card-green"><div class="card-icon">💳</div><div class="card-number">${totalConversoesMes}</div><div class="card-label">Conversões no mês</div></div>
+      <div class="card card-green"><div class="card-icon">💳</div><div class="card-number">${pagamentosMes.length}</div><div class="card-label">Conversões no mês</div></div>
       <div class="card card-amber"><div class="card-icon">💰</div><div class="card-number">R$ ${totalRepassarMes.toFixed(2)}</div><div class="card-label">Total a repassar no mês</div></div>
     </div>
-
     <div class="section">
       <div class="section-title" style="justify-content:space-between">
         <span>🏆 Ranking do mês</span>
         <button class="btn btn-purple btn-sm" onclick="abrirModalNovoCupom()">+ Novo parceiro</button>
       </div>
-      <div id="lista-parceiros">
-        ${rankingMes.length === 0 ? '<div style="color:#94A3B8;font-size:13px;text-align:center;padding:20px;">Nenhum parceiro cadastrado</div>' :
-          rankingMes.map((c, i) => `
-          <div class="parceiro-card">
-            <div class="parceiro-header">
-              <div style="display:flex;align-items:center;gap:10px;">
-                <div style="font-size:20px;font-weight:800;color:#7C3FA0;">#${i+1}</div>
-                <div>
-                  <div class="parceiro-nome">${c.nome}</div>
-                  <div style="margin-top:2px;display:flex;gap:6px;align-items:center;">
-                    <span class="parceiro-cupom">${c.id}</span>
-                    <span class="badge ${c.ativo ? 'badge-green' : 'badge-red'}">${c.ativo ? 'Ativo' : 'Inativo'}</span>
-                  </div>
+      ${rankingMes.length === 0 ? '<div style="color:#94A3B8;font-size:13px;text-align:center;padding:20px;">Nenhum parceiro cadastrado</div>' :
+        rankingMes.map((c,i) => `
+        <div class="parceiro-card">
+          <div class="parceiro-header">
+            <div style="display:flex;align-items:center;gap:10px;">
+              <div style="font-size:20px;font-weight:800;color:#7C3FA0;">#${i+1}</div>
+              <div>
+                <div class="parceiro-nome">${c.nome}</div>
+                <div style="margin-top:2px;display:flex;gap:6px;align-items:center;">
+                  <span class="parceiro-cupom">${c.id}</span>
+                  <span class="badge ${c.ativo?'badge-green':'badge-red'}">${c.ativo?'Ativo':'Inativo'}</span>
                 </div>
               </div>
-              <div style="text-align:right;">
-                <div style="font-size:18px;font-weight:800;color:#059669;">R$ ${c.repasseMes.toFixed(2)}</div>
-                <div style="font-size:11px;color:#64748B;">a repassar no mês</div>
-              </div>
             </div>
-
-            <div class="parceiro-stats">
-              <div><strong>${c.convMes}</strong> conv. no mês</div>
-              <div><strong>${c.conversoes || 0}</strong> conv. total</div>
-              <div><strong>R$ ${(c.valorRepasse || 3).toFixed(2)}</strong> por conv.</div>
-            </div>
-
-            ${c.pixKey ? `
-              <div class="parceiro-pix">
-                <span>💰 Pix:</span>
-                <span style="flex:1;font-weight:600;">${c.pixKey}</span>
-                <button class="btn btn-sm btn-gray" onclick="navigator.clipboard.writeText('${c.pixKey}');toast('Chave Pix copiada!')">Copiar</button>
-              </div>
-            ` : '<div style="font-size:12px;color:#94A3B8;">⚠️ Chave Pix não cadastrada</div>'}
-
-            <div class="parceiro-actions">
-              ${c.convMes > 0 ? `
-                <button class="btn btn-sm ${c.repassePago ? 'btn-gray' : 'btn-green'}" onclick="marcarRepasse('${c.id}', '${mes}', ${c.repassePago})">
-                  ${c.repassePago ? '✅ Repasse pago' : '💸 Marcar como pago'}
-                </button>
-              ` : ''}
-              <button class="btn btn-sm btn-gray" onclick="abrirModalEditarCupom('${c.id}')">✏️ Editar</button>
-              <button class="btn btn-sm ${c.ativo ? 'btn-red' : 'btn-green'}" onclick="toggleCupom('${c.id}', ${!c.ativo})">
-                ${c.ativo ? '🚫 Desativar' : '✅ Ativar'}
-              </button>
+            <div style="text-align:right;">
+              <div style="font-size:18px;font-weight:800;color:#059669;">R$ ${c.repasseMes.toFixed(2)}</div>
+              <div style="font-size:11px;color:#64748B;">a repassar no mês</div>
             </div>
           </div>
-        `).join('')}
-      </div>
+          <div class="parceiro-stats">
+            <div><strong>${c.convMes}</strong> conv. no mês</div>
+            <div><strong>${c.conversoes||0}</strong> conv. total</div>
+            <div><strong>R$ ${(c.valorRepasse||3).toFixed(2)}</strong> por conv.</div>
+          </div>
+          ${c.pixKey ? `
+            <div class="parceiro-pix">
+              <span>💰 Pix:</span>
+              <span style="flex:1;font-weight:600;">${c.pixKey}</span>
+              <button class="btn btn-sm btn-gray" onclick="navigator.clipboard.writeText('${c.pixKey}');toast('Chave Pix copiada!')">Copiar</button>
+            </div>
+          ` : '<div style="font-size:12px;color:#94A3B8;margin-bottom:8px;">⚠️ Chave Pix não cadastrada</div>'}
+          <div class="parceiro-actions">
+            ${c.convMes > 0 ? `<button class="btn btn-sm ${c.repassePago?'btn-gray':'btn-green'}" onclick="marcarRepasse('${c.id}','${mes}',${c.repassePago})">${c.repassePago?'✅ Repasse pago':'💸 Marcar como pago'}</button>` : ''}
+            <button class="btn btn-sm btn-gray" onclick="abrirModalEditarCupom('${c.id}')">✏️ Editar</button>
+            <button class="btn btn-sm ${c.ativo?'btn-red':'btn-green'}" onclick="toggleCupom('${c.id}',${!c.ativo})">${c.ativo?'🚫 Desativar':'✅ Ativar'}</button>
+          </div>
+        </div>
+      `).join('')}
     </div>
   `;
 }
 
 function abrirModalNovoCupom() {
-  const html = `
-    <div class="modal-field">
-      <label>Código do cupom</label>
-      <input type="text" id="cupom-codigo" placeholder="Ex: JOAO10" style="text-transform:uppercase">
-    </div>
-    <div class="modal-field">
-      <label>Nome do parceiro</label>
-      <input type="text" id="cupom-nome" placeholder="Ex: João Silva">
-    </div>
-    <div class="modal-field">
-      <label>Chave Pix</label>
-      <input type="text" id="cupom-pix" placeholder="CPF, email, telefone ou chave aleatória">
-    </div>
-    <div class="modal-field">
-      <label>Valor do repasse por conversão (R$)</label>
-      <input type="number" id="cupom-valor" value="3.00" min="0" step="0.50">
-    </div>
+  abrirModal('➕ Novo Parceiro', `
+    <div class="modal-field"><label>Código do cupom</label><input type="text" id="cupom-codigo" placeholder="Ex: JOAO10" style="text-transform:uppercase"></div>
+    <div class="modal-field"><label>Nome do parceiro</label><input type="text" id="cupom-nome" placeholder="Ex: João Silva"></div>
+    <div class="modal-field"><label>Chave Pix</label><input type="text" id="cupom-pix" placeholder="CPF, email, telefone ou chave aleatória"></div>
+    <div class="modal-field"><label>Valor do repasse por conversão (R$)</label><input type="number" id="cupom-valor" value="3.00" min="0" step="0.50"></div>
     <div class="modal-actions">
       <button class="btn btn-gray" onclick="fecharModal()">Cancelar</button>
       <button class="btn btn-purple" onclick="criarCupom()">Criar parceiro</button>
     </div>
-  `;
-  abrirModal('➕ Novo Parceiro', html);
+  `);
 }
 
 async function criarCupom() {
@@ -830,101 +704,56 @@ async function criarCupom() {
   const nome = document.getElementById('cupom-nome').value.trim();
   const pixKey = document.getElementById('cupom-pix').value.trim();
   const valorRepasse = parseFloat(document.getElementById('cupom-valor').value) || 3;
-
   if (!codigo || !nome) { toast('Preencha código e nome', 'error'); return; }
-
   try {
-    const res = await fetch('/api/create-cupom', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ codigo, nome, pixKey, valorRepasse }),
-    });
+    const res = await fetch('/api/create-cupom', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({codigo, nome, pixKey, valorRepasse}) });
     const data = await res.json();
     if (!data.ok) { toast(data.error || 'Erro ao criar', 'error'); return; }
-    fecharModal();
-    await carregarCupons();
-    renderParceiros();
+    fecharModal(); await carregarCupons(); renderParceiros();
     toast('Parceiro criado com sucesso!');
-  } catch(e) {
-    toast('Erro ao criar parceiro', 'error');
-  }
+  } catch(e) { toast('Erro ao criar parceiro', 'error'); }
 }
 
 function abrirModalEditarCupom(id) {
   const c = dadosCupons.find(x => x.id === id);
   if (!c) return;
-  const html = `
-    <div class="modal-field">
-      <label>Nome do parceiro</label>
-      <input type="text" id="edit-nome" value="${c.nome || ''}">
-    </div>
-    <div class="modal-field">
-      <label>Chave Pix</label>
-      <input type="text" id="edit-pix" value="${c.pixKey || ''}">
-    </div>
-    <div class="modal-field">
-      <label>Valor do repasse por conversão (R$)</label>
-      <input type="number" id="edit-valor" value="${c.valorRepasse || 3}" min="0" step="0.50">
-    </div>
+  abrirModal(`✏️ Editar — ${id}`, `
+    <div class="modal-field"><label>Nome do parceiro</label><input type="text" id="edit-nome" value="${c.nome||''}"></div>
+    <div class="modal-field"><label>Chave Pix</label><input type="text" id="edit-pix" value="${c.pixKey||''}"></div>
+    <div class="modal-field"><label>Valor do repasse por conversão (R$)</label><input type="number" id="edit-valor" value="${c.valorRepasse||3}" min="0" step="0.50"></div>
     <div class="modal-actions">
       <button class="btn btn-gray" onclick="fecharModal()">Cancelar</button>
       <button class="btn btn-purple" onclick="editarCupom('${id}')">Salvar</button>
     </div>
-  `;
-  abrirModal(`✏️ Editar — ${id}`, html);
+  `);
 }
 
 async function editarCupom(id) {
   const nome = document.getElementById('edit-nome').value.trim();
   const pixKey = document.getElementById('edit-pix').value.trim();
   const valorRepasse = parseFloat(document.getElementById('edit-valor').value) || 3;
-
   try {
-    await fetch('/api/update-cupom', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ codigo: id, nome, pixKey, valorRepasse }),
-    });
-    fecharModal();
-    await carregarCupons();
-    renderParceiros();
+    await fetch('/api/update-cupom', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({codigo:id, nome, pixKey, valorRepasse}) });
+    fecharModal(); await carregarCupons(); renderParceiros();
     toast('Parceiro atualizado!');
-  } catch(e) {
-    toast('Erro ao atualizar', 'error');
-  }
+  } catch(e) { toast('Erro ao atualizar', 'error'); }
 }
 
 async function toggleCupom(id, ativo) {
   try {
-    await fetch('/api/update-cupom', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ codigo: id, ativo }),
-    });
-    await carregarCupons();
-    renderParceiros();
+    await fetch('/api/update-cupom', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({codigo:id, ativo}) });
+    await carregarCupons(); renderParceiros();
     toast(ativo ? 'Cupom ativado!' : 'Cupom desativado!', ativo ? 'success' : 'warning');
-  } catch(e) {
-    toast('Erro ao alterar cupom', 'error');
-  }
+  } catch(e) { toast('Erro ao alterar cupom', 'error'); }
 }
 
 async function marcarRepasse(cupom, mes, jaPago) {
-  if (jaPago) {
-    if (!confirm('Desmarcar repasse como pago?')) return;
-  }
+  if (jaPago && !confirm('Desmarcar repasse como pago?')) return;
   try {
-    await fetch('/api/set-repasse', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cupom, mes, status: jaPago ? 'pendente' : 'pago' }),
-    });
-    await carregarRepasses();
-    renderParceiros();
+    await fetch('/api/set-repasse', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({cupom, mes, status:jaPago?'pendente':'pago'}) });
+    await carregarRepasses(); renderParceiros();
     toast(jaPago ? 'Repasse desmarcado' : '💸 Repasse marcado como pago!', jaPago ? 'warning' : 'success');
-  } catch(e) {
-    toast('Erro ao marcar repasse', 'error');
-  }
+  } catch(e) { toast('Erro ao marcar repasse', 'error'); }
 }
 </script>
 </body>
