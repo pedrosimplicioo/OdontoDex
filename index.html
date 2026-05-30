@@ -1274,6 +1274,16 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
       <div class="payment-security-txt">Pagamento 100% seguro · Seus dados são protegidos pelo Mercado Pago · PCI DSS compliant</div>
     </div>
     <div style="font-size:12px;color:#64748B;line-height:1.6;padding:12px 0 4px;text-align:center;">Ao assinar, você concorda com nossos <a href="/termos" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Termos de Uso</a> e nossa <a href="/privacidade" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Política de Privacidade</a>. Cancele quando quiser.</div>
+    <!-- CUPOM PARCEIRO -->
+<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:4px;">
+  <div style="font-size:11px;font-weight:700;color:#64748B;letter-spacing:0.5px;text-transform:uppercase;">🎟️ Cupom de parceiro</div>
+  <div id="cupom-row" style="display:flex;align-items:center;gap:8px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:14px;padding:11px 14px;">
+    <span style="font-size:16px;">🏷️</span>
+    <input id="cupom-input" type="text" placeholder="Digite o código" maxlength="20" style="flex:1;border:none;background:transparent;font-size:14px;font-weight:600;color:#0F172A;outline:none;text-transform:uppercase;letter-spacing:1px;font-family:inherit;" oninput="verificarCupom(this.value)">
+    <span id="cupom-status" style="font-size:18px;"></span>
+  </div>
+  <div id="cupom-feedback" style="display:none;font-size:12px;font-weight:600;padding:8px 12px;border-radius:10px;"></div>
+</div>
     <button onclick="abrirPixModal()" style="width:100%;background:#00B37E;color:#fff;border:none;border-radius:20px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;">
   <span style="font-size:22px;">📱</span>
   <span>Pagar com Pix</span>
@@ -4311,6 +4321,58 @@ function fecharBannerEstudante() {
   } finally {
     hideLoading();
   }
+    // ==================== CUPOM PARCEIRO ====================
+let cupomValido = '';
+
+async function verificarCupom(valor) {
+  const input = document.getElementById('cupom-input');
+  const row = document.getElementById('cupom-row');
+  const status = document.getElementById('cupom-status');
+  const feedback = document.getElementById('cupom-feedback');
+
+  // Reset
+  row.style.borderColor = '#E2E8F0';
+  row.style.background = '#F8FAFC';
+  status.textContent = '';
+  feedback.style.display = 'none';
+  cupomValido = '';
+
+  if (!valor || valor.length < 3) return;
+
+  status.textContent = '⏳';
+
+  try {
+    const doc = await db.collection('CUPONS').doc(valor.toUpperCase()).get();
+
+    if (doc.exists && doc.data().ativo === true) {
+      const nome = doc.data().nome;
+      cupomValido = valor.toUpperCase();
+
+      row.style.borderColor = '#059669';
+      row.style.background = '#F0FDF4';
+      status.textContent = '✅';
+
+      feedback.style.display = 'block';
+      feedback.style.background = '#F0FDF4';
+      feedback.style.border = '1px solid #BBF7D0';
+      feedback.style.color = '#059669';
+      feedback.innerHTML = '✓ Indicado por <strong>' + nome + '</strong>';
+    } else {
+      row.style.borderColor = '#DC2626';
+      row.style.background = '#FEF2F2';
+      status.textContent = '❌';
+
+      feedback.style.display = 'block';
+      feedback.style.background = '#FEF2F2';
+      feedback.style.border = '1px solid #FECACA';
+      feedback.style.color = '#DC2626';
+      feedback.textContent = 'Cupom inválido';
+    }
+  } catch(e) {
+    status.textContent = '';
+    feedback.style.display = 'none';
+  }
+}
 }// ==================== PIX ====================
 let pixCode = '';
 
@@ -4500,6 +4562,23 @@ async function onPaymentApproved() {
         premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira)
       });
     } catch(e) { console.error(e); }
+
+    // Registrar cupom se houver
+    if (cupomValido) {
+      try {
+        await db.collection('CUPONS').doc(cupomValido).update({
+          conversoes: firebase.firestore.FieldValue.increment(1)
+        });
+        await db.collection('conversoes_cupom').add({
+          cupom: cupomValido,
+          userId: currentUser.uid,
+          userEmail: currentUser.email,
+          valor: 3.00,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp()
+        });
+        cupomValido = '';
+      } catch(e) { console.error(e); }
+    }
   }
   showToast("🎉 Bem-vindo ao Premium!", "success");
   voltarParaHome();
