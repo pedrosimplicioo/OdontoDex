@@ -4427,7 +4427,7 @@ async function verificarCupom(valor) {
   cupomTimer = setTimeout(async () => {
     try {
       const codigo = valor.trim().toUpperCase();
-      const doc = await db.collection('cupons').doc(codigo).get();
+      const doc = await db.collection('CUPONS').doc(codigo).get();
       if(doc.exists && doc.data().ativo === true) {
         window.cupomValidado = { id: codigo, nome: doc.data().nome };
         input.style.borderColor = '#059669';
@@ -4460,7 +4460,7 @@ async function registrarConversaoCupom() {
       valor: 9.90,
       comissao: 3.00
     });
-    await db.collection('cupons').doc(window.cupomValidado.id).update({
+    await db.collection('CUPONS').doc(window.cupomValidado.id).update({
       conversoes: firebase.firestore.FieldValue.increment(1)
     });
   } catch(e) { console.error(e); }
