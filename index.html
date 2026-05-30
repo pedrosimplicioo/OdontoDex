@@ -4325,47 +4325,56 @@ function fecharBannerEstudante() {
 
 // ==================== CUPOM PARCEIRO ====================
 let cupomValido = '';
+let cupomTimer = null;
 
 async function verificarCupom(valor) {
   const row = document.getElementById('cupom-row');
   const status = document.getElementById('cupom-status');
   const feedback = document.getElementById('cupom-feedback');
+
+  // Reset visual
   row.style.borderColor = '#E2E8F0';
   row.style.background = '#F8FAFC';
   status.textContent = '';
   feedback.style.display = 'none';
   cupomValido = '';
-  if (!valor || valor.length < 3) return;
-  status.textContent = '⏳';
-  try {
-    const doc = await db.collection('CUPONS').doc(valor.toUpperCase()).get();
-    if (doc.exists && doc.data().ativo === true) {
-      const nome = doc.data().nome;
-      cupomValido = valor.toUpperCase();
-      row.style.borderColor = '#059669';
-      row.style.background = '#F0FDF4';
-      status.textContent = '✅';
-      feedback.style.display = 'block';
-      feedback.style.background = '#F0FDF4';
-      feedback.style.border = '1px solid #BBF7D0';
-      feedback.style.color = '#059669';
-      feedback.innerHTML = '✓ Indicado por <strong>' + nome + '</strong>';
-    } else {
-      row.style.borderColor = '#DC2626';
-      row.style.background = '#FEF2F2';
-      status.textContent = '❌';
-      feedback.style.display = 'block';
-      feedback.style.background = '#FEF2F2';
-      feedback.style.border = '1px solid #FECACA';
-      feedback.style.color = '#DC2626';
-      feedback.textContent = 'Cupom inválido';
-    }
-  } catch(e) {
-    status.textContent = '';
-    feedback.style.display = 'none';
-  }
-}
 
+  if (!valor || valor.length < 3) return;
+
+  // Aguarda o usuário parar de digitar
+  clearTimeout(cupomTimer);
+  cupomTimer = setTimeout(async () => {
+    status.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;border-color:#7C3FA0;border-top-color:transparent;"></div>';
+
+    try {
+      const doc = await db.collection('CUPONS').doc(valor.toUpperCase()).get();
+      if (doc.exists && doc.data().ativo === true) {
+        const nome = doc.data().nome;
+        cupomValido = valor.toUpperCase();
+        row.style.borderColor = '#059669';
+        row.style.background = '#F0FDF4';
+        status.textContent = '✅';
+        feedback.style.display = 'block';
+        feedback.style.background = '#F0FDF4';
+        feedback.style.border = '1px solid #BBF7D0';
+        feedback.style.color = '#059669';
+        feedback.innerHTML = '✓ Indicado por <strong>' + nome + '</strong>';
+      } else {
+        row.style.borderColor = '#DC2626';
+        row.style.background = '#FEF2F2';
+        status.textContent = '❌';
+        feedback.style.display = 'block';
+        feedback.style.background = '#FEF2F2';
+        feedback.style.border = '1px solid #FECACA';
+        feedback.style.color = '#DC2626';
+        feedback.textContent = 'Cupom inválido';
+      }
+    } catch(e) {
+      status.textContent = '';
+      feedback.style.display = 'none';
+    }
+  }, 500);
+}
   // ==================== PIX ====================
 let pixCode = '';
 
