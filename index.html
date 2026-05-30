@@ -3998,7 +3998,6 @@ auth.onAuthStateChanged(async(user) => {
             }
             const agora = new Date();
             if(agora > expira) {
-              await db.collection("users").doc(user.uid).update({ premium: false });
               window.userIsPremium = false;
               localStorage.setItem('userIsPremium', 'false');
               window._premiumExpirou = true;
