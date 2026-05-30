@@ -588,7 +588,7 @@ async function abrirModalPremium(uid) {
 async function ativarPremium(uid) {
   const dias = parseInt(document.getElementById('premium-dias').value) || 30;
   try {
-    await fetch('/api/set-premium', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, premium:true, dias}) });
+    await set-premium', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, premium:true, dias}) });
     fecharModal(); fecharPainel();
     await carregarUsuarios(); renderVisaoGeral();
     toast(`Premium ativado por ${dias} dias!`);
@@ -598,7 +598,7 @@ async function ativarPremium(uid) {
 async function desativarPremium(uid) {
   if (!confirm('Remover premium deste usuário?')) return;
   try {
-    await fetch('/api/set-premium', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, premium:false}) });
+    await set-premium', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, premium:false}) });
     fecharPainel(); await carregarUsuarios(); renderVisaoGeral();
     toast('Premium removido!', 'warning');
   } catch(e) { toast('Erro ao remover premium', 'error'); }
@@ -606,7 +606,7 @@ async function desativarPremium(uid) {
 
 async function toggleTeste(uid, isTest) {
   try {
-    const res = await fetch('/api/set-test-user', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, isTest}) });
+    const res = await set-test-user', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, isTest}) });
     const data = await res.json();
     if (!data.ok) { toast('Erro ao alterar', 'error'); return; }
     // Atualiza localmente sem precisar recarregar tudo
@@ -712,7 +712,7 @@ async function criarCupom() {
   const valorRepasse = parseFloat(document.getElementById('cupom-valor').value) || 3;
   if (!codigo || !nome) { toast('Preencha código e nome', 'error'); return; }
   try {
-    const res = await fetch('/api/create-cupom', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({codigo, nome, pixKey, valorRepasse}) });
+    const res = await fetch('https://www.odontodex.com.br/api/create-cupom', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({codigo, nome, pixKey, valorRepasse}) });
     const data = await res.json();
     if (!data.ok) { toast(data.error || 'Erro ao criar', 'error'); return; }
     fecharModal(); await carregarCupons(); renderParceiros();
@@ -739,7 +739,7 @@ async function editarCupom(id) {
   const pixKey = document.getElementById('edit-pix').value.trim();
   const valorRepasse = parseFloat(document.getElementById('edit-valor').value) || 3;
   try {
-    await fetch('/api/update-cupom', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({codigo:id, nome, pixKey, valorRepasse}) });
+    await fetch('https://www.odontodex.com.br/api/update-cupom', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({codigo:id, nome, pixKey, valorRepasse}) });
     fecharModal(); await carregarCupons(); renderParceiros();
     toast('Parceiro atualizado!');
   } catch(e) { toast('Erro ao atualizar', 'error'); }
@@ -747,7 +747,7 @@ async function editarCupom(id) {
 
 async function toggleCupom(id, ativo) {
   try {
-    await fetch('/api/update-cupom', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({codigo:id, ativo}) });
+    await fetch('https://www.odontodex.com.br/api/update-cupom', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({codigo:id, ativo}) });
     await carregarCupons(); renderParceiros();
     toast(ativo ? 'Cupom ativado!' : 'Cupom desativado!', ativo ? 'success' : 'warning');
   } catch(e) { toast('Erro ao alterar cupom', 'error'); }
@@ -756,7 +756,7 @@ async function toggleCupom(id, ativo) {
 async function marcarRepasse(cupom, mes, jaPago) {
   if (jaPago && !confirm('Desmarcar repasse como pago?')) return;
   try {
-    await fetch('/api/set-repasse', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({cupom, mes, status:jaPago?'pendente':'pago'}) });
+    await fetch('https://www.odontodex.com.br/api/set-repasse', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({cupom, mes, status:jaPago?'pendente':'pago'}) });
     await carregarRepasses(); renderParceiros();
     toast(jaPago ? 'Repasse desmarcado' : '💸 Repasse marcado como pago!', jaPago ? 'warning' : 'success');
   } catch(e) { toast('Erro ao marcar repasse', 'error'); }
