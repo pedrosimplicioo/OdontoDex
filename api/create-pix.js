@@ -35,6 +35,7 @@ module.exports = async (req, res) => {
           first_name: nome || "Usuario",
         },
         metadata: { uid, email },
+        external_reference: uid,
       }),
     });
 
