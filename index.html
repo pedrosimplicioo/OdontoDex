@@ -4050,7 +4050,6 @@ if(agora > expira) {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ uid: user.uid }),
               }).catch(e => console.log(e));
-}
             } else {
               window.userIsPremium = true;
               localStorage.setItem('userIsPremium', 'true');
