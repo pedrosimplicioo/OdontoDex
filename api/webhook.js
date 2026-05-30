@@ -44,6 +44,7 @@ module.exports = async (req, res) => {
     );
 
     const payment = await mpResponse.json();
+    console.log("Payment data:", JSON.stringify(payment));
 
     if (payment.status !== "approved") {
       return res.status(200).json({ ok: true, status: payment.status });
