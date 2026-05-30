@@ -1317,7 +1317,13 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
         📋 Copiar código Pix
       </button>
       
-      <p style="font-size:11px;color:#94A3B8;line-height:1.6;">Após o pagamento, seu acesso Premium é ativado automaticamente em até 1 minuto.</p>
+      <div id="pix-aguardando" style="display:none;margin-top:8px;padding:10px 14px;background:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+    <div class="spinner" style="width:14px;height:14px;border-width:2px;border-color:#7C3FA0;border-top-color:transparent;flex-shrink:0;"></div>
+    <span style="font-size:13px;font-weight:700;color:#7C3FA0;">Aguardando confirmação do pagamento...</span>
+  </div>
+  <p style="font-size:11px;color:#94A3B8;line-height:1.6;margin:0;">O acesso será liberado automaticamente após a confirmação.</p>
+</div>
     </div>
 
     <div id="pix-error" style="display:none;color:#DC2626;font-size:13px;padding:10px;"></div>
@@ -4379,8 +4385,9 @@ async function verificarCupom(valor) {
     }
   }, 500);
 }
-  // ==================== PIX ====================
+// ==================== PIX ====================
 let pixCode = '';
+let pixPollingInterval = null;
 
 async function abrirPixModal() {
   if (!currentUser) {
@@ -4388,10 +4395,10 @@ async function abrirPixModal() {
     return;
   }
 
-  // Reset modal
   document.getElementById('pix-loading').style.display = 'block';
   document.getElementById('pix-content').style.display = 'none';
   document.getElementById('pix-error').style.display = 'none';
+  document.getElementById('pix-aguardando').style.display = 'none';
   document.getElementById('pix-status-msg').textContent = 'Gerando QR Code...';
   pixCode = '';
 
@@ -4410,7 +4417,6 @@ async function abrirPixModal() {
     });
 
     const data = await res.json();
-
     if (!data.qrCode) throw new Error('QR Code não gerado');
 
     pixCode = data.qrCode;
@@ -4420,6 +4426,9 @@ async function abrirPixModal() {
     document.getElementById('pix-status-msg').textContent = 'Escaneie o QR Code ou copie o código';
     document.getElementById('pix-loading').style.display = 'none';
     document.getElementById('pix-content').style.display = 'block';
+    document.getElementById('pix-aguardando').style.display = 'block';
+
+    iniciarPixPolling();
 
   } catch (e) {
     document.getElementById('pix-loading').style.display = 'none';
@@ -4429,7 +4438,37 @@ async function abrirPixModal() {
   }
 }
 
+function iniciarPixPolling() {
+  pararPixPolling();
+  pixPollingInterval = setInterval(async () => {
+    try {
+      const doc = await db.collection('users').doc(currentUser.uid).get();
+      const userData = doc.data();
+      if (userData && userData.premium === true) {
+        const expira = userData.premiumExpira?.toDate
+          ? userData.premiumExpira.toDate()
+          : new Date(userData.premiumExpira);
+        if (expira > new Date()) {
+          pararPixPolling();
+          fecharPixModal();
+          await onPaymentApproved();
+        }
+      }
+    } catch(e) {
+      console.log(e);
+    }
+  }, 5000);
+}
+
+function pararPixPolling() {
+  if (pixPollingInterval) {
+    clearInterval(pixPollingInterval);
+    pixPollingInterval = null;
+  }
+}
+
 function fecharPixModal() {
+  pararPixPolling();
   hideOverlay('pix-overlay');
 }
 
