@@ -4065,6 +4065,7 @@ auth.onAuthStateChanged(async(user) => {
               localStorage.setItem('userIsPremium', 'false');
               window._premiumExpirou = true;
             } else {
+              console.log('PREMIUM ATIVO até:', expira, '| agora:', agora);
               window.userIsPremium = true;
               localStorage.setItem('userIsPremium', 'true');
             }
