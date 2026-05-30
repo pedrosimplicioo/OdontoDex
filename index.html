@@ -1274,12 +1274,45 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
       <div class="payment-security-txt">Pagamento 100% seguro · Seus dados são protegidos pelo Mercado Pago · PCI DSS compliant</div>
     </div>
     <div style="font-size:12px;color:#64748B;line-height:1.6;padding:12px 0 4px;text-align:center;">Ao assinar, você concorda com nossos <a href="/termos" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Termos de Uso</a> e nossa <a href="/privacidade" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Política de Privacidade</a>. Cancele quando quiser.</div>
+    <button onclick="abrirPixModal()" style="width:100%;background:#00B37E;color:#fff;border:none;border-radius:20px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;">
+  <span style="font-size:22px;">📱</span>
+  <span>Pagar com Pix</span>
+</button>
+<div style="text-align:center;font-size:12px;color:#94A3B8;margin-bottom:16px;">— ou pague com cartão —</div>
     <div id="mp-brick-container">
       <div class="loading-brick">
         <div class="spinner" style="border-color:#7C3FA0;border-top-color:transparent;"></div>
         <span>Carregando formulário de pagamento...</span>
       </div>
     </div>
+  </div>
+</div>
+  <!-- MODAL PIX -->
+<div class="overlay" id="pix-overlay" onclick="fecharPixModal()">
+  <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
+    <div style="font-size:44px;margin-bottom:4px;">📱</div>
+    <h2 class="modal-title" style="font-size:20px;">Pagar com Pix</h2>
+    <p class="modal-sub" id="pix-status-msg">Gerando QR Code...</p>
+
+    <div id="pix-loading" style="padding:20px;">
+      <div class="spinner" style="border-color:#00B37E;border-top-color:transparent;margin:0 auto;"></div>
+    </div>
+
+    <div id="pix-content" style="display:none;width:100%;">
+      <img id="pix-qrcode-img" src="" style="width:200px;height:200px;border-radius:16px;border:2px solid #E2E8F0;margin-bottom:16px;">
+      
+      <div style="background:#F1F5F9;border-radius:14px;padding:12px;margin-bottom:16px;word-break:break-all;font-size:11px;color:#475569;text-align:left;max-height:80px;overflow:hidden;" id="pix-code-display"></div>
+      
+      <button onclick="copiarPixCode()" style="width:100%;background:#00B37E;color:#fff;border:none;border-radius:20px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px;">
+        📋 Copiar código Pix
+      </button>
+      
+      <p style="font-size:11px;color:#94A3B8;line-height:1.6;">Após o pagamento, seu acesso Premium é ativado automaticamente em até 1 minuto.</p>
+    </div>
+
+    <div id="pix-error" style="display:none;color:#DC2626;font-size:13px;padding:10px;"></div>
+
+    <button onclick="fecharPixModal()" class="btn-ghost" style="margin-top:8px;">Fechar</button>
   </div>
 </div>
   <!-- BOTTOM NAV -->
@@ -4276,6 +4309,63 @@ function fecharBannerEstudante() {
   } finally {
     hideLoading();
   }
+}// ==================== PIX ====================
+let pixCode = '';
+
+async function abrirPixModal() {
+  if (!currentUser) {
+    showToast("Faça login primeiro", "error");
+    return;
+  }
+
+  // Reset modal
+  document.getElementById('pix-loading').style.display = 'block';
+  document.getElementById('pix-content').style.display = 'none';
+  document.getElementById('pix-error').style.display = 'none';
+  document.getElementById('pix-status-msg').textContent = 'Gerando QR Code...';
+  pixCode = '';
+
+  showOverlay('pix-overlay');
+
+  try {
+    const res = await fetch('/api/create-pix', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        uid: currentUser.uid,
+        email: currentUser.email,
+        nome: localStorage.getItem('guiaNome') || '',
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!data.qrCode) throw new Error('QR Code não gerado');
+
+    pixCode = data.qrCode;
+
+    document.getElementById('pix-qrcode-img').src = 'data:image/png;base64,' + data.qrCodeBase64;
+    document.getElementById('pix-code-display').textContent = data.qrCode;
+    document.getElementById('pix-status-msg').textContent = 'Escaneie o QR Code ou copie o código';
+    document.getElementById('pix-loading').style.display = 'none';
+    document.getElementById('pix-content').style.display = 'block';
+
+  } catch (e) {
+    document.getElementById('pix-loading').style.display = 'none';
+    document.getElementById('pix-error').style.display = 'block';
+    document.getElementById('pix-error').textContent = 'Erro ao gerar QR Code. Tente novamente.';
+    document.getElementById('pix-status-msg').textContent = '';
+  }
+}
+
+function fecharPixModal() {
+  hideOverlay('pix-overlay');
+}
+
+function copiarPixCode() {
+  if (!pixCode) return;
+  navigator.clipboard.writeText(pixCode).catch(() => {});
+  showToast('Código Pix copiado!', 'success');
 }
   // ==================== MERCADO PAGO BRICKS ====================
 const MP_PUBLIC_KEY = "APP_USR-f3596f78-d857-4650-b079-3021cad9c072";
@@ -4342,8 +4432,6 @@ async function iniciarBrick() {
           paymentMethods: {
             creditCard: "all",
             debitCard: "all",
-            ticket: "all",
-            bankTransfer: "all",
           },
           visual: {
             style: {
