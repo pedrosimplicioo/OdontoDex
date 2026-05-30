@@ -830,7 +830,7 @@ async function exportarMetricasCSV() {
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a'); a.href=url; a.download=`odontodex_metricas_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
 }
-async function refreshData() { await carregarDados(); await carregarLandingStats(); await carregarMetricasProduto(); renderizarSecaoAtual(); }
+async function refreshData() { await carregarDados(); renderizarSecaoAtual(); }
 function logout() { auth.signOut(); document.getElementById('login-container').style.display='flex'; document.getElementById('dashboard-container').style.display='none'; }
 function initMenu() { document.querySelectorAll('.sidebar-item').forEach(item=>{item.addEventListener('click',()=>{document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); currentSection=item.getAttribute('data-section'); renderizarSecaoAtual();});}); }
 
