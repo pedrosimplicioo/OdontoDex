@@ -1,5 +1,4 @@
 const admin = require("firebase-admin");
-
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -14,26 +13,21 @@ if (!admin.apps.length) {
     }),
   });
 }
-
 const db = admin.firestore();
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
     return res.status(405).json({ error: "Method not allowed" });
   }
-
   try {
     const { type, data } = req.body;
-
     if (type !== "payment") {
       return res.status(200).json({ ok: true });
     }
-
     const paymentId = data?.id;
     if (!paymentId) {
       return res.status(400).json({ error: "Payment ID missing" });
     }
-
     const mpResponse = await fetch(
       `https://api.mercadopago.com/v1/payments/${paymentId}`,
       {
@@ -42,7 +36,6 @@ module.exports = async (req, res) => {
         },
       }
     );
-
     const payment = await mpResponse.json();
     console.log("Payment data:", JSON.stringify(payment));
 
@@ -51,23 +44,44 @@ module.exports = async (req, res) => {
     }
 
     const uid = payment.metadata?.uid || payment.external_reference;
-if (!uid) {
-  console.log("UID não encontrado. Metadata:", JSON.stringify(payment.metadata));
-  return res.status(200).json({ ok: true, msg: "UID not found" });
-}
+    if (!uid) {
+      console.log("UID não encontrado. Metadata:", JSON.stringify(payment.metadata));
+      return res.status(200).json({ ok: true, msg: "UID not found" });
+    }
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
 
     await db.collection("users").doc(uid).update({
-  premium: true,
-  premiumExpira: admin.firestore.Timestamp.fromDate(expiresAt),
-  premiumAtivadoEm: admin.firestore.FieldValue.serverTimestamp(),
-  ultimoPagamentoId: String(paymentId),
-});
+      premium: true,
+      premiumExpira: admin.firestore.Timestamp.fromDate(expiresAt),
+      premiumAtivadoEm: admin.firestore.FieldValue.serverTimestamp(),
+      ultimoPagamentoId: String(paymentId),
+    });
+
+    // Verificar se tinha cupom associado a esse pagamento
+    try {
+      const pixDoc = await db.collection("pix_pendentes").doc(String(paymentId)).get();
+      if (pixDoc.exists && pixDoc.data().cupom) {
+        const cupom = pixDoc.data().cupom;
+        await db.collection("CUPONS").doc(cupom).update({
+          conversoes: admin.firestore.FieldValue.increment(1),
+        });
+        await db.collection("conversoes_cupom").add({
+          cupom,
+          userId: uid,
+          userEmail: payment.payer?.email || "",
+          valor: 3.00,
+          paymentId: String(paymentId),
+          timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        console.log("Cupom registrado:", cupom);
+      }
+    } catch (cupomError) {
+      console.error("Erro ao registrar cupom:", cupomError);
+    }
 
     return res.status(200).json({ ok: true, uid, expiresAt });
-
   } catch (error) {
     console.error("Erro no webhook:", error);
     return res.status(500).json({ error: error.message });
