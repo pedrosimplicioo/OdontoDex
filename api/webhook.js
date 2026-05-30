@@ -50,10 +50,11 @@ module.exports = async (req, res) => {
       return res.status(200).json({ ok: true, status: payment.status });
     }
 
-    const uid = payment.metadata?.uid;
-    if (!uid) {
-      return res.status(400).json({ error: "UID not found in metadata" });
-    }
+    const uid = payment.metadata?.uid || payment.external_reference;
+if (!uid) {
+  console.log("UID não encontrado. Metadata:", JSON.stringify(payment.metadata));
+  return res.status(200).json({ ok: true, msg: "UID not found" });
+}
 
     const expiresAt = new Date();
     expiresAt.setDate(expiresAt.getDate() + 30);
