@@ -4148,7 +4148,7 @@ async function submitCancel() {
     const body = `Olá,\n\nSolicito o cancelamento da minha assinatura OdontoDex Premium.\n\nMeus dados:\nE-mail: ${currentUser.email}\nNome: ${currentUser.displayName || ''}\nMotivo: ${finalReason}\n\nAgradeço pela atenção.`;
     
     setTimeout(() => {
-      window.location.href = `mailto:compradores@cakto.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      window.location.href = `mailto:contato@odontodex.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     }, 500);
     
   } catch (error) {
