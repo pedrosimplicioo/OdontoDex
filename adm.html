@@ -229,8 +229,6 @@ async function toggleIgnorarUsuario(userId) {
   try {
     console.log('🔄 Recarregando dados...');
     await carregarDados();
-    await carregarMetricasProduto();
-    await carregarLandingStats();
     renderizarSecaoAtual();
     console.log('✅ Dados recarregados com sucesso');
   } catch (error) {
@@ -266,8 +264,6 @@ async function doAdminLogin() {
     document.getElementById('login-container').style.display = 'none';
     document.getElementById('dashboard-container').style.display = 'flex';
     await carregarDados();
-    await carregarLandingStats();
-    await carregarMetricasProduto();
     renderizarSecaoAtual();
   } catch(e) {
     errorDiv.textContent = "Email ou senha incorretos";
