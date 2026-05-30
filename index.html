@@ -671,26 +671,6 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
   font-size: 20px;
 }
 .nav-tab-sos.active .nav-tab-icon { background: #FECACA; }
-  /* MODAL PIX */
-#pix-overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.7);
-  display: none;
-  align-items: flex-end;
-  justify-content: center;
-  z-index: 300;
-}
-#pix-overlay.active { display: flex; }
-.pix-modal {
-  background: #fff;
-  border-radius: 28px 28px 0 0;
-  padding: 24px 20px 36px;
-  width: 100%;
-  max-width: 430px;
-  text-align: center;
-}
-body.dark .pix-modal { background: #1E293B; }
 </style>
 </head>
 <body>
@@ -1294,21 +1274,6 @@ body.dark .pix-modal { background: #1E293B; }
       <div class="payment-security-txt">Pagamento 100% seguro · Seus dados são protegidos pelo Mercado Pago · PCI DSS compliant</div>
     </div>
     <div style="font-size:12px;color:#64748B;line-height:1.6;padding:12px 0 4px;text-align:center;">Ao assinar, você concorda com nossos <a href="/termos" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Termos de Uso</a> e nossa <a href="/privacidade" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Política de Privacidade</a>. Cancele quando quiser.</div>
-    <!-- CAMPO CÓDIGO DE PARCEIRO -->
-<div id="cupom-box" style="background:#fff;border:0.5px solid #E2E8F0;border-radius:16px;padding:14px 16px;margin-bottom:16px;">
-  <div style="font-size:11px;font-weight:700;color:#64748B;letter-spacing:0.5px;margin-bottom:8px;">CÓDIGO DE PARCEIRO</div>
-  <div style="display:flex;gap:8px;align-items:center;">
-    <input type="text" id="cupom-input" placeholder="Digite o código (opcional)" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
-      style="flex:1;border:0.5px solid #E2E8F0;border-radius:10px;padding:10px 12px;font-size:14px;background:#F8FAFC;color:#0F172A;outline:none;font-family:inherit;transition:border-color 0.2s;"
-      oninput="verificarCupom(this.value)">
-    <div id="cupom-icon" style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
-  </div>
-  <div id="cupom-msg" style="font-size:12px;margin-top:8px;display:none;"></div>
-</div>
-    <button onclick="abrirPixModal()" style="width:100%;background:#059669;color:#fff;border:none;border-radius:20px;padding:15px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:12px;">
-  <span style="font-size:20px;">🟢</span> Pagar com Pix — R$9,90
-</button>
-<div style="text-align:center;font-size:12px;color:#94A3B8;margin-bottom:16px;">— ou pague com cartão abaixo —</div>
     <div id="mp-brick-container">
       <div class="loading-brick">
         <div class="spinner" style="border-color:#7C3FA0;border-top-color:transparent;"></div>
@@ -1335,40 +1300,6 @@ body.dark .pix-modal { background: #1E293B; }
     <span class="nav-tab-icon">🆘</span>
     <span class="nav-tab-label">S.O.S.</span>
   </button>
-</div>
-  <!-- MODAL PIX -->
-<div id="pix-overlay">
-  <div class="pix-modal" onclick="event.stopPropagation()">
-    <div style="font-size:36px;margin-bottom:8px;">🟢</div>
-    <div style="font-size:18px;font-weight:800;color:#0F172A;margin-bottom:4px;">Pagar com Pix</div>
-    <div style="font-size:13px;color:#64748B;margin-bottom:20px;">Escaneie o QR Code ou copie o código</div>
-    
-    <div id="pix-loading" style="padding:30px 0;">
-      <div class="spinner" style="border-color:#059669;border-top-color:transparent;margin:0 auto;"></div>
-      <div style="font-size:13px;color:#64748B;margin-top:12px;">Gerando QR Code...</div>
-    </div>
-    
-    <div id="pix-content" style="display:none;">
-      <img id="pix-qrcode-img" src="" style="width:200px;height:200px;border-radius:16px;border:2px solid #E2E8F0;margin-bottom:16px;">
-      <div style="background:#F0FDF4;border:1px solid #BBF7D0;border-radius:14px;padding:12px;margin-bottom:16px;">
-        <div style="font-size:11px;font-weight:700;color:#166534;margin-bottom:6px;">CÓDIGO PIX COPIA E COLA</div>
-        <div id="pix-code" style="font-size:11px;color:#166534;word-break:break-all;line-height:1.5;"></div>
-      </div>
-      <button onclick="copiarCodigoPix()" style="width:100%;background:#059669;color:#fff;border:none;border-radius:20px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:10px;">
-        📋 Copiar código Pix
-      </button>
-      <div style="font-size:12px;color:#94A3B8;margin-bottom:16px;">O premium é ativado automaticamente após o pagamento</div>
-    </div>
-
-    <div id="pix-error" style="display:none;padding:20px 0;">
-      <div style="font-size:32px;margin-bottom:8px;">⚠️</div>
-      <div style="font-size:14px;color:#DC2626;margin-bottom:16px;">Erro ao gerar QR Code</div>
-    </div>
-
-    <button onclick="fecharPixModal()" style="background:none;border:0.5px solid #E2E8F0;border-radius:20px;padding:10px 24px;font-size:13px;color:#64748B;cursor:pointer;font-family:inherit;">
-      Fechar
-    </button>
-  </div>
 </div>
 <!-- PASSWORD MODAL -->
 <script>
@@ -3868,6 +3799,8 @@ async function doRegister(){
     const em=document.getElementById('user-email-display');if(em)em.textContent=currentUser.email;
     hideLoading();
 showToast('Conta criada com sucesso!','success');
+    window.userIsPremium = true;                       
+localStorage.setItem('userIsPremium', 'true');       
 window._trialRecemAtivado = true;
 showAppScreen();
   }catch(e){
@@ -4065,7 +3998,6 @@ auth.onAuthStateChanged(async(user) => {
               localStorage.setItem('userIsPremium', 'false');
               window._premiumExpirou = true;
             } else {
-              console.log('PREMIUM ATIVO até:', expira, '| agora:', agora);
               window.userIsPremium = true;
               localStorage.setItem('userIsPremium', 'true');
             }
@@ -4463,113 +4395,7 @@ async function iniciarBrick() {
       </div>`;
   }
 }
-  let pixCodigoAtual = '';
-
-async function abrirPixModal() {
-  if (!currentUser) { showToast("Faça login primeiro", "error"); return; }
-  
-  document.getElementById('pix-overlay').classList.add('active');
-  document.getElementById('pix-loading').style.display = 'block';
-  document.getElementById('pix-content').style.display = 'none';
-  document.getElementById('pix-error').style.display = 'none';
-
-  try {
-    const nome = localStorage.getItem('guiaNome') || '';
-    const res = await fetch('/api/create-pix', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ uid: currentUser.uid, email: currentUser.email, nome })
-    });
-    const data = await res.json();
-    
-    if (!data.qrCode) throw new Error('QR Code não gerado');
-    
-    pixCodigoAtual = data.qrCode;
-    document.getElementById('pix-loading').style.display = 'none';
-    document.getElementById('pix-content').style.display = 'block';
-    document.getElementById('pix-qrcode-img').src = 'data:image/png;base64,' + data.qrCodeBase64;
-    document.getElementById('pix-code').textContent = data.qrCode;
-
-  } catch(e) {
-    document.getElementById('pix-loading').style.display = 'none';
-    document.getElementById('pix-error').style.display = 'block';
-    console.error(e);
-  }
-}
-
-function fecharPixModal() {
-  document.getElementById('pix-overlay').classList.remove('active');
-  pixCodigoAtual = '';
-}
-
-function copiarCodigoPix() {
-  if (!pixCodigoAtual) return;
-  navigator.clipboard.writeText(pixCodigoAtual).catch(() => {});
-  showToast('Código Pix copiado!', 'success');
-}
-  let cupomTimer = null;
-window.cupomValidado = null;
-
-async function verificarCupom(valor) {
-  const input = document.getElementById('cupom-input');
-  const icon = document.getElementById('cupom-icon');
-  const msg = document.getElementById('cupom-msg');
-  window.cupomValidado = null;
-
-  if(!valor || valor.length < 3) {
-    input.style.borderColor = '#E2E8F0';
-    icon.innerHTML = '';
-    msg.style.display = 'none';
-    return;
-  }
-
-  clearTimeout(cupomTimer);
-  icon.innerHTML = '<div style="width:20px;height:20px;border-radius:50%;border:2px solid #E2E8F0;border-top-color:#7C3FA0;animation:spin 0.8s linear infinite;"></div>';
-  msg.style.display = 'none';
-
-  cupomTimer = setTimeout(async () => {
-    try {
-      const codigo = valor.trim().toUpperCase();
-      const doc = await db.collection('CUPONS').doc(codigo).get();
-      if(doc.exists && doc.data().ativo === true) {
-        window.cupomValidado = { id: codigo, nome: doc.data().nome };
-        input.style.borderColor = '#059669';
-        icon.innerHTML = '<div style="width:32px;height:32px;border-radius:50%;background:#DCFCE7;display:flex;align-items:center;justify-content:center;"><span style="color:#059669;font-size:18px;font-weight:700;">✓</span></div>';
-        msg.style.cssText = 'font-size:12px;margin-top:8px;display:flex;align-items:center;gap:4px;color:#059669;';
-        msg.textContent = '✓ Indicado por ' + doc.data().nome;
-      } else {
-        window.cupomValidado = null;
-        input.style.borderColor = '#DC2626';
-        icon.innerHTML = '<div style="width:32px;height:32px;border-radius:50%;background:#FEE2E2;display:flex;align-items:center;justify-content:center;"><span style="color:#DC2626;font-size:18px;font-weight:700;">✕</span></div>';
-        msg.style.cssText = 'font-size:12px;margin-top:8px;display:flex;align-items:center;gap:4px;color:#DC2626;';
-        msg.textContent = '✕ Código não encontrado';
-      }
-    } catch(e) {
-      icon.innerHTML = '';
-      msg.style.display = 'none';
-    }
-  }, 600);
-}
-
-async function registrarConversaoCupom() {
-  if(!currentUser || !window.cupomValidado) return;
-  try {
-    await db.collection('conversoes_cupom').add({
-      cupomId: window.cupomValidado.id,
-      nomeParceiro: window.cupomValidado.nome,
-      userId: currentUser.uid,
-      userEmail: currentUser.email,
-      dataConversao: firebase.firestore.FieldValue.serverTimestamp(),
-      valor: 9.90,
-      comissao: 3.00
-    });
-    await db.collection('CUPONS').doc(window.cupomValidado.id).update({
-      conversoes: firebase.firestore.FieldValue.increment(1)
-    });
-  } catch(e) { console.error(e); }
-}
 async function onPaymentApproved() {
-  if(window.cupomValidado) registrarConversaoCupom();
   window.userIsPremium = true;
   localStorage.setItem('userIsPremium', 'true');
   updatePremiumUI();
