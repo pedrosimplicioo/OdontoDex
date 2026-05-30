@@ -606,8 +606,14 @@ async function desativarPremium(uid) {
 
 async function toggleTeste(uid, isTest) {
   try {
-    await fetch('/api/set-test-user', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, isTest}) });
-    fecharPainel(); await carregarUsuarios(); renderVisaoGeral();
+    const res = await fetch('/api/set-test-user', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, isTest}) });
+    const data = await res.json();
+    if (!data.ok) { toast('Erro ao alterar', 'error'); return; }
+    // Atualiza localmente sem precisar recarregar tudo
+    const u = dadosUsuarios.find(x => x.id === uid);
+    if (u) u.isTest = isTest;
+    fecharPainel();
+    renderVisaoGeral();
     toast(isTest ? '🧪 Marcado como teste' : '✅ Removido de teste', 'info');
   } catch(e) { toast('Erro ao alterar', 'error'); }
 }
