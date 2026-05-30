@@ -588,7 +588,7 @@ async function abrirModalPremium(uid) {
 async function ativarPremium(uid) {
   const dias = parseInt(document.getElementById('premium-dias').value) || 30;
   try {
-    await set-premium', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, premium:true, dias}) });
+    await fetch('https://www.odontodex.com.br/api/set-premium', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, premium:true, dias}) });
     fecharModal(); fecharPainel();
     await carregarUsuarios(); renderVisaoGeral();
     toast(`Premium ativado por ${dias} dias!`);
@@ -598,7 +598,7 @@ async function ativarPremium(uid) {
 async function desativarPremium(uid) {
   if (!confirm('Remover premium deste usuário?')) return;
   try {
-    await set-premium', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, premium:false}) });
+    await fetch('https://www.odontodex.com.br/api/set-premium', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, premium:false}) });
     fecharPainel(); await carregarUsuarios(); renderVisaoGeral();
     toast('Premium removido!', 'warning');
   } catch(e) { toast('Erro ao remover premium', 'error'); }
@@ -606,7 +606,7 @@ async function desativarPremium(uid) {
 
 async function toggleTeste(uid, isTest) {
   try {
-    const res = await set-test-user', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, isTest}) });
+    const res = await fetch('https://www.odontodex.com.br/api/set-test-user', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({uid, isTest}) });
     const data = await res.json();
     if (!data.ok) { toast('Erro ao alterar', 'error'); return; }
     // Atualiza localmente sem precisar recarregar tudo
