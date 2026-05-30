@@ -3885,10 +3885,10 @@ async function logout(){
           🔒 Modo Pânico em todos os protocolos
         </div>
       </div>
-      <button class="btn-primary" onclick="this.closest('.overlay').remove();abrirTelaPayment();" style="margin-bottom:10px;">
-        🔓 Renovar por R$9,90/mês
-      </button>
-      <button class="btn-ghost" onclick="this.closest('.overlay').remove()">Continuar sem Premium</button>
+      <button class="btn-primary" onclick="localStorage.setItem('modalExpiradoMostrado','1');this.closest('.overlay').remove();abrirTelaPayment();" style="margin-bottom:10px;">
+  🔓 Renovar por R$9,90/mês
+</button>
+<button class="btn-ghost" onclick="localStorage.setItem('modalExpiradoMostrado','1');this.closest('.overlay').remove()">Continuar sem Premium</button>
     </div>
   `;
   document.body.appendChild(overlay);
@@ -4033,7 +4033,9 @@ auth.onAuthStateChanged(async(user) => {
             if(agora > expira) {
               window.userIsPremium = false;
               localStorage.setItem('userIsPremium', 'false');
-              window._premiumExpirou = true;
+              if (!localStorage.getItem('modalExpiradoMostrado')) {
+  window._premiumExpirou = true;
+}
             } else {
               window.userIsPremium = true;
               localStorage.setItem('userIsPremium', 'true');
