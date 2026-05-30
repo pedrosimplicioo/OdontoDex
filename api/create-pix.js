@@ -1,4 +1,5 @@
 const admin = require("firebase-admin");
+
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -12,11 +13,13 @@ if (!admin.apps.length) {
   });
 }
 
+const db = admin.firestore();
+
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
-  
+
   try {
-    const { uid, email, nome } = req.body;
+    const { uid, email, nome, cupom } = req.body;
     if (!uid) return res.status(400).json({ error: "UID obrigatório" });
 
     const mpRes = await fetch("https://api.mercadopago.com/v1/payments", {
@@ -40,10 +43,19 @@ module.exports = async (req, res) => {
     });
 
     const payment = await mpRes.json();
-    
+
     if (!payment.point_of_interaction?.transaction_data) {
       throw new Error("QR Code não gerado: " + JSON.stringify(payment));
     }
+
+    // Salva o pagamento pendente com o cupom
+    await db.collection("pix_pendentes").doc(String(payment.id)).set({
+      paymentId: String(payment.id),
+      uid,
+      email,
+      cupom: cupom || null,
+      criadoEm: admin.firestore.FieldValue.serverTimestamp(),
+    });
 
     return res.status(200).json({
       paymentId: payment.id,
