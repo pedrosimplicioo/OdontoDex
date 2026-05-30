@@ -4040,11 +4040,16 @@ auth.onAuthStateChanged(async(user) => {
               expira = new Date(userData.premiumExpira);
             }
             const agora = new Date();
-            if(agora > expira) {
+if(agora > expira) {
               window.userIsPremium = false;
               localStorage.setItem('userIsPremium', 'false');
-              if (!localStorage.getItem('modalExpiradoMostrado')) {
-  window._premiumExpirou = true;
+              window._premiumExpirou = true;
+              // Atualiza o Firestore via backend
+              fetch('/api/expire-premium', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: user.uid }),
+              }).catch(e => console.log(e));
 }
             } else {
               window.userIsPremium = true;
