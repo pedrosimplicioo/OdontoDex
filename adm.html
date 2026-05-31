@@ -1115,14 +1115,15 @@ async function acaoPremium(tipo) {
     });
     const data = await res.json();
 
-    if (data.ok) {
+       if (data.ok) {
       feedback.className = 'drawer-feedback ok';
       feedback.textContent = '✓ Atualizado com sucesso! Recarregando...';
       setTimeout(async () => {
         fecharDrawer();
         await carregarDados();
-        renderizarSecaoAtual();
-      }, 1500);
+        await renderizarSecaoAtual();
+        window.scrollTo(0, 0);
+      }, 2500);
     } else {
       throw new Error(data.error || 'Erro desconhecido');
     }
