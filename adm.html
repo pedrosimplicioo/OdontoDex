@@ -212,6 +212,7 @@ module.exports = async (req, res) => {
     <div class="sidebar-menu">
       <div class="sidebar-item active" data-section="dashboard"><span>📊</span><span>Dashboard</span></div>
       <div class="sidebar-item" data-section="usuarios"><span>👥</span><span>Usuários</span></div>
+      <div class="sidebar-item" data-section="parceiros"><span>🤝</span><span>Parceiros</span></div>
     </div>
     <div class="sidebar-footer"><div class="logout-sidebar" onclick="logout()"><span>🚪</span><span>Sair</span></div></div>
   </div>
@@ -770,6 +771,7 @@ function renderizarSecaoAtual() {
     case 'dashboard': area.innerHTML = renderDashboard(); break;
     case 'metricas': area.innerHTML = renderMetricasProduto(); break;
     case 'usuarios': area.innerHTML = renderUsuarios(); break;
+    case 'parceiros': area.innerHTML = renderParceiros(); renderizarSecaoAtual.parceirosCarregado = false; carregarParceiros(); break;
     case 'rankings': area.innerHTML = renderRankings(); break;
     case 'landing': area.innerHTML = renderLandingPage(); setTimeout(() => renderLandingCharts(), 100); break;
     case 'graficos': area.innerHTML = renderGraficos(); setTimeout(() => renderGraficosChart(), 100); break;
@@ -1138,7 +1140,288 @@ async function acaoPremium(tipo) {
     btns.forEach(b => b.disabled = false);
   }
 }
+// ========== PARCEIROS ==========
+let cachedParceiros = null;
 
+async function carregarParceiros() {
+  try {
+    const agora = new Date();
+    const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}`;
+
+    const [cuponsSnap, conversoesSnap, repassesSnap] = await Promise.all([
+      db.collection('CUPONS').get(),
+      db.collection('conversoes_cupom').get(),
+      db.collection('repasses').get()
+    ]);
+
+    const repasses = {};
+    repassesSnap.forEach(doc => { repasses[doc.id] = doc.data(); });
+
+    const conversoesPorCupomMes = {};
+    const conversoesPorCupomTotal = {};
+    conversoesSnap.forEach(doc => {
+      const d = doc.data();
+      const cupom = d.cupom;
+      if (!cupom) return;
+      conversoesPorCupomTotal[cupom] = (conversoesPorCupomTotal[cupom] || 0) + 1;
+      const ts = d.timestamp?.toDate ? d.timestamp.toDate() : null;
+      if (ts) {
+        const mes = `${ts.getFullYear()}-${String(ts.getMonth()+1).padStart(2,'0')}`;
+        if (mes === mesAtual) {
+          conversoesPorCupomMes[cupom] = (conversoesPorCupomMes[cupom] || 0) + 1;
+        }
+      }
+    });
+
+    const cupons = [];
+    cuponsSnap.forEach(doc => {
+      const d = doc.data();
+      const codigo = doc.id;
+      const convMes = conversoesPorCupomMes[codigo] || 0;
+      const convTotal = conversoesPorCupomTotal[codigo] || 0;
+      const valorRepasse = d.valorRepasse || 3.00;
+      const valorMes = convMes * valorRepasse;
+      const repasseId = `${codigo}_${mesAtual}`;
+      const repasse = repasses[repasseId];
+      const repasseStatus = repasse?.status || 'pendente';
+
+      cupons.push({
+        codigo,
+        nome: d.nome || '-',
+        ativo: d.ativo !== false,
+        pixKey: d.pixKey || null,
+        valorRepasse,
+        conversoes: d.conversoes || 0,
+        convMes,
+        convTotal,
+        valorMes,
+        repasseStatus,
+        criadoem: d.criadoem || '-'
+      });
+    });
+
+    cupons.sort((a, b) => b.convMes - a.convMes);
+    cachedParceiros = { cupons, mesAtual };
+    document.getElementById('content-area').innerHTML = renderParceiros();
+  } catch(e) {
+    console.error('Erro ao carregar parceiros:', e);
+  }
+}
+
+function renderParceiros() {
+  if (!cachedParceiros) return '<div class="section">Carregando parceiros...</div>';
+  const { cupons, mesAtual } = cachedParceiros;
+  const totalConvMes = cupons.reduce((a, c) => a + c.convMes, 0);
+  const totalValorMes = cupons.reduce((a, c) => a + c.valorMes, 0);
+  const pendentes = cupons.filter(c => c.convMes > 0 && c.repasseStatus === 'pendente');
+
+  return `
+    <div class="content-header"><h1>🤝 Parceiros</h1><p>Gestão de cupons e repasses — ${mesAtual}</p></div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">🎟️</div><div class="stat-number" style="color:#7C3FA0">${cupons.length}</div><div class="stat-label">Cupons ativos</div></div>
+      <div class="stat-card"><div class="stat-icon">🔄</div><div class="stat-number" style="color:#10B981">${totalConvMes}</div><div class="stat-label">Conversões no mês</div></div>
+      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-number" style="color:#F59E0B">R$ ${totalValorMes.toFixed(2)}</div><div class="stat-label">A repassar no mês</div></div>
+      <div class="stat-card" style="border-top:3px solid #EF4444"><div class="stat-icon">⏳</div><div class="stat-number" style="color:#EF4444">${pendentes.length}</div><div class="stat-label">Repasses pendentes</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span>🏆</span> RANKING DO MÊS — ${mesAtual}</div>
+      ${cupons.filter(c => c.convMes > 0).length === 0 ? '<p style="color:#64748B;font-size:13px;">Nenhuma conversão este mês ainda.</p>' : ''}
+      ${cupons.filter(c => c.convMes > 0).map((c, i) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #F1F5F9;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="font-size:18px;font-weight:800;color:#7C3FA0;width:24px">${i+1}</span>
+            <div>
+              <div style="font-weight:700;font-size:13px">${c.nome} <span style="background:#F1F5F9;color:#475569;padding:2px 8px;border-radius:8px;font-size:11px">${c.codigo}</span></div>
+              <div style="font-size:11px;color:#64748B;margin-top:2px">${c.convMes} conversões · R$ ${c.valorMes.toFixed(2)} a repassar${c.pixKey ? ` · Pix: ${c.pixKey}` : ' · ⚠️ Sem chave Pix'}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            ${c.repasseStatus === 'pago'
+              ? '<span style="background:#DCFCE7;color:#166534;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600">✓ Pago</span>'
+              : `<button onclick="marcarRepasse('${c.codigo}')" style="background:#7C3FA0;color:#fff;border:none;padding:6px 14px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">Marcar pago</button>`
+            }
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span>🎟️</span> TODOS OS CUPONS</div>
+      <div class="table-wrapper"><table>
+        <thead><tr>
+          <th>Código</th><th>Nome</th><th>Status</th><th>Conv. mês</th><th>Conv. total</th><th>Repasse</th><th>Chave Pix</th><th>Ações</th>
+        </tr></thead>
+        <tbody>
+          ${cupons.map(c => `
+            <tr id="row-${c.codigo}">
+              <td><strong>${c.codigo}</strong></td>
+              <td id="nome-${c.codigo}">${c.nome}</td>
+              <td><span style="background:${c.ativo?'#DCFCE7':'#F1F5F9'};color:${c.ativo?'#166534':'#64748B'};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">${c.ativo?'✓ Ativo':'✗ Inativo'}</span></td>
+              <td>${c.convMes}</td>
+              <td>${c.convTotal}</td>
+              <td>R$ ${c.valorRepasse.toFixed(2)}</td>
+              <td style="font-size:11px;color:#64748B">${c.pixKey || '-'}</td>
+              <td style="display:flex;gap:6px;flex-wrap:wrap">
+                <button onclick="editarCupom('${c.codigo}')" style="background:#E2E8F0;color:#0F172A;border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer">✏️ Editar</button>
+                <button onclick="toggleCupom('${c.codigo}', ${!c.ativo})" style="background:${c.ativo?'#FEE2E2':'#DCFCE7'};color:${c.ativo?'#991B1B':'#166534'};border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer">${c.ativo?'Desativar':'Ativar'}</button>
+              </td>
+            </tr>
+            <tr id="edit-${c.codigo}" style="display:none">
+              <td colspan="8" style="background:#F8FAFC;padding:16px;border-radius:12px">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+                  <div><label style="font-size:11px;font-weight:600;color:#64748B">Nome</label><input id="edit-nome-${c.codigo}" value="${c.nome}" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+                  <div><label style="font-size:11px;font-weight:600;color:#64748B">Chave Pix</label><input id="edit-pix-${c.codigo}" value="${c.pixKey||''}" placeholder="CPF, email ou chave" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+                  <div><label style="font-size:11px;font-weight:600;color:#64748B">Valor repasse (R$)</label><input id="edit-valor-${c.codigo}" type="number" value="${c.valorRepasse}" step="0.01" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <button onclick="salvarEdicaoCupom('${c.codigo}')" style="background:#7C3FA0;color:#fff;border:none;padding:8px 20px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">💾 Salvar</button>
+                  <button onclick="cancelarEdicao('${c.codigo}')" style="background:#E2E8F0;color:#0F172A;border:none;padding:8px 20px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Cancelar</button>
+                  <span id="feedback-${c.codigo}" style="font-size:12px;font-weight:600;padding:8px;display:none"></span>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span>➕</span> CRIAR NOVO CUPOM</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+        <div><label style="font-size:11px;font-weight:600;color:#64748B">Código</label><input id="novo-codigo" placeholder="Ex: PEDRO10" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px;text-transform:uppercase"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#64748B">Nome do parceiro</label><input id="novo-nome" placeholder="Ex: Dr. Pedro" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#64748B">Chave Pix</label><input id="novo-pix" placeholder="CPF, email ou chave" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#64748B">Valor repasse (R$)</label><input id="novo-valor" type="number" value="3.00" step="0.01" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+      </div>
+      <button onclick="criarCupom()" style="background:#7C3FA0;color:#fff;border:none;padding:10px 24px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">➕ Criar Cupom</button>
+      <span id="feedback-criar" style="font-size:12px;font-weight:600;padding:8px;margin-left:8px;display:none"></span>
+    </div>
+  `;
+}
+
+async function marcarRepasse(codigo) {
+  const { mesAtual } = cachedParceiros;
+  try {
+    const res = await fetch('https://www.odontodex.com.br/api/set-repasse', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ cupom: codigo, mes: mesAtual, status: 'pago' })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      await carregarParceiros();
+    } else {
+      alert('Erro: ' + data.error);
+    }
+  } catch(e) {
+    alert('Erro: ' + e.message);
+  }
+}
+
+function editarCupom(codigo) {
+  document.getElementById(`edit-${codigo}`).style.display = 'table-row';
+}
+
+function cancelarEdicao(codigo) {
+  document.getElementById(`edit-${codigo}`).style.display = 'none';
+}
+
+async function salvarEdicaoCupom(codigo) {
+  const nome = document.getElementById(`edit-nome-${codigo}`).value;
+  const pixKey = document.getElementById(`edit-pix-${codigo}`).value;
+  const valorRepasse = parseFloat(document.getElementById(`edit-valor-${codigo}`).value);
+  const feedback = document.getElementById(`feedback-${codigo}`);
+  feedback.style.display = 'inline';
+  feedback.style.color = '#64748B';
+  feedback.textContent = 'Salvando...';
+  try {
+    const res = await fetch('https://www.odontodex.com.br/api/update-cupom', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ codigo, nome, pixKey, valorRepasse })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      feedback.style.color = '#166534';
+      feedback.textContent = '✓ Salvo!';
+      setTimeout(() => carregarParceiros(), 1000);
+    } else {
+      feedback.style.color = '#991B1B';
+      feedback.textContent = '✗ Erro: ' + data.error;
+    }
+  } catch(e) {
+    feedback.style.color = '#991B1B';
+    feedback.textContent = '✗ Erro: ' + e.message;
+  }
+}
+
+async function toggleCupom(codigo, novoAtivo) {
+  try {
+    const res = await fetch('https://www.odontodex.com.br/api/update-cupom', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ codigo, ativo: novoAtivo })
+    });
+    const data = await res.json();
+    if (data.ok) await carregarParceiros();
+    else alert('Erro: ' + data.error);
+  } catch(e) {
+    alert('Erro: ' + e.message);
+  }
+}
+
+async function criarCupom() {
+  const codigo = document.getElementById('novo-codigo').value.trim().toUpperCase();
+  const nome = document.getElementById('novo-nome').value.trim();
+  const pixKey = document.getElementById('novo-pix').value.trim();
+  const valorRepasse = parseFloat(document.getElementById('novo-valor').value);
+  const feedback = document.getElementById('feedback-criar');
+
+  if (!codigo || !nome) {
+    feedback.style.display = 'inline';
+    feedback.style.color = '#991B1B';
+    feedback.textContent = '✗ Código e nome são obrigatórios';
+    return;
+  }
+
+  feedback.style.display = 'inline';
+  feedback.style.color = '#64748B';
+  feedback.textContent = 'Criando...';
+
+  try {
+    const res = await fetch('https://www.odontodex.com.br/api/create-cupom', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ codigo, nome, pixKey, valorRepasse })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      feedback.style.color = '#166534';
+      feedback.textContent = '✓ Cupom criado!';
+      document.getElementById('novo-codigo').value = '';
+      document.getElementById('novo-nome').value = '';
+      document.getElementById('novo-pix').value = '';
+      document.getElementById('novo-valor').value = '3.00';
+      setTimeout(() => carregarParceiros(), 1000);
+    } else {
+      feedback.style.color = '#991B1B';
+      feedback.textContent = '✗ Erro: ' + data.error;
+    }
+  } catch(e) {
+    feedback.style.color = '#991B1B';
+    feedback.textContent = '✗ Erro: ' + e.message;
+  }
+}
+
+window.marcarRepasse = marcarRepasse;
+window.editarCupom = editarCupom;
+window.cancelarEdicao = cancelarEdicao;
+window.salvarEdicaoCupom = salvarEdicaoCupom;
+window.toggleCupom = toggleCupom;
+window.criarCupom = criarCupom;
+// ========== FIM PARCEIROS ==========
 window.abrirDrawer = abrirDrawer;
 window.fecharDrawer = fecharDrawer;
 window.acaoPremium = acaoPremium;
