@@ -313,7 +313,7 @@ async function carregarDados() {
         else totalFree++;
       }
       
-      usuarios.push({
+    usuarios.push({
         id: userId, 
         email: userData.email || '', 
         nome: userData.nome || userData.displayName || '-',
@@ -323,7 +323,11 @@ async function carregarDados() {
         ultimoAcesso: userData.ultimoAcesso || null,
         acessosPorDia: userData.acessosPorDia || {}, 
         usos: 0, 
-        ignorado: isIgnorado
+        ignorado: isIgnorado,
+        premiumExpira: userData.premiumExpira || null,
+        premiumAtivadoEm: userData.premiumAtivadoEm || null,
+        ultimoPagamentoId: userData.ultimoPagamentoId || null,
+        trialAtivado: userData.trialAtivado || false
       });
     });
     
@@ -373,7 +377,46 @@ async function carregarDados() {
     const protocolosArray = Object.entries(analytics.protocolos).map(([nome, count]) => ({ nome, count, percentual: analytics.total > 0 ? (count / analytics.total) * 100 : 0 })).sort((a,b) => b.count - a.count);
     const topProtocolos = protocolosArray.slice(0, 10);
     const lowProtocolos = protocolosArray.filter(p => p.percentual < 5).slice(0, 10);
-    
+    // --- Novos cálculos para cards do dashboard ---
+    const agora2 = new Date();
+    const inicioDia = new Date(agora2); inicioDia.setHours(0,0,0,0);
+    const inicioMes = new Date(agora2.getFullYear(), agora2.getMonth(), 1);
+    const em7dias = new Date(agora2); em7dias.setDate(em7dias.getDate() + 7);
+
+    let totalTrial = 0, totalPremiumPago = 0, totalFreeReal = 0;
+    let abrirHoje = 0, novosHoje = 0, novosMes = 0;
+    let assinaramMes = 0, expiramEm7 = 0, churnMes = 0;
+
+    usuariosNaoIgnorados.forEach(u => {
+      const expira = u.premiumExpira?.toDate ? u.premiumExpira.toDate() : null;
+      const pagou = !!u.ultimoPagamentoId;
+      const expirado = expira ? expira < agora2 : true;
+
+      // Classificação Trial / Premium / Free
+      if (!expirado && pagou)  totalPremiumPago++;
+      else if (!expirado && !pagou) totalTrial++;
+      else totalFreeReal++;
+
+      // Abriram hoje
+      const ultimo = u.ultimoAcesso?.toDate ? u.ultimoAcesso.toDate() : null;
+      if (ultimo && ultimo >= inicioDia) abrirHoje++;
+
+      // Novos hoje e no mês
+      const primeiro = u.dataPrimeiroAcesso?.toDate ? u.dataPrimeiroAcesso.toDate() : null;
+      if (primeiro && primeiro >= inicioDia) novosHoje++;
+      if (primeiro && primeiro >= inicioMes) novosMes++;
+
+      // Assinaram no mês (pagou E premiumAtivadoEm dentro do mês)
+      const ativadoEm = u.premiumAtivadoEm?.toDate ? u.premiumAtivadoEm.toDate() : null;
+      if (ativadoEm && ativadoEm >= inicioMes) assinaramMes++;
+
+      // Expiram em 7 dias (premium ativo, expira entre hoje e hoje+7)
+      if (expira && !expirado && expira <= em7dias) expiramEm7++;
+
+      // Churn no mês: expirou dentro deste mês e não renovou
+      if (expira && expira >= inicioMes && expira < agora2 && expirado) churnMes++;
+    });
+    // --- fim novos cálculos ---
     cachedDados = {
       usuarios: usuariosNaoIgnorados,
       analytics, 
@@ -392,6 +435,15 @@ async function carregarDados() {
       porHora: analytics.porHora,
       porDiaSemana: analytics.porDiaSemana, 
       porMes: analytics.porMes
+      totalTrial,
+      totalPremiumPago,
+      totalFreeReal,
+      abrirHoje,
+      novosHoje,
+      novosMes,
+      assinaramMes,
+      expiramEm7,
+      churnMes
     };
     dadosUsuarios = [...usuarios];
     aplicarFiltroOrdenacao();
