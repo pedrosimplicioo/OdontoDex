@@ -3735,6 +3735,11 @@ function showAppScreen(){
           window._trialRecemAtivado = false;
           setTimeout(() => mostrarModalTrialBoasVindas(), 1000);
         }
+
+        if(window._mensagemPendente === 'trial_manual') {
+          window._mensagemPendente = null;
+          setTimeout(() => mostrarModalTrialManual(), 1000);
+        }
       });
     });
 }
@@ -3909,7 +3914,30 @@ async function logout(){
   `;
   document.body.appendChild(overlay);
 }
-
+function mostrarModalTrialManual() {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay active';
+  overlay.innerHTML = `
+    <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
+      <div style="font-size:52px;margin-bottom:4px;">🎁</div>
+      <h2 class="modal-title" style="font-size:20px;">Você ganhou acesso Premium!</h2>
+      <p class="modal-sub" style="margin:8px 0 16px;">O time OdontoDex liberou <strong>7 dias de acesso completo</strong> especialmente para você. Aproveite!</p>
+      <div style="background:#F5EEFB;border-radius:16px;padding:14px 16px;margin-bottom:20px;text-align:left;width:100%;">
+        <div style="font-size:13px;font-weight:700;color:#7C3FA0;margin-bottom:8px;">✅ O que você tem acesso agora:</div>
+        <div style="font-size:13px;color:#1E293B;line-height:1.9;">
+          🔓 Todos os protocolos clínicos<br>
+          🔓 Prescrições completas<br>
+          🔓 S.O.S. Clínico completo<br>
+          🔓 Pacientes especiais
+        </div>
+      </div>
+      <button class="btn-primary" onclick="this.closest('.overlay').remove()" style="margin-bottom:10px;">
+        🚀 Explorar agora
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
 function mostrarModalTrialBoasVindas() {
   const overlay = document.createElement('div');
   overlay.className = 'overlay active';
@@ -4069,6 +4097,11 @@ if(agora > expira) {
           localStorage.setItem('userIsPremium', 'false');
         }
       }
+      // Checar mensagem pendente
+      if(doc.exists && doc.data().mensagemPendente === 'trial_manual') {
+        await db.collection('users').doc(user.uid).update({ mensagemPendente: firebase.firestore.FieldValue.delete() });
+        window._mensagemPendente = 'trial_manual';
+      }
     } catch(e) {
       console.log(e);
       // Sem internet ou Firestore fora — usa último estado conhecido
@@ -4078,12 +4111,12 @@ if(agora > expira) {
         showToast("Você está offline. Usando dados do último acesso.", "success");
       }
     }
-    updatePremiumUI();
+    
     showAppScreen();
   } else {
     if(!navigator.onLine && localStorage.getItem('userIsPremium') !== null) {
       window.userIsPremium = localStorage.getItem('userIsPremium') === 'true';
-      updatePremiumUI();
+      
       showAppScreen();
     } else {
       showLoginScreen();
@@ -4598,7 +4631,7 @@ async function iniciarBrick() {
 async function onPaymentApproved() {
   window.userIsPremium = true;
   localStorage.setItem('userIsPremium', 'true');
-  updatePremiumUI();
+  
   if (currentUser) {
     try {
       const premiumExpira = new Date();
