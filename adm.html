@@ -120,6 +120,46 @@
     .warning-card{background:#FEF3C7;border:1px solid #FDE68A;border-radius:16px;padding:14px;margin-top:16px}
     .warning-title{font-weight:800;font-size:13px;color:#92400E;margin-bottom:8px}
     @keyframes fadeInOutAdmin{0%{opacity:0;transform:translateY(20px)}15%{opacity:1;transform:translateY(0)}85%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(20px)}}
+    const admin = require("firebase-admin");
+
+if (!admin.apps.length) {
+  admin.initializeApp({
+    credential: admin.credential.cert({
+      type: "service_account",
+      project_id: process.env.FIREBASE_PROJECT_ID,
+      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
+      private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
+      client_email: process.env.FIREBASE_CLIENT_EMAIL,
+      client_id: process.env.FIREBASE_CLIENT_ID,
+    }),
+  });
+}
+
+const db = admin.firestore();
+
+module.exports = async (req, res) => {
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+  try {
+    const { uid, premium, dias } = req.body;
+    if (!uid) return res.status(400).json({ error: "UID obrigatório" });
+
+    if (premium === false) {
+      await db.collection("users").doc(uid).update({ premium: false });
+    } else {
+      const expira = new Date();
+      expira.setDate(expira.getDate() + (dias || 30));
+      await db.collection("users").doc(uid).update({
+        premium: true,
+        premiumExpira: admin.firestore.Timestamp.fromDate(expira),
+        premiumAtivadoEm: admin.firestore.FieldValue.serverTimestamp(),
+      });
+    }
+
+    return res.status(200).json({ ok: true });
+  } catch (e) {
+    return res.status(500).json({ error: e.message });
+  }
+};
   </style>
 </head>
 <body>
@@ -146,6 +186,32 @@
     <div class="sidebar-footer"><div class="logout-sidebar" onclick="logout()"><span>🚪</span><span>Sair</span></div></div>
   </div>
   <div class="main-content"><div id="content-area"></div></div>
+</div>
+<div class="drawer-overlay" id="drawer-overlay" onclick="fecharDrawer()"></div>
+<div class="drawer" id="user-drawer">
+  <div class="drawer-header">
+    <span class="drawer-title" id="drawer-nome">Usuário</span>
+    <button class="drawer-close" onclick="fecharDrawer()">✕</button>
+  </div>
+  <div class="drawer-body">
+    <div class="drawer-section">
+      <div class="drawer-section-title">Informações</div>
+      <div class="drawer-info-row"><span class="drawer-info-label">Email</span><span class="drawer-info-value" id="di-email">-</span></div>
+      <div class="drawer-info-row"><span class="drawer-info-label">Status</span><span class="drawer-info-value" id="di-status">-</span></div>
+      <div class="drawer-info-row"><span class="drawer-info-label">Perfil</span><span class="drawer-info-value" id="di-perfil">-</span></div>
+      <div class="drawer-info-row"><span class="drawer-info-label">Cadastro</span><span class="drawer-info-value" id="di-cadastro">-</span></div>
+      <div class="drawer-info-row"><span class="drawer-info-label">Primeiro acesso</span><span class="drawer-info-value" id="di-primeiro">-</span></div>
+      <div class="drawer-info-row"><span class="drawer-info-label">Último acesso</span><span class="drawer-info-value" id="di-ultimo">-</span></div>
+      <div class="drawer-info-row"><span class="drawer-info-label">Expira em</span><span class="drawer-info-value" id="di-expira">-</span></div>
+      <div class="drawer-info-row"><span class="drawer-info-label">Usos (90d)</span><span class="drawer-info-value" id="di-usos">-</span></div>
+      <div class="drawer-info-row"><span class="drawer-info-label">Último pagamento</span><span class="drawer-info-value" id="di-pagamento">-</span></div>
+    </div>
+    <div class="drawer-section" id="drawer-acoes">
+      <div class="drawer-section-title">Ações</div>
+      <div id="drawer-acoes-conteudo"></div>
+      <div class="drawer-feedback" id="drawer-feedback"></div>
+    </div>
+  </div>
 </div>
 
 <script>
@@ -753,7 +819,7 @@ function renderUsuarios() {
     <div class="content-header"><h1>👥 Usuários</h1><p>Gerencie os usuários do OdontoDex</p></div>
     <div class="section"><div class="search-box"><input type="text" class="search-input" id="search-usuario" placeholder="🔍 Buscar por nome ou email..." oninput="buscarUsuarios(this.value)"></div>
     <div class="table-wrapper"><table><thead><tr><th onclick="changeSort('nome')">Nome ${currentSort.field==='nome'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('email')">Email ${currentSort.field==='email'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('premium')">Status ${currentSort.field==='premium'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('usos')">Usos ${currentSort.field==='usos'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th>Cadastro</th><th>Expira em</th><th>Ação</th></tr></thead>
-    <tbody>${paginated.map(user => `<tr><td>${user.nome}${user.ignorado?'<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">⊘ Ignorado</span>':''}${user.email === 'pedrosimplicio.sousa@gmail.com' ? '<span style="background:#DBEAFE;color:#1E40AF;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">👑 Admin</span>' : ''}</td><td>${user.email}</td><td>${(()=>{const expira=user.premiumExpira?.toDate?user.premiumExpira.toDate():null;const pagou=!!user.ultimoPagamentoId;const expirado=expira?expira<new Date():true;if(!expirado&&pagou)return'<span class="badge-premium">💎 Premium</span>';if(!expirado&&!pagou)return'<span style="background:#FEF9C3;color:#92400E;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block">⏳ Trial</span>';return'<span class="badge-free">🆓 Free</span>';})()}</td><td><strong>${user.usos}</strong> ${user.usos===0?'⚠️':user.usos>50?'🔥':''}</td><td>${user.criadoEm?new Date(user.criadoEm).toLocaleDateString():'-'}</td><td>${(()=>{const expira=user.premiumExpira?.toDate?user.premiumExpira.toDate():null;if(!expira)return'-';const hoje=new Date();const diff=Math.ceil((expira-hoje)/(1000*60*60*24));if(diff<0)return'<span style="color:#EF4444;font-size:11px;font-weight:600">Expirado</span>';if(diff<=7)return`<span style="color:#F97316;font-weight:600;font-size:11px">⚠️ ${diff}d</span>`;return`<span style="color:#64748B;font-size:11px">${expira.toLocaleDateString()}</span>`;})()}</td><td><button onclick="toggleIgnorarUsuario('${user.id}')" style="background:${user.ignorado?'#10B981':'#EF4444'};color:white;border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">${user.ignorado?'✓ Incluir':'⊘ Ignorar'}</button></td></tr>`).join('')}${paginated.length===0?'<tr><td colspan="6" style="text-align:center;">Nenhum usuário encontrado</td></tr>':''}</tbody></table></div>
+    <tbody>${paginated.map(user => `<tr class="usuario-row" onclick="abrirDrawer('${user.id}')"><td>${user.nome}${user.ignorado?'<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">⊘ Ignorado</span>':''}${user.email === 'pedrosimplicio.sousa@gmail.com' ? '<span style="background:#DBEAFE;color:#1E40AF;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">👑 Admin</span>' : ''}</td><td>${user.email}</td><td>${(()=>{const expira=user.premiumExpira?.toDate?user.premiumExpira.toDate():null;const pagou=!!user.ultimoPagamentoId;const expirado=expira?expira<new Date():true;if(!expirado&&pagou)return'<span class="badge-premium">💎 Premium</span>';if(!expirado&&!pagou)return'<span style="background:#FEF9C3;color:#92400E;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block">⏳ Trial</span>';return'<span class="badge-free">🆓 Free</span>';})()}</td><td><strong>${user.usos}</strong> ${user.usos===0?'⚠️':user.usos>50?'🔥':''}</td><td>${user.criadoEm?new Date(user.criadoEm).toLocaleDateString():'-'}</td><td>${(()=>{const expira=user.premiumExpira?.toDate?user.premiumExpira.toDate():null;if(!expira)return'-';const hoje=new Date();const diff=Math.ceil((expira-hoje)/(1000*60*60*24));if(diff<0)return'<span style="color:#EF4444;font-size:11px;font-weight:600">Expirado</span>';if(diff<=7)return`<span style="color:#F97316;font-weight:600;font-size:11px">⚠️ ${diff}d</span>`;return`<span style="color:#64748B;font-size:11px">${expira.toLocaleDateString()}</span>`;})()}</td><td><button onclick="toggleIgnorarUsuario('${user.id}')" style="background:${user.ignorado?'#10B981':'#EF4444'};color:white;border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">${user.ignorado?'✓ Incluir':'⊘ Ignorar'}</button></td></tr>`).join('')}${paginated.length===0?'<tr><td colspan="6" style="text-align:center;">Nenhum usuário encontrado</td></tr>':''}</tbody></table></div>
     <div class="pagination"><button class="page-btn" onclick="mudarPagina(1)" ${currentPage===1?'disabled':''}>«</button><button class="page-btn" onclick="mudarPagina(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>${(()=>{const totalP=total; let buttons=[]; if(totalP<=5){for(let i=1;i<=totalP;i++)buttons.push(i)}else{if(currentPage<=3){for(let i=1;i<=5;i++)buttons.push(i)}else if(currentPage>=totalP-2){for(let i=totalP-4;i<=totalP;i++)buttons.push(i)}else{for(let i=currentPage-2;i<=currentPage+2;i++)buttons.push(i)}} return buttons.map(p=>`<button class="page-btn ${p===currentPage?'active':''}" onclick="mudarPagina(${p})">${p}</button>`).join('');})()}<button class="page-btn" onclick="mudarPagina(${currentPage+1})" ${currentPage===total||total===0?'disabled':''}>›</button><button class="page-btn" onclick="mudarPagina(${total})" ${currentPage===total||total===0?'disabled':''}>»</button></div>
     <div style="text-align:center;margin-top:14px;font-size:11px;color:#64748B;">Mostrando ${Math.min(itemsPerPage,usuariosFiltrados.length)} de ${usuariosFiltrados.length} usuários</div></div>
   `;
@@ -923,6 +989,126 @@ window.exportarMetricasCSV=exportarMetricasCSV;
 window.refreshData=refreshData;
 window.logout=logout;
 window.toggleIgnorarUsuario = toggleIgnorarUsuario;
+  let drawerUsuarioAtual = null;
+
+function abrirDrawer(userId) {
+  const user = dadosUsuarios.find(u => u.id === userId);
+  if (!user) return;
+  drawerUsuarioAtual = user;
+
+  const expira = user.premiumExpira?.toDate ? user.premiumExpira.toDate() : null;
+  const pagou = !!user.ultimoPagamentoId;
+  const expirado = expira ? expira < new Date() : true;
+  const hoje = new Date();
+
+  let statusLabel = '';
+  if (!expirado && pagou) statusLabel = '💎 Premium (pagante)';
+  else if (!expirado && !pagou) statusLabel = '⏳ Trial';
+  else statusLabel = '🆓 Free (expirado)';
+
+  let expiraLabel = '-';
+  if (expira) {
+    const diff = Math.ceil((expira - hoje) / (1000*60*60*24));
+    if (diff < 0) expiraLabel = `Expirado há ${Math.abs(diff)} dias`;
+    else if (diff === 0) expiraLabel = 'Expira hoje';
+    else expiraLabel = `${expira.toLocaleDateString()} (${diff} dias)`;
+  }
+
+  document.getElementById('drawer-nome').textContent = user.nome || '-';
+  document.getElementById('di-email').textContent = user.email || '-';
+  document.getElementById('di-status').textContent = statusLabel;
+  document.getElementById('di-perfil').textContent = user.perfil || '-';
+  document.getElementById('di-cadastro').textContent = user.criadoEm ? new Date(user.criadoEm).toLocaleDateString() : '-';
+  document.getElementById('di-primeiro').textContent = user.dataPrimeiroAcesso?.toDate ? user.dataPrimeiroAcesso.toDate().toLocaleDateString() : '-';
+  document.getElementById('di-ultimo').textContent = user.ultimoAcesso?.toDate ? user.ultimoAcesso.toDate().toLocaleString() : '-';
+  document.getElementById('di-expira').textContent = expiraLabel;
+  document.getElementById('di-usos').textContent = user.usos ?? '-';
+  document.getElementById('di-pagamento').textContent = user.ultimoPagamentoId || 'Nenhum';
+
+  const acoes = document.getElementById('drawer-acoes-conteudo');
+  document.getElementById('drawer-feedback').className = 'drawer-feedback';
+  document.getElementById('drawer-feedback').textContent = '';
+
+  if (!expirado && pagou) {
+    acoes.innerHTML = `
+      <button class="drawer-action-btn btn-remover" onclick="acaoPremium('remover')">
+        🚫 Remover Premium
+      </button>`;
+  } else {
+    acoes.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <input type="number" class="dias-input" id="dias-premium" value="30" min="1" max="365">
+        <button class="drawer-action-btn btn-ativar" style="margin:0;flex:1" onclick="acaoPremium('premium')">
+          💎 Ativar Premium
+        </button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <input type="number" class="dias-input" id="dias-trial" value="7" min="1" max="30">
+        <button class="drawer-action-btn btn-trial" style="margin:0;flex:1" onclick="acaoPremium('trial')">
+          ⏳ Dar Trial
+        </button>
+      </div>`;
+  }
+
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('user-drawer').classList.add('open');
+}
+
+function fecharDrawer() {
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.getElementById('user-drawer').classList.remove('open');
+  drawerUsuarioAtual = null;
+}
+
+async function acaoPremium(tipo) {
+  if (!drawerUsuarioAtual) return;
+  const feedback = document.getElementById('drawer-feedback');
+  const btns = document.querySelectorAll('.drawer-action-btn');
+  btns.forEach(b => b.disabled = true);
+  feedback.className = 'drawer-feedback';
+  feedback.textContent = 'Processando...';
+  feedback.style.display = 'block';
+
+  try {
+    let body = { uid: drawerUsuarioAtual.id };
+    if (tipo === 'remover') {
+      body.premium = false;
+    } else if (tipo === 'premium') {
+      body.premium = true;
+      body.dias = parseInt(document.getElementById('dias-premium').value) || 30;
+    } else if (tipo === 'trial') {
+      body.premium = true;
+      body.dias = parseInt(document.getElementById('dias-trial').value) || 7;
+    }
+
+    const res = await fetch('https://www.odontodex.com.br/api/set-premium', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+
+    if (data.ok) {
+      feedback.className = 'drawer-feedback ok';
+      feedback.textContent = '✓ Atualizado com sucesso! Recarregando...';
+      setTimeout(async () => {
+        fecharDrawer();
+        await carregarDados();
+        renderizarSecaoAtual();
+      }, 1500);
+    } else {
+      throw new Error(data.error || 'Erro desconhecido');
+    }
+  } catch (e) {
+    feedback.className = 'drawer-feedback err';
+    feedback.textContent = '✗ Erro: ' + e.message;
+    btns.forEach(b => b.disabled = false);
+  }
+}
+
+window.abrirDrawer = abrirDrawer;
+window.fecharDrawer = fecharDrawer;
+window.acaoPremium = acaoPremium;
 window.carregarIgnorados = carregarIgnorados;
 window.salvarIgnorados = salvarIgnorados;
 </script>
