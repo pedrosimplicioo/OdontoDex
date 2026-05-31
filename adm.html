@@ -784,38 +784,146 @@ function renderizarSecaoAtual() {
 function renderDashboard() {
   if (!cachedDados) return '<div class="section">Carregando...</div>';
   const d = cachedDados;
-  const percentTop = d.topProtocoloPercentual.toFixed(1);
+
+  // Badge para top protocolo
   let topBadge = '';
   if (d.topProtocoloPercentual > 20) topBadge = '<span class="ranking-badge badge-hot">🔥 MUITO POPULAR</span>';
   else if (d.topProtocoloPercentual > 10) topBadge = '<span class="ranking-badge badge-popular">👍 POPULAR</span>';
   else if (d.topProtocoloPercentual > 5) topBadge = '<span class="ranking-badge badge-normal">👌 NORMAL</span>';
   else topBadge = '<span class="ranking-badge badge-low">⚠️ BAIXO</span>';
+
+  // Alert de expiração
+  const alertExpira = d.expiramEm7 > 0 ? `
+    <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:18px">⚠️</span>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#92400E">${d.expiramEm7} usuário(s) expiram nos próximos 7 dias</div>
+        <div style="font-size:11px;color:#B45309;margin-top:1px">Considere entrar em contato para conversão</div>
+      </div>
+    </div>` : '';
+
   return `
-    <div class="content-header"><h1>📊 Dashboard</h1><p>Visão geral do OdontoDex</p></div>
-    <div class="stats-grid">
-      <div class="stat-card card-users"><div class="stat-icon">👥</div><div class="stat-number">${d.totalUsuarios}</div><div class="stat-label">Total de Usuários</div></div>
-      <div class="stat-card card-premium"><div class="stat-icon">💎</div><div class="stat-number">${d.totalPremiumPago}</div><div class="stat-label">Premium (pagantes)</div></div>
-      <div class="stat-card" style="border-top:3px solid #F59E0B"><div class="stat-icon">⏳</div><div class="stat-number" style="color:#F59E0B">${d.totalTrial}</div><div class="stat-label">Em Trial</div></div>
-      <div class="stat-card card-free"><div class="stat-icon">🆓</div><div class="stat-number">${d.totalFreeReal}</div><div class="stat-label">Free (expirados)</div></div>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <h1 style="font-size:20px;font-weight:800;color:#0F172A">📊 Dashboard</h1>
+        <p style="font-size:12px;color:#94A3B8;margin-top:2px">Visão geral do OdontoDex</p>
+      </div>
+      <button onclick="refreshData()" style="background:#F1F5F9;border:none;padding:8px 16px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;color:#475569">⟳ Atualizar</button>
     </div>
-    <div class="stats-grid">
-      <div class="stat-card"><div class="stat-icon">🟢</div><div class="stat-number" style="color:#3B82F6">${d.abrirHoje}</div><div class="stat-label">Abriram hoje</div></div>
-      <div class="stat-card"><div class="stat-icon">🆕</div><div class="stat-number" style="color:#3B82F6">${d.novosHoje}</div><div class="stat-label">Novos hoje</div></div>
-      <div class="stat-card card-month"><div class="stat-icon">📅</div><div class="stat-number">${d.novosMes}</div><div class="stat-label">Novos no mês</div></div>
-      <div class="stat-card card-conversion"><div class="stat-icon">💰</div><div class="stat-number">${d.assinaramMes}</div><div class="stat-label">Assinaram no mês</div></div>
+
+    <div style="display:flex;gap:4px;background:#E2E8F0;padding:4px;border-radius:12px;width:fit-content;margin-bottom:20px;">
+      <button onclick="showDashTab('usuarios',this)" id="dtab-usuarios" style="padding:8px 18px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#7C3FA0;box-shadow:0 1px 4px rgba(0,0,0,0.1)">👥 Usuários</button>
+      <button onclick="showDashTab('atividade',this)" id="dtab-atividade" style="padding:8px 18px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#64748B">📅 Atividade</button>
+      <button onclick="showDashTab('alertas',this)" id="dtab-alertas" style="padding:8px 18px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#64748B">⚠️ Alertas</button>
+      <button onclick="showDashTab('protocolos',this)" id="dtab-protocolos" style="padding:8px 18px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#64748B">📋 Protocolos</button>
     </div>
-    <div class="stats-grid">
-      <div class="stat-card" style="border-top:3px solid #F97316"><div class="stat-icon">⚠️</div><div class="stat-number" style="color:#F97316">${d.expiramEm7}</div><div class="stat-label">Expiram em 7 dias</div></div>
-      <div class="stat-card" style="border-top:3px solid #EF4444"><div class="stat-icon">📉</div><div class="stat-number" style="color:#EF4444">${d.churnMes}</div><div class="stat-label">Churn no mês</div></div>
-      <div class="stat-card card-active"><div class="stat-icon">👥</div><div class="stat-number">${d.usuariosAtivosMes}</div><div class="stat-label">Ativos no mês</div></div>
-      <div class="stat-card card-total"><div class="stat-icon">📋</div><div class="stat-number">${d.totalUsos.toLocaleString()}</div><div class="stat-label">Protocolos abertos (90d)</div></div>
+
+    <div id="dpanel-usuarios">
+      <div class="stats-grid">
+        <div class="stat-card card-users" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#EDE9FE;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👥</div>
+          <div><div style="font-size:22px;font-weight:800;color:#0F172A">${d.totalUsuarios}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Total de usuários</div></div>
+        </div>
+        <div class="stat-card card-premium" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💎</div>
+          <div><div style="font-size:22px;font-weight:800;color:#10B981">${d.totalPremiumPago}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Premium (pagantes)</div></div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid #F59E0B;display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#FEF9C3;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⏳</div>
+          <div><div style="font-size:22px;font-weight:800;color:#F59E0B">${d.totalTrial}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Em Trial</div></div>
+        </div>
+        <div class="stat-card card-free" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#F1F5F9;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🆓</div>
+          <div><div style="font-size:22px;font-weight:800;color:#94A3B8">${d.totalFreeReal}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Free (expirados)</div></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title"><span>📊</span> Distribuição de planos</div>
+        <div style="display:flex;height:12px;border-radius:8px;overflow:hidden;gap:2px;margin-bottom:10px">
+          <div style="flex:${d.totalPremiumPago};background:#10B981;min-width:${d.totalPremiumPago>0?'4px':'0'}"></div>
+          <div style="flex:${d.totalTrial};background:#F59E0B;min-width:${d.totalTrial>0?'4px':'0'}"></div>
+          <div style="flex:${d.totalFreeReal};background:#E2E8F0;min-width:${d.totalFreeReal>0?'4px':'0'}"></div>
+        </div>
+        <div style="display:flex;gap:16px">
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><span style="width:8px;height:8px;background:#10B981;border-radius:2px;display:inline-block"></span>Premium ${d.totalUsuarios>0?Math.round(d.totalPremiumPago/d.totalUsuarios*100):0}%</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><span style="width:8px;height:8px;background:#F59E0B;border-radius:2px;display:inline-block"></span>Trial ${d.totalUsuarios>0?Math.round(d.totalTrial/d.totalUsuarios*100):0}%</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><span style="width:8px;height:8px;background:#E2E8F0;border-radius:2px;display:inline-block"></span>Free ${d.totalUsuarios>0?Math.round(d.totalFreeReal/d.totalUsuarios*100):0}%</div>
+        </div>
+      </div>
     </div>
-    <div class="section"><div class="section-title"><span>🏆</span> Top 5 Protocolos Mais Usados</div>
-      ${d.topProtocolos.slice(0,5).map((p,i) => { let fillClass='',badge=''; if(p.percentual>20){fillClass='fill-hot';badge='<span class="ranking-badge badge-hot">🔥 MUITO POPULAR</span>'}else if(p.percentual>10){fillClass='fill-popular';badge='<span class="ranking-badge badge-popular">👍 POPULAR</span>'}else if(p.percentual>5){fillClass='fill-normal';badge='<span class="ranking-badge badge-normal">👌 NORMAL</span>'}else{fillClass='fill-low';badge='<span class="ranking-badge badge-low">⚠️ BAIXO</span>'}; return `<div class="ranking-item"><div class="ranking-header"><span class="ranking-name">${i+1}. ${p.nome}</span><span class="ranking-stats">${p.count} usos · ${p.percentual.toFixed(1)}% do total ${badge}</span></div><div class="ranking-bar"><div class="ranking-fill ${fillClass}" style="width: ${Math.min(p.percentual*2,100)}%"></div></div></div>`; }).join('')}
+
+    <div id="dpanel-atividade" style="display:none">
+      <div class="stats-grid">
+        <div class="stat-card" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🟢</div>
+          <div><div style="font-size:22px;font-weight:800;color:#3B82F6">${d.abrirHoje}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Abriram hoje</div></div>
+        </div>
+        <div class="stat-card" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🆕</div>
+          <div><div style="font-size:22px;font-weight:800;color:#3B82F6">${d.novosHoje}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Novos hoje</div></div>
+        </div>
+        <div class="stat-card card-month" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#EDE9FE;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📅</div>
+          <div><div style="font-size:22px;font-weight:800;color:#7C3FA0">${d.novosMes}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Novos no mês</div></div>
+        </div>
+        <div class="stat-card card-conversion" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💰</div>
+          <div><div style="font-size:22px;font-weight:800;color:#10B981">${d.assinaramMes}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Assinaram no mês</div></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title"><span>👥</span> Ativos no mês</div>
+        <div style="font-size:28px;font-weight:800;color:#7C3FA0">${d.usuariosAtivosMes} <span style="font-size:13px;color:#64748B;font-weight:500">usuários usaram o app este mês</span></div>
+      </div>
     </div>
-    ${d.lowProtocolos.length>0?`<div class="alert-card"><div class="alert-title">⚠️ ATENÇÃO: Protocolos com baixa representatividade (&lt;5% dos usos)</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">${d.lowProtocolos.slice(0,6).map(p=>`<span style="background:#F1F5F9;padding:4px 10px;border-radius:16px;font-size:11px;">📌 ${p.nome} (${p.count} usos, ${p.percentual.toFixed(1)}%)</span>`).join('')}</div><div style="font-size:11px;color:#64748B;margin-top:10px;">💡 <strong>Sugestão:</strong> Estes protocolos podem precisar de mais visibilidade ou podem ser removidos.</div></div>`:''}
+
+    <div id="dpanel-alertas" style="display:none">
+      ${alertExpira}
+      <div class="stats-grid">
+        <div class="stat-card" style="border-left:3px solid #F97316;display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#FFEDD5;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⚠️</div>
+          <div><div style="font-size:22px;font-weight:800;color:#F97316">${d.expiramEm7}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Expiram em 7 dias</div></div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid #EF4444;display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#FEE2E2;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📉</div>
+          <div><div style="font-size:22px;font-weight:800;color:#EF4444">${d.churnMes}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Churn no mês</div></div>
+        </div>
+        <div class="stat-card card-active" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👥</div>
+          <div><div style="font-size:22px;font-weight:800;color:#10B981">${d.usuariosAtivosMes}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Ativos no mês</div></div>
+        </div>
+        <div class="stat-card card-total" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#EDE9FE;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📋</div>
+          <div><div style="font-size:22px;font-weight:800;color:#7C3FA0">${d.totalUsos.toLocaleString()}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Protocolos (90d)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dpanel-protocolos" style="display:none">
+      <div class="section">
+        <div class="section-title"><span>🏆</span> Top 5 Protocolos Mais Usados</div>
+        ${d.topProtocolos.slice(0,5).map((p,i) => {
+          let badge='';
+          if(p.percentual>20) badge='<span class="ranking-badge badge-hot">🔥 MUITO POPULAR</span>';
+          else if(p.percentual>10) badge='<span class="ranking-badge badge-popular">👍 POPULAR</span>';
+          else if(p.percentual>5) badge='<span class="ranking-badge badge-normal">👌 NORMAL</span>';
+          else badge='<span class="ranking-badge badge-low">⚠️ BAIXO</span>';
+          return `<div class="ranking-item"><div class="ranking-header"><span class="ranking-name">${i+1}. ${p.nome}</span><span class="ranking-stats">${p.count} usos · ${p.percentual.toFixed(1)}% ${badge}</span></div><div class="ranking-bar"><div class="ranking-fill" style="width:${Math.min(p.percentual*2,100)}%;background:#7C3FA0;height:6px;border-radius:4px"></div></div></div>`;
+        }).join('')}
+      </div>
+      ${d.lowProtocolos.length>0?`<div class="alert-card"><div class="alert-title">⚠️ Protocolos com baixa representatividade (&lt;5%)</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">${d.lowProtocolos.slice(0,6).map(p=>`<span style="background:#F1F5F9;padding:4px 10px;border-radius:16px;font-size:11px;">📌 ${p.nome} (${p.count} usos)</span>`).join('')}</div></div>`:''}
+    </div>
   `;
 }
+  function showDashTab(tab, el) {
+  ['usuarios','atividade','alertas','protocolos'].forEach(t => {
+    document.getElementById('dpanel-'+t).style.display = t===tab ? 'block' : 'none';
+    document.getElementById('dtab-'+t).style.background = t===tab ? '#fff' : 'transparent';
+    document.getElementById('dtab-'+t).style.color = t===tab ? '#7C3FA0' : '#64748B';
+    document.getElementById('dtab-'+t).style.boxShadow = t===tab ? '0 1px 4px rgba(0,0,0,0.1)' : 'none';
+  });
+}
+window.showDashTab = showDashTab;
 
 function renderMetricasProduto() {
   if (!cachedMetricasProduto) return '<div class="section">Carregando...</div>';
