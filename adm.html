@@ -694,15 +694,21 @@ function renderDashboard() {
     <div class="content-header"><h1>📊 Dashboard</h1><p>Visão geral do OdontoDex</p></div>
     <div class="stats-grid">
       <div class="stat-card card-users"><div class="stat-icon">👥</div><div class="stat-number">${d.totalUsuarios}</div><div class="stat-label">Total de Usuários</div></div>
-      <div class="stat-card card-premium"><div class="stat-icon">💎</div><div class="stat-number">${d.totalPremium}</div><div class="stat-label">Usuários Premium</div></div>
-      <div class="stat-card card-free"><div class="stat-icon">🆓</div><div class="stat-number">${d.totalFree}</div><div class="stat-label">Usuários Gratuitos</div></div>
-      <div class="stat-card card-conversion"><div class="stat-icon">📈</div><div class="stat-number">${d.taxaConversao}%</div><div class="stat-label">Taxa de Conversão</div></div>
+      <div class="stat-card card-premium"><div class="stat-icon">💎</div><div class="stat-number">${d.totalPremiumPago}</div><div class="stat-label">Premium (pagantes)</div></div>
+      <div class="stat-card" style="border-top:3px solid #F59E0B"><div class="stat-icon">⏳</div><div class="stat-number" style="color:#F59E0B">${d.totalTrial}</div><div class="stat-label">Em Trial</div></div>
+      <div class="stat-card card-free"><div class="stat-icon">🆓</div><div class="stat-number">${d.totalFreeReal}</div><div class="stat-label">Free (expirados)</div></div>
     </div>
     <div class="stats-grid">
-      <div class="stat-card card-total"><div class="stat-icon">📋</div><div class="stat-number">${d.totalUsos.toLocaleString()}</div><div class="stat-label">Total de Protocolos Abertos</div></div>
-      <div class="stat-card card-most"><div class="stat-icon">🔥</div><div class="stat-number" style="font-size:14px;">${d.topProtocoloNome.substring(0,25)}</div><div class="stat-label">${d.topProtocoloCount} usos · ${percentTop}% do total ${topBadge}</div></div>
-      <div class="stat-card card-month"><div class="stat-icon">📅</div><div class="stat-number">${d.usosMes}</div><div class="stat-label">Usos neste mês</div></div>
-      <div class="stat-card card-active"><div class="stat-icon">👥</div><div class="stat-number">${d.usuariosAtivosMes}</div><div class="stat-label">Usuários ativos no mês</div></div>
+      <div class="stat-card"><div class="stat-icon">🟢</div><div class="stat-number" style="color:#3B82F6">${d.abrirHoje}</div><div class="stat-label">Abriram hoje</div></div>
+      <div class="stat-card"><div class="stat-icon">🆕</div><div class="stat-number" style="color:#3B82F6">${d.novosHoje}</div><div class="stat-label">Novos hoje</div></div>
+      <div class="stat-card card-month"><div class="stat-icon">📅</div><div class="stat-number">${d.novosMes}</div><div class="stat-label">Novos no mês</div></div>
+      <div class="stat-card card-conversion"><div class="stat-icon">💰</div><div class="stat-number">${d.assinaramMes}</div><div class="stat-label">Assinaram no mês</div></div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card" style="border-top:3px solid #F97316"><div class="stat-icon">⚠️</div><div class="stat-number" style="color:#F97316">${d.expiramEm7}</div><div class="stat-label">Expiram em 7 dias</div></div>
+      <div class="stat-card" style="border-top:3px solid #EF4444"><div class="stat-icon">📉</div><div class="stat-number" style="color:#EF4444">${d.churnMes}</div><div class="stat-label">Churn no mês</div></div>
+      <div class="stat-card card-active"><div class="stat-icon">👥</div><div class="stat-number">${d.usuariosAtivosMes}</div><div class="stat-label">Ativos no mês</div></div>
+      <div class="stat-card card-total"><div class="stat-icon">📋</div><div class="stat-number">${d.totalUsos.toLocaleString()}</div><div class="stat-label">Protocolos abertos (90d)</div></div>
     </div>
     <div class="section"><div class="section-title"><span>🏆</span> Top 5 Protocolos Mais Usados</div>
       ${d.topProtocolos.slice(0,5).map((p,i) => { let fillClass='',badge=''; if(p.percentual>20){fillClass='fill-hot';badge='<span class="ranking-badge badge-hot">🔥 MUITO POPULAR</span>'}else if(p.percentual>10){fillClass='fill-popular';badge='<span class="ranking-badge badge-popular">👍 POPULAR</span>'}else if(p.percentual>5){fillClass='fill-normal';badge='<span class="ranking-badge badge-normal">👌 NORMAL</span>'}else{fillClass='fill-low';badge='<span class="ranking-badge badge-low">⚠️ BAIXO</span>'}; return `<div class="ranking-item"><div class="ranking-header"><span class="ranking-name">${i+1}. ${p.nome}</span><span class="ranking-stats">${p.count} usos · ${p.percentual.toFixed(1)}% do total ${badge}</span></div><div class="ranking-bar"><div class="ranking-fill ${fillClass}" style="width: ${Math.min(p.percentual*2,100)}%"></div></div></div>`; }).join('')}
