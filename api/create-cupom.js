@@ -28,6 +28,7 @@ module.exports = async (req, res) => {
     }
     await db.collection("CUPONS").doc(codigoUpper).set({
       nome,
+      email: email || null,
       ativo: true,
       conversoes: 0,
       pixKey: pixKey || null,
