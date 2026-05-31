@@ -32,10 +32,11 @@ module.exports = async (req, res) => {
         premium: true,
         premiumExpira: admin.firestore.Timestamp.fromDate(expira),
         premiumAtivadoEm: admin.firestore.FieldValue.serverTimestamp(),
-        ultimoPagamentoId: `manual_${Date.now()}`,
       };
       if ((dias || 30) <= 7) {
         updates.mensagemPendente = 'trial_manual';
+      } else {
+        updates.ultimoPagamentoId = `manual_${Date.now()}`;
       }
       await db.collection("users").doc(uid).update(updates);
     }
