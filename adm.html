@@ -389,7 +389,7 @@ async function carregarDados() {
   try {
     const agora = new Date();
     const mesAtual = agora.toISOString().split('T')[0].substring(0, 7);
-    const usersSnapshot = await db.collection('users').get();
+    const usersSnapshot = await db.collection('users').get({source: 'server'});
     const usuarios = [];
     let totalPremium = 0, totalFree = 0;
     
