@@ -28,12 +28,16 @@ module.exports = async (req, res) => {
     } else {
       const expira = new Date();
       expira.setDate(expira.getDate() + (dias || 30));
-      await db.collection("users").doc(uid).update({
+      const updates = {
         premium: true,
         premiumExpira: admin.firestore.Timestamp.fromDate(expira),
         premiumAtivadoEm: admin.firestore.FieldValue.serverTimestamp(),
         ultimoPagamentoId: `manual_${Date.now()}`,
-      });
+      };
+      if ((dias || 30) <= 7) {
+        updates.mensagemPendente = 'trial_manual';
+      }
+      await db.collection("users").doc(uid).update(updates);
     }
     return res.status(200).json({ ok: true });
   } catch (e) {
