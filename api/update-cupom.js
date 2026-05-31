@@ -19,10 +19,11 @@ module.exports = async (req, res) => {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
   try {
-    const { codigo, nome, pixKey, valorRepasse, ativo } = req.body;
+    const { codigo, nome, email, pixKey, valorRepasse, ativo } = req.body;
     if (!codigo) return res.status(400).json({ error: "Código obrigatório" });
     const updates = {};
     if (nome !== undefined) updates.nome = nome;
+    if (email !== undefined) updates.email = email;
     if (pixKey !== undefined) updates.pixKey = pixKey;
     if (valorRepasse !== undefined) updates.valorRepasse = valorRepasse;
     if (ativo !== undefined) updates.ativo = ativo;
