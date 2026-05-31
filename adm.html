@@ -1118,11 +1118,12 @@ async function acaoPremium(tipo) {
        if (data.ok) {
       feedback.className = 'drawer-feedback ok';
       feedback.textContent = '✓ Atualizado com sucesso! Recarregando...';
-      setTimeout(async () => {
+     setTimeout(async () => {
         fecharDrawer();
+        cachedDados = null;
+        dadosUsuarios = [];
         await carregarDados();
-        await renderizarSecaoAtual();
-        window.scrollTo(0, 0);
+        renderizarSecaoAtual();
       }, 2500);
     } else {
       throw new Error(data.error || 'Erro desconhecido');
