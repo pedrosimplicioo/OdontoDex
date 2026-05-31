@@ -22,7 +22,9 @@ module.exports = async (req, res) => {
     const { uid, premium, dias } = req.body;
     if (!uid) return res.status(400).json({ error: "UID obrigatório" });
     if (premium === false) {
-      await db.collection("users").doc(uid).update({ premium: false });
+      const docRef = db.collection("users").doc(uid);
+      await docRef.update({ premium: false });
+      await docRef.update({ ultimoPagamentoId: admin.firestore.FieldValue.delete() });
     } else {
       const expira = new Date();
       expira.setDate(expira.getDate() + (dias || 30));
