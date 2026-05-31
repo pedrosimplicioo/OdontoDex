@@ -1188,6 +1188,7 @@ async function carregarParceiros() {
       cupons.push({
         codigo,
         nome: d.nome || '-',
+        email: d.email || null,
         ativo: d.ativo !== false,
         pixKey: d.pixKey || null,
         valorRepasse,
@@ -1251,17 +1252,20 @@ function renderParceiros() {
       <div class="section-title"><span>🎟️</span> TODOS OS CUPONS</div>
       <div class="table-wrapper"><table>
         <thead><tr>
-          <th>Código</th><th>Nome</th><th>Status</th><th>Conv. mês</th><th>Conv. total</th><th>Repasse</th><th>Chave Pix</th><th>Ações</th>
+          <th>Código</th><th>Nome</th><th>Email</th><th>Status</th><th>Conv. mês</th><th>Conv. total</th><th>Repasse/conv.</th><th>Receita gerada</th><th>Comissão paga</th><th>Chave Pix</th><th>Ações</th>
         </tr></thead>
         <tbody>
-          ${cupons.map(c => `
+    ${cupons.map(c => `
             <tr id="row-${c.codigo}">
               <td><strong>${c.codigo}</strong></td>
               <td id="nome-${c.codigo}">${c.nome}</td>
+              <td style="font-size:11px;color:#64748B">${c.email || '-'}</td>
               <td><span style="background:${c.ativo?'#DCFCE7':'#F1F5F9'};color:${c.ativo?'#166534':'#64748B'};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">${c.ativo?'✓ Ativo':'✗ Inativo'}</span></td>
               <td>${c.convMes}</td>
               <td>${c.convTotal}</td>
               <td>R$ ${c.valorRepasse.toFixed(2)}</td>
+              <td style="font-weight:700;color:#10B981">R$ ${(c.convTotal * 9.90).toFixed(2)}</td>
+              <td style="font-weight:700;color:#EF4444">R$ ${(c.convTotal * c.valorRepasse).toFixed(2)}</td>
               <td style="font-size:11px;color:#64748B">${c.pixKey || '-'}</td>
               <td style="display:flex;gap:6px;flex-wrap:wrap">
                 <button onclick="editarCupom('${c.codigo}')" style="background:#E2E8F0;color:#0F172A;border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer">✏️ Editar</button>
@@ -1269,9 +1273,10 @@ function renderParceiros() {
               </td>
             </tr>
             <tr id="edit-${c.codigo}" style="display:none">
-              <td colspan="8" style="background:#F8FAFC;padding:16px;border-radius:12px">
-                <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+              <td colspan="11" style="background:#F8FAFC;padding:16px;border-radius:12px">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px">
                   <div><label style="font-size:11px;font-weight:600;color:#64748B">Nome</label><input id="edit-nome-${c.codigo}" value="${c.nome}" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+                  <div><label style="font-size:11px;font-weight:600;color:#64748B">Email</label><input id="edit-email-${c.codigo}" value="${c.email||''}" placeholder="email@parceiro.com" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
                   <div><label style="font-size:11px;font-weight:600;color:#64748B">Chave Pix</label><input id="edit-pix-${c.codigo}" value="${c.pixKey||''}" placeholder="CPF, email ou chave" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
                   <div><label style="font-size:11px;font-weight:600;color:#64748B">Valor repasse (R$)</label><input id="edit-valor-${c.codigo}" type="number" value="${c.valorRepasse}" step="0.01" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
                 </div>
@@ -1292,9 +1297,9 @@ function renderParceiros() {
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px">
         <div><label style="font-size:11px;font-weight:600;color:#64748B">Código</label><input id="novo-codigo" placeholder="Ex: PEDRO10" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px;text-transform:uppercase"></div>
         <div><label style="font-size:11px;font-weight:600;color:#64748B">Nome do parceiro</label><input id="novo-nome" placeholder="Ex: Dr. Pedro" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#64748B">Email do parceiro</label><input id="novo-email" placeholder="email@parceiro.com" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
         <div><label style="font-size:11px;font-weight:600;color:#64748B">Chave Pix</label><input id="novo-pix" placeholder="CPF, email ou chave" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
         <div><label style="font-size:11px;font-weight:600;color:#64748B">Valor repasse (R$)</label><input id="novo-valor" type="number" value="3.00" step="0.01" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
-      </div>
       <button onclick="criarCupom()" style="background:#7C3FA0;color:#fff;border:none;padding:10px 24px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">➕ Criar Cupom</button>
       <span id="feedback-criar" style="font-size:12px;font-weight:600;padding:8px;margin-left:8px;display:none"></span>
     </div>
@@ -1330,6 +1335,7 @@ function cancelarEdicao(codigo) {
 
 async function salvarEdicaoCupom(codigo) {
   const nome = document.getElementById(`edit-nome-${codigo}`).value;
+  const email = document.getElementById(`edit-email-${codigo}`).value;
   const pixKey = document.getElementById(`edit-pix-${codigo}`).value;
   const valorRepasse = parseFloat(document.getElementById(`edit-valor-${codigo}`).value);
   const feedback = document.getElementById(`feedback-${codigo}`);
@@ -1340,7 +1346,7 @@ async function salvarEdicaoCupom(codigo) {
     const res = await fetch('https://www.odontodex.com.br/api/update-cupom', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ codigo, nome, pixKey, valorRepasse })
+      body: JSON.stringify({ codigo, nome, email, pixKey, valorRepasse })
     });
     const data = await res.json();
     if (data.ok) {
@@ -1375,6 +1381,7 @@ async function toggleCupom(codigo, novoAtivo) {
 async function criarCupom() {
   const codigo = document.getElementById('novo-codigo').value.trim().toUpperCase();
   const nome = document.getElementById('novo-nome').value.trim();
+  const email = document.getElementById('novo-email').value.trim();
   const pixKey = document.getElementById('novo-pix').value.trim();
   const valorRepasse = parseFloat(document.getElementById('novo-valor').value);
   const feedback = document.getElementById('feedback-criar');
@@ -1394,7 +1401,7 @@ async function criarCupom() {
     const res = await fetch('https://www.odontodex.com.br/api/create-cupom', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({ codigo, nome, pixKey, valorRepasse })
+      body: JSON.stringify({ codigo, nome, email, pixKey, valorRepasse })
     });
     const data = await res.json();
     if (data.ok) {
