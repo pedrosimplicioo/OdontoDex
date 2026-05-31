@@ -32,6 +32,7 @@ module.exports = async (req, res) => {
         premium: true,
         premiumExpira: admin.firestore.Timestamp.fromDate(expira),
         premiumAtivadoEm: admin.firestore.FieldValue.serverTimestamp(),
+        ultimoPagamentoId: `manual_${Date.now()}`,
       });
     }
     return res.status(200).json({ ok: true });
