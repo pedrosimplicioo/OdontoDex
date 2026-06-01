@@ -3899,7 +3899,7 @@ function gwValidarBotao() {
   const nome = document.getElementById('gw-nome').value.trim();
   const perfilOk = gwPerfil !== '';
   const tratOk = gwPerfil === 'estudante' || gwPerfil === 'dentista' && gwTrat !== undefined;
-  const tudo = nome.length > 0 && perfilOk && (gwPerfil === 'estudante' || gwTrat !== '');
+  const tudo = nome.length > 0 && perfilOk && (gwPerfil === 'estudante' || gwTrat !== undefined);
   const btn = document.getElementById('gw-btn-confirmar');
   btn.disabled = !tudo;
   btn.style.background = tudo ? '#7C3FA0' : '#cbd5e1';
