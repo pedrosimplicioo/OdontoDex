@@ -2667,7 +2667,7 @@ function openEditName(){
 async function saveEditName(){
   var val = document.getElementById('edit-name-input').value.trim();
   if(!val){showToast('Digite um nome','error');return;}
-  var primeiro = val.charAt(0).toUpperCase()+val.slice(1).toLowerCase().split(' ')[0];
+  var primeiro = val.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1).toLowerCase();}).join(' ');
   localStorage.setItem('guiaNome', primeiro);
   if(currentUser){
     try{
