@@ -1,4 +1,15 @@
 {
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cross-Origin-Opener-Policy",
+          "value": "same-origin-allow-popups"
+        }
+      ]
+    }
+  ],
   "routes": [
     {
       "src": "/(logo192\\.png|logolanding\\.png|manifest\\.json|sw\\.js|icon-192\\.png|icon-512\\.png)",
