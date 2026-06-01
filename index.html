@@ -823,7 +823,34 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
     </div>
   </div>
 </div>
+<!-- MODAL BOAS-VINDAS GOOGLE -->
+<div id="google-welcome-overlay" class="overlay" style="display:none;align-items:center;justify-content:center;padding:16px;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:rgba(0,0,0,0.5);">
+  <div style="background:var(--color-background-primary,#fff);border-radius:16px;border:0.5px solid #e2e8f0;padding:24px 20px 20px;width:100%;max-width:340px;">
+    <div style="width:52px;height:52px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:22px;">🦷</div>
+    <p style="font-size:17px;font-weight:500;text-align:center;margin:0 0 4px;">Bem-vindo ao OdontoDex!</p>
+    <p style="font-size:13px;color:#64748b;text-align:center;margin:0 0 20px;">Confirme suas informações para personalizar o app</p>
 
+    <p style="font-size:12px;color:#64748b;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;">Seu nome</p>
+    <input id="gw-nome" type="text" class="input-field" style="margin-bottom:18px;" placeholder="Como quer ser chamado?" oninput="gwValidarBotao()">
+
+    <p style="font-size:12px;color:#64748b;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;">Seu perfil</p>
+    <div style="display:flex;gap:8px;margin-bottom:18px;">
+      <button type="button" class="select-btn" id="gw-btn-dentista" onclick="gwSelecionarPerfil('dentista')">🦷 Dentista formado</button>
+      <button type="button" class="select-btn" id="gw-btn-estudante" onclick="gwSelecionarPerfil('estudante')">📚 Estudante</button>
+    </div>
+
+    <div id="gw-bloco-trat" style="display:none;margin-bottom:18px;">
+      <p style="font-size:12px;color:#64748b;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;">Tratamento</p>
+      <div style="display:flex;gap:8px;">
+        <button type="button" class="select-btn" id="gw-btn-dr" onclick="gwSelecionarTrat('Dr.')">👨‍⚕️ Dr.</button>
+        <button type="button" class="select-btn" id="gw-btn-dra" onclick="gwSelecionarTrat('Dra.')">👩‍⚕️ Dra.</button>
+        <button type="button" class="select-btn" id="gw-btn-semtitulo" onclick="gwSelecionarTrat('')">🙂 Sem título</button>
+      </div>
+    </div>
+
+    <button id="gw-btn-confirmar" onclick="gwConfirmar()" disabled style="width:100%;padding:13px;background:#cbd5e1;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:not-allowed;">Começar a usar o OdontoDex</button>
+  </div>
+</div>
 <!-- PWA INSTALL BANNER (Android/Chrome) -->
 <div id="pwa-banner">
   <div class="pwa-icon">🦷</div>
@@ -3801,7 +3828,20 @@ async function doLoginGoogle(){
     currentUser = res.user;
     hideLoading();
     showToast("Login realizado!", "success");
-    showAppScreen();
+    const docGoogle = await db.collection('users').doc(res.user.uid).get();
+    if(!docGoogle.exists || !docGoogle.data().perfil) {
+      const nomeGoogle = res.user.displayName || '';
+      document.getElementById('gw-nome').value = nomeGoogle;
+      gwPerfil = '';
+      gwTrat = '';
+      document.getElementById('gw-btn-dentista').className = 'select-btn';
+      document.getElementById('gw-btn-estudante').className = 'select-btn';
+      document.getElementById('gw-bloco-trat').style.display = 'none';
+      gwValidarBotao();
+      document.getElementById('google-welcome-overlay').style.display = 'flex';
+    } else {
+      showAppScreen();
+    }
   } catch(e) {
     hideLoading();
     showToast("Erro ao entrar com Google", "error");
@@ -3836,7 +3876,59 @@ async function doLogin(){
 // Variáveis de seleção do cadastro
 let selectedTratamento = '';
 let selectedPerfil = 'dentista';
+// ── MODAL BOAS-VINDAS GOOGLE ──────────────────────────────────────────────
+let gwPerfil = '';
+let gwTrat = '';
 
+function gwSelecionarPerfil(p) {
+  gwPerfil = p;
+  document.getElementById('gw-btn-dentista').className = 'select-btn' + (p === 'dentista' ? ' selected' : '');
+  document.getElementById('gw-btn-estudante').className = 'select-btn' + (p === 'estudante' ? ' selected' : '');
+  document.getElementById('gw-bloco-trat').style.display = p === 'dentista' ? 'block' : 'none';
+  if(p === 'estudante') gwTrat = '';
+  gwValidarBotao();
+}
+
+function gwSelecionarTrat(t) {
+  gwTrat = t;
+  document.getElementById('gw-btn-dr').className = 'select-btn' + (t === 'Dr.' ? ' selected' : '');
+  document.getElementById('gw-btn-dra').className = 'select-btn' + (t === 'Dra.' ? ' selected' : '');
+  document.getElementById('gw-btn-semtitulo').className = 'select-btn' + (t === '' ? ' selected' : '');
+  gwValidarBotao();
+}
+
+function gwValidarBotao() {
+  const nome = document.getElementById('gw-nome').value.trim();
+  const perfilOk = gwPerfil !== '';
+  const tratOk = gwPerfil === 'estudante' || gwPerfil === 'dentista' && gwTrat !== undefined;
+  const tudo = nome.length > 0 && perfilOk && (gwPerfil === 'estudante' || gwTrat !== '');
+  const btn = document.getElementById('gw-btn-confirmar');
+  btn.disabled = !tudo;
+  btn.style.background = tudo ? '#7C3FA0' : '#cbd5e1';
+  btn.style.cursor = tudo ? 'pointer' : 'not-allowed';
+}
+
+async function gwConfirmar() {
+  const nome = document.getElementById('gw-nome').value.trim();
+  if(!nome || !gwPerfil) return;
+  const primeiroNome = nome.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1).toLowerCase();}).join(' ');
+  const displayName = gwPerfil === 'estudante' ? primeiroNome : (gwTrat ? gwTrat + ' ' + primeiroNome : primeiroNome);
+  showLoading();
+  try {
+    await currentUser.updateProfile({ displayName: displayName });
+    await db.collection('users').doc(currentUser.uid).update({
+      nome: primeiroNome,
+      perfil: gwPerfil,
+      tratamento: gwTrat
+    });
+    localStorage.setItem('guiaNome', primeiroNome);
+    localStorage.setItem('guiaPerfil', gwPerfil);
+    localStorage.setItem('guiaTratamento', gwTrat);
+  } catch(e) { console.log(e); }
+  hideLoading();
+  document.getElementById('google-welcome-overlay').style.display = 'none';
+  showAppScreen();
+}
 function selectTratamento(t){
   selectedTratamento=t;
   document.getElementById('btn-dr').className='select-btn'+(t==='Dr.'?' selected':'');
