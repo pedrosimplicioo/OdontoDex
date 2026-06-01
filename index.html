@@ -1212,46 +1212,75 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
   </div>
 </div>
 <!-- MODAL DE CANCELAMENTO PREMIUM -->
-<div class="overlay" id="cancel-overlay" onclick="hideCancelModal()">
-  <div class="modal" onclick="event.stopPropagation()" style="max-height: 85vh; overflow-y: auto; max-width: 400px;">
-    
-    <div style="font-size: 44px; text-align: center;">❌</div>
-    
-    <h2 class="modal-title" style="font-size: 20px; text-align: center;">Cancelar assinatura</h2>
-    
-    <p class="modal-sub" style="text-align: center;">Sentimos muito por ver você partir. Sua opinião nos ajuda a melhorar.</p>
-    
-    <div style="width: 100%; margin: 16px 0 8px;">
-      
-      <div class="section-label" style="margin-bottom: 12px;">📋 Por que está cancelando?</div>
-      
-      <div id="cancel-reasons" style="display: flex; flex-direction: column; gap: 8px;">
-        <button class="cancel-reason-btn" data-reason="Muito caro">💰 Muito caro</button>
-        <button class="cancel-reason-btn" data-reason="Não uso o suficiente">📉 Não uso o suficiente</button>
-        <button class="cancel-reason-btn" data-reason="Encontrei algo melhor">🦷 Encontrei algo melhor</button>
-        <button class="cancel-reason-btn" data-reason="Problemas técnicos">🐛 Problemas técnicos no app</button>
-        <button class="cancel-reason-btn" data-reason="Não atendeu minhas expectativas">😞 Não atendeu minhas expectativas</button>
-        <button class="cancel-reason-btn" data-reason="Outro">📝 Outro</button>
+<div class="overlay" id="cancel-overlay">
+  <div class="modal" onclick="event.stopPropagation()" style="max-height:88vh;overflow-y:auto;max-width:400px;padding:28px 24px;">
+
+    <!-- ETAPA 1: O que você vai perder -->
+    <div id="cancel-step-1">
+      <div style="font-size:40px;text-align:center;margin-bottom:12px">💎</div>
+      <h2 class="modal-title" style="font-size:19px;text-align:center;margin-bottom:6px">Cancelar assinatura?</h2>
+      <p class="modal-sub" style="text-align:center;margin-bottom:20px">Você vai perder acesso a:</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px">
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(124,63,160,0.07);border-radius:12px;padding:12px 14px">
+          <span style="font-size:20px">📋</span>
+          <span style="font-size:14px;font-weight:600;color:var(--text)">Todos os protocolos clínicos completos</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(124,63,160,0.07);border-radius:12px;padding:12px 14px">
+          <span style="font-size:20px">💊</span>
+          <span style="font-size:14px;font-weight:600;color:var(--text)">Prescrições e pacientes especiais</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(124,63,160,0.07);border-radius:12px;padding:12px 14px">
+          <span style="font-size:20px">🆘</span>
+          <span style="font-size:14px;font-weight:600;color:var(--text)">S.O.S. Clínico completo</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(124,63,160,0.07);border-radius:12px;padding:12px 14px">
+          <span style="font-size:20px">📴</span>
+          <span style="font-size:14px;font-weight:600;color:var(--text)">Acesso offline no consultório</span>
+        </div>
       </div>
-      
-      <div id="other-reason-input" style="display: none; margin-top: 12px;">
-        <input type="text" id="cancel-other-text" class="input-field" placeholder="Digite o motivo..." style="width: 100%;">
-      </div>
-      
-      <div style="margin-top: 20px;">
-        <div class="section-label" style="margin-bottom: 8px;">💡 Sugestão para melhorarmos</div>
-        <textarea id="cancel-suggestion" class="input-field" rows="3" placeholder="O que poderia ser melhor? (opcional)" style="width: 100%; resize: none;"></textarea>
-      </div>
-      
+      <button onclick="hideCancelModal()" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;font-family:inherit">
+        Manter minha assinatura
+      </button>
+      <button onclick="cancelStep(2)" style="width:100%;background:none;border:none;font-size:13px;color:#94A3B8;cursor:pointer;font-family:inherit;padding:4px">
+        Continuar cancelamento
+      </button>
     </div>
-    
-    <div style="display: flex; gap: 10px; width: 100%; margin-top: 16px;">
-      <button class="btn-cancel" onclick="hideCancelModal()" style="flex: 1;">Voltar</button>
-      <button class="btn-primary" onclick="submitCancel()" style="flex: 1; background: #DC2626;">Confirmar cancelamento</button>
+
+    <!-- ETAPA 2: Motivo -->
+    <div id="cancel-step-2" style="display:none">
+      <div style="font-size:40px;text-align:center;margin-bottom:12px">🤔</div>
+      <h2 class="modal-title" style="font-size:19px;text-align:center;margin-bottom:6px">Por que está cancelando?</h2>
+      <p class="modal-sub" style="text-align:center;margin-bottom:20px">Sua resposta nos ajuda a melhorar</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+        <button class="cancel-reason-btn" data-reason="Preço alto" onclick="selectCancelReason(this)">💸 Preço alto</button>
+        <button class="cancel-reason-btn" data-reason="Não uso com frequência" onclick="selectCancelReason(this)">📅 Não uso com frequência</button>
+        <button class="cancel-reason-btn" data-reason="Encontrei outra solução" onclick="selectCancelReason(this)">🔄 Encontrei outra solução</button>
+        <button class="cancel-reason-btn" data-reason="Problemas técnicos" onclick="selectCancelReason(this)">⚙️ Problemas técnicos</button>
+        <button class="cancel-reason-btn" data-reason="Outro" onclick="selectCancelReason(this)">💬 Outro motivo</button>
+      </div>
+      <div id="other-reason-input" style="display:none;margin-bottom:16px">
+        <textarea id="cancel-other-text" placeholder="Conte mais..." style="width:100%;border-radius:12px;border:1px solid #E2E8F0;padding:12px;font-size:14px;font-family:inherit;resize:none;height:80px;box-sizing:border-box"></textarea>
+      </div>
+      <button id="confirm-cancel-btn" onclick="submitCancel()" disabled style="width:100%;background:#DC2626;color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;opacity:0.4;transition:opacity 0.2s">
+        Confirmar cancelamento
+      </button>
+      <button onclick="cancelStep(1)" style="width:100%;background:none;border:none;font-size:13px;color:#94A3B8;cursor:pointer;font-family:inherit;padding:12px 4px 4px">
+        ← Voltar
+      </button>
     </div>
-    
-    <p class="modal-sub" style="margin-top: 12px; font-size: 11px; text-align: center;">🔒 Você mantém acesso até o fim do período já pago.</p>
-    
+
+    <!-- ETAPA 3: Confirmação -->
+    <div id="cancel-step-3" style="display:none;text-align:center">
+      <div style="font-size:48px;margin-bottom:16px">✓</div>
+      <h2 class="modal-title" style="font-size:19px;margin-bottom:8px">Assinatura cancelada</h2>
+      <p class="modal-sub" style="margin-bottom:8px">Seu acesso premium continua até</p>
+      <div id="cancel-expiry-date" style="font-size:18px;font-weight:800;color:#7C3FA0;margin-bottom:16px">—</div>
+      <p class="modal-sub" style="margin-bottom:24px;font-size:13px">Depois disso, você volta ao plano gratuito automaticamente. Se mudar de ideia, é só assinar novamente.</p>
+      <button onclick="hideCancelModal()" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">
+        Entendido
+      </button>
+    </div>
+
   </div>
 </div>
 <!-- PAYMENT SCREEN -->
@@ -4130,137 +4159,129 @@ if(agora > expira) {
 
 let selectedCancelReason = null;
 
-// Função para ABRIR o modal de cancelamento
+function cancelStep(step) {
+  document.getElementById('cancel-step-1').style.display = step === 1 ? 'block' : 'none';
+  document.getElementById('cancel-step-2').style.display = step === 2 ? 'block' : 'none';
+  document.getElementById('cancel-step-3').style.display = step === 3 ? 'block' : 'none';
+}
+
 function openCancelModal() {
   if (!currentUser) {
     showToast("Faça login para cancelar a assinatura", "error");
     return;
   }
-  
   selectedCancelReason = null;
-  
   const otherInput = document.getElementById('cancel-other-text');
-  const suggestionInput = document.getElementById('cancel-suggestion');
   if (otherInput) otherInput.value = '';
-  if (suggestionInput) suggestionInput.value = '';
-  
   const otherDiv = document.getElementById('other-reason-input');
   if (otherDiv) otherDiv.style.display = 'none';
-  
-  document.querySelectorAll('.cancel-reason-btn').forEach(btn => {
-    btn.classList.remove('selected');
-  });
-  
+  document.querySelectorAll('.cancel-reason-btn').forEach(b => b.classList.remove('selected'));
+  const confirmBtn = document.getElementById('confirm-cancel-btn');
+  if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.style.opacity = '0.4'; confirmBtn.textContent = 'Confirmar cancelamento'; }
+  cancelStep(1);
   showOverlay('cancel-overlay');
 }
 
-// Função para FECHAR o modal de cancelamento
 function hideCancelModal() {
   hideOverlay('cancel-overlay');
 }
 
-// Configura os botões de motivo
-function setupCancelButtons() {
-  document.querySelectorAll('.cancel-reason-btn').forEach(btn => {
-    btn.removeEventListener('click', handleCancelReasonClick);
-    btn.addEventListener('click', handleCancelReasonClick);
-  });
-}
-
-// O que acontece quando um botão de motivo é clicado
-function handleCancelReasonClick(e) {
-  const btn = e.currentTarget;
-  const reason = btn.getAttribute('data-reason');
-  
-  document.querySelectorAll('.cancel-reason-btn').forEach(b => {
-    b.classList.remove('selected');
-  });
-  
+function selectCancelReason(btn) {
+  document.querySelectorAll('.cancel-reason-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
-  selectedCancelReason = reason;
-  
+  selectedCancelReason = btn.getAttribute('data-reason');
   const otherDiv = document.getElementById('other-reason-input');
-  if (reason === 'Outro') {
+  if (selectedCancelReason === 'Outro') {
     if (otherDiv) otherDiv.style.display = 'block';
     const otherText = document.getElementById('cancel-other-text');
     if (otherText) otherText.focus();
   } else {
     if (otherDiv) otherDiv.style.display = 'none';
   }
+  const confirmBtn = document.getElementById('confirm-cancel-btn');
+  if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.style.opacity = '1'; }
 }
 
-// Função para ENVIAR o cancelamento
 async function submitCancel() {
   if (!currentUser) {
     showToast("Erro: usuário não encontrado", "error");
     return;
   }
-  
+
   let finalReason = selectedCancelReason;
-  
   if (selectedCancelReason === 'Outro') {
     const otherText = document.getElementById('cancel-other-text').value.trim();
     if (!otherText) {
-      showToast("Por favor, digite o motivo do cancelamento", "error");
+      showToast("Por favor, digite o motivo", "error");
       return;
     }
     finalReason = `Outro: ${otherText}`;
   }
-  
   if (!finalReason) {
     showToast("Por favor, selecione um motivo", "error");
     return;
   }
-  
-  const suggestion = document.getElementById('cancel-suggestion').value.trim();
-  
-  showLoading();
-  
+
+  const confirmBtn = document.getElementById('confirm-cancel-btn');
+  if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.style.opacity = '0.4'; confirmBtn.textContent = 'Cancelando...'; }
+
   try {
+    // Registra o motivo no Firestore
     await db.collection('cancelamentos').add({
       userId: currentUser.uid,
       userEmail: currentUser.email,
       userName: currentUser.displayName || localStorage.getItem('guiaNome') || '',
       motivo: finalReason,
-      sugestao: suggestion || '',
       dataCancelamento: new Date().toISOString(),
-      status: 'pendente',
       plataforma: 'PWA'
     });
-    
-    console.log("Cancelamento registrado no Firebase!");
-    
-    hideCancelModal();
-    
-    showToast("Solicitação registrada! Verifique seu e-mail.", "success");
-    
-    const subject = `Cancelamento assinatura OdontoDex - ${currentUser.email}`;
-    const body = `Olá,\n\nSolicito o cancelamento da minha assinatura OdontoDex Premium.\n\nMeus dados:\nE-mail: ${currentUser.email}\nNome: ${currentUser.displayName || ''}\nMotivo: ${finalReason}\n\nAgradeço pela atenção.`;
-    
-    setTimeout(() => {
-      window.location.href = `mailto:contato@odontodex.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    }, 500);
-    
-  } catch (error) {
-    console.error("Erro ao salvar cancelamento:", error);
-    showToast("Erro ao processar. Tente novamente.", "error");
-  } finally {
-    hideLoading();
+
+    // Cancela a assinatura no Mercado Pago
+    const res = await fetch('/api/cancel-subscription', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: currentUser.uid }),
+    });
+    const data = await res.json();
+
+    if (data.status === 'cancelled') {
+      // Busca a data real de expiração
+      const userDoc = await db.collection('users').doc(currentUser.uid).get();
+      const userData = userDoc.data();
+      let dataExpira = '—';
+      if (userData?.premiumExpira) {
+        const expira = userData.premiumExpira.toDate();
+        dataExpira = expira.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+      }
+      document.getElementById('cancel-expiry-date').textContent = dataExpira;
+      cancelStep(3);
+    } else {
+      throw new Error(data.error || 'Erro ao cancelar');
+    }
+
+  } catch (e) {
+    console.error('Erro cancelamento:', e);
+    // Se não tem assinatura no MP (trial ou Pix) — cancela só localmente
+    if (e.message?.includes('Nenhuma assinatura')) {
+      await db.collection('users').doc(currentUser.uid).update({ premium: false });
+      window.userIsPremium = false;
+      localStorage.setItem('userIsPremium', 'false');
+      updatePremiumUI();
+      hideCancelModal();
+      showToast("Assinatura cancelada.", "success");
+    } else {
+      showToast("Erro ao cancelar. Tente novamente.", "error");
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.style.opacity = '1'; confirmBtn.textContent = 'Confirmar cancelamento'; }
+    }
   }
 }
 
-// Função para MOSTRAR/ESCONDER o botão de cancelamento (só para Premium)
 function updatePremiumUI() {
   const cancelSection = document.getElementById('cancel-premium-section');
   if (cancelSection) {
     cancelSection.style.display = window.userIsPremium === true ? 'block' : 'none';
   }
 }
-
-// Inicializa os botões quando a página carrega
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(setupCancelButtons, 500);
-});
   // ==================== BANNER PARA ESTUDANTES ====================
 function adicionarBannerEstudante() {
   const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
@@ -4590,44 +4611,55 @@ async function iniciarBrick() {
           onSubmit: async ({ formData }) => {
             showLoading();
             try {
-              const payRes = await fetch("/api/process-payment", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  ...formData,
-                  uid: currentUser.uid,
-                  email: currentUser.email,
-                }),
-              });
-              const payData = await payRes.json();
-              hideLoading();
-              if (payData.status === "approved") {
-                await onPaymentApproved();
-              } else if (payData.status === "in_process" || payData.status === "pending") {
-                showToast("Pagamento em processamento.", "success");
-                goBackToLastScreen();
+              const isCartao = formData.payment_method_id === "credit_card" ||
+                               formData.payment_method_id === "debit_card";
+
+              let payRes, payData;
+
+              if (isCartao) {
+                payRes = await fetch("/api/create-subscription", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    uid: currentUser.uid,
+                    email: currentUser.email,
+                    token: formData.token,
+                  }),
+                });
+                payData = await payRes.json();
+                hideLoading();
+                if (payData.status === "authorized") {
+                  await onPaymentApproved();
+                } else {
+                  showToast("Assinatura não autorizada. Tente outro cartão.", "error");
+                }
               } else {
-                showToast("Pagamento não aprovado. Tente outro método.", "error");
+                payRes = await fetch("/api/process-payment", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    ...formData,
+                    uid: currentUser.uid,
+                    email: currentUser.email,
+                  }),
+                });
+                payData = await payRes.json();
+                hideLoading();
+                if (payData.status === "approved") {
+                  await onPaymentApproved();
+                } else if (payData.status === "in_process" || payData.status === "pending") {
+                  showToast("Pagamento em processamento.", "success");
+                  goBackToLastScreen();
+                } else {
+                  showToast("Pagamento não aprovado. Tente outro método.", "error");
+                }
               }
+
             } catch (e) {
               hideLoading();
               showToast("Erro ao processar. Tente novamente.", "error");
             }
           },
-          onError: (error) => console.error("Brick error:", error),
-        },
-      }
-    );
-  } catch (e) {
-    console.error("Erro ao iniciar Brick:", e);
-    container.innerHTML = `
-      <div style="text-align:center;padding:30px 20px;">
-        <div style="font-size:32px;margin-bottom:8px">⚠️</div>
-        <div style="font-size:14px;font-weight:700;color:#DC2626;margin-bottom:16px">Erro ao carregar pagamento</div>
-        <button onclick="iniciarBrick()" style="background:#7C3FA0;color:#fff;border:none;border-radius:20px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer;">Tentar novamente</button>
-      </div>`;
-  }
-}
 async function onPaymentApproved() {
   window.userIsPremium = true;
   localStorage.setItem('userIsPremium', 'true');
