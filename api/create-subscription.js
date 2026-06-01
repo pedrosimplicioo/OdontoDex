@@ -1,5 +1,4 @@
 const admin = require("firebase-admin");
-
 if (!admin.apps.length) {
   admin.initializeApp({
     credential: admin.credential.cert({
@@ -12,16 +11,12 @@ if (!admin.apps.length) {
     }),
   });
 }
-
 const db = admin.firestore();
-
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
-
   try {
-    const { uid, email, token } = req.body;
+    const { uid, email, token, cupom } = req.body;
     if (!uid || !token) return res.status(400).json({ error: "UID e token obrigatórios" });
-
     // Cria a assinatura recorrente no Mercado Pago
     const mpRes = await fetch("https://api.mercadopago.com/preapproval", {
       method: "POST",
@@ -45,19 +40,15 @@ module.exports = async (req, res) => {
         status: "authorized",
       }),
     });
-
     const assinatura = await mpRes.json();
     console.log("Preapproval response:", JSON.stringify(assinatura));
-
     if (!assinatura.id) {
       throw new Error("Falha ao criar assinatura: " + JSON.stringify(assinatura));
     }
-
     // Calcula expiração inicial (30 dias)
     const agora = new Date();
     const expira = new Date(agora);
     expira.setDate(expira.getDate() + 30);
-
     // Grava no Firestore
     await db.collection("users").doc(uid).update({
       premium: true,
@@ -69,11 +60,24 @@ module.exports = async (req, res) => {
       proximaCobranca: admin.firestore.Timestamp.fromDate(expira),
     });
 
+    // Registra conversão do cupom se houver
+    if (cupom) {
+      await db.collection("conversoes_cupom").add({
+        cupom,
+        userId: uid,
+        userEmail: email || "",
+        valor: 3.00,
+        timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      });
+      await db.collection("CUPONS").doc(cupom).update({
+        conversoes: admin.firestore.FieldValue.increment(1),
+      });
+    }
+
     return res.status(200).json({
       status: "authorized",
       assinaturaId: assinatura.id,
     });
-
   } catch (e) {
     console.error("Erro create-subscription:", e);
     return res.status(500).json({ error: e.message });
