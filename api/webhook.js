@@ -56,6 +56,22 @@ module.exports = async (req, res) => {
         ultimoPagamentoId: String(paymentId),
       });
 
+      // Registra conversão do cupom se houver
+      const pixDoc = await db.collection("pix_pendentes").doc(String(paymentId)).get();
+      if (pixDoc.exists && pixDoc.data().cupom) {
+        const cupom = pixDoc.data().cupom;
+        await db.collection("conversoes_cupom").add({
+          cupom,
+          userId: uid,
+          userEmail: payment.payer?.email || "",
+          valor: 3.00,
+          timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        await db.collection("CUPONS").doc(cupom).update({
+          conversoes: admin.firestore.FieldValue.increment(1),
+        });
+      }
+
       return res.status(200).json({ ok: true, uid, expiresAt });
     }
 
