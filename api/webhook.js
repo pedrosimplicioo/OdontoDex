@@ -103,7 +103,7 @@ module.exports = async (req, res) => {
     }
 
     // ─── MUDANÇA DE STATUS DA ASSINATURA ──────────────────────────
-    if (type === "preapproval") {
+    if (type === "preapproval" || type === "subscription_preapproval") {
       const assinaturaId = data?.id;
       if (!assinaturaId) return res.status(200).json({ ok: true });
 
