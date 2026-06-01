@@ -4128,9 +4128,11 @@ if(agora > expira) {
       }
       // Checar mensagem pendente
       if(doc.exists && doc.data().mensagemPendente === 'trial_manual') {
-        await db.collection('users').doc(user.uid).update({ mensagemPendente: firebase.firestore.FieldValue.delete() });
-        window._mensagemPendente = 'trial_manual';
-      }
+  try {
+    await db.collection('users').doc(user.uid).update({ mensagemPendente: firebase.firestore.FieldValue.delete() });
+  } catch(e) { console.log('mensagemPendente skip', e); }
+  window._mensagemPendente = 'trial_manual';
+}
     } catch(e) {
       console.log(e);
       // Sem internet ou Firestore fora — usa último estado conhecido
