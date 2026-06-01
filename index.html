@@ -4142,7 +4142,7 @@ if(agora > expira) {
         showToast("Você está offline. Usando dados do último acesso.", "success");
       }
     }
-    
+    updatePremiumUI();
     showAppScreen();
   } else {
     if(!navigator.onLine && localStorage.getItem('userIsPremium') !== null) {
