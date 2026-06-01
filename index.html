@@ -3877,6 +3877,7 @@ let selectedPerfil = 'dentista';
 // ── MODAL BOAS-VINDAS GOOGLE ──────────────────────────────────────────────
 let gwPerfil = '';
 let gwTrat = '';
+let gwTratSelecionado = false;
 
 function gwSelecionarPerfil(p) {
   gwPerfil = p;
@@ -3889,6 +3890,7 @@ function gwSelecionarPerfil(p) {
 
 function gwSelecionarTrat(t) {
   gwTrat = t;
+  gwTratSelecionado = true;
   document.getElementById('gw-btn-dr').className = 'select-btn' + (t === 'Dr.' ? ' selected' : '');
   document.getElementById('gw-btn-dra').className = 'select-btn' + (t === 'Dra.' ? ' selected' : '');
   document.getElementById('gw-btn-semtitulo').className = 'select-btn' + (t === '' ? ' selected' : '');
@@ -3899,7 +3901,7 @@ function gwValidarBotao() {
   const nome = document.getElementById('gw-nome').value.trim();
   const perfilOk = gwPerfil !== '';
   const tratOk = gwPerfil === 'estudante' || gwPerfil === 'dentista' && gwTrat !== undefined;
-  const tudo = nome.length > 0 && perfilOk && (gwPerfil === 'estudante' || gwTrat !== undefined);
+  const tudo = nome.length > 0 && perfilOk && (gwPerfil === 'estudante' || gwTratSelecionado);
   const btn = document.getElementById('gw-btn-confirmar');
   btn.disabled = !tudo;
   btn.style.background = tudo ? '#7C3FA0' : '#cbd5e1';
