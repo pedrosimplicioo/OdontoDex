@@ -3916,11 +3916,23 @@ async function gwConfirmar() {
   showLoading();
   try {
     await currentUser.updateProfile({ displayName: displayName });
-    await db.collection('users').doc(currentUser.uid).update({
+    const premiumExpira = new Date();
+    premiumExpira.setDate(premiumExpira.getDate() + 7);
+    await db.collection('users').doc(currentUser.uid).set({
       nome: primeiroNome,
       perfil: gwPerfil,
-      tratamento: gwTrat
+      tratamento: gwTrat,
+      email: currentUser.email,
+      criadoEm: new Date().toISOString(),
+      dataPrimeiroAcesso: firebase.firestore.FieldValue.serverTimestamp(),
+      acessosPorDia: {},
+      premium: true,
+      premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira),
+      trialAtivado: true
     });
+    window.userIsPremium = true;
+    localStorage.setItem('userIsPremium', 'true');
+    window._trialRecemAtivado = true;
     localStorage.setItem('guiaNome', primeiroNome);
     localStorage.setItem('guiaPerfil', gwPerfil);
     localStorage.setItem('guiaTratamento', gwTrat);
