@@ -794,17 +794,18 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
         <div class="input-group"><label class="input-label">Email</label><input type="email" id="register-email" class="input-field" placeholder="seu@email.com"></div>
         <div class="input-group"><label class="input-label">Senha</label><input type="password" id="register-password" class="input-field" placeholder="mínimo 6 caracteres"></div>
         <div style="margin-bottom:16px">
-          <span class="select-group-label">Como quer ser chamado?</span>
-          <div class="select-group">
-            <button type="button" class="select-btn selected" id="btn-dr" onclick="selectTratamento('Dr.')">👨‍⚕️ Dr.</button>
-            <button type="button" class="select-btn" id="btn-dra" onclick="selectTratamento('Dra.')">👩‍⚕️ Dra.</button>
-          </div>
-        </div>
-        <div style="margin-bottom:16px">
           <span class="select-group-label">Qual é o seu perfil?</span>
           <div class="select-group">
             <button type="button" class="select-btn selected" id="btn-dentista" onclick="selectPerfil('dentista')">🦷 Dentista formado</button>
             <button type="button" class="select-btn" id="btn-estudante" onclick="selectPerfil('estudante')">📚 Estudante</button>
+          </div>
+        </div>
+        <div id="bloco-tratamento" style="margin-bottom:16px;display:none">
+          <span class="select-group-label">Como quer ser chamado?</span>
+          <div class="select-group">
+            <button type="button" class="select-btn selected" id="btn-dr" onclick="selectTratamento('Dr.')">👨‍⚕️ Dr.</button>
+            <button type="button" class="select-btn" id="btn-dra" onclick="selectTratamento('Dra.')">👩‍⚕️ Dra.</button>
+            <button type="button" class="select-btn" id="btn-semtitulo" onclick="selectTratamento('')">🙂 Sem título</button>
           </div>
         </div>
         <div id="register-error" class="error-message"></div>
@@ -3835,11 +3836,14 @@ function selectTratamento(t){
   selectedTratamento=t;
   document.getElementById('btn-dr').className='select-btn'+(t==='Dr.'?' selected':'');
   document.getElementById('btn-dra').className='select-btn'+(t==='Dra.'?' selected':'');
+  document.getElementById('btn-semtitulo').className='select-btn'+(t===''?' selected':'');
 }
 function selectPerfil(p){
   selectedPerfil=p;
   document.getElementById('btn-dentista').className='select-btn'+(p==='dentista'?' selected':'');
   document.getElementById('btn-estudante').className='select-btn'+(p==='estudante'?' selected':'');
+  document.getElementById('bloco-tratamento').style.display=p==='dentista'?'block':'none';
+  if(p==='estudante') selectedTratamento='';
 }
 
 async function doRegister(){
