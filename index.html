@@ -4611,8 +4611,7 @@ async function iniciarBrick() {
           onSubmit: async ({ formData }) => {
             showLoading();
             try {
-              const isCartao = formData.payment_method_id === "credit_card" ||
-                               formData.payment_method_id === "debit_card";
+             const isCartao = !!formData.token;
 
               let payRes, payData;
 
