@@ -758,7 +758,7 @@ function aplicarFiltroOrdenacao() {
       if (filtroStatus === 'trial') return !isLivre && !expirado && !pagou;
       if (filtroStatus === 'free') return isLivre || expirado;
       if (filtroStatus === 'expira7') return em7dias;
-      if (filtroStatus === 'nunca') return (analytics?.usuariosCount?.[u.id] || u.usos || 0) === 0;
+      if (filtroStatus === 'nunca') return (u.usos || 0) === 0;
       return true;
     });
   }
