@@ -15,6 +15,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
+body.dark #google-welcome-overlay > div { --bg-modal: #1e293b; --bd-modal: #334155; }
+body:not(.dark) #google-welcome-overlay > div { --bg-modal: #ffffff; --bd-modal: #e2e8f0; }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,sans-serif;background:#F1F5F9;min-height:100vh;max-width:430px;margin:0 auto;position:relative;overscroll-behavior:none;transition:background 0.2s,color 0.2s;}
 body.dark{background:#0F172A;color:#F1F5F9;}
@@ -824,30 +826,26 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
   </div>
 </div>
 <!-- MODAL BOAS-VINDAS GOOGLE -->
-<div id="google-welcome-overlay" class="overlay" style="display:none;align-items:center;justify-content:center;padding:16px;position:fixed;top:0;left:0;width:100%;height:100%;z-index:9999;background:rgba(0,0,0,0.5);">
-  <div style="background:#ffffff;border-radius:16px;border:0.5px solid #e2e8f0;padding:24px 20px 20px;width:100%;max-width:340px;">
+<div id="google-welcome-overlay" class="overlay" style="display:none;z-index:9999;">
+  <div style="border-radius:16px;padding:24px 20px 20px;width:calc(100% - 48px);max-width:340px;background:var(--bg-modal, #ffffff);border:0.5px solid var(--bd-modal, #e2e8f0);">
     <div style="width:52px;height:52px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:22px;">🦷</div>
     <p style="font-size:17px;font-weight:500;text-align:center;margin:0 0 4px;color:var(--color-text-primary);">Bem-vindo ao OdontoDex!</p>
-    <p style="font-size:13px;color:var(--color-text-secondary);text-align:center;margin:0 0 20px;">Confirme suas informações para personalizar o app</p>
-
-    <p style="font-size:12px;color:var(--color-text-secondary);font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;">Seu nome</p>
+    <p style="font-size:13px;text-align:center;margin:0 0 20px;color:var(--color-text-secondary);">Confirme suas informações para personalizar o app</p>
+    <p style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;color:var(--color-text-secondary);">Seu nome</p>
     <input id="gw-nome" type="text" class="input-field" style="margin-bottom:18px;" placeholder="Como quer ser chamado?" oninput="gwValidarBotao()">
-
-    <p style="font-size:12px;color:var(--color-text-secondary);font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;">Seu perfil</p>
+    <p style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;color:var(--color-text-secondary);">Seu perfil</p>
     <div style="display:flex;gap:8px;margin-bottom:18px;">
       <button type="button" class="select-btn" id="gw-btn-dentista" onclick="gwSelecionarPerfil('dentista')">🦷 Dentista formado</button>
       <button type="button" class="select-btn" id="gw-btn-estudante" onclick="gwSelecionarPerfil('estudante')">📚 Estudante</button>
     </div>
-
     <div id="gw-bloco-trat" style="display:none;margin-bottom:18px;">
-      <p style="font-size:12px;color:#64748b;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;">Tratamento</p>
+      <p style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;color:var(--color-text-secondary);">Tratamento</p>
       <div style="display:flex;gap:8px;">
         <button type="button" class="select-btn" id="gw-btn-dr" onclick="gwSelecionarTrat('Dr.')">👨‍⚕️ Dr.</button>
         <button type="button" class="select-btn" id="gw-btn-dra" onclick="gwSelecionarTrat('Dra.')">👩‍⚕️ Dra.</button>
         <button type="button" class="select-btn" id="gw-btn-semtitulo" onclick="gwSelecionarTrat('')">🙂 Sem título</button>
       </div>
     </div>
-
     <button id="gw-btn-confirmar" onclick="gwConfirmar()" disabled style="width:100%;padding:13px;background:#cbd5e1;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:not-allowed;">Começar a usar o OdontoDex</button>
   </div>
 </div>
