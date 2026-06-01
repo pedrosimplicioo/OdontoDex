@@ -2664,11 +2664,16 @@ function openEditName(){
   setTimeout(function(){document.getElementById('edit-name-input').focus();}, 100);
 }
 
-function saveEditName(){
+async function saveEditName(){
   var val = document.getElementById('edit-name-input').value.trim();
   if(!val){showToast('Digite um nome','error');return;}
   var primeiro = val.charAt(0).toUpperCase()+val.slice(1).toLowerCase().split(' ')[0];
   localStorage.setItem('guiaNome', primeiro);
+  if(currentUser){
+    try{
+      await db.collection('users').doc(currentUser.uid).update({nome: primeiro});
+    }catch(e){console.log('Firestore indisponível',e);}
+  }
   hideOverlay('edit-name-overlay');
   atualizarSaudacao();
   showToast('Nome atualizado!','success');
@@ -4082,6 +4087,10 @@ auth.onAuthStateChanged(async(user) => {
     try {
       const doc = await db.collection("users").doc(user.uid).get();
       const userData = doc.data();
+      // Sincroniza nome do Firestore para o localStorage
+      if(doc.exists && userData.nome) localStorage.setItem('guiaNome', userData.nome);
+      if(doc.exists && userData.perfil) localStorage.setItem('guiaPerfil', userData.perfil);
+      if(doc.exists && userData.tratamento !== undefined) localStorage.setItem('guiaTratamento', userData.tratamento);
       // Se usuário sem trial, dar 7 dias automaticamente
       if(doc.exists && !userData.trialAtivado) {
         const premiumExpira = new Date();
