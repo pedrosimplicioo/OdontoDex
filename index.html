@@ -4611,20 +4611,21 @@ async function iniciarBrick() {
           onSubmit: async ({ formData }) => {
             showLoading();
             try {
-             const isCartao = !!formData.token;
+             const cardToken = formData.token || formData.card_token_id || formData.card_token;
+const isCartao = !!cardToken;
 
-              let payRes, payData;
+let payRes, payData;
 
-              if (isCartao) {
-                payRes = await fetch("/api/create-subscription", {
-                  method: "POST",
-                  headers: { "Content-Type": "application/json" },
-                  body: JSON.stringify({
-                    uid: currentUser.uid,
-                    email: currentUser.email,
-                    token: formData.token,
-                  }),
-                });
+if (isCartao) {
+  payRes = await fetch("/api/create-subscription", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      uid: currentUser.uid,
+      email: currentUser.email,
+      token: cardToken,
+    }),
+  });
                 payData = await payRes.json();
                 hideLoading();
                 if (payData.status === "authorized") {
