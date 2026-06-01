@@ -758,6 +758,7 @@ function aplicarFiltroOrdenacao() {
       if (filtroStatus === 'trial') return !isLivre && !expirado && !pagou;
       if (filtroStatus === 'free') return isLivre || expirado;
       if (filtroStatus === 'expira7') return em7dias;
+      if (filtroStatus === 'nunca') return (analytics?.usuariosCount?.[u.id] || u.usos || 0) === 0;
       return true;
     });
   }
@@ -905,6 +906,10 @@ function renderDashboard() {
         <div class="stat-card" style="border-left:3px solid #EF4444;display:flex;align-items:center;gap:14px;padding:16px 18px">
           <div style="width:40px;height:40px;border-radius:10px;background:#FEE2E2;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📉</div>
           <div><div style="font-size:22px;font-weight:800;color:#EF4444">${d.churnMes}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Churn no mês</div></div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid #94A3B8;display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer" onclick="irParaUsuariosFiltrado('nunca')">
+          <div style="width:40px;height:40px;border-radius:10px;background:#F1F5F9;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">😴</div>
+          <div><div style="font-size:22px;font-weight:800;color:#94A3B8">${d.nuncaUsaram}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Nunca usaram</div></div>
         </div>
         <div class="stat-card card-active" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
           <div style="width:40px;height:40px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👥</div>
