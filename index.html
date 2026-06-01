@@ -4660,6 +4660,20 @@ async function iniciarBrick() {
               showToast("Erro ao processar. Tente novamente.", "error");
             }
           },
+          onError: (error) => console.error("Brick error:", error),
+        },
+      }
+    );
+  } catch (e) {
+    console.error("Erro ao iniciar Brick:", e);
+    container.innerHTML = `
+      <div style="text-align:center;padding:30px 20px;">
+        <div style="font-size:32px;margin-bottom:8px">⚠️</div>
+        <div style="font-size:14px;font-weight:700;color:#DC2626;margin-bottom:16px">Erro ao carregar pagamento</div>
+        <button onclick="iniciarBrick()" style="background:#7C3FA0;color:#fff;border:none;border-radius:20px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer;">Tentar novamente</button>
+      </div>`;
+  }
+}
 async function onPaymentApproved() {
   window.userIsPremium = true;
   localStorage.setItem('userIsPremium', 'true');
