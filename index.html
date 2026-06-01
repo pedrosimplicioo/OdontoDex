@@ -4743,6 +4743,7 @@ if (isCartao) {
       uid: currentUser.uid,
       email: currentUser.email,
       token: cardToken,
+      cupom: cupomValido || null,
     }),
   });
                 payData = await payRes.json();
@@ -4789,41 +4790,13 @@ if (isCartao) {
       <div style="text-align:center;padding:30px 20px;">
         <div style="font-size:32px;margin-bottom:8px">⚠️</div>
         <div style="font-size:14px;font-weight:700;color:#DC2626;margin-bottom:16px">Erro ao carregar pagamento</div>
-        <button onclick="iniciarBrick()" style="background:#7C3FA0;color:#fff;border:none;border-radius:20px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer;">Tentar novamente</button>
+       <button onclick="iniciarBrick()" style="background:#7C3FA0;color:#fff;border:none;border-radius:20px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer;">Tentar novamente</button>
       </div>`;
   }
 }
 async function onPaymentApproved() {
   window.userIsPremium = true;
   localStorage.setItem('userIsPremium', 'true');
-  
-  if (currentUser) {
-    try {
-      const premiumExpira = new Date();
-      premiumExpira.setDate(premiumExpira.getDate() + 30);
-      await db.collection("users").doc(currentUser.uid).update({ 
-        premium: true,
-        premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira)
-      });
-    } catch(e) { console.error(e); }
-
-    // Registrar cupom se houver
-    if (cupomValido) {
-      try {
-        await db.collection('CUPONS').doc(cupomValido).update({
-          conversoes: firebase.firestore.FieldValue.increment(1)
-        });
-        await db.collection('conversoes_cupom').add({
-          cupom: cupomValido,
-          userId: currentUser.uid,
-          userEmail: currentUser.email,
-          valor: 3.00,
-          timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
-        cupomValido = '';
-      } catch(e) { console.error(e); }
-    }
-  }
   showToast("🎉 Bem-vindo ao Premium!", "success");
   voltarParaHome();
   renderHome();
