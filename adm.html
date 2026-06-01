@@ -486,6 +486,7 @@ async function carregarDados() {
     let totalTrial = 0, totalPremiumPago = 0, totalFreeReal = 0;
     let abrirHoje = 0, novosHoje = 0, novosMes = 0;
     let assinaramMes = 0, expiramEm7 = 0, churnMes = 0;
+    let nuncaUsaram = 0;
 
     usuariosNaoIgnorados.forEach(u => {
       const expira = u.premiumExpira?.toDate ? u.premiumExpira.toDate() : null;
@@ -515,6 +516,7 @@ async function carregarDados() {
 
       // Churn no mês: expirou dentro deste mês e não renovou
       if (expira && expira >= inicioMes && expira < agora2 && expirado) churnMes++;
+      if ((analytics.usuariosCount[u.id] || 0) === 0) nuncaUsaram++;
     });
     // --- fim novos cálculos ---
     cachedDados = {
@@ -543,7 +545,8 @@ async function carregarDados() {
       novosMes,
       assinaramMes,
       expiramEm7,
-      churnMes
+      churnMes,
+      nuncaUsaram
     };
     dadosUsuarios = [...usuarios];
     aplicarFiltroOrdenacao();
