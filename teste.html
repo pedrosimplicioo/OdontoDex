@@ -15,6 +15,8 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
 <style>
+body.dark #google-welcome-overlay > div { --bg-modal: #1e293b; --bd-modal: #334155; }
+body:not(.dark) #google-welcome-overlay > div { --bg-modal: #ffffff; --bd-modal: #e2e8f0; }
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,Helvetica,sans-serif;background:#F1F5F9;min-height:100vh;max-width:430px;margin:0 auto;position:relative;overscroll-behavior:none;transition:background 0.2s,color 0.2s;}
 body.dark{background:#0F172A;color:#F1F5F9;}
@@ -790,21 +792,22 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
 <div style="text-align:center;margin-top:16px;font-size:12px;color:#94A3B8;line-height:1.6;padding:0 8px;">Ao entrar, você concorda com nossos <a href="/termos" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Termos de Uso</a> e nossa <a href="/privacidade" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Política de Privacidade</a>.</div>
       </div>
       <div id="register-form" style="display:none">
-        <div class="input-group"><label class="input-label">Nome completo</label><input type="text" id="register-name" class="input-field" placeholder="Seu nome"></div>
-        <div class="input-group"><label class="input-label">Email</label><input type="email" id="register-email" class="input-field" placeholder="seu@email.com"></div>
-        <div class="input-group"><label class="input-label">Senha</label><input type="password" id="register-password" class="input-field" placeholder="mínimo 6 caracteres"></div>
-        <div style="margin-bottom:16px">
-          <span class="select-group-label">Como quer ser chamado?</span>
-          <div class="select-group">
-            <button type="button" class="select-btn selected" id="btn-dr" onclick="selectTratamento('Dr.')">👨‍⚕️ Dr.</button>
-            <button type="button" class="select-btn" id="btn-dra" onclick="selectTratamento('Dra.')">👩‍⚕️ Dra.</button>
-          </div>
-        </div>
+        <div class="input-group"><label class="input-label">Nome completo</label><input type="text" id="register-name" class="input-field" placeholder="Seu nome" autocomplete="name"></div>
+        <div class="input-group"><label class="input-label">Email</label><input type="email" id="register-email" class="input-field" placeholder="seu@email.com" autocomplete="email"></div>
+        <div class="input-group"><label class="input-label">Senha</label><input type="password" id="register-password" class="input-field" placeholder="mínimo 6 caracteres" autocomplete="new-password"></div>
         <div style="margin-bottom:16px">
           <span class="select-group-label">Qual é o seu perfil?</span>
           <div class="select-group">
             <button type="button" class="select-btn selected" id="btn-dentista" onclick="selectPerfil('dentista')">🦷 Dentista formado</button>
             <button type="button" class="select-btn" id="btn-estudante" onclick="selectPerfil('estudante')">📚 Estudante</button>
+          </div>
+        </div>
+        <div id="bloco-tratamento" style="margin-bottom:16px;display:none">
+          <span class="select-group-label">Como quer ser chamado?</span>
+          <div class="select-group">
+            <button type="button" class="select-btn selected" id="btn-dr" onclick="selectTratamento('Dr.')">👨‍⚕️ Dr.</button>
+            <button type="button" class="select-btn" id="btn-dra" onclick="selectTratamento('Dra.')">👩‍⚕️ Dra.</button>
+            <button type="button" class="select-btn" id="btn-semtitulo" onclick="selectTratamento('')">🙂 Sem título</button>
           </div>
         </div>
         <div id="register-error" class="error-message"></div>
@@ -822,7 +825,30 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
     </div>
   </div>
 </div>
-
+<!-- MODAL BOAS-VINDAS GOOGLE -->
+<div id="google-welcome-overlay" class="overlay" style="display:none;z-index:9999;">
+  <div style="border-radius:16px;padding:24px 20px 20px;width:calc(100% - 48px);max-width:340px;background:var(--bg-modal, #ffffff);border:0.5px solid var(--bd-modal, #e2e8f0);">
+    <div style="width:52px;height:52px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:22px;">🦷</div>
+    <p style="font-size:17px;font-weight:500;text-align:center;margin:0 0 4px;color:var(--color-text-primary);">Bem-vindo ao OdontoDex!</p>
+    <p style="font-size:13px;text-align:center;margin:0 0 20px;color:var(--color-text-secondary);">Confirme suas informações para personalizar o app</p>
+    <p style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;color:var(--color-text-secondary);">Seu nome</p>
+    <input id="gw-nome" type="text" class="input-field" style="margin-bottom:18px;" placeholder="Como quer ser chamado?" oninput="gwValidarBotao()">
+    <p style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;color:var(--color-text-secondary);">Seu perfil</p>
+    <div style="display:flex;gap:8px;margin-bottom:18px;">
+      <button type="button" class="select-btn" id="gw-btn-dentista" onclick="gwSelecionarPerfil('dentista')">🦷 Dentista formado</button>
+      <button type="button" class="select-btn" id="gw-btn-estudante" onclick="gwSelecionarPerfil('estudante')">📚 Estudante</button>
+    </div>
+    <div id="gw-bloco-trat" style="display:none;margin-bottom:18px;">
+      <p style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;color:var(--color-text-secondary);">Tratamento</p>
+      <div style="display:flex;gap:8px;">
+        <button type="button" class="select-btn" id="gw-btn-dr" onclick="gwSelecionarTrat('Dr.')">👨‍⚕️ Dr.</button>
+        <button type="button" class="select-btn" id="gw-btn-dra" onclick="gwSelecionarTrat('Dra.')">👩‍⚕️ Dra.</button>
+        <button type="button" class="select-btn" id="gw-btn-semtitulo" onclick="gwSelecionarTrat('')">🙂 Sem título</button>
+      </div>
+    </div>
+    <button id="gw-btn-confirmar" onclick="gwConfirmar()" disabled style="width:100%;padding:13px;background:#cbd5e1;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:not-allowed;">Começar a usar o OdontoDex</button>
+  </div>
+</div>
 <!-- PWA INSTALL BANNER (Android/Chrome) -->
 <div id="pwa-banner">
   <div class="pwa-icon">🦷</div>
@@ -1212,46 +1238,75 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
   </div>
 </div>
 <!-- MODAL DE CANCELAMENTO PREMIUM -->
-<div class="overlay" id="cancel-overlay" onclick="hideCancelModal()">
-  <div class="modal" onclick="event.stopPropagation()" style="max-height: 85vh; overflow-y: auto; max-width: 400px;">
-    
-    <div style="font-size: 44px; text-align: center;">❌</div>
-    
-    <h2 class="modal-title" style="font-size: 20px; text-align: center;">Cancelar assinatura</h2>
-    
-    <p class="modal-sub" style="text-align: center;">Sentimos muito por ver você partir. Sua opinião nos ajuda a melhorar.</p>
-    
-    <div style="width: 100%; margin: 16px 0 8px;">
-      
-      <div class="section-label" style="margin-bottom: 12px;">📋 Por que está cancelando?</div>
-      
-      <div id="cancel-reasons" style="display: flex; flex-direction: column; gap: 8px;">
-        <button class="cancel-reason-btn" data-reason="Muito caro">💰 Muito caro</button>
-        <button class="cancel-reason-btn" data-reason="Não uso o suficiente">📉 Não uso o suficiente</button>
-        <button class="cancel-reason-btn" data-reason="Encontrei algo melhor">🦷 Encontrei algo melhor</button>
-        <button class="cancel-reason-btn" data-reason="Problemas técnicos">🐛 Problemas técnicos no app</button>
-        <button class="cancel-reason-btn" data-reason="Não atendeu minhas expectativas">😞 Não atendeu minhas expectativas</button>
-        <button class="cancel-reason-btn" data-reason="Outro">📝 Outro</button>
+<div class="overlay" id="cancel-overlay">
+  <div class="modal" onclick="event.stopPropagation()" style="max-height:88vh;overflow-y:auto;max-width:400px;padding:28px 24px;">
+
+    <!-- ETAPA 1: O que você vai perder -->
+    <div id="cancel-step-1">
+      <div style="font-size:40px;text-align:center;margin-bottom:12px">💎</div>
+      <h2 class="modal-title" style="font-size:19px;text-align:center;margin-bottom:6px">Cancelar assinatura?</h2>
+      <p class="modal-sub" style="text-align:center;margin-bottom:20px">Você vai perder acesso a:</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px">
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(124,63,160,0.07);border-radius:12px;padding:12px 14px">
+          <span style="font-size:20px">📋</span>
+          <span style="font-size:14px;font-weight:600;color:var(--text)">Todos os protocolos clínicos completos</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(124,63,160,0.07);border-radius:12px;padding:12px 14px">
+          <span style="font-size:20px">💊</span>
+          <span style="font-size:14px;font-weight:600;color:var(--text)">Prescrições e pacientes especiais</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(124,63,160,0.07);border-radius:12px;padding:12px 14px">
+          <span style="font-size:20px">🆘</span>
+          <span style="font-size:14px;font-weight:600;color:var(--text)">S.O.S. Clínico completo</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:12px;background:rgba(124,63,160,0.07);border-radius:12px;padding:12px 14px">
+          <span style="font-size:20px">📴</span>
+          <span style="font-size:14px;font-weight:600;color:var(--text)">Acesso offline no consultório</span>
+        </div>
       </div>
-      
-      <div id="other-reason-input" style="display: none; margin-top: 12px;">
-        <input type="text" id="cancel-other-text" class="input-field" placeholder="Digite o motivo..." style="width: 100%;">
-      </div>
-      
-      <div style="margin-top: 20px;">
-        <div class="section-label" style="margin-bottom: 8px;">💡 Sugestão para melhorarmos</div>
-        <textarea id="cancel-suggestion" class="input-field" rows="3" placeholder="O que poderia ser melhor? (opcional)" style="width: 100%; resize: none;"></textarea>
-      </div>
-      
+      <button onclick="hideCancelModal()" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;font-family:inherit">
+        Manter minha assinatura
+      </button>
+      <button onclick="cancelStep(2)" style="width:100%;background:none;border:none;font-size:13px;color:#94A3B8;cursor:pointer;font-family:inherit;padding:4px">
+        Continuar cancelamento
+      </button>
     </div>
-    
-    <div style="display: flex; gap: 10px; width: 100%; margin-top: 16px;">
-      <button class="btn-cancel" onclick="hideCancelModal()" style="flex: 1;">Voltar</button>
-      <button class="btn-primary" onclick="submitCancel()" style="flex: 1; background: #DC2626;">Confirmar cancelamento</button>
+
+    <!-- ETAPA 2: Motivo -->
+    <div id="cancel-step-2" style="display:none">
+      <div style="font-size:40px;text-align:center;margin-bottom:12px">🤔</div>
+      <h2 class="modal-title" style="font-size:19px;text-align:center;margin-bottom:6px">Por que está cancelando?</h2>
+      <p class="modal-sub" style="text-align:center;margin-bottom:20px">Sua resposta nos ajuda a melhorar</p>
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
+        <button class="cancel-reason-btn" data-reason="Preço alto" onclick="selectCancelReason(this)">💸 Preço alto</button>
+        <button class="cancel-reason-btn" data-reason="Não uso com frequência" onclick="selectCancelReason(this)">📅 Não uso com frequência</button>
+        <button class="cancel-reason-btn" data-reason="Encontrei outra solução" onclick="selectCancelReason(this)">🔄 Encontrei outra solução</button>
+        <button class="cancel-reason-btn" data-reason="Problemas técnicos" onclick="selectCancelReason(this)">⚙️ Problemas técnicos</button>
+        <button class="cancel-reason-btn" data-reason="Outro" onclick="selectCancelReason(this)">💬 Outro motivo</button>
+      </div>
+      <div id="other-reason-input" style="display:none;margin-bottom:16px">
+        <textarea id="cancel-other-text" placeholder="Conte mais..." style="width:100%;border-radius:12px;border:1px solid #E2E8F0;padding:12px;font-size:14px;font-family:inherit;resize:none;height:80px;box-sizing:border-box"></textarea>
+      </div>
+      <button id="confirm-cancel-btn" onclick="submitCancel()" disabled style="width:100%;background:#DC2626;color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit;opacity:0.4;transition:opacity 0.2s">
+        Confirmar cancelamento
+      </button>
+      <button onclick="cancelStep(1)" style="width:100%;background:none;border:none;font-size:13px;color:#94A3B8;cursor:pointer;font-family:inherit;padding:12px 4px 4px">
+        ← Voltar
+      </button>
     </div>
-    
-    <p class="modal-sub" style="margin-top: 12px; font-size: 11px; text-align: center;">🔒 Você mantém acesso até o fim do período já pago.</p>
-    
+
+    <!-- ETAPA 3: Confirmação -->
+    <div id="cancel-step-3" style="display:none;text-align:center">
+      <div style="font-size:48px;margin-bottom:16px">✓</div>
+      <h2 class="modal-title" style="font-size:19px;margin-bottom:8px">Assinatura cancelada</h2>
+      <p class="modal-sub" style="margin-bottom:8px">Seu acesso premium continua até</p>
+      <div id="cancel-expiry-date" style="font-size:18px;font-weight:800;color:#7C3FA0;margin-bottom:16px">—</div>
+      <p class="modal-sub" style="margin-bottom:24px;font-size:13px">Depois disso, você volta ao plano gratuito automaticamente. Se mudar de ideia, é só assinar novamente.</p>
+      <button onclick="hideCancelModal()" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">
+        Entendido
+      </button>
+    </div>
+
   </div>
 </div>
 <!-- PAYMENT SCREEN -->
@@ -1274,23 +1329,61 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
       <div class="payment-security-txt">Pagamento 100% seguro · Seus dados são protegidos pelo Mercado Pago · PCI DSS compliant</div>
     </div>
     <div style="font-size:12px;color:#64748B;line-height:1.6;padding:12px 0 4px;text-align:center;">Ao assinar, você concorda com nossos <a href="/termos" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Termos de Uso</a> e nossa <a href="/privacidade" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Política de Privacidade</a>. Cancele quando quiser.</div>
-    <!-- CAMPO CÓDIGO DE PARCEIRO -->
-<div id="cupom-box" style="background:#fff;border:0.5px solid #E2E8F0;border-radius:16px;padding:14px 16px;margin-bottom:16px;">
-  <div style="font-size:11px;font-weight:700;color:#64748B;letter-spacing:0.5px;margin-bottom:8px;">CÓDIGO DE PARCEIRO</div>
-  <div style="display:flex;gap:8px;align-items:center;">
-    <input type="text" id="cupom-input" placeholder="Digite o código (opcional)" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false"
-      style="flex:1;border:0.5px solid #E2E8F0;border-radius:10px;padding:10px 12px;font-size:14px;background:#F8FAFC;color:#0F172A;outline:none;font-family:inherit;transition:border-color 0.2s;"
-      oninput="verificarCupom(this.value)">
-    <div id="cupom-icon" style="width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;"></div>
+    <!-- CUPOM PARCEIRO -->
+<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:4px;">
+  <div style="font-size:11px;font-weight:700;color:#64748B;letter-spacing:0.5px;text-transform:uppercase;">🎟️ Cupom de parceiro</div>
+  <div id="cupom-row" style="display:flex;align-items:center;gap:8px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:14px;padding:11px 14px;">
+    <span style="font-size:16px;">🏷️</span>
+    <input id="cupom-input" type="text" placeholder="Digite o código" maxlength="20" style="flex:1;border:none;background:transparent;font-size:14px;font-weight:600;color:#0F172A;outline:none;text-transform:uppercase;letter-spacing:1px;font-family:inherit;" oninput="verificarCupom(this.value)">
+    <span id="cupom-status" style="font-size:18px;"></span>
   </div>
-  <div id="cupom-msg" style="font-size:12px;margin-top:8px;display:none;"></div>
+  <div id="cupom-feedback" style="display:none;font-size:12px;font-weight:600;padding:8px 12px;border-radius:10px;"></div>
 </div>
+    <button onclick="abrirPixModal()" style="width:100%;background:#00B37E;color:#fff;border:none;border-radius:20px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;">
+  <span style="font-size:22px;">📱</span>
+  <span>Pagar com Pix</span>
+</button>
+<div style="text-align:center;font-size:12px;color:#94A3B8;margin-bottom:16px;">— ou pague com cartão —</div>
     <div id="mp-brick-container">
       <div class="loading-brick">
         <div class="spinner" style="border-color:#7C3FA0;border-top-color:transparent;"></div>
         <span>Carregando formulário de pagamento...</span>
       </div>
     </div>
+  </div>
+</div>
+  <!-- MODAL PIX -->
+<div class="overlay" id="pix-overlay" onclick="fecharPixModal()">
+  <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
+    <div style="font-size:44px;margin-bottom:4px;">📱</div>
+    <h2 class="modal-title" style="font-size:20px;">Pagar com Pix</h2>
+    <p class="modal-sub" id="pix-status-msg">Gerando QR Code...</p>
+
+    <div id="pix-loading" style="padding:20px;">
+      <div class="spinner" style="border-color:#00B37E;border-top-color:transparent;margin:0 auto;"></div>
+    </div>
+
+    <div id="pix-content" style="display:none;width:100%;">
+      <img id="pix-qrcode-img" src="" style="width:200px;height:200px;border-radius:16px;border:2px solid #E2E8F0;margin-bottom:16px;">
+      
+      <div style="background:#F1F5F9;border-radius:14px;padding:12px;margin-bottom:16px;word-break:break-all;font-size:11px;color:#475569;text-align:left;max-height:80px;overflow:hidden;" id="pix-code-display"></div>
+      
+      <button onclick="copiarPixCode()" style="width:100%;background:#00B37E;color:#fff;border:none;border-radius:20px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px;">
+        📋 Copiar código Pix
+      </button>
+      
+      <div id="pix-aguardando" style="display:none;margin-top:8px;padding:10px 14px;background:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;">
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+    <div class="spinner" style="width:14px;height:14px;border-width:2px;border-color:#7C3FA0;border-top-color:transparent;flex-shrink:0;"></div>
+    <span style="font-size:13px;font-weight:700;color:#7C3FA0;">Aguardando confirmação do pagamento...</span>
+  </div>
+  <p style="font-size:11px;color:#94A3B8;line-height:1.6;margin:0;">O acesso será liberado automaticamente após a confirmação.</p>
+</div>
+    </div>
+
+    <div id="pix-error" style="display:none;color:#DC2626;font-size:13px;padding:10px;"></div>
+
+    <button onclick="fecharPixModal()" class="btn-ghost" style="margin-top:8px;">Fechar</button>
   </div>
 </div>
   <!-- BOTTOM NAV -->
@@ -1345,7 +1438,7 @@ const INITIAL_DATA = {
   ],
   situations:{
     dentistica:[{id:"d1",label:"Cárie profunda"},{id:"d2",label:"Fratura de dente"},{id:"d3",label:"Restauração de rotina"},{id:"d4",label:"Dente sensível"},{id:"d5",label:"Troca de amálgama"},{id:"d6",label:"Clareamento dental"}],
-    protese:[{id:"hdr-fixa",label:"PRÓTESE FIXA",type:"header"},{id:"p1",label:"Dente com pouca estrutura"},{id:"p2",label:"Preciso de provisório"},{id:"p3",label:"Coroa solta"},{id:"p4",label:"Cimentação definitiva"},{id:"p5",label:"Ajuste oclusal"},{id:"hdr-removivel",label:"PRÓTESE REMOVÍVEL",type:"header"},{id:"p6",label:"Prótese incomodando"},{id:"p7",label:"Prótese folgada"},{id:"p8",label:"Dente da prótese soltou"},{id:"hdr-implante",label:"PRÓTESE SOBRE IMPLANTE",type:"header"},{id:"imp_pilar",label:"Escolher o pilar certo"},{id:"imp_provisorio",label:"Provisório sobre implante"},{id:"imp_moldagem_aberta",label:"Moldagem aberta"},{id:"imp_moldagem_fechada",label:"Moldagem fechada"},{id:"imp_instalar_coroa",label:"Instalar coroa unitária"},{id:"imp_carga_imediata",label:"Carga imediata"},{id:"imp_afrouxamento",label:"Afrouxamento de parafuso"},{id:"imp_parafuso_fraturado",label:"Parafuso fraturado"},{id:"imp_fratura_dente",label:"Fratura de dente em protocolo"},{id:"imp_cimento_extravasado",label:"Remoção de cimento extravasado"}],
+    protese:[{id:"hdr-fixa",label:"PRÓTESE FIXA",type:"header"},{id:"p1",label:"Dente com pouca estrutura"},{id:"p2",label:"Preciso de provisório"},{id:"p3",label:"Coroa solta"},{id:"p4",label:"Cimentação definitiva"},{id:"p5",label:"Ajuste oclusal"},{id:"p9",label:"Coroa não entra — Ajuste e decisão"},{id:"p10",label:"Moldagem para Coroa/Ponte"},{id:"p11",label:"Reparo de Porcelana/Cerâmica"},{id:"hdr-removivel",label:"PRÓTESE REMOVÍVEL",type:"header"},{id:"p6",label:"Prótese incomodando"},{id:"p7",label:"Prótese folgada"},{id:"p8",label:"Dente da prótese soltou"},{id:"p12",label:"Prótese quebrada — Laboratório"},{id:"hdr-implante",label:"PRÓTESE SOBRE IMPLANTE",type:"header"},{id:"imp_pilar",label:"Escolher o pilar certo"},{id:"imp_provisorio",label:"Provisório sobre implante"},{id:"imp_moldagem_aberta",label:"Moldagem aberta"},{id:"imp_moldagem_fechada",label:"Moldagem fechada"},{id:"imp_instalar_coroa",label:"Instalar coroa unitária"},{id:"imp_carga_imediata",label:"Carga imediata"},{id:"imp_afrouxamento",label:"Afrouxamento de parafuso"},{id:"imp_parafuso_fraturado",label:"Parafuso fraturado"},{id:"imp_fratura_dente",label:"Fratura de dente em protocolo"},{id:"imp_cimento_extravasado",label:"Remoção de cimento extravasado"}],
     endodontia:[{id:"e1",label:"Urgência endodôntica"},{id:"e2",label:"Medicação e retorno"}],
     cirurgia:[{id:"c1",label:"Extração simples"},{id:"c2",label:"Dente impactado / siso"},{id:"c3",label:"Sangramento pós-extração"},{id:"c4",label:"Alveolite"},{id:"c5",label:"Sutura"}],
     perio:[{id:"pe1",label:"Sangramento gengival"},{id:"pe3",label:"Abscesso periodontal"}],
@@ -1358,11 +1451,11 @@ const INITIAL_DATA = {
     d4:[{id:"dessensibilizante",label:"Dessensibilizante",free:true},{id:"recessao-gengival",label:"Sensibilidade por Recessão",free:true},{id:"ajuste-oclusal-pos-rest",label:"Ajuste Oclusal pós-restauração",free:true}],
     d5:[{id:"resina-comp",label:"Resina Composta",free:true}],
     d6:[{id:"clareamento-consultorio",label:"Clareamento em Consultório",free:false},{id:"clareamento-caseiro",label:"Clareamento Caseiro",free:true}],
-    p1:[{id:"pino-nucleo",label:"Pino + Núcleo",free:true},{id:"coroa-direta",label:"Coroa Direta",free:false}],
+    p1:[{id:"pino-nucleo",label:"Pino de Fibra + Núcleo em Resina",free:true},{id:"coroa-direta",label:"Coroa Direta",free:false}],
     p2:[{id:"provisorio-resina",label:"Provisório em Resina",free:true},{id:"provisorio-bisacril",label:"Bis-acryl direto",free:false}],
     p3:[{id:"recimentar-metal",label:"Recimentar — Metalo-cerâmica / Metal",free:true},{id:"recimentar-ceramica",label:"Recimentar — Porcelana / Zircônia / Disilicato",free:true},{id:"nova-coroa",label:"Planejar Nova Coroa",free:false}],
     p4:[{id:"cimentacao-metal",label:"Cimentação — Metalo-cerâmica / Metal",free:true},{id:"cimentacao-ceramica",label:"Cimentação — Porcelana / Zircônia / Disilicato",free:true}],
-    p5:[{id:"ajuste-oclusal",label:"Ajuste Oclusal",free:true}],p6:[{id:"protese-incomodando",label:"Ajuste de Base / Borda",free:true}],p7:[{id:"reemb-prov-pt",label:"Reembasamento Provisório — PT",free:true},{id:"reemb-prov-ppr",label:"Reembasamento Provisório — PPR",free:true},{id:"reemb-def-pt",label:"Reembasamento Definitivo — PT",free:false},{id:"reemb-def-ppr",label:"Reembasamento Definitivo — PPR",free:false}],p8:[{id:"dente-protese-soltou",label:"Reparo na Cadeira",free:true},{id:"dente-protese-laboratorio",label:"Encaminhar Laboratório",free:false}],
+    p5:[{id:"ajuste-oclusal",label:"Ajuste Oclusal",free:true}],p9:[{id:"coroa-nao-entra",label:"Coroa não entra — Ajuste e decisão",free:true}],p10:[{id:"moldagem-coroa-ponte",label:"Moldagem — Silicone de Adição (1 passo)",free:false}],p11:[{id:"reparo-porcelana",label:"Reparo Intraoral de Porcelana/Cerâmica",free:false}],p6:[{id:"protese-incomodando",label:"Ajuste de Base / Borda",free:true}],p7:[{id:"reemb-prov-pt",label:"Reembasamento Provisório — PT",free:true},{id:"reemb-prov-ppr",label:"Reembasamento Provisório — PPR",free:true},{id:"reemb-def-pt",label:"Reembasamento Definitivo — PT",free:false},{id:"reemb-def-ppr",label:"Reembasamento Definitivo — PPR",free:false}],p8:[{id:"dente-protese-soltou",label:"Reparo na Cadeira",free:true},{id:"dente-protese-laboratorio",label:"Encaminhar Laboratório",free:false}],p12:[{id:"protese-quebrada-lab",label:"Prótese Quebrada — Envio ao Laboratório",free:false}],p12:[{id:"protese-quebrada-lab",label:"Prótese Quebrada — Envio ao Laboratório",free:false}],
     e1:[{id:"endo-urgencia",label:"Urgência Endodôntica",free:true}],
     e2:[{id:"medicacao",label:"Medicação + Retorno",free:true}],
     
@@ -1396,22 +1489,22 @@ const INITIAL_DATA = {
     imp_cimento_extravasado:[{id: "imp_cimento_extravasado_protocolo", label: "Remoção de cimento extravasado", free: false}]
   },
   protocols:{
-    "pino-nucleo":{title:"Pino + Núcleo",time:"60 min",level:"difícil",free:true,steps:["[CONDUTO] Remover guta: Broca Gates Glidden #2–#4 nos 4–5mm iniciais → Broca Largo #1–#3 para terço médio e cervical — preservar 4mm apicais","[CONDUTO] Prova do pino — deve assentar passivamente, nunca forçar","[CONDUTO] Lavar com NaOCl + EDTA 17% → secar com cones de papel","[CONDUTO] Ácido fosfórico 35–37% por 15s → lavar abundantemente → secar com cones de papel (deixar levemente úmido)","[CONDUTO] Adesivo com microbrush dentro do canal → fotopolimerizar 20s","[PINO] Jatear com óxido de alumínio 50µm (2–3s, 2cm, 45°) → limpar com álcool 70°","[PINO] Silano: aguardar 60s — NÃO SOPRAR","[PINO] Adesivo no pino → fotopolimerizar 20s","[CIMENTAÇÃO] Resina dual: aplicar dentro do canal com ponteira e no pino → remover excessos → fotopolimerizar 40s por face (mínimo 3 faces)","Construir núcleo em resina composta (incrementos ≤2mm) → encaminhar para coroa"],errors:["Remover além de 2/3 da guta — compromete vedamento apical","Não fazer condicionamento ácido no conduto","Condicionar >15s — pode sensibilizar a dentina","Não jatear o pino — falha adesiva previsível","Soprar o silano antes de 60s","Forçar pino sem calibrar — risco de fratura radicular","Usar cimento de fosfato de zinco — usar sempre resina dual"],decisions:[{if:"Canal largo (diâmetro > 1/3 da raiz)",then:"Reembasar pino com resina flow antes de cimentar"},{if:"Estrutura coronária < 50% após núcleo",then:"Coroa obrigatória — não restaurar diretamente"},{if:"Canal muito curvo",then:"Pino curto + núcleo longo — nunca force"},{if:"Menos de 1mm de estrutura",then:"Avaliar prognóstico — pode ser exodontia"}],panic:[{problem:"Pino não entra até o comprimento",solution:"Ajustar com broca calibrada — nunca forçar. Se não entrar, usar pino mais curto"},{problem:"Pino soltou em menos de 7 dias",solution:"Remover, limpar canal e pino, secar bem e recimentar com resina dual"},{problem:"Fratura radicular ao inserir",solution:"Parar imediatamente. Avaliar com RX. Se fratura vertical → exodontia"},{problem:"Bolha no cimento visível no RX",solution:"Remover pino, eliminar bolha, recimentar com ponteira"}],crises:[{label:"Pino soltou",target:"pino-nucleo"}]},
+    "pino-nucleo":{title:"Pino de Fibra + Núcleo em Resina",time:"60 min",level:"difícil",free:true,steps:["[CONDUTO] Remover guta: Broca Gates Glidden #2–#4 nos 4–5mm iniciais → Broca Largo #1–#3 para terço médio e cervical — preservar 4mm apicais","[CONDUTO] Prova do pino — deve assentar passivamente, nunca forçar","[CONDUTO] Lavar com NaOCl + EDTA 17% → secar com cones de papel","[CONDUTO] Ácido fosfórico 35–37% por 15s → lavar abundantemente → secar com cones de papel (deixar levemente úmido)","[CONDUTO] Adesivo com microbrush dentro do canal → fotopolimerizar 20s","[PINO] Jatear com óxido de alumínio 50µm (2–3s, 2cm, 45°) → limpar com álcool 70°","[PINO] Silano: aguardar 60s — NÃO SOPRAR","[PINO] Adesivo no pino → fotopolimerizar 20s","[CIMENTAÇÃO] Resina dual: aplicar dentro do canal com ponteira e no pino → remover excessos → fotopolimerizar 40s por face (mínimo 3 faces)","Construir núcleo em resina composta (incrementos ≤2mm) → encaminhar para coroa"],errors:["Remover além de 2/3 da guta — compromete vedamento apical","Não fazer condicionamento ácido no conduto","Condicionar >15s — pode sensibilizar a dentina","Não jatear o pino — falha adesiva previsível","Soprar o silano antes de 60s","Forçar pino sem calibrar — risco de fratura radicular","Usar cimento de fosfato de zinco — usar sempre resina dual"],decisions:[{if:"Canal largo (diâmetro > 1/3 da raiz)",then:"Reembasar pino com resina flow antes de cimentar"},{if:"Estrutura coronária < 50% após núcleo",then:"Coroa obrigatória — não restaurar diretamente"},{if:"Canal muito curvo",then:"Pino curto + núcleo longo — nunca force"},{if:"Menos de 1mm de estrutura",then:"Avaliar prognóstico — pode ser exodontia"}],panic:[{problem:"Pino não entra até o comprimento",solution:"Ajustar com broca calibrada — nunca forçar. Se não entrar, usar pino mais curto"},{problem:"Pino soltou em menos de 7 dias",solution:"Remover, limpar canal e pino, secar bem e recimentar com resina dual"},{problem:"Fratura radicular ao inserir",solution:"Parar imediatamente. Avaliar com RX. Se fratura vertical → exodontia"},{problem:"Bolha no cimento visível no RX",solution:"Remover pino, eliminar bolha, recimentar com ponteira"}],crises:[{label:"Pino soltou",target:"pino-nucleo"}]},"coroa-nao-entra":{title:"Coroa não entra — Ajuste e Decisão",time:"15 min",level:"fácil",free:true,steps:["Remova o provisório e limpe completamente o preparo — elimine cimento provisório, resíduos e detritos.","Prove a coroa sem cimento e observe se ela assenta completamente.","Teste os contatos proximais com fio dental — se o fio não passa, desfia ou entra com muita resistência, o contato está apertado.","Ajuste o contato proximal da coroa de forma conservadora — nunca desgaste o dente adjacente.","Se os proximais estiverem adequados e a coroa ainda não assentar, use spray indicador ou silicone tipo Fit Checker na parte interna da coroa.","Desgaste apenas os pontos internos marcados e teste novamente.","Confira a margem com explorador em toda a volta — a coroa deve assentar completamente antes de qualquer cimentação.","Se houver tecido mole interferindo, afaste/maneje o tecido e teste novamente.","Se mesmo após ajustes conservadores a coroa não assentar, não force e não cimente — devolva ao laboratório ou refaça.","Só depois de confirmar assentamento completo, cheque oclusão e siga para cimentação conforme o material."],errors:["Cimentar coroa que não assentou completamente","Forçar a coroa para tentar encaixar","Ajustar no olho sem identificar onde está travando","Desgastar o dente adjacente em vez da coroa","Checar oclusão antes de confirmar assentamento","Cimentar com margem aberta"],decisions:[{if:"Fio dental não passa ou desfia",then:"Ajuste o contato proximal da coroa"},{if:"Proximais estão bons, mas a coroa não assenta",then:"Use indicador interno e alivie apenas os pontos marcados"},{if:"A margem continua aberta após ajustes conservadores",then:"Não cimente; devolva ao laboratório ou refaça"},{if:"O preparo foi alterado após a moldagem/escaneamento",then:"Nova moldagem/escaneamento e nova coroa"}],panic:[{problem:"Coroa não assenta de jeito nenhum",solution:"Não force. Reavalie proximal, parte interna, margem e preparo. Se não resolver com ajustes conservadores, devolva ao laboratório."},{problem:"Margem aberta mesmo após ajustes",solution:"Não cimente. Margem aberta compromete adaptação e favorece infiltração."},{problem:"A coroa assentou, mas ficou alta",solution:"Confirme que ela está totalmente assentada. Se estiver, faça ajuste oclusal seletivo."}],crises:[]},"moldagem-coroa-ponte":{title:"Moldagem para Coroa/Ponte — Silicone de Adição, Técnica Simultânea",time:"30 min",level:"médio",free:false,steps:["Confirme que a gengiva está saudável, sem inflamação ou sangramento ativo.","Remova o provisório e limpe completamente o preparo com pedra-pomes.","Selecione e prove a moldeira total de estoque.","Aplique adesivo específico para silicone de adição na moldeira e aguarde secar.","Isole o campo, controle saliva e seque bem os preparos.","Selecione o fio retrator conforme o caso: fio fino #000 ou #00 para sulco delicado; fio #0 ou #1 quando precisar de maior afastamento. Em margens subgengivais, considerar técnica de fio duplo.","Insira o fio retrator com agente hemostático/adstringente compatível e aguarde o tempo indicado pelo fabricante.","Remova o fio superficial, seque o sulco e injete o silicone leve ao redor dos preparos, mantendo a ponta sempre próxima à margem.","Carregue a moldeira com silicone pesado e assente imediatamente em boca, com movimento único e firme.","Mantenha a moldeira imóvel até a presa completa, conforme o tempo do fabricante.","Remova o molde com movimento único, firme e no longo eixo.","Inspecione o molde antes de dispensar o paciente: margens nítidas, sem bolhas, sem rasgos cervicais e sem descolamento do material da moldeira.","Faça moldagem do antagonista e registro oclusal.","Registre a cor e envie ao laboratório a referência completa: cor escolhida, escala utilizada, fotos se possível e observações relevantes.","Lave, desinfete conforme protocolo/fabricante e envie ao laboratório.","Confeccione ou recimente o provisório antes de o paciente sair."],errors:["Moldar com gengiva inflamada ou sangrando","Manipular silicone de adição com luva de látex","Não usar adesivo na moldeira","Não controlar saliva e umidade","Perder o tempo de trabalho do material","Movimentar a moldeira durante a presa","Enviar molde com bolha ou rasgo na margem","Enviar ao laboratório sem antagonista, registro oclusal ou referência de cor","Não informar a escala de cor utilizada"],decisions:[{if:"Gengiva inflamada ou sangrando",then:"Não molde; controle tecido, ajuste provisório e remarque."},{if:"Margem subgengival",then:"Use fio duplo; se ainda não houver acesso à margem, reavalie o preparo ou considere aumento de coroa clínica."},{if:"Sangrou ao remover o fio",then:"Controle a hemostasia antes de injetar o silicone leve."},{if:"Molde tem bolha, rasgo ou margem incompleta",then:"Refaça; não envie ao laboratório."},{if:"São múltiplos preparos e o tempo estiver difícil de controlar",then:"Considere técnica de 2 passos ou escaneamento, se disponível."}],panic:[{problem:"O silicone começou a prender antes de assentar",solution:"Não force. Remova o material e refaça com silicone novo."},{problem:"A moldeira mexeu durante a presa",solution:"Considere o molde distorcido e refaça."},{problem:"Bolha exatamente na margem",solution:"Refaça. Não conte com correção laboratorial."},{problem:"Material descolou da moldeira",solution:"Refaça usando adesivo correto e respeitando o tempo de secagem."},{problem:"Moldagem boa, mas sem antagonista, registro ou cor",solution:"Não envie incompleta. Faça os registros necessários antes de liberar o caso."}],crises:[]},"reparo-porcelana":{title:"Reparo Intraoral de Porcelana/Cerâmica",time:"40 min",level:"médio",free:false,steps:["Avalie se a coroa está bem adaptada, sem mobilidade, sem margem aberta e sem infiltração.","Identifique o que ficou exposto no lascamento: porcelana/cerâmica, metal ou zircônia.","Cheque a oclusão antes do reparo — se a área fraturada recebe carga pesada, o reparo tende a falhar.","Isole bem o campo e proteja tecidos moles, principalmente se for usar ácido fluorídrico.","Asperize a área fraturada com ponta diamantada ou jateamento com óxido de alumínio, se disponível.","Se for porcelana/cerâmica vítrea: condicione com ácido fluorídrico conforme fabricante → lave abundantemente → seque → aplique silano.","Se for metal ou zircônia: não use fluorídrico como etapa principal → jateie/asperize e aplique primer específico com MDP.","Aplique adesivo conforme o sistema escolhido e fotopolimerize.","Reconstrua a área com resina composta em incrementos pequenos, devolvendo forma, contato e estética.","Ajuste oclusão, acabamento e polimento cuidadoso da área reparada.","Oriente o paciente de que o reparo aumenta a longevidade da peça, mas pode não ter a mesma previsibilidade de uma nova coroa."],errors:["Reparar coroa com margem aberta, infiltração ou má adaptação","Ignorar contato oclusal pesado na área fraturada","Usar ácido fluorídrico em zircônia como se fosse porcelana vítrea","Não proteger tecidos moles ao usar ácido fluorídrico","Não usar silano em porcelana/cerâmica vítrea condicionada","Não usar primer MDP em metal ou zircônia","Fazer reparo sem acabamento e polimento adequado","Prometer ao paciente que o reparo terá a mesma durabilidade de uma nova coroa"],decisions:[{if:"Lascamento pequeno, sem carga oclusal importante",then:"Polimento ou reparo simples podem ser suficientes."},{if:"Porcelana/cerâmica vítrea está exposta",then:"Asperização + ácido fluorídrico conforme fabricante + silano + adesivo + resina composta."},{if:"Metal está exposto",then:"Asperização/jateamento + primer para metal/MDP + adesivo + resina composta."},{if:"Zircônia está exposta",then:"Asperização/jateamento + primer MDP para zircônia + adesivo/resina composta."},{if:"A fratura envolve margem, adaptação ou contato proximal importante",then:"Não trate como reparo simples; avalie laboratório ou nova coroa."},{if:"A área fraturada recebe carga oclusal pesada",then:"Ajuste a causa ou considere nova peça; o reparo isolado tende a falhar."}],panic:[{problem:"Fratura extensa com metal/zircônia exposta",solution:"Avalie se há condição real de reparo. Se estética, função ou retenção estiverem comprometidas, planeje nova coroa."},{problem:"Paciente exige estética perfeita",solution:"Não prometa resultado invisível. Explique que reparo intraoral pode melhorar, mas pode não igualar uma nova peça."},{problem:"Reparou e ficou alto em oclusão",solution:"Ajuste imediatamente. Contato alto aumenta risco de nova fratura."},{problem:"Ácido fluorídrico tocou tecido mole",solution:"Interrompa, lave abundantemente e avalie a lesão. O uso exige isolamento rigoroso."},{problem:"Reparo soltou em pouco tempo",solution:"Procure causa: carga oclusal, contaminação, protocolo adesivo inadequado ou material exposto tratado de forma errada."}],crises:[]},
     "apenas-nucleo":{title:"Apenas Núcleo",time:"20 min",level:"fácil",free:true,steps:["Avaliar estrutura remanescente (mínimo 2 paredes)","Criar retenção: caixas ou pins","Isolamento absoluto rigoroso","Condicionamento ácido (30s esmalte / 15s dentina)","Lavar 30s, secar levemente","Aplicar adesivo + fotopolimerizar 20s","Inserir resina em incrementos ≤2mm","Modelar o núcleo no formato do preparo","Fotopolimerizar cada incremento 40s","Checar oclusão e ajustar"],errors:["Fazer núcleo sem retenção mecânica","Não usar isolamento absoluto","Incrementos grossos >2mm","Não verificar oclusão ao final"],decisions:[{if:"Estrutura < 50% da coroa",then:"Considerar pino intrarradicular"},{if:"Dente vital com risco de exposição",then:"Capeamento pulpar antes do núcleo"}],panic:[{problem:"Núcleo fraturou logo",solution:"Refazer com pino para maior retenção"},{problem:"Contaminação salival",solution:"Lavar, resecar e reaplicar adesivo por completo"}],crises:[]},
-    "coroa-direta":{title:"Coroa Direta",time:"60–90 min",level:"difícil",free:false,steps:["Preparo do dente: linha de término cervical intrasulcular, remover ângulos vivos, espessura uniforme — brocas tronco-cônicas + ponta fina para acabamento de margens","Afastamento gengival duplo: fio 00 no sulco durante o preparo → após refinamento, fio 0 para afastamento vertical e horizontal — hemostático à base de cloreto de alumínio (evitar sulfato férrico)","Seleção de cor em luz natural — antes do isolamento","Seleção do material: silicone de adição ou condensação — técnica de dois passos (pesado + leve) ou dupla mistura — moldeira total","Moldagem: posicionar material pesado na moldeira → remover 2º fio → secar margem cervical → aplicar material leve no preparo e dentro do sulco → posicionar moldeira → aguardar 4–5 min","Remover moldagem com cuidado → lavar em água corrente → desinfetar (hipoclorito ou glutaraldeído até 10 min) → enviar ao laboratório","Provisório em bis-acryl → ajustar oclusão e contatos proximais → cimentar com TempBond","Cimentação definitiva com cimento resinoso na instalação da coroa","Checar oclusão em MIC e lateralidade"],errors:["Não usar fio afastador — margem cervical não copiada","Usar sulfato férrico como hemostático — interfere na polimerização do silicone","Não secar a margem antes de aplicar o material leve — bolha na moldagem","Provisório mal adaptado — desconforto e infiltração","Não verificar lateralidade — ponto alto em excursão"],decisions:[{if:"Pouca estrutura remanescente",then:"Pino + núcleo antes do preparo"},{if:"Gengiva inflamada",then:"Tratamento periodontal antes — moldagem imprecisa com gengiva sangrante"},{if:"Margem subgengival muito profunda",then:"Cirurgia de aumento de coroa clínica antes"}],panic:[{problem:"Provisório soltou",solution:"Recimentar com TempBond — verificar retenção do preparo"},{problem:"Coroa não assenta completamente",solution:"Verificar ponto proximal com fio dental abrasivo"},{problem:"Moldagem com bolha na margem",solution:"Refazer — não enviar ao laboratório com defeito"}],crises:[]},
+    "coroa-direta":{title:"Coroa Direta",time:"60–90 min",level:"difícil",free:false,steps:["Preparo do dente: linha de término cervical intrasulcular, remover ângulos vivos, espessura uniforme — brocas tronco-cônicas + ponta fina para acabamento de margens","Afastamento gengival duplo: fio 00 no sulco durante o preparo → após refinamento, fio 0 para afastamento vertical e horizontal — hemostático à base de cloreto de alumínio (evitar sulfato férrico)","Seleção de cor em luz natural — antes do isolamento","Seleção do material: silicone de adição ou condensação — técnica de dois passos (pesado + leve) ou dupla mistura — moldeira total","Moldagem: posicionar material pesado na moldeira → remover 2º fio → secar margem cervical → aplicar material leve no preparo e dentro do sulco → posicionar moldeira → aguardar 4–5 min","Remover moldagem com cuidado → lavar em água corrente → desinfetar (hipoclorito ou glutaraldeído até 10 min) → enviar ao laboratório","Provisório em bis-acryl → ajustar oclusão e contatos proximais → cimentar com TempBond","Cimentação definitiva com cimento resinoso na instalação da coroa","Checar oclusão em MIC e lateralidade"],errors:["Não usar fio afastador — margem cervical não copiada","Usar sulfato férrico como hemostático — interfere na polimerização do silicone","Não secar a margem antes de aplicar o material leve — bolha na moldagem","Provisório mal adaptado — desconforto e infiltração","Não verificar lateralidade — ponto alto em excursão"],decisions:[{if:"Pouca estrutura remanescente",then:"Pino de Fibra + Núcleo em Resina antes do preparo"},{if:"Gengiva inflamada",then:"Tratamento periodontal antes — moldagem imprecisa com gengiva sangrante"},{if:"Margem subgengival muito profunda",then:"Cirurgia de aumento de coroa clínica antes"}],panic:[{problem:"Provisório soltou",solution:"Recimentar com TempBond — verificar retenção do preparo"},{problem:"Coroa não assenta completamente",solution:"Verificar ponto proximal com fio dental abrasivo"},{problem:"Moldagem com bolha na margem",solution:"Refazer — não enviar ao laboratório com defeito"}],crises:[]},
     "provisorio-resina":{title:"Provisório em Resina",time:"20 min",level:"fácil",free:true,steps:["Pegar molde antes do preparo (alginato ou PVS)","Executar o preparo do dente","Preencher o molde com bis-acryl","Levar ao dente no início da presa","Remover na fase borrachosa (1,5–2 min)","Aguardar polimerização fora da boca","Ajustar com broca multilaminada","Polir com disco de feltro + pasta","Cimentar com TempBond"],errors:["Não pegar molde antes do preparo","Deixar resina endurecer dentro da boca","Não polir — provisório rugoso acumula placa"],decisions:[{if:"Sem molde prévio",then:"Usar matriz de cera ou modelar manualmente"},{if:"Baixa retenção",then:"Usar cimento mais resistente (Freegenol)"}],panic:[{problem:"Provisório soltou no mesmo dia",solution:"Ajustar retenção, limpar e recimentar"}],crises:[]},
     "provisorio-bisacril":{title:"Bis-acryl Direto",time:"15 min",level:"fácil",free:false,steps:["Selecionar cor do bis-acryl","Preencher matriz/molde","Posicionar sobre o preparo","Remover na fase borrachosa (~1,5 min)","Aguardar cura completa fora da boca","Ajustar oclusão e contatos proximais","Polir levemente","Cimentar com TempBond"],errors:["Deixar endurecer completamente na boca","Não verificar contatos proximais"],decisions:[{if:"Múltiplos dentes",then:"Usar matriz em segmentos separados"}],panic:[{problem:"Material ficou retido no dente",solution:"Usar alavanca pequena lateralmente — nunca puxar"}],crises:[]},
     "recimentar-metal":{title:"Recimentar — Metalo-cerâmica / Metal",time:"20 min",level:"fácil",free:true,steps:["Remover coroa com remoedor ou fio de pesca — sem forçar","Limpar o dente: pedra-pomes + taça de borracha → checar cárie secundária","Preparar superfície interna da coroa: jatear com óxido de alumínio 50µm → limpar com álcool 70°","Secar o dente com jato de ar","Testar adaptação — coroa deve assentar completamente sem força","Aplicar cimento de ionômero de vidro ou fosfato de zinco na coroa","Assentar com pressão digital + rolete de gaze por 3–5 min","Remover excessos com fio dental antes da presa completa","Checar oclusão em MIC e lateralidade"],errors:["Não jatear a superfície interna — falha adesiva","Cimentar com resíduos de cimento antigo","Não checar oclusão após cimentação"],decisions:[{if:"Soltou mais de 2 vezes",then:"Avaliar novo preparo"},{if:"Cárie no remanescente",then:"Tratar antes de recimentar"},{if:"Coroa íntegra mas preparo insuficiente",then:"Nova coroa"}],panic:[{problem:"Coroa não assenta",solution:"Checar cárie, cálculo ou ponto proximal com fio dental"},{problem:"Excesso de cimento endurecido",solution:"Ultrassom — nunca instrumento cortante"}],crises:[]},
     "recimentar-ceramica":{title:"Recimentar — Porcelana / Zircônia / Disilicato",time:"30 min",level:"médio",free:true,steps:["Remover coroa com remoedor ou fio de pesca — sem forçar","Limpar o dente: pedra-pomes + taça de borracha → checar cárie secundária","Preparar superfície interna da coroa:","→ Porcelana / Disilicato: jatear + ácido fluorídrico 10% por 60s → lavar → silano por 60s → secar","→ Zircônia: jatear com óxido de alumínio 50µm + primer de zircônia → secar","Preparar o dente: condicionamento ácido + adesivo → fotoativar","Testar adaptação — coroa deve assentar completamente sem força","Aplicar cimento resinoso dual na coroa → assentar → fotopolimerizar 40s por face","Remover excessos com fio dental antes da presa completa","Checar oclusão em MIC e lateralidade"],errors:["Usar cimento de fosfato ou ionômero em zircônia ou disilicato — não adere","Não aplicar silano em porcelana — falha adesiva garantida","Não fazer primer de zircônia — o silano sozinho não funciona em zircônia","Cimentar com resíduos de cimento antigo","Não checar oclusão após cimentação"],decisions:[{if:"Soltou mais de 2 vezes",then:"Avaliar novo preparo"},{if:"Cárie no remanescente",then:"Tratar antes de recimentar"},{if:"Coroa íntegra mas preparo insuficiente",then:"Nova coroa"}],panic:[{problem:"Coroa não assenta",solution:"Checar cárie, cálculo ou ponto proximal com fio dental"},{problem:"Excesso de cimento resinoso polimerizado",solution:"Ultrassom — nunca instrumento cortante"}],crises:[]},
-    "nova-coroa":{title:"Planejar Nova Coroa",time:"Planejamento",level:"médio",free:false,steps:["RX periapical — avaliar raiz, osso, lesão apical e altura do remanescente","Teste de vitalidade pulpar — dente sem vitalidade exige endodontia + pino antes","Checar espaço oclusal: mínimo 1,5mm para cerâmica, 0,5mm para zircônia monolítica","Escolher o material: Zircônia monolítica (posterior, bruxismo, espaço reduzido) / Disilicato de lítio (anterior ou pré-molar, alta estética) / Metalo-cerâmica (quando custo é limitante)","Avaliar necessidade de aumento de coroa clínica — margem subgengival > 2mm","Preparo + moldagem + provisório — seguir protocolo de Coroa Direta","Instalação: prova → ajuste de contatos → ajuste oclusal → cimentação conforme material"],errors:["Não avaliar espaço oclusal antes do preparo — coroa vai fraturar","Selecionar cor com luz artificial — resultado diferente do esperado","Cimentar sem ajustar contatos proximais","Não fazer provisório — dente migra e inviabiliza a coroa"],decisions:[{if:"Dente sem vitalidade",then:"Endodontia + pino + núcleo antes do preparo"},{if:"Espaço oclusal insuficiente",then:"Desgastar antagonista ou avaliação ortodôntica"},{if:"Margem muito subgengival",then:"Cirurgia de aumento de coroa clínica antes"},{if:"Bruxismo",then:"Zircônia monolítica + placa de bruxismo pós-instalação"}],panic:[{problem:"Coroa instalada com oclusão alta",solution:"Ajuste seletivo imediato"},{problem:"Cor errada",solution:"Devolver ao laboratório — não cimente com cor errada"},{problem:"Coroa não assenta",solution:"Checar ponto proximal com fio dental abrasivo"}],crises:[]},
-    "cimentacao-metal":{title:"Cimentação — Metalo-cerâmica / Metal",time:"20 min",level:"fácil",free:true,steps:["Testar adaptação, contatos proximais e oclusão ANTES de qualquer cimento","Limpar o dente: remover provisório, pedra-pomes + taça de borracha, secar","[NA COROA] Jatear superfície interna com óxido de alumínio 50µm → limpar com álcool 70°","[NO DENTE] Secar com jato de ar","Aplicar ionômero de vidro ou fosfato de zinco na coroa → assentar com pressão digital → rolete de gaze por 3–5 min","Remover excessos com fio dental antes da presa completa","Checar oclusão em MIC e lateralidade"],errors:["Não jatear a superfície interna da coroa — falha adesiva","Cimentar com resíduos de provisório — falha garantida","Não checar oclusão após cimentação"],decisions:[{if:"Coroa solta mais de 2 vezes",then:"Avaliar novo preparo — retenção insuficiente"},{if:"Dente com pouca estrutura",then:"Pino + núcleo antes de novo preparo"}],panic:[{problem:"Coroa não assenta completamente",solution:"Checar ponto proximal com fio dental abrasivo"},{problem:"Excesso de cimento endurecido",solution:"Ultrassom — nunca instrumento cortante"},{problem:"Oclusão alta após cimentar",solution:"Ajuste seletivo imediato com papel carbono"}],crises:[]},
+    "nova-coroa":{title:"Planejar Nova Coroa",time:"Planejamento",level:"médio",free:false,steps:["RX periapical — avaliar raiz, osso, lesão apical e altura do remanescente","Teste de vitalidade pulpar — dente sem vitalidade exige endodontia + pino antes","Checar espaço oclusal: mínimo 1,5mm para cerâmica, 0,5mm para zircônia monolítica","Escolher o material: Zircônia monolítica (posterior, bruxismo, espaço reduzido) / Disilicato de lítio (anterior ou pré-molar, alta estética) / Metalo-cerâmica (quando custo é limitante)","Avaliar necessidade de aumento de coroa clínica — margem subgengival > 2mm","Preparo + moldagem + provisório — seguir protocolo de Coroa Direta","Instalação: prova → ajuste de contatos → ajuste oclusal → cimentação conforme material"],errors:["Não avaliar espaço oclusal antes do preparo — coroa vai fraturar","Selecionar cor com luz artificial — resultado diferente do esperado","Cimentar sem ajustar contatos proximais","Não fazer provisório — dente migra e inviabiliza a coroa"],decisions:[{if:"Dente sem vitalidade",then:"Endodontia + Pino de Fibra + Núcleo em Resina antes do preparo"},{if:"Espaço oclusal insuficiente",then:"Desgastar antagonista ou avaliação ortodôntica"},{if:"Margem muito subgengival",then:"Cirurgia de aumento de coroa clínica antes"},{if:"Bruxismo",then:"Zircônia monolítica + placa de bruxismo pós-instalação"}],panic:[{problem:"Coroa instalada com oclusão alta",solution:"Ajuste seletivo imediato"},{problem:"Cor errada",solution:"Devolver ao laboratório — não cimente com cor errada"},{problem:"Coroa não assenta",solution:"Checar ponto proximal com fio dental abrasivo"}],crises:[]},
+    "cimentacao-metal":{title:"Cimentação — Metalo-cerâmica / Metal",time:"20 min",level:"fácil",free:true,steps:["Testar adaptação, contatos proximais e oclusão ANTES de qualquer cimento","Limpar o dente: remover provisório, pedra-pomes + taça de borracha, secar","[NA COROA] Jatear superfície interna com óxido de alumínio 50µm → limpar com álcool 70°","[NO DENTE] Secar com jato de ar","Aplicar ionômero de vidro ou fosfato de zinco na coroa → assentar com pressão digital → rolete de gaze por 3–5 min","Remover excessos com fio dental antes da presa completa","Checar oclusão em MIC e lateralidade"],errors:["Não jatear a superfície interna da coroa — falha adesiva","Cimentar com resíduos de provisório — falha garantida","Não checar oclusão após cimentação"],decisions:[{if:"Coroa solta mais de 2 vezes",then:"Avaliar novo preparo — retenção insuficiente"},{if:"Dente com pouca estrutura",then:"Pino de Fibra + Núcleo em Resina antes de novo preparo"}],panic:[{problem:"Coroa não assenta completamente",solution:"Checar ponto proximal com fio dental abrasivo"},{problem:"Excesso de cimento endurecido",solution:"Ultrassom — nunca instrumento cortante"},{problem:"Oclusão alta após cimentar",solution:"Ajuste seletivo imediato com papel carbono"}],crises:[]},
     "cimentacao-ceramica":{title:"Cimentação — Porcelana / Zircônia / Disilicato",time:"30 min",level:"médio",free:true,steps:["Testar adaptação, contatos proximais e oclusão ANTES de qualquer cimento","Limpar o dente: remover provisório, pedra-pomes + taça de borracha, secar","[NA COROA — PORCELANA / DISILICATO] Jatear + ácido fluorídrico 10% por 60s → lavar → silano por 60s → secar","[NA COROA — ZIRCÔNIA] Jatear com óxido de alumínio 50µm → primer de zircônia → secar","[NO DENTE] Condicionamento ácido + adesivo → fotoativar","Aplicar cimento resinoso dual na coroa → assentar → fotopolimerizar 40s por face","Remover excessos com fio dental antes da presa completa","Checar oclusão em MIC e lateralidade"],errors:["Usar fosfato ou ionômero em porcelana / zircônia / disilicato — não adere","Não aplicar silano em porcelana — falha adesiva garantida","Usar silano em zircônia sem primer específico — não funciona","Cimentar com resíduos de provisório","Não checar oclusão após cimentação"],decisions:[{if:"Porcelana / disilicato",then:"Fluorídrico + silano + resinoso dual"},{if:"Zircônia",then:"Primer de zircônia + resinoso dual"},{if:"Coroa solta mais de 2 vezes",then:"Avaliar novo preparo"}],panic:[{problem:"Coroa não assenta completamente",solution:"Checar ponto proximal com fio dental abrasivo"},{problem:"Excesso de cimento resinoso endurecido",solution:"Ultrassom — nunca instrumento cortante"},{problem:"Oclusão alta após cimentar",solution:"Ajuste seletivo imediato com papel carbono"}],crises:[]},
     "protese-incomodando":{title:"Prótese Incomodando — Ajuste de Base / Borda",time:"20 min",level:"fácil",free:true,steps:["Perguntar ao paciente onde dói e quando — o relato direciona o ajuste","Examinar a mucosa: localizar úlcera ou ponto de pressão","Aplicar pasta de evidenciação (Kerr) na base interna → inserir na boca → remover → identificar marcas","Em PPR: checar também se grampo está pressionando dente ou mucosa","Acoplar a broca Maxicut na peça reta → desgastar os pontos marcados — pequenos e progressivos","Reinserir → verificar conforto → repetir até eliminação do desconforto","Trocar para broca de polimento do kit → polir a área desgastada","Orientar: úlcera leva 7–10 dias para cicatrizar — retorno em 1 semana"],errors:["Desgastar sem pasta de evidenciação — desgaste às cegas","Desgaste excessivo de uma vez — enfraquece a base","Não polir após desgaste — superfície rugosa irrita o tecido","Dispensar sem verificar conforto imediato"],decisions:[{if:"Múltiplos pontos de pressão",then:"Prótese folgada — indicar reembasamento"},{if:"PPR com grampo machucando",then:"Ajuste com alicate 139 ou encaminhar laboratório"},{if:"Úlcera não cicatriza em 14 dias",then:"Encaminhar — descartar lesão suspeita"},{if:"Dor generalizada em PT",then:"Prótese folgada — reembasamento"}],panic:[{problem:"Úlcera extensa com bordas endurecidas",solution:"Não ajustar — encaminhar para avaliação"},{problem:"Dor intensa",solution:"Orientar a não usar por 48–72h antes do retorno"},{problem:"Perfurei a base da prótese",solution:"Fazer moldagem da prótese com alginato → encaminhar ao laboratório para reparo"},{problem:"Quebrei o grampo ao ajustar",solution:"Fazer moldagem com a prótese em boca → encaminhar ao laboratório para novo grampo"}],crises:[]},
     "reemb-prov-pt":{title:"Reembasamento Provisório — PT",time:"30 min",level:"médio",free:true,steps:["Confirmar indicação: PT folgada, instável, sem retenção por reabsorção óssea","Remover material reembasador antigo e superfícies irregulares com broca Maxicut na peça reta","Manipular a resina Soft para reembasamento conforme o fabricante","Aplicar camada de 2–3mm na superfície interna com espátula — cobrir toda área em contato com mucosa","Assentar a prótese na boca com paciente em MIC — realizar movimentos funcionais: sorriso, sugar bochechas, abrir a boca — para copiar inserções musculares","Aguardar presa completa conforme fabricante → remover → deixar polimerizar fora da boca","Recortar excessos com bisturi ou tesoura","Reinserir → verificar retenção, estabilidade e conforto","Orientar: tempo de duração conforme fabricante — retorno para troca periódica → indicar reembasamento definitivo em laboratório"],errors:["Não remover material antigo — nova camada não adere","Não realizar movimentos funcionais — prótese perde retenção nas bordas","Paciente fora de MIC durante a presa — distorce a DVO","Usar como solução definitiva — é provisório"],decisions:[{if:"PT completamente folgada",then:"Provisório agora + agendar definitivo em laboratório"},{if:"Mucosa inflamada",then:"Deixar sem prótese por 48–72h antes de reembasar"},{if:"Prótese antiga >5 anos com desgaste oclusal",then:"Avaliar nova prótese"}],panic:[{problem:"Prótese não ficou retentiva após reembasamento",solution:"Verificar se movimentos funcionais foram feitos corretamente — refazer"},{problem:"Prótese ficou retida",solution:"Movimentos laterais suaves — nunca puxar verticalmente"},{problem:"DVO alterada após reembasamento",solution:"Remover material e refazer com paciente em MIC correto"}],crises:[]},
     "reemb-prov-ppr":{title:"Reembasamento Provisório — PPR Rígida de Resina",time:"30 min",level:"médio",free:true,steps:["Confirmar indicação: PPR rígida de resina folgada/instável por reabsorção óssea","Remover material antigo e irregularidades com Maxicut — preservar apoios e ganchos","Manipular resina Soft para reembasamento conforme fabricante","Aplicar 2–3mm na superfície interna da sela — sem invadir retenções","Assentar em MIC → movimentos funcionais: sorriso, sugar bochechas, abrir, laterais","Aguardar presa completa conforme fabricante → remover → polimerizar fora da boca","Recortar excessos com bisturi ou tesoura","Reinserir → verificar retenção, estabilidade, conforto e assentamento","Orientar: é provisório — agendar reembasamento definitivo em laboratório"],errors:["Obstruir apoios ou ganchos com a resina","Não fazer movimentos funcionais","Paciente fora da MIC durante a presa","Usar como solução definitiva"],decisions:[{if:"PPR completamente folgada",then:"Provisório agora + agendar definitivo em laboratório"},{if:"Mucosa inflamada",then:"Deixar sem prótese por 48–72h antes de reembasar"},{if:"Prótese antiga >5 anos com desgaste oclusal",then:"Avaliar nova PPR"},{if:"Apoios sem contato",then:"Reembasamento não resolve — nova PPR"}],panic:[{problem:"Não ficou retentiva",solution:"Refazer com movimentos funcionais"},{problem:"DVO alterada",solution:"Remover material nos posteriores e refazer com MIC correto"},{problem:"Apoio elevado",solution:"Remover a resina da região e refazer"}],crises:[]},
     "reemb-def-pt":{title:"Reembasamento Definitivo — PT",time:"Laboratório",level:"médio",free:false,steps:["Confirmar indicação: PT folgada com estrutura e dentes em bom estado","Inspecionar a base interna — remover material antigo e eliminar retenções com broca Maxicut na peça reta","Realizar moldagem funcional com a própria prótese usando silicone de adição leve → assentar em MIC → movimentos funcionais: sorriso, sugar, abrir, laterais → aguardar presa → remover","Desinfetar moldagem → lavar em água corrente → encaminhar ao laboratório","Na instalação: verificar retenção, estabilidade e oclusão","Ajustes com pasta de evidenciação de pressão (zinco-enólica, apenas a base branca) se necessário","Controles periódicos até adaptação completa"],errors:["Não fazer moldagem funcional — resultado impreciso","Paciente fora de MIC durante a presa — oclusão errada","Enviar ao laboratório sem desinfetar","Não fazer controles periódicos após instalação"],decisions:[{if:"Estrutura da prótese comprometida",then:"Nova prótese"},{if:"Prótese antiga >5 anos com desgaste oclusal severo",then:"Nova prótese"},{if:"Reembasamento provisório recente",then:"Aguardar mucosa estabilizar antes do definitivo"}],panic:[{problem:"Moldagem distorcida",solution:"Refazer — não enviar com defeito ao laboratório"},{problem:"DVO alterada na instalação",solution:"Devolver ao laboratório para ajuste"},{problem:"Prótese não assenta após reembasamento",solution:"Verificar pontos de pressão com pasta de evidenciação"}],crises:[]},
     "reemb-def-ppr":{title:"Reembasamento Definitivo — PPRG",time:"Laboratório",level:"médio",free:false,steps:["Confirmar indicação: PPRG folgada com estrutura metálica, apoios e ganchos em bom estado","Inspecionar a base interna — remover material antigo e eliminar retenções com broca Maxicut na peça reta — preservar apoios e ganchos","Realizar moldagem funcional com a própria PPRG usando silicone de adição leve → assentar em MIC garantindo assentamento correto dos apoios → movimentos funcionais: sorriso, sugar, abrir, laterais → aguardar presa → remover","Desinfetar moldagem → lavar em água corrente → encaminhar ao laboratório","Na instalação: verificar assentamento dos apoios, retenção, estabilidade e oclusão","Se ganchos frouxos: apertar com alicate 139 (Nance) — dobras pequenas e progressivas na ponta ativa do gancho, sempre no terço médio — nunca na conexão com a estrutura metálica","Ajustes com pasta de evidenciação de pressão (zinco-enólica, apenas a base branca) se necessário","Controles periódicos até adaptação completa"],errors:["Não fazer moldagem funcional — resultado impreciso","Paciente fora de MIC durante a presa — oclusão errada","Obstruir apoios ou ganchos durante a moldagem","Apertar gancho na conexão com a estrutura — fratura metálica","Enviar ao laboratório sem desinfetar","Não fazer controles periódicos após instalação"],decisions:[{if:"Estrutura metálica fraturada ou gancho quebrado",then:"Laboratório para reparo antes de reembasar"},{if:"PPRG antiga >5 anos com desgaste oclusal severo",then:"Avaliar nova PPRG"},{if:"Reembasamento provisório recente",then:"Aguardar mucosa estabilizar antes do definitivo"}],panic:[{problem:"Moldagem distorcida",solution:"Refazer — não enviar com defeito ao laboratório"},{problem:"Apoio elevado na instalação",solution:"Devolver ao laboratório para ajuste"},{problem:"Gancho fraturou ao apertar",solution:"Encaminhar ao laboratório para reparo — não improvise"},{problem:"PPRG não assenta após reembasamento",solution:"Verificar pontos de pressão com pasta de evidenciação"}],crises:[]},
-    "dente-protese-soltou":{title:"Reparo na Cadeira — Dente da Prótese Soltou",time:"20 min",level:"fácil",free:true,steps:["Remover resíduos de resina antiga do dente e do alvéolo da prótese","Verificar se o dente se encaixa perfeitamente no local — conferir alinhamento e oclusão","Criar retenções no alvéolo e na base do dente com lixa ou broca pequena — melhora adesão da resina","Misturar resina acrílica autopolimerizável (pó + líquido) → aplicar no alvéolo e na base do dente","Pressionar o dente no local na posição correta → remover excessos antes da presa","Aguardar polimerização completa fora da boca conforme fabricante","Polir a região com broca de polimento na peça reta","Verificar oclusão — ajustar se necessário"],errors:["Não remover resíduos antigos — dente solta novamente","Não criar retenções — adesão insuficiente","Deixar excesso de resina — irrita a mucosa","Não verificar oclusão — dente alto causa descolamento"],decisions:[{if:"Alvéolo fraturado ou base comprometida",then:"Encaminhar laboratório"},{if:"Dente fraturado",then:"Encaminhar laboratório"},{if:"Múltiplos dentes soltos",then:"Prótese muito antiga — avaliar nova prótese"}],panic:[{problem:"Resina polimerizou com dente mal posicionado",solution:"Remover com broca e refazer"},{problem:"Dente soltou novamente em dias",solution:"Verificar oclusão — ponto alto causa descolamento"}],crises:[]},
+    "dente-protese-soltou":{title:"Reparo na Cadeira — Dente da Prótese Soltou",time:"20 min",level:"fácil",free:true,steps:["Remover resíduos de resina antiga do dente e do alvéolo da prótese","Verificar se o dente se encaixa perfeitamente no local — conferir alinhamento e oclusão","Criar retenções no alvéolo e na base do dente com lixa ou broca pequena — melhora adesão da resina","Misturar resina acrílica autopolimerizável (pó + líquido) → aplicar no alvéolo e na base do dente","Pressionar o dente no local na posição correta → remover excessos antes da presa","Aguardar polimerização completa fora da boca conforme fabricante","Polir a região com broca de polimento na peça reta","Verificar oclusão — ajustar se necessário"],errors:["Não remover resíduos antigos — dente solta novamente","Não criar retenções — adesão insuficiente","Deixar excesso de resina — irrita a mucosa","Não verificar oclusão — dente alto causa descolamento"],decisions:[{if:"Alvéolo fraturado ou base comprometida",then:"Encaminhar laboratório"},{if:"Dente fraturado",then:"Encaminhar laboratório"},{if:"Múltiplos dentes soltos",then:"Prótese muito antiga — avaliar nova prótese"}],panic:[{problem:"Resina polimerizou com dente mal posicionado",solution:"Remover com broca e refazer"},{problem:"Dente soltou novamente em dias",solution:"Verificar oclusão — ponto alto causa descolamento"}],crises:[]},"protese-quebrada-lab":{title:"Prótese Quebrada — Envio ao Laboratório",time:"—",level:"fácil",free:false,steps:["Avalie o que quebrou: base acrílica, dente artificial, grampo, apoio, conector ou estrutura metálica.","Reúna a prótese completa e todos os fragmentos, mesmo os pequenos.","Se um dente artificial soltou, envie o dente junto quando o paciente trouxer.","Verifique se os fragmentos encaixam corretamente entre si — isso ajuda o laboratório a recuperar a posição original.","Faça uma moldagem auxiliar da boca para orientar o reparo e a adaptação da prótese.","Se a fratura comprometer a relação entre os arcos, a dimensão vertical ou a posição dos dentes, faça também registro oclusal e envie o antagonista.","Fotografe a prótese, os fragmentos e, se possível, a prótese posicionada em boca.","Envie ao laboratório com ordem clara: tipo de fratura, região quebrada, urgência, necessidade de reembasamento associado e observações clínicas.","Explique ao paciente que o reparo pode devolver função temporariamente, mas nem sempre tem a mesma resistência da prótese original.","Se a prótese for muito antiga, desadaptada, com dentes desgastados ou já tiver quebrado outras vezes, converse sobre a necessidade de nova prótese."],errors:["Tentar colar a prótese em boca como solução definitiva","Enviar a prótese sem todos os fragmentos","Não fazer moldagem auxiliar para orientar o reparo","Enviar sem registro oclusal quando há perda de referência entre os arcos","Ignorar que fraturas repetidas indicam causa não resolvida","Prometer que o reparo terá a mesma resistência da prótese original","Não informar ao laboratório se precisa de reembasamento associado","Não avaliar se a prótese já está antiga ou desadaptada demais"],decisions:[{if:"Quebrou apenas um dente artificial e a base está íntegra",then:"Enviar o dente, a prótese e moldagem auxiliar; avaliar reparo simples."},{if:"A base acrílica quebrou e os fragmentos encaixam bem",then:"Enviar prótese completa, fragmentos e moldagem auxiliar para reparo laboratorial."},{if:"A prótese quebrou em vários pedaços ou perdeu referência de posição",then:"Enviar moldagem auxiliar, fotos e registro oclusal quando necessário."},{if:"Quebrou grampo, apoio, conector ou estrutura metálica",then:"Não reparar com resina em boca; enviar ao laboratório e reavaliar planejamento da PPR."},{if:"A prótese está antiga, desadaptada ou quebra sempre na mesma região",then:"Tratar o reparo como provisório e iniciar conversa sobre nova prótese."},{if:"Há desadaptação associada",then:"Solicitar avaliação de reembasamento junto com o reparo."}],panic:[{problem:"Paciente quer 'colar agora'",solution:"Explique que colagem improvisada pode alterar adaptação, machucar a mucosa e dificultar o reparo correto."},{problem:"Faltam fragmentos",solution:"Envie a prótese com moldagem auxiliar e fotos, mas avise ao paciente que o reparo pode ficar limitado."},{problem:"Prótese quebrou no meio",solution:"Não tente unir em boca. Envie ao laboratório com todos os fragmentos e moldagem auxiliar."},{problem:"Quebrou estrutura metálica da PPR",solution:"Não tente compensar com acrílico. Encaminhe ao laboratório e reavalie o planejamento."},{problem:"Reparo voltou quebrado ou quebrou novamente",solution:"Procure a causa: desadaptação, oclusão, base fina, prótese antiga ou planejamento inadequado."}],crises:[]},
     "dente-protese-laboratorio":{title:"Encaminhar Laboratório — Dente da Prótese",time:"—",level:"fácil",free:false,steps:["Guardar o dente e a prótese — não descartar nada","Fazer moldagem da arcada antagonista com alginato","Fazer registro oclusal com lâmina de cera 7 aquecida com a prótese em boca — especialmente em dentes posteriores","Encaminhar ao laboratório: prótese + dente + moldagem do antagonista + registro oclusal + instruções de cor e posicionamento","Na instalação: verificar oclusão e conforto","Ajustes com pasta de evidenciação se necessário"],errors:["Descartar o dente — laboratório precisa dele ou da referência de tamanho e cor","Não enviar moldagem do antagonista — laboratório não consegue ajustar oclusão","Não fazer registro oclusal em dentes posteriores"],decisions:[{if:"Base fraturada junto com o dente",then:"Laboratório para reparo completo da base"},{if:"Múltiplos dentes soltos",then:"Avaliar nova prótese"},{if:"Paciente sem condições de ficar sem prótese",then:"Reparo provisório na cadeira antes de encaminhar"}],panic:[{problem:"Dente perdido pelo paciente",solution:"Encaminhar prótese ao laboratório com referência de cor e tamanho do dente contralateral"},{problem:"Cor errada na instalação",solution:"Devolver ao laboratório para recolocar dente correto"}],crises:[]},
     "imp_pilar_protocolo":{title:"Escolher o Pilar Certo",time:"5 min",level:"fácil",free:false,steps:["Remova o cicatrizador do implante","Meça com sonda periodontal a distância da plataforma até a margem gengival (ponto mais apical da parábola)","Escolha o pilar com altura 1mm menor que a medida obtida (ex: 5mm → pilar de 4mm)","Alturas disponíveis: 0,8mm / 1,5mm / 2,5mm / 3,5mm / 4,5mm / 5,5mm","Para prótese cimentada → linha de cimentação próxima ao nível gengival","Para prótese parafusada → pode deixar mais subgengival","Confirme a adaptação com radiografia"],errors:["Medir até o zênite gengival em vez do ponto mais apical","Não confirmar radiograficamente a adaptação do pilar","Escolher altura errada que dificulta a higienização"],decisions:[{if:"Altura transmucosa < 3mm",then:"Use UCLA direto sobre o implante"},{if:"Múltiplos implantes com inclinação",then:"Mini pilar angulado (17° ou 30°)"},{if:"Espaço interoclusal < 4,5mm",then:"UCLA é a melhor opção"}],panic:[{problem:"Pilar instalado muito longo",solution:"Troque por um menor — não desgaste em boca"},{problem:"Exposição metálica excessiva",solution:"Componente muito curto, troque por um maior"}],crises:[]},
     "imp_provisorio_protocolo":{title:"Provisório sobre Implante",time:"40 min",level:"médio",free:false,steps:["Selecione o cilindro provisório compatível","Parafuse o cilindro sobre o implante","Marque 2mm aquém da incisal/oclusal com caneta","Remova o cilindro e corte no local (anteriores: bisel 45° / posteriores: corte reto)","Faça um furo na região oclusal/palatina do dente de estoque","Aplique resina acrílica pó/líquido entre cilindro e dente","Aguarde a presa, retire o provisório e acrescente resina até a cinta","Remova excessos e realize polimento","Parafuse em boca, feche acesso com Teflon e resina"],errors:["Não deixar espaço para resina entre dente e cilindro","Não fazer o furo de encaixe do dente no cilindro","Perfil de emergência convexo","Provisório em oclusão"],decisions:[{if:"Implante bem posicionado",then:"Provisório direto sobre o implante"},{if:"Implante inclinado",then:"Mini pilar angulado antes do provisório"},{if:"Osseointegração comprometida",then:"Converta para carga tardia"}],panic:[{problem:"Provisório fraturou durante osseointegração",solution:"Reparar em boca sem remover — NÃO desparafusar"},{problem:"Cilindro não encaixa",solution:"Verificar interferência do acrílico na cinta"}],crises:[]},
@@ -2596,11 +2689,16 @@ function openEditName(){
   setTimeout(function(){document.getElementById('edit-name-input').focus();}, 100);
 }
 
-function saveEditName(){
+async function saveEditName(){
   var val = document.getElementById('edit-name-input').value.trim();
   if(!val){showToast('Digite um nome','error');return;}
-  var primeiro = val.charAt(0).toUpperCase()+val.slice(1).toLowerCase().split(' ')[0];
+  var primeiro = val.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1).toLowerCase();}).join(' ');
   localStorage.setItem('guiaNome', primeiro);
+  if(currentUser){
+    try{
+      await db.collection('users').doc(currentUser.uid).update({nome: primeiro});
+    }catch(e){console.log('Firestore indisponível',e);}
+  }
   hideOverlay('edit-name-overlay');
   atualizarSaudacao();
   showToast('Nome atualizado!','success');
@@ -3697,6 +3795,11 @@ function showAppScreen(){
           window._trialRecemAtivado = false;
           setTimeout(() => mostrarModalTrialBoasVindas(), 1000);
         }
+
+        if(window._mensagemPendente === 'trial_manual') {
+          window._mensagemPendente = null;
+          setTimeout(() => mostrarModalTrialManual(), 1000);
+        }
       });
     });
 }
@@ -3723,7 +3826,20 @@ async function doLoginGoogle(){
     currentUser = res.user;
     hideLoading();
     showToast("Login realizado!", "success");
-    showAppScreen();
+    const docGoogle = await db.collection('users').doc(res.user.uid).get();
+    if(!docGoogle.exists || !docGoogle.data().perfil) {
+      const nomeGoogle = res.user.displayName || '';
+      document.getElementById('gw-nome').value = nomeGoogle;
+      gwPerfil = '';
+      gwTrat = '';
+      document.getElementById('gw-btn-dentista').className = 'select-btn';
+      document.getElementById('gw-btn-estudante').className = 'select-btn';
+      document.getElementById('gw-bloco-trat').style.display = 'none';
+      gwValidarBotao();
+      document.getElementById('google-welcome-overlay').style.display = 'flex';
+    } else {
+      showAppScreen();
+    }
   } catch(e) {
     hideLoading();
     showToast("Erro ao entrar com Google", "error");
@@ -3756,18 +3872,87 @@ async function doLogin(){
 }
 
 // Variáveis de seleção do cadastro
-let selectedTratamento = 'Dr.';
+let selectedTratamento = '';
 let selectedPerfil = 'dentista';
+// ── MODAL BOAS-VINDAS GOOGLE ──────────────────────────────────────────────
+let gwPerfil = '';
+let gwTrat = '';
+let gwTratSelecionado = false;
 
+function gwSelecionarPerfil(p) {
+  gwPerfil = p;
+  document.getElementById('gw-btn-dentista').className = 'select-btn' + (p === 'dentista' ? ' selected' : '');
+  document.getElementById('gw-btn-estudante').className = 'select-btn' + (p === 'estudante' ? ' selected' : '');
+  document.getElementById('gw-bloco-trat').style.display = p === 'dentista' ? 'block' : 'none';
+  if(p === 'estudante') gwTrat = '';
+  gwValidarBotao();
+}
+
+function gwSelecionarTrat(t) {
+  gwTrat = t;
+  gwTratSelecionado = true;
+  document.getElementById('gw-btn-dr').className = 'select-btn' + (t === 'Dr.' ? ' selected' : '');
+  document.getElementById('gw-btn-dra').className = 'select-btn' + (t === 'Dra.' ? ' selected' : '');
+  document.getElementById('gw-btn-semtitulo').className = 'select-btn' + (t === '' ? ' selected' : '');
+  gwValidarBotao();
+}
+
+function gwValidarBotao() {
+  const nome = document.getElementById('gw-nome').value.trim();
+  const perfilOk = gwPerfil !== '';
+  const tratOk = gwPerfil === 'estudante' || gwPerfil === 'dentista' && gwTrat !== undefined;
+  const tudo = nome.length > 0 && perfilOk && (gwPerfil === 'estudante' || gwTratSelecionado);
+  const btn = document.getElementById('gw-btn-confirmar');
+  btn.disabled = !tudo;
+  btn.style.background = tudo ? '#7C3FA0' : '#cbd5e1';
+  btn.style.cursor = tudo ? 'pointer' : 'not-allowed';
+}
+
+async function gwConfirmar() {
+  const nome = document.getElementById('gw-nome').value.trim();
+  if(!nome || !gwPerfil) return;
+  const primeiroNome = nome.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1).toLowerCase();}).join(' ');
+  const displayName = gwPerfil === 'estudante' ? primeiroNome : (gwTrat ? gwTrat + ' ' + primeiroNome : primeiroNome);
+  showLoading();
+  try {
+    await currentUser.updateProfile({ displayName: displayName });
+    const premiumExpira = new Date();
+    premiumExpira.setDate(premiumExpira.getDate() + 7);
+    await db.collection('users').doc(currentUser.uid).set({
+      nome: primeiroNome,
+      perfil: gwPerfil,
+      tratamento: gwTrat,
+      email: currentUser.email,
+      criadoEm: new Date().toISOString(),
+      dataPrimeiroAcesso: firebase.firestore.FieldValue.serverTimestamp(),
+      acessosPorDia: {},
+      premium: true,
+      premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira),
+      trialAtivado: true
+    });
+    window.userIsPremium = true;
+    localStorage.setItem('userIsPremium', 'true');
+    window._trialRecemAtivado = true;
+    localStorage.setItem('guiaNome', primeiroNome);
+    localStorage.setItem('guiaPerfil', gwPerfil);
+    localStorage.setItem('guiaTratamento', gwTrat);
+  } catch(e) { console.log(e); }
+  hideLoading();
+  document.getElementById('google-welcome-overlay').style.display = 'none';
+  showAppScreen();
+}
 function selectTratamento(t){
   selectedTratamento=t;
   document.getElementById('btn-dr').className='select-btn'+(t==='Dr.'?' selected':'');
   document.getElementById('btn-dra').className='select-btn'+(t==='Dra.'?' selected':'');
+  document.getElementById('btn-semtitulo').className='select-btn'+(t===''?' selected':'');
 }
 function selectPerfil(p){
   selectedPerfil=p;
   document.getElementById('btn-dentista').className='select-btn'+(p==='dentista'?' selected':'');
   document.getElementById('btn-estudante').className='select-btn'+(p==='estudante'?' selected':'');
+  document.getElementById('bloco-tratamento').style.display=p==='dentista'?'block':'none';
+  if(p==='estudante') selectedTratamento='';
 }
 
 async function doRegister(){
@@ -3810,6 +3995,8 @@ async function doRegister(){
     const em=document.getElementById('user-email-display');if(em)em.textContent=currentUser.email;
     hideLoading();
 showToast('Conta criada com sucesso!','success');
+    window.userIsPremium = true;                       
+localStorage.setItem('userIsPremium', 'true');       
 window._trialRecemAtivado = true;
 showAppScreen();
   }catch(e){
@@ -3861,15 +4048,38 @@ async function logout(){
           🔒 Modo Pânico em todos os protocolos
         </div>
       </div>
-      <button class="btn-primary" onclick="this.closest('.overlay').remove();abrirTelaPayment();" style="margin-bottom:10px;">
-        🔓 Renovar por R$9,90/mês
-      </button>
-      <button class="btn-ghost" onclick="this.closest('.overlay').remove()">Continuar sem Premium</button>
+      <button class="btn-primary" onclick="localStorage.setItem('modalExpiradoMostrado','1');this.closest('.overlay').remove();abrirTelaPayment();" style="margin-bottom:10px;">
+  🔓 Renovar por R$9,90/mês
+</button>
+<button class="btn-ghost" onclick="localStorage.setItem('modalExpiradoMostrado','1');this.closest('.overlay').remove()">Continuar sem Premium</button>
     </div>
   `;
   document.body.appendChild(overlay);
 }
-
+function mostrarModalTrialManual() {
+  const overlay = document.createElement('div');
+  overlay.className = 'overlay active';
+  overlay.innerHTML = `
+    <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
+      <div style="font-size:52px;margin-bottom:4px;">🎁</div>
+      <h2 class="modal-title" style="font-size:20px;">Você ganhou acesso Premium!</h2>
+      <p class="modal-sub" style="margin:8px 0 16px;">O time OdontoDex liberou <strong>7 dias de acesso completo</strong> especialmente para você. Aproveite!</p>
+      <div style="background:#F5EEFB;border-radius:16px;padding:14px 16px;margin-bottom:20px;text-align:left;width:100%;">
+        <div style="font-size:13px;font-weight:700;color:#7C3FA0;margin-bottom:8px;">✅ O que você tem acesso agora:</div>
+        <div style="font-size:13px;color:#1E293B;line-height:1.9;">
+          🔓 Todos os protocolos clínicos<br>
+          🔓 Prescrições completas<br>
+          🔓 S.O.S. Clínico completo<br>
+          🔓 Pacientes especiais
+        </div>
+      </div>
+      <button class="btn-primary" onclick="this.closest('.overlay').remove()" style="margin-bottom:10px;">
+        🚀 Explorar agora
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
 function mostrarModalTrialBoasVindas() {
   const overlay = document.createElement('div');
   overlay.className = 'overlay active';
@@ -3967,7 +4177,6 @@ document.addEventListener('DOMContentLoaded', () => {
 document.addEventListener("DOMContentLoaded", () => {
   initData();
   initDarkMode();
-
 auth.onAuthStateChanged(async(user) => {
     const il = document.getElementById('initial-loading');
   if(il) il.style.display = 'none';
@@ -3982,7 +4191,10 @@ auth.onAuthStateChanged(async(user) => {
     try {
       const doc = await db.collection("users").doc(user.uid).get();
       const userData = doc.data();
-
+      // Sincroniza nome do Firestore para o localStorage
+      if(doc.exists && userData.nome) localStorage.setItem('guiaNome', userData.nome);
+      if(doc.exists && userData.perfil) localStorage.setItem('guiaPerfil', userData.perfil);
+      if(doc.exists && userData.tratamento !== undefined) localStorage.setItem('guiaTratamento', userData.tratamento);
       // Se usuário sem trial, dar 7 dias automaticamente
       if(doc.exists && !userData.trialAtivado) {
         const premiumExpira = new Date();
@@ -3999,13 +4211,25 @@ auth.onAuthStateChanged(async(user) => {
         // Usuário já tem trial — verifica se premium ainda é válido
         if(doc.exists && userData.premium === true) {
           if(userData.premiumExpira) {
-            const expira = userData.premiumExpira.toDate();
+            let expira;
+            try {
+              expira = userData.premiumExpira.toDate
+                ? userData.premiumExpira.toDate()
+                : new Date(userData.premiumExpira);
+            } catch(e) {
+              expira = new Date(userData.premiumExpira);
+            }
             const agora = new Date();
-            if(agora > expira) {
-              await db.collection("users").doc(user.uid).update({ premium: false });
+if(agora > expira) {
               window.userIsPremium = false;
               localStorage.setItem('userIsPremium', 'false');
               window._premiumExpirou = true;
+              // Atualiza o Firestore via backend
+              fetch('/api/expire-premium', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ uid: user.uid }),
+              }).catch(e => console.log(e));
             } else {
               window.userIsPremium = true;
               localStorage.setItem('userIsPremium', 'true');
@@ -4019,7 +4243,13 @@ auth.onAuthStateChanged(async(user) => {
           localStorage.setItem('userIsPremium', 'false');
         }
       }
-
+      // Checar mensagem pendente
+      if(doc.exists && doc.data().mensagemPendente === 'trial_manual') {
+  try {
+    await db.collection('users').doc(user.uid).update({ mensagemPendente: firebase.firestore.FieldValue.delete() });
+  } catch(e) { console.log('mensagemPendente skip', e); }
+  window._mensagemPendente = 'trial_manual';
+}
     } catch(e) {
       console.log(e);
       // Sem internet ou Firestore fora — usa último estado conhecido
@@ -4029,13 +4259,12 @@ auth.onAuthStateChanged(async(user) => {
         showToast("Você está offline. Usando dados do último acesso.", "success");
       }
     }
-
     updatePremiumUI();
     showAppScreen();
   } else {
     if(!navigator.onLine && localStorage.getItem('userIsPremium') !== null) {
       window.userIsPremium = localStorage.getItem('userIsPremium') === 'true';
-      updatePremiumUI();
+      
       showAppScreen();
     } else {
       showLoginScreen();
@@ -4049,137 +4278,129 @@ auth.onAuthStateChanged(async(user) => {
 
 let selectedCancelReason = null;
 
-// Função para ABRIR o modal de cancelamento
+function cancelStep(step) {
+  document.getElementById('cancel-step-1').style.display = step === 1 ? 'block' : 'none';
+  document.getElementById('cancel-step-2').style.display = step === 2 ? 'block' : 'none';
+  document.getElementById('cancel-step-3').style.display = step === 3 ? 'block' : 'none';
+}
+
 function openCancelModal() {
   if (!currentUser) {
     showToast("Faça login para cancelar a assinatura", "error");
     return;
   }
-  
   selectedCancelReason = null;
-  
   const otherInput = document.getElementById('cancel-other-text');
-  const suggestionInput = document.getElementById('cancel-suggestion');
   if (otherInput) otherInput.value = '';
-  if (suggestionInput) suggestionInput.value = '';
-  
   const otherDiv = document.getElementById('other-reason-input');
   if (otherDiv) otherDiv.style.display = 'none';
-  
-  document.querySelectorAll('.cancel-reason-btn').forEach(btn => {
-    btn.classList.remove('selected');
-  });
-  
+  document.querySelectorAll('.cancel-reason-btn').forEach(b => b.classList.remove('selected'));
+  const confirmBtn = document.getElementById('confirm-cancel-btn');
+  if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.style.opacity = '0.4'; confirmBtn.textContent = 'Confirmar cancelamento'; }
+  cancelStep(1);
   showOverlay('cancel-overlay');
 }
 
-// Função para FECHAR o modal de cancelamento
 function hideCancelModal() {
   hideOverlay('cancel-overlay');
 }
 
-// Configura os botões de motivo
-function setupCancelButtons() {
-  document.querySelectorAll('.cancel-reason-btn').forEach(btn => {
-    btn.removeEventListener('click', handleCancelReasonClick);
-    btn.addEventListener('click', handleCancelReasonClick);
-  });
-}
-
-// O que acontece quando um botão de motivo é clicado
-function handleCancelReasonClick(e) {
-  const btn = e.currentTarget;
-  const reason = btn.getAttribute('data-reason');
-  
-  document.querySelectorAll('.cancel-reason-btn').forEach(b => {
-    b.classList.remove('selected');
-  });
-  
+function selectCancelReason(btn) {
+  document.querySelectorAll('.cancel-reason-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
-  selectedCancelReason = reason;
-  
+  selectedCancelReason = btn.getAttribute('data-reason');
   const otherDiv = document.getElementById('other-reason-input');
-  if (reason === 'Outro') {
+  if (selectedCancelReason === 'Outro') {
     if (otherDiv) otherDiv.style.display = 'block';
     const otherText = document.getElementById('cancel-other-text');
     if (otherText) otherText.focus();
   } else {
     if (otherDiv) otherDiv.style.display = 'none';
   }
+  const confirmBtn = document.getElementById('confirm-cancel-btn');
+  if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.style.opacity = '1'; }
 }
 
-// Função para ENVIAR o cancelamento
 async function submitCancel() {
   if (!currentUser) {
     showToast("Erro: usuário não encontrado", "error");
     return;
   }
-  
+
   let finalReason = selectedCancelReason;
-  
   if (selectedCancelReason === 'Outro') {
     const otherText = document.getElementById('cancel-other-text').value.trim();
     if (!otherText) {
-      showToast("Por favor, digite o motivo do cancelamento", "error");
+      showToast("Por favor, digite o motivo", "error");
       return;
     }
     finalReason = `Outro: ${otherText}`;
   }
-  
   if (!finalReason) {
     showToast("Por favor, selecione um motivo", "error");
     return;
   }
-  
-  const suggestion = document.getElementById('cancel-suggestion').value.trim();
-  
-  showLoading();
-  
+
+  const confirmBtn = document.getElementById('confirm-cancel-btn');
+  if (confirmBtn) { confirmBtn.disabled = true; confirmBtn.style.opacity = '0.4'; confirmBtn.textContent = 'Cancelando...'; }
+
   try {
+    // Registra o motivo no Firestore
     await db.collection('cancelamentos').add({
       userId: currentUser.uid,
       userEmail: currentUser.email,
       userName: currentUser.displayName || localStorage.getItem('guiaNome') || '',
       motivo: finalReason,
-      sugestao: suggestion || '',
       dataCancelamento: new Date().toISOString(),
-      status: 'pendente',
       plataforma: 'PWA'
     });
-    
-    console.log("Cancelamento registrado no Firebase!");
-    
-    hideCancelModal();
-    
-    showToast("Solicitação registrada! Verifique seu e-mail.", "success");
-    
-    const subject = `Cancelamento assinatura OdontoDex - ${currentUser.email}`;
-    const body = `Olá,\n\nSolicito o cancelamento da minha assinatura OdontoDex Premium.\n\nMeus dados:\nE-mail: ${currentUser.email}\nNome: ${currentUser.displayName || ''}\nMotivo: ${finalReason}\n\nAgradeço pela atenção.`;
-    
-    setTimeout(() => {
-      window.location.href = `mailto:compradores@cakto.com.br?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    }, 500);
-    
-  } catch (error) {
-    console.error("Erro ao salvar cancelamento:", error);
-    showToast("Erro ao processar. Tente novamente.", "error");
-  } finally {
-    hideLoading();
+
+    // Cancela a assinatura no Mercado Pago
+    const res = await fetch('/api/cancel-subscription', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ uid: currentUser.uid }),
+    });
+    const data = await res.json();
+
+    if (data.status === 'cancelled') {
+      // Busca a data real de expiração
+      const userDoc = await db.collection('users').doc(currentUser.uid).get();
+      const userData = userDoc.data();
+      let dataExpira = '—';
+      if (userData?.premiumExpira) {
+        const expira = userData.premiumExpira.toDate();
+        dataExpira = expira.toLocaleDateString('pt-BR', { day: 'numeric', month: 'long', year: 'numeric' });
+      }
+      document.getElementById('cancel-expiry-date').textContent = dataExpira;
+      cancelStep(3);
+    } else {
+      throw new Error(data.error || 'Erro ao cancelar');
+    }
+
+  } catch (e) {
+    console.error('Erro cancelamento:', e);
+    // Se não tem assinatura no MP (trial ou Pix) — cancela só localmente
+    if (e.message?.includes('Nenhuma assinatura')) {
+      await db.collection('users').doc(currentUser.uid).update({ premium: false });
+      window.userIsPremium = false;
+      localStorage.setItem('userIsPremium', 'false');
+      updatePremiumUI();
+      hideCancelModal();
+      showToast("Assinatura cancelada.", "success");
+    } else {
+      showToast("Erro ao cancelar. Tente novamente.", "error");
+      if (confirmBtn) { confirmBtn.disabled = false; confirmBtn.style.opacity = '1'; confirmBtn.textContent = 'Confirmar cancelamento'; }
+    }
   }
 }
 
-// Função para MOSTRAR/ESCONDER o botão de cancelamento (só para Premium)
 function updatePremiumUI() {
   const cancelSection = document.getElementById('cancel-premium-section');
   if (cancelSection) {
     cancelSection.style.display = window.userIsPremium === true ? 'block' : 'none';
   }
 }
-
-// Inicializa os botões quando a página carrega
-document.addEventListener('DOMContentLoaded', function() {
-  setTimeout(setupCancelButtons, 500);
-});
   // ==================== BANNER PARA ESTUDANTES ====================
 function adicionarBannerEstudante() {
   const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
@@ -4284,6 +4505,151 @@ function fecharBannerEstudante() {
     hideLoading();
   }
 }
+
+// ==================== CUPOM PARCEIRO ====================
+let cupomValido = '';
+let cupomTimer = null;
+
+async function verificarCupom(valor) {
+  const row = document.getElementById('cupom-row');
+  const status = document.getElementById('cupom-status');
+  const feedback = document.getElementById('cupom-feedback');
+
+  // Reset visual
+  row.style.borderColor = '#E2E8F0';
+  row.style.background = '#F8FAFC';
+  status.textContent = '';
+  feedback.style.display = 'none';
+  cupomValido = '';
+
+  if (!valor || valor.length < 3) return;
+
+  // Aguarda o usuário parar de digitar
+  clearTimeout(cupomTimer);
+  cupomTimer = setTimeout(async () => {
+    status.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;border-color:#7C3FA0;border-top-color:transparent;"></div>';
+
+    try {
+      const doc = await db.collection('CUPONS').doc(valor.toUpperCase()).get();
+      if (doc.exists && doc.data().ativo === true) {
+        const nome = doc.data().nome;
+        cupomValido = valor.toUpperCase();
+        row.style.borderColor = '#059669';
+        row.style.background = '#F0FDF4';
+        status.textContent = '✅';
+        feedback.style.display = 'block';
+        feedback.style.background = '#F0FDF4';
+        feedback.style.border = '1px solid #BBF7D0';
+        feedback.style.color = '#059669';
+        feedback.innerHTML = '✓ Indicado por <strong>' + nome + '</strong>';
+      } else {
+        row.style.borderColor = '#DC2626';
+        row.style.background = '#FEF2F2';
+        status.textContent = '❌';
+        feedback.style.display = 'block';
+        feedback.style.background = '#FEF2F2';
+        feedback.style.border = '1px solid #FECACA';
+        feedback.style.color = '#DC2626';
+        feedback.textContent = 'Cupom inválido';
+      }
+    } catch(e) {
+      status.textContent = '';
+      feedback.style.display = 'none';
+    }
+  }, 500);
+}
+// ==================== PIX ====================
+let pixCode = '';
+let pixPollingInterval = null;
+
+async function abrirPixModal() {
+  if (!currentUser) {
+    showToast("Faça login primeiro", "error");
+    return;
+  }
+
+  document.getElementById('pix-loading').style.display = 'block';
+  document.getElementById('pix-content').style.display = 'none';
+  document.getElementById('pix-error').style.display = 'none';
+  document.getElementById('pix-aguardando').style.display = 'none';
+  document.getElementById('pix-status-msg').textContent = 'Gerando QR Code...';
+  pixCode = '';
+
+  showOverlay('pix-overlay');
+
+  try {
+    const res = await fetch('/api/create-pix', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        uid: currentUser.uid,
+        email: currentUser.email,
+        nome: localStorage.getItem('guiaNome') || '',
+        cupom: cupomValido || null,
+      }),
+    });
+
+    const data = await res.json();
+    if (!data.qrCode) throw new Error('QR Code não gerado');
+
+    pixCode = data.qrCode;
+
+    document.getElementById('pix-qrcode-img').src = 'data:image/png;base64,' + data.qrCodeBase64;
+    document.getElementById('pix-code-display').textContent = data.qrCode;
+    document.getElementById('pix-status-msg').textContent = 'Escaneie o QR Code ou copie o código';
+    document.getElementById('pix-loading').style.display = 'none';
+    document.getElementById('pix-content').style.display = 'block';
+    document.getElementById('pix-aguardando').style.display = 'block';
+
+    iniciarPixPolling();
+
+  } catch (e) {
+    document.getElementById('pix-loading').style.display = 'none';
+    document.getElementById('pix-error').style.display = 'block';
+    document.getElementById('pix-error').textContent = 'Erro ao gerar QR Code. Tente novamente.';
+    document.getElementById('pix-status-msg').textContent = '';
+  }
+}
+
+function iniciarPixPolling() {
+  pararPixPolling();
+  pixPollingInterval = setInterval(async () => {
+    try {
+      const doc = await db.collection('users').doc(currentUser.uid).get();
+      const userData = doc.data();
+      if (userData && userData.premium === true) {
+        const expira = userData.premiumExpira?.toDate
+          ? userData.premiumExpira.toDate()
+          : new Date(userData.premiumExpira);
+        if (expira > new Date()) {
+          pararPixPolling();
+          fecharPixModal();
+          await onPaymentApproved();
+        }
+      }
+    } catch(e) {
+      console.log(e);
+    }
+  }, 5000);
+}
+
+function pararPixPolling() {
+  if (pixPollingInterval) {
+    clearInterval(pixPollingInterval);
+    pixPollingInterval = null;
+  }
+}
+
+function fecharPixModal() {
+  pararPixPolling();
+  hideOverlay('pix-overlay');
+}
+
+function copiarPixCode() {
+  if (!pixCode) return;
+  navigator.clipboard.writeText(pixCode).catch(() => {});
+  showToast('Código Pix copiado!', 'success');
+}
   // ==================== MERCADO PAGO BRICKS ====================
 const MP_PUBLIC_KEY = "APP_USR-f3596f78-d857-4650-b079-3021cad9c072";
 let mpInstance = null;
@@ -4349,8 +4715,6 @@ async function iniciarBrick() {
           paymentMethods: {
             creditCard: "all",
             debitCard: "all",
-            ticket: "all",
-            bankTransfer: "all",
           },
           visual: {
             style: {
@@ -4366,25 +4730,51 @@ async function iniciarBrick() {
           onSubmit: async ({ formData }) => {
             showLoading();
             try {
-              const payRes = await fetch("/api/process-payment", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({
-                  ...formData,
-                  uid: currentUser.uid,
-                  email: currentUser.email,
-                }),
-              });
-              const payData = await payRes.json();
-              hideLoading();
-              if (payData.status === "approved") {
-                await onPaymentApproved();
-              } else if (payData.status === "in_process" || payData.status === "pending") {
-                showToast("Pagamento em processamento.", "success");
-                goBackToLastScreen();
+             const cardToken = formData.token || formData.card_token_id || formData.card_token;
+const isCartao = !!cardToken;
+
+let payRes, payData;
+
+if (isCartao) {
+  payRes = await fetch("/api/create-subscription", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      uid: currentUser.uid,
+      email: currentUser.email,
+      token: cardToken,
+      cupom: cupomValido || null,
+    }),
+  });
+                payData = await payRes.json();
+                hideLoading();
+                if (payData.status === "authorized") {
+                  await onPaymentApproved();
+                } else {
+                  showToast("Assinatura não autorizada. Tente outro cartão.", "error");
+                }
               } else {
-                showToast("Pagamento não aprovado. Tente outro método.", "error");
+                payRes = await fetch("/api/process-payment", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    ...formData,
+                    uid: currentUser.uid,
+                    email: currentUser.email,
+                  }),
+                });
+                payData = await payRes.json();
+                hideLoading();
+                if (payData.status === "approved") {
+                  await onPaymentApproved();
+                } else if (payData.status === "in_process" || payData.status === "pending") {
+                  showToast("Pagamento em processamento.", "success");
+                  goBackToLastScreen();
+                } else {
+                  showToast("Pagamento não aprovado. Tente outro método.", "error");
+                }
               }
+
             } catch (e) {
               hideLoading();
               showToast("Erro ao processar. Tente novamente.", "error");
@@ -4400,86 +4790,13 @@ async function iniciarBrick() {
       <div style="text-align:center;padding:30px 20px;">
         <div style="font-size:32px;margin-bottom:8px">⚠️</div>
         <div style="font-size:14px;font-weight:700;color:#DC2626;margin-bottom:16px">Erro ao carregar pagamento</div>
-        <button onclick="iniciarBrick()" style="background:#7C3FA0;color:#fff;border:none;border-radius:20px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer;">Tentar novamente</button>
+       <button onclick="iniciarBrick()" style="background:#7C3FA0;color:#fff;border:none;border-radius:20px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer;">Tentar novamente</button>
       </div>`;
   }
 }
-  let cupomTimer = null;
-window.cupomValidado = null;
-
-async function verificarCupom(valor) {
-  const input = document.getElementById('cupom-input');
-  const icon = document.getElementById('cupom-icon');
-  const msg = document.getElementById('cupom-msg');
-  window.cupomValidado = null;
-
-  if(!valor || valor.length < 3) {
-    input.style.borderColor = '#E2E8F0';
-    icon.innerHTML = '';
-    msg.style.display = 'none';
-    return;
-  }
-
-  clearTimeout(cupomTimer);
-  icon.innerHTML = '<div style="width:20px;height:20px;border-radius:50%;border:2px solid #E2E8F0;border-top-color:#7C3FA0;animation:spin 0.8s linear infinite;"></div>';
-  msg.style.display = 'none';
-
-  cupomTimer = setTimeout(async () => {
-    try {
-      const codigo = valor.trim().toUpperCase();
-      const doc = await db.collection('CUPONS').doc(codigo).get();
-      if(doc.exists && doc.data().ativo === true) {
-        window.cupomValidado = { id: codigo, nome: doc.data().nome };
-        input.style.borderColor = '#059669';
-        icon.innerHTML = '<div style="width:32px;height:32px;border-radius:50%;background:#DCFCE7;display:flex;align-items:center;justify-content:center;"><span style="color:#059669;font-size:18px;font-weight:700;">✓</span></div>';
-        msg.style.cssText = 'font-size:12px;margin-top:8px;display:flex;align-items:center;gap:4px;color:#059669;';
-        msg.textContent = '✓ Indicado por ' + doc.data().nome;
-      } else {
-        window.cupomValidado = null;
-        input.style.borderColor = '#DC2626';
-        icon.innerHTML = '<div style="width:32px;height:32px;border-radius:50%;background:#FEE2E2;display:flex;align-items:center;justify-content:center;"><span style="color:#DC2626;font-size:18px;font-weight:700;">✕</span></div>';
-        msg.style.cssText = 'font-size:12px;margin-top:8px;display:flex;align-items:center;gap:4px;color:#DC2626;';
-        msg.textContent = '✕ Código não encontrado';
-      }
-    } catch(e) {
-      icon.innerHTML = '';
-      msg.style.display = 'none';
-    }
-  }, 600);
-}
-
-async function registrarConversaoCupom() {
-  if(!currentUser || !window.cupomValidado) return;
-  try {
-    await db.collection('conversoes_cupom').add({
-      cupomId: window.cupomValidado.id,
-      nomeParceiro: window.cupomValidado.nome,
-      userId: currentUser.uid,
-      userEmail: currentUser.email,
-      dataConversao: firebase.firestore.FieldValue.serverTimestamp(),
-      valor: 9.90,
-      comissao: 3.00
-    });
-    await db.collection('CUPONS').doc(window.cupomValidado.id).update({
-      conversoes: firebase.firestore.FieldValue.increment(1)
-    });
-  } catch(e) { console.error(e); }
-}
 async function onPaymentApproved() {
-  if(window.cupomValidado) registrarConversaoCupom();
   window.userIsPremium = true;
   localStorage.setItem('userIsPremium', 'true');
-  updatePremiumUI();
-  if (currentUser) {
-    try {
-      const premiumExpira = new Date();
-      premiumExpira.setDate(premiumExpira.getDate() + 30);
-      await db.collection("users").doc(currentUser.uid).update({ 
-        premium: true,
-        premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira)
-      });
-    } catch(e) { console.error(e); }
-  }
   showToast("🎉 Bem-vindo ao Premium!", "success");
   voltarParaHome();
   renderHome();
