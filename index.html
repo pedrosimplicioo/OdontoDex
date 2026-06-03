@@ -11,6 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>OdontoDex</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -55,6 +56,7 @@ body.dark .list-btn{background:#1E293B;border-color:#475569;}
 body.dark .result-card{background:#1E293B;border-color:#475569;}
 body.dark .result-title{color:#F1F5F9;}
 body.dark .cat-horizontal{background:#1E293B;border-color:#475569;}
+body.dark .cat-horizontal-icon{background:rgba(124,63,160,0.25);color:#B07FD4;}
 body.dark .cat-horizontal-label{color:#F1F5F9;}
 body.dark .categories-wrapper::after{background:linear-gradient(to right,transparent,#0F172A);}
 
@@ -67,6 +69,7 @@ button:active{transform:scale(0.97);opacity:0.8;}
 body.dark #pwa-banner{background:#1E293B;border-top-color:#475569;}
 @keyframes slideUp{from{transform:translateX(-50%) translateY(100%);}to{transform:translateX(-50%) translateY(0);}}
 .pwa-icon{width:48px;height:48px;background:linear-gradient(135deg,#3D1260,#7C3FA0);border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;}
+.pwa-icon .ti{font-size:25px;line-height:1;color:#fff;}
 .pwa-text{flex:1;}
 .pwa-title{font-size:14px;font-weight:800;color:#0F172A;margin-bottom:2px;}
 body.dark .pwa-title{color:#F1F5F9;}
@@ -114,6 +117,8 @@ body.dark .hdr-saudacao{color:#64748B;}
 .user-email{font-size:11px;color:#94A3B8;margin-top:1px;}
 .search-bar{display:flex;align-items:center;gap:8px;background:#F1F5F9;border-radius:20px;padding:12px 16px;border:1px solid #E2E8F0;cursor:text;margin-top:8px;}
 .search-bar span{font-size:14px;color:#94A3B8;}
+.search-icon-inline{display:inline-flex;align-items:center;justify-content:center;color:#7C3FA0;flex-shrink:0;}
+.search-icon-inline .ti{display:block;font-size:18px;line-height:1;color:inherit;}
 
 /* CATEGORIES */
 .section-label{font-size:11px;font-weight:800;color:#94A3B8;letter-spacing:1px;margin-bottom:10px;padding-left:2px;}
@@ -124,7 +129,8 @@ body.dark .hdr-saudacao{color:#64748B;}
 .categories-wrapper::after{content:'';position:absolute;top:0;right:0;width:40px;height:100%;background:linear-gradient(to right,transparent,#F1F5F9);pointer-events:none;}
 .cat-horizontal{display:inline-flex;flex-direction:column;align-items:center;gap:8px;background:#fff;border-radius:20px;padding:14px 16px;border:1px solid #E2E8F0;cursor:pointer;min-width:82px;text-align:center;box-shadow:0 2px 6px rgba(0,0,0,0.04);}
 .cat-horizontal:active{transform:scale(0.96);}
-.cat-horizontal-icon{font-size:34px;}
+.cat-horizontal-icon{width:44px;height:44px;border-radius:50%;background:#F0E6F7;color:#7C3FA0;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cat-horizontal-icon .ti{font-size:24px;line-height:1;display:block;color:inherit;}
 .cat-horizontal-label{font-size:12px;font-weight:700;color:#0F172A;white-space:normal;word-break:keep-all;line-height:1.3;}
 
 /* BODY */
@@ -140,10 +146,52 @@ body.dark .quick-buttons-wrap::after{background:linear-gradient(to right,transpa
 .quick-buttons::-webkit-scrollbar{display:none;}
 .quick-btn{flex-shrink:0;background:#FEF2F2;border:1px solid #FECACA;border-radius:16px;padding:12px 14px;text-align:center;cursor:pointer;min-width:80px;}
 .quick-btn:active{transform:scale(0.96);background:#FEE2E2;}
-.quick-btn-icon{font-size:22px;display:block;margin-bottom:4px;}
+.quick-btn-icon{width:44px;height:44px;border-radius:50%;background:#FCE7E7;color:#991B1B;display:flex;align-items:center;justify-content:center;margin:0 auto 7px;flex-shrink:0;}
+.quick-btn-icon .ti{font-size:25px;line-height:1;display:block;color:inherit;}
 .quick-btn-label{font-size:11px;font-weight:700;color:#991B1B;}
 body.dark .quick-btn{background:#2D1A0E;border-color:#7F1D1D;}
+body.dark .quick-btn-icon{background:rgba(153,27,27,0.25);color:#FCA5A5;}
 body.dark .quick-btn-label{color:#FCA5A5;}
+.home-title-icon{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.home-title-icon .ti{font-size:21px;line-height:1;display:block;color:inherit;}
+.home-mini-icon{width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.home-mini-icon .ti{font-size:19px;line-height:1;display:block;color:inherit;}
+.home-icon-purple{background:#F0E6F7;color:#7C3FA0;}
+.home-icon-red{background:#FCE7E7;color:#991B1B;}
+.home-icon-amber{background:#FEF3C7;color:#F59E0B;}
+body.dark .home-icon-purple{background:rgba(124,63,160,0.25);color:#B07FD4;}
+body.dark .home-icon-red{background:rgba(153,27,27,0.25);color:#FCA5A5;}
+body.dark .home-icon-amber{background:rgba(245,158,11,0.2);color:#FBBF24;}
+.home-prescricoes-title{font-size:14px;font-weight:800;color:#0F172A;}
+.home-prescricoes-item{background:#F8FAFC!important;border:1px solid transparent;}
+.home-prescricoes-label{font-size:12px;font-weight:600;color:#0F172A;}
+.home-prescricoes-more{background:#F5EEFB!important;}
+.home-prescricoes-more .home-prescricoes-label{color:#7C3FA0;}
+body.dark .home-prescricoes-title{color:#F1F5F9;}
+body.dark .home-prescricoes-item{background:#334155!important;border-color:#475569;}
+body.dark .home-prescricoes-label{color:#F1F5F9;}
+body.dark .home-prescricoes-more{background:rgba(124,63,160,0.25)!important;border-color:rgba(176,127,212,0.35);}
+body.dark .home-prescricoes-more .home-prescricoes-label{color:#D8B4FE;}
+.patient-special-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+.patient-special-card{background:#fff;border:1px solid #E2E8F0;border-radius:16px;padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;position:relative;}
+.patient-special-card.locked{background:#F8FAFC;}
+.patient-special-icon{width:44px;height:44px;border-radius:50%;background:#F0E6F7;color:#7C3FA0;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.patient-special-icon .ti{font-size:25px;line-height:1;display:block;color:inherit;}
+.patient-special-label{font-size:12px;font-weight:700;color:#0F172A;text-align:center;line-height:1.3;}
+.patient-special-lock{position:absolute;top:6px;right:8px;font-size:10px;line-height:1;color:#7C3FA0;}
+.patient-special-lock .ti{font-size:12px;line-height:1;display:block;color:inherit;}
+body.dark .patient-special-card{background:#1E293B;border-color:#475569;}
+body.dark .patient-special-card.locked{background:#1E293B;opacity:0.72;}
+body.dark .patient-special-icon{background:rgba(124,63,160,0.25);color:#B07FD4;}
+body.dark .patient-special-label{color:#F1F5F9;}
+body.dark .patient-special-lock{color:#B07FD4;}
+.rx-legal-note{background:#FFF3CD;border-left:3px solid #F59E0B;border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:#856404;line-height:1.5;display:flex;align-items:flex-start;gap:8px;}
+.rx-legal-note .protocol-inline-icon{margin-right:0;color:#7C3FA0;}
+.rx-list-icon{width:34px;height:34px;border-radius:50%;background:#F0E6F7;color:#7C3FA0;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:4px;}
+.rx-list-icon .ti{font-size:20px;line-height:1;display:block;color:inherit;}
+body.dark .rx-list-icon{background:rgba(124,63,160,0.25);color:#B07FD4;}
+.stat-count-icon{display:inline-flex;align-items:center;justify-content:center;vertical-align:-2px;margin-right:3px;color:inherit;}
+.stat-count-icon .ti{font-size:14px;line-height:1;display:block;}
 .stats-card{background:#fff;border-radius:20px;padding:14px;border:1px solid #E2E8F0;}
 .stats-title{font-size:12px;font-weight:800;color:#64748B;text-transform:uppercase;letter-spacing:1px;margin-bottom:10px;}
 .stat-item{display:flex;align-items:center;justify-content:space-between;padding:8px;background:#F8FAFC;border-radius:12px;cursor:pointer;margin-bottom:6px;}
@@ -166,6 +214,7 @@ body.dark .sec-label,body.dark .section-label{color:#64748B;}
 .back-btn{font-size:26px;color:#7C3FA0;font-weight:700;padding:8px 10px;min-width:48px;min-height:48px;display:flex;align-items:center;}
 .back-btn:active{transform:scale(0.95);}
 .top-title{font-size:17px;font-weight:700;color:#0F172A;}
+.top-title .ti{font-size:18px;line-height:1;vertical-align:-2px;margin-right:4px;color:inherit;}
 
 /* LIST */
 .list-btn{display:flex;align-items:center;gap:10px;background:#fff;border-radius:18px;padding:16px;border:1px solid #E2E8F0;cursor:pointer;text-align:left;width:100%;min-height:60px;}
@@ -173,6 +222,7 @@ body.dark .sec-label,body.dark .section-label{color:#64748B;}
 .list-txt{flex:1;font-size:15px;font-weight:600;color:#0F172A;}
 .list-time{font-size:11px;color:#94A3B8;margin-right:6px;}
 .prem-tag{font-size:11px;background:#FEF9C3;color:#92400E;padding:4px 10px;border-radius:30px;font-weight:700;white-space:nowrap;}
+.prem-tag .ti{font-size:12px;line-height:1;vertical-align:-2px;margin-right:3px;color:inherit;}
 .seen-badge{font-size:11px;background:#DCFCE7;color:#166534;padding:4px 10px;border-radius:30px;font-weight:700;white-space:nowrap;}
 .arr{font-size:20px;color:#CBD5E1;margin-left:auto;}
 
@@ -200,7 +250,10 @@ body.dark .sec-label,body.dark .section-label{color:#64748B;}
 .panic-card{background:#FFF7ED;border-radius:14px;padding:12px 14px;border-left:4px solid #F97316;margin-bottom:8px;}
 .panic-prob{font-size:13px;font-weight:800;color:#C2410C;margin-bottom:4px;}
 .panic-sol{font-size:13px;color:#1E293B;line-height:1.5;}
-.clinical-note{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:12px 14px;font-size:12px;color:#166534;line-height:1.6;margin-bottom:10px;}
+.clinical-note{background:#F0FDF4;border:1px solid #BBF7D0;border-radius:12px;padding:12px 14px;font-size:12px;color:#166534;line-height:1.6;margin-bottom:10px;display:flex;align-items:flex-start;gap:8px;}
+.protocol-inline-icon{display:inline-flex;align-items:center;justify-content:center;vertical-align:-2px;margin-right:6px;color:inherit;flex-shrink:0;}
+.protocol-inline-icon .ti{display:block;font-size:16px;line-height:1;color:inherit;}
+.clinical-note .protocol-inline-icon,.sec-title .protocol-inline-icon,.fw-widget-label .protocol-inline-icon,.panic-prob .protocol-inline-icon,.fw-confirm .protocol-inline-icon{margin-right:0;}
 .copy-proto-btn{width:100%;background:#0F172A;color:#fff;border:none;border-radius:16px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;}
 .copy-proto-btn:active{opacity:0.8;}
 
@@ -209,6 +262,10 @@ body.dark .sec-label,body.dark .section-label{color:#64748B;}
 .overlay.active{display:flex;}
 .modal{background:#fff;border-radius:28px 28px 0 0;padding:24px 20px 32px;width:100%;max-width:430px;display:flex;flex-direction:column;align-items:center;gap:10px;max-height:90vh;overflow-y:auto;}
 .modal-icon{font-size:44px;}
+.modal-icon .ti{font-size:44px;line-height:1;display:block;color:inherit;}
+.modal-icon-purple{width:52px;height:52px;border-radius:50%;background:#F0E6F7;color:#7C3FA0;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;}
+.modal-icon-purple .ti{font-size:28px;line-height:1;display:block;color:inherit;}
+body.dark .modal-icon-purple{background:rgba(124,63,160,0.25);color:#B07FD4;}
 .modal-title{font-size:21px;font-weight:800;color:#0F172A;margin:0;text-align:center;}
 .modal-sub{font-size:14px;color:#64748B;text-align:center;margin:0;}
 .modal-features{width:100%;background:#F8FAFC;border-radius:18px;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
@@ -220,6 +277,7 @@ body.dark .sec-label,body.dark .section-label{color:#64748B;}
 .crise-option{width:100%;background:#FEF2F2;border:1px solid #FECACA;border-radius:18px;padding:14px;text-align:left;cursor:pointer;display:flex;align-items:center;gap:12px;margin-bottom:8px;}
 .crise-option:active{transform:scale(0.97);}
 .crise-option-icon{font-size:26px;}
+.crise-option-icon .ti{font-size:26px;line-height:1;display:block;color:inherit;}
 .crise-option-title{font-size:15px;font-weight:800;color:#991B1B;margin-bottom:2px;}
 .crise-option-sub{font-size:12px;color:#7F1D1D;opacity:0.8;}
 body.dark .crise-option{background:#2D1A0E;border-color:#7F1D1D;}
@@ -248,6 +306,7 @@ body.dark .home-result-card{background:#1E293B;border-color:#475569;}
 .result-title{font-size:15px;font-weight:700;color:#0F172A;}
 .result-meta{font-size:12px;color:#64748B;}
 .dark-toggle{background:#F1F5F9;border:none;border-radius:40px;width:38px;height:38px;font-size:17px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.dark-toggle .ti{font-size:19px;line-height:1;color:inherit;}
 body.dark .dark-toggle{background:#334155;color:#FBBF24;}
 .share-btn{background:#F1F5F9;border:none;border-radius:40px;font-size:18px;cursor:pointer;padding:8px;width:40px;height:40px;display:flex;align-items:center;justify-content:center;}
 body.dark .share-btn{background:#334155;}
@@ -266,8 +325,9 @@ body.dark .proto-hdr-title{color:#F1F5F9;}
 .proto-hdr-badges{display:flex;align-items:center;gap:6px;}
 .proto-hdr-badge{background:#F8F9FB;border:0.5px solid #E2E8F0;border-radius:30px;padding:3px 10px;font-size:10px;font-weight:600;color:#64748B;}
 body.dark .proto-hdr-badge{background:#334155;border-color:#475569;color:#94A3B8;}
-.proto-hdr-fav{font-size:22px;background:none;border:none;cursor:pointer;color:#D1D5DB;padding:0;flex-shrink:0;margin-top:2px;}
+.proto-hdr-fav{font-size:22px;background:none;border:none;cursor:pointer;color:#D1D5DB;padding:0;flex-shrink:0;margin-top:2px;width:28px;height:28px;display:flex;align-items:center;justify-content:center;}
 .proto-hdr-fav.active{color:#F59E0B;}
+.proto-hdr-fav .ti{display:block;font-size:23px;line-height:1;}
 .step-num{min-width:22px;height:22px;background:#0F172A;color:#fff;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:800;flex-shrink:0;}
 body.dark .step-num{background:#334155;}
 
@@ -292,12 +352,13 @@ body.dark .step-num{background:#334155;}
 .fw-corte-visual{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
 .fw-corte-card{flex:1;min-width:80px;background:#fff;border:0.5px solid #E2E8F0;border-radius:8px;padding:8px;text-align:center;}
 .fw-corte-card .fw-corte-icon{font-size:18px;margin-bottom:3px;}
+.fw-corte-card .fw-corte-icon .ti{display:block;font-size:22px;line-height:1;color:inherit;}
 .fw-corte-card .fw-corte-label{font-size:10px;font-weight:700;color:#0F172A;}
 .fw-corte-card .fw-corte-sub{font-size:9px;color:#64748B;margin-top:2px;}
 .fw-corte-card.active{border-color:#7C3FA0;background:#F5EEFB;}
 .fw-corte-card.active .fw-corte-label{color:#6B2F8E;}
 .fw-widget-alert{background:#FEE2E2;color:#DC2626;border:0.5px solid #FECACA;border-radius:10px;padding:8px 12px;font-size:11px;font-weight:700;margin-top:8px;display:none;}
-.fw-widget-alert.show{display:block;}
+.fw-widget-alert.show{display:flex;align-items:flex-start;gap:6px;}
 body.dark .fw-widget{background:#1E293B;border-bottom-color:#475569;}
 body.dark .fw-widget-input{background:#334155;border-color:#475569;color:#F1F5F9;}
 body.dark .fw-confirm{background:#0F172A;border-color:#334155;}
@@ -313,7 +374,9 @@ body.dark .fw-corte-card .fw-corte-label{color:#F1F5F9;}
 .btn-cancel{flex:1;background:#F1F5F9;color:#64748B;border:none;border-radius:30px;padding:11px;font-size:14px;font-weight:700;cursor:pointer;}
 .logout-btn{background:#F1F5F9;border:none;border-radius:30px;padding:6px 12px;font-size:11px;font-weight:600;cursor:pointer;color:#DC2626;}
 .gear-btn{background:#F1F5F9;border:none;border-radius:50%;width:36px;height:36px;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.gear-btn .ti{font-size:20px;line-height:1;color:#7C3FA0;}
 body.dark .gear-btn{background:#334155;}
+body.dark .gear-btn .ti{color:#B07FD4;}
 .cfg-section{background:#fff;border-radius:20px;border:1px solid #E2E8F0;overflow:hidden;margin-bottom:12px;}
 body.dark .cfg-section{background:#1E293B;border-color:#475569;}
 .cfg-row{display:flex;align-items:center;gap:14px;padding:16px;border-bottom:1px solid #F1F5F9;cursor:pointer;}
@@ -321,8 +384,13 @@ body.dark .cfg-row{border-bottom-color:#334155;}
 .cfg-row:last-child{border-bottom:none;}
 .cfg-row:active{background:#F8FAFC;}
 body.dark .cfg-row:active{background:#334155;}
-.cfg-icon{font-size:22px;width:36px;height:36px;background:#F1F5F9;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cfg-icon{font-size:22px;width:36px;height:36px;background:#F1F5F9;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;color:#7C3FA0;}
+.cfg-icon .ti{font-size:22px;line-height:1;display:block;color:inherit;}
+.cfg-icon-amber{background:#FEF3C7;color:#F59E0B;}
+.cfg-icon-red{background:#FEE2E2;color:#DC2626;}
 body.dark .cfg-icon{background:#334155;}
+body.dark .cfg-icon-amber{background:rgba(245,158,11,0.2);color:#FBBF24;}
+body.dark .cfg-icon-red{background:rgba(153,27,27,0.25);color:#FCA5A5;}
 .cfg-label{flex:1;font-size:15px;font-weight:600;color:#0F172A;}
 body.dark .cfg-label{color:#F1F5F9;}
 .cfg-value{font-size:13px;color:#94A3B8;}
@@ -336,6 +404,10 @@ body.dark .cfg-edit-inp{background:#334155;border-color:#475569;color:#F1F5F9;}
 .cfg-select-row{display:flex;gap:8px;margin-top:8px;}
 .cfg-sel-btn{flex:1;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:12px;padding:10px 6px;font-size:13px;font-weight:600;color:#64748B;cursor:pointer;text-align:center;}
 .cfg-sel-btn.selected{background:#F5EEFB;border-color:#7C3FA0;color:#7C3FA0;}
+.cfg-sel-btn .ti{font-size:15px;line-height:1;vertical-align:-2px;margin-right:4px;}
+.cfg-modal-icon{width:52px;height:52px;border-radius:50%;background:#F0E6F7;color:#7C3FA0;display:flex;align-items:center;justify-content:center;margin-bottom:4px;}
+.cfg-modal-icon .ti{font-size:28px;line-height:1;display:block;color:inherit;}
+body.dark .cfg-modal-icon{background:rgba(124,63,160,0.25);color:#B07FD4;}
 
 /* LOGIN */
 .login-screen{display:flex;flex-direction:column;justify-content:center;min-height:100vh;padding:40px 24px;background:#000;}
@@ -358,12 +430,14 @@ body.dark .login-logo h1{color:#F1F5F9;}
 .select-group{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;}
 .select-btn{background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:14px;padding:12px 8px;font-size:13px;font-weight:600;color:#64748B;cursor:pointer;text-align:center;transition:all 0.15s;}
 .select-btn.selected{background:#F5EEFB;border-color:#7C3FA0;color:#7C3FA0;}
+.select-btn .ti{font-size:15px;line-height:1;vertical-align:-2px;margin-right:4px;}
 .select-group-label{font-size:13px;font-weight:600;color:#475569;margin-bottom:8px;display:block;}
 .success-message{color:#059669;font-size:13px;margin-top:8px;display:none;}
 .divider{text-align:center;margin:18px 0;color:#94A3B8;font-size:12px;}
 
 .sos-locked{position:relative;opacity:0.72;}
-.sos-crown{position:absolute;top:5px;right:5px;font-size:10px;line-height:1;}
+.sos-crown{position:absolute;top:5px;right:5px;font-size:10px;line-height:1;color:#991B1B;display:flex;align-items:center;justify-content:center;}
+.sos-crown .ti{font-size:12px;line-height:1;display:block;color:inherit;}
 .cat-locked{opacity:0.7;position:relative;}
 
 /* ══════════════ PREMIUM MODAL ══════════════ */
@@ -381,6 +455,7 @@ body.dark .login-logo h1{color:#F1F5F9;}
 .prem-close{position:absolute;top:14px;right:14px;background:rgba(255,255,255,0.1);border:none;color:rgba(255,255,255,0.6);font-size:14px;width:30px;height:30px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2;}
 .prem-badge-top{display:inline-block;background:rgba(251,191,36,0.2);border:1px solid rgba(251,191,36,0.4);color:#FCD34D;font-size:10px;font-weight:800;letter-spacing:2px;padding:4px 12px;border-radius:30px;margin-bottom:14px;}
 .prem-crown{font-size:52px;line-height:1;margin-bottom:12px;filter:drop-shadow(0 0 20px rgba(251,191,36,0.5));}
+.prem-crown .ti{font-size:52px;line-height:1;color:#FCD34D;}
 .prem-hero-title{font-size:24px;font-weight:900;color:#fff;line-height:1.25;letter-spacing:-0.5px;margin-bottom:8px;}
 .prem-hero-sub{font-size:13px;color:rgba(255,255,255,0.6);line-height:1.5;font-weight:400;}
 
@@ -397,8 +472,9 @@ body.dark .login-logo h1{color:#F1F5F9;}
 /* Grid de bloqueados */
 .prem-locked-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 20px;}
 .prem-locked-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:12px 10px;text-align:center;position:relative;overflow:hidden;}
-.prem-locked-card::before{content:'🔒';position:absolute;top:5px;right:7px;font-size:10px;opacity:0.5;}
+.prem-locked-card::before{content:'';position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.35);opacity:0.5;}
 .prem-locked-icon{font-size:22px;margin-bottom:6px;}
+.prem-locked-icon .ti{font-size:22px;line-height:1;display:block;color:inherit;}
 .prem-locked-name{font-size:11px;font-weight:700;color:rgba(255,255,255,0.8);line-height:1.3;margin-bottom:3px;}
 .prem-locked-count{font-size:10px;color:rgba(255,255,255,0.35);font-weight:500;}
 
@@ -407,6 +483,7 @@ body.dark .login-logo h1{color:#F1F5F9;}
 .prem-benefit{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
 .prem-benefit:last-child{border-bottom:none;}
 .prem-benefit-icon{font-size:22px;flex-shrink:0;width:34px;height:34px;background:rgba(124,63,160,0.25);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.prem-benefit-icon .ti{font-size:22px;line-height:1;display:block;color:inherit;}
 .prem-benefit-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;}
 .prem-benefit-sub{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5;}
 
@@ -431,7 +508,8 @@ body.dark .login-logo h1{color:#F1F5F9;}
 .prem-cta-btn:active .prem-cta-arrow{transform:translateX(3px);}
 .prem-cta-fine{text-align:center;font-size:11px;color:rgba(255,255,255,0.3);font-weight:500;}
 .prem-skip-btn{background:none;border:none;color:rgba(255,255,255,0.25);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;padding:4px;}
-.cat-crown{position:absolute;top:6px;right:6px;font-size:12px;line-height:1;}
+.cat-crown{position:absolute;top:6px;right:6px;font-size:12px;line-height:1;color:#7C3FA0;display:flex;align-items:center;justify-content:center;}
+.cat-crown .ti{font-size:13px;line-height:1;display:block;color:inherit;}
 .cat-horizontal{position:relative;}
 
 body.dark .search-bar-proc {
@@ -440,6 +518,9 @@ body.dark .search-bar-proc {
 }
 body.dark .search-bar-proc input {
   color:#F1F5F9;
+}
+body.dark .search-icon-inline {
+  color:#B07FD4;
 }
 /* ===== BOTÕES DE CANCELAMENTO ===== */
 .cancel-reason-btn {
@@ -517,13 +598,13 @@ function adicionarBannerEstudante() {
       background: none; border: none; font-size: 12px;
       cursor: pointer; color: #856404; padding: 2px 4px; line-height: 1;
     ">✕</button>
-    <div style="margin-bottom: 4px;"><strong>⚠️ ATENÇÃO ESTUDANTE:</strong></div>
+    <div style="margin-bottom: 4px;"><strong><i class="ti ti-alert-triangle"></i> ATENÇÃO ESTUDANTE:</strong></div>
     <div style="margin-bottom: 6px;">
       Os protocolos clínicos exibidos neste app refletem práticas gerais da odontologia.
       Cada faculdade ou universidade pode adotar técnicas, materiais ou fluxos diferentes.
     </div>
     <div>
-      <strong>⚠ PORTANTO:</strong><br>
+      <strong><i class="ti ti-alert-triangle"></i> PORTANTO:</strong><br>
       • Este conteúdo NÃO substitui a orientação do seu professor<br>
       • NÃO execute procedimentos sem supervisão adequada<br>
       • Em caso de dúvida, CONSULTE seu supervisor
@@ -658,7 +739,8 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
   min-width: 60px;
 }
 .nav-tab:active { transform: scale(0.93); }
-.nav-tab-icon { font-size: 22px; line-height: 1; }
+.nav-tab-icon { font-size: 22px; line-height: 1; color:#94A3B8; display:flex;align-items:center;justify-content:center;min-width:28px;min-height:28px; }
+.nav-tab-icon .ti { font-size:22px;line-height:1;display:block;color:inherit; }
 .nav-tab-label {
   font-size: 10px;
   font-weight: 700;
@@ -666,20 +748,26 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
   letter-spacing: 0.2px;
 }
 .nav-tab.active .nav-tab-label { color: #7C3FA0; }
+.nav-tab.active .nav-tab-icon { color: #7C3FA0;background:#F0E6F7;border-radius:12px;padding:4px 8px; }
 .nav-tab-sos .nav-tab-icon {
   background: #FEF2F2;
   border-radius: 12px;
   padding: 4px 8px;
   font-size: 20px;
+  color:#991B1B;
 }
+.cancel-reason-btn .ti{font-size:17px;line-height:1;vertical-align:-3px;margin-right:6px;color:inherit;}
 .nav-tab-sos.active .nav-tab-icon { background: #FECACA; }
+body.dark .nav-tab.active .nav-tab-icon { background:rgba(124,63,160,0.25);color:#B07FD4; }
+body.dark .nav-tab-sos .nav-tab-icon { background:rgba(153,27,27,0.25);color:#FCA5A5; }
+body.dark .nav-tab-sos.active .nav-tab-icon { background:rgba(153,27,27,0.38); }
 </style>
 </head>
 <body>
 <!-- AVISO IN-APP BROWSER -->
 <div id="ios-browser-warning" style="display:none;position:fixed;inset:0;background:#0F172A;z-index:9999;flex-direction:column;align-items:center;justify-content:center;padding:32px 20px;text-align:center;overflow-y:auto;">
   <div style="max-width:380px;width:100%;">
-    <div style="font-size:44px;margin-bottom:12px;">🎉</div>
+    <div class="modal-icon" style="margin-bottom:12px;color:#B07FD4;"><i class="ti ti-confetti"></i></div>
     <div style="font-size:20px;font-weight:700;color:#F1F5F9;margin-bottom:10px;">Quase lá!</div>
     <div id="iab-subtitulo" style="font-size:13px;color:#94A3B8;margin-bottom:24px;line-height:1.6;"></div>
 
@@ -689,10 +777,10 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
     </div>
 
     <button onclick="copiarLinkOdontodex()" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:24px;padding:14px 24px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;font-family:inherit;">
-      📋 Copiar link do OdontoDex
+      <i class="ti ti-clipboard"></i> Copiar link do OdontoDex
     </button>
 
-    <div style="font-size:12px;color:#475569;line-height:1.6;">Prometo que vale a pena! 😊</div>
+    <div style="font-size:12px;color:#475569;line-height:1.6;">Prometo que vale a pena.</div>
   </div>
 </div>
 
@@ -761,7 +849,6 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
     if (w) w.style.display = 'flex';
   }
 </script>
-</script>
 <div class="toast" id="toast"></div>
 <div class="loading-overlay" id="loading-overlay"><div class="spinner"></div></div>
 
@@ -798,16 +885,16 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
         <div style="margin-bottom:16px">
           <span class="select-group-label">Qual é o seu perfil?</span>
           <div class="select-group">
-            <button type="button" class="select-btn selected" id="btn-dentista" onclick="selectPerfil('dentista')">🦷 Dentista formado</button>
-            <button type="button" class="select-btn" id="btn-estudante" onclick="selectPerfil('estudante')">📚 Estudante</button>
+            <button type="button" class="select-btn selected" id="btn-dentista" onclick="selectPerfil('dentista')"><i class="ti ti-dental"></i> Dentista formado</button>
+            <button type="button" class="select-btn" id="btn-estudante" onclick="selectPerfil('estudante')"><i class="ti ti-book"></i> Estudante</button>
           </div>
         </div>
         <div id="bloco-tratamento" style="margin-bottom:16px;display:none">
           <span class="select-group-label">Como quer ser chamado?</span>
           <div class="select-group">
-            <button type="button" class="select-btn selected" id="btn-dr" onclick="selectTratamento('Dr.')">👨‍⚕️ Dr.</button>
-            <button type="button" class="select-btn" id="btn-dra" onclick="selectTratamento('Dra.')">👩‍⚕️ Dra.</button>
-            <button type="button" class="select-btn" id="btn-semtitulo" onclick="selectTratamento('')">🙂 Sem título</button>
+            <button type="button" class="select-btn selected" id="btn-dr" onclick="selectTratamento('Dr.')"><i class="ti ti-user-star"></i> Dr.</button>
+            <button type="button" class="select-btn" id="btn-dra" onclick="selectTratamento('Dra.')"><i class="ti ti-user-star"></i> Dra.</button>
+            <button type="button" class="select-btn" id="btn-semtitulo" onclick="selectTratamento('')"><i class="ti ti-user"></i> Sem título</button>
           </div>
         </div>
         <div id="register-error" class="error-message"></div>
@@ -828,22 +915,22 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
 <!-- MODAL BOAS-VINDAS GOOGLE -->
 <div id="google-welcome-overlay" class="overlay" style="display:none;z-index:9999;">
   <div style="border-radius:16px;padding:24px 20px 20px;width:calc(100% - 48px);max-width:340px;background:var(--bg-modal, #ffffff);border:0.5px solid var(--bd-modal, #e2e8f0);">
-    <div style="width:52px;height:52px;border-radius:50%;background:#EEEDFE;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:22px;">🦷</div>
+    <div class="modal-icon-purple"><i class="ti ti-dental"></i></div>
     <p style="font-size:17px;font-weight:500;text-align:center;margin:0 0 4px;color:var(--color-text-primary);">Bem-vindo ao OdontoDex!</p>
     <p style="font-size:13px;text-align:center;margin:0 0 20px;color:var(--color-text-secondary);">Confirme suas informações para personalizar o app</p>
     <p style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;color:var(--color-text-secondary);">Seu nome</p>
     <input id="gw-nome" type="text" class="input-field" style="margin-bottom:18px;" placeholder="Como quer ser chamado?" oninput="gwValidarBotao()">
     <p style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;color:var(--color-text-secondary);">Seu perfil</p>
     <div style="display:flex;gap:8px;margin-bottom:18px;">
-      <button type="button" class="select-btn" id="gw-btn-dentista" onclick="gwSelecionarPerfil('dentista')">🦷 Dentista formado</button>
-      <button type="button" class="select-btn" id="gw-btn-estudante" onclick="gwSelecionarPerfil('estudante')">📚 Estudante</button>
+      <button type="button" class="select-btn" id="gw-btn-dentista" onclick="gwSelecionarPerfil('dentista')"><i class="ti ti-dental"></i> Dentista formado</button>
+      <button type="button" class="select-btn" id="gw-btn-estudante" onclick="gwSelecionarPerfil('estudante')"><i class="ti ti-book"></i> Estudante</button>
     </div>
     <div id="gw-bloco-trat" style="display:none;margin-bottom:18px;">
       <p style="font-size:12px;font-weight:500;text-transform:uppercase;letter-spacing:0.04em;margin:0 0 8px;color:var(--color-text-secondary);">Tratamento</p>
       <div style="display:flex;gap:8px;">
-        <button type="button" class="select-btn" id="gw-btn-dr" onclick="gwSelecionarTrat('Dr.')">👨‍⚕️ Dr.</button>
-        <button type="button" class="select-btn" id="gw-btn-dra" onclick="gwSelecionarTrat('Dra.')">👩‍⚕️ Dra.</button>
-        <button type="button" class="select-btn" id="gw-btn-semtitulo" onclick="gwSelecionarTrat('')">🙂 Sem título</button>
+        <button type="button" class="select-btn" id="gw-btn-dr" onclick="gwSelecionarTrat('Dr.')"><i class="ti ti-user-star"></i> Dr.</button>
+        <button type="button" class="select-btn" id="gw-btn-dra" onclick="gwSelecionarTrat('Dra.')"><i class="ti ti-user-star"></i> Dra.</button>
+        <button type="button" class="select-btn" id="gw-btn-semtitulo" onclick="gwSelecionarTrat('')"><i class="ti ti-user"></i> Sem título</button>
       </div>
     </div>
     <button id="gw-btn-confirmar" onclick="gwConfirmar()" disabled style="width:100%;padding:13px;background:#cbd5e1;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:not-allowed;">Começar a usar o OdontoDex</button>
@@ -851,7 +938,7 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
 </div>
 <!-- PWA INSTALL BANNER (Android/Chrome) -->
 <div id="pwa-banner">
-  <div class="pwa-icon">🦷</div>
+  <div class="pwa-icon"><i class="ti ti-dental"></i></div>
   <div class="pwa-text">
     <div class="pwa-title">Instalar odontodex</div>
     <div class="pwa-sub">Acesse offline como um app</div>
@@ -865,7 +952,7 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
 <!-- iOS INSTALL INSTRUCTIONS MODAL -->
 <div id="ios-install-overlay">
   <div class="ios-install-modal">
-    <div style="text-align:center;font-size:40px;margin-bottom:10px">📲</div>
+  <div class="modal-icon" style="text-align:center;margin-bottom:10px;color:#7C3FA0;"><i class="ti ti-device-mobile"></i></div>
     <div class="ios-install-title">Adicionar à Tela Inicial</div>
     <div class="ios-install-sub">Siga os passos abaixo no Safari</div>
     <div class="ios-step">
@@ -890,14 +977,14 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
       <div class="hdr-saudacao"><span class="hdr-dot"></span><span id="hdr-periodo">Disponível agora</span></div>
       <div style="display:flex;gap:6px;align-items:center">
-        <button class="gear-btn" onclick="goScreen('settings')" title="Configurações">⚙️</button>
+        <button class="gear-btn" onclick="goScreen('settings')" title="Configurações"><i class="ti ti-settings"></i></button>
       </div>
     </div>
     <div id="logo-tap" style="position:absolute;left:-9999px;opacity:0;pointer-events:auto;width:1px;height:1px"></div>
     <div class="hdr-nome" id="hdr-nome">Olá!</div>
     <div class="hdr-pergunta">Como posso te ajudar hoje?</div>
     <div class="search-bar" onclick="document.getElementById('home-search-input').focus()">
-      <span style="font-size:16px">🔍</span>
+      <span style="font-size:18px;color:#7C3FA0"><i class="ti ti-search"></i></span>
       <input class="search-input-real" id="home-search-input" placeholder="Digite sua dúvida clínica..." oninput="doHomeSearch(this.value)" onfocus="showHomeResults()" autocomplete="off">
       <button id="home-search-clear" onclick="clearHomeSearch()" style="display:none;background:none;border:none;cursor:pointer;font-size:16px;color:#94A3B8;padding:0;line-height:1;">✕</button>
     </div>
@@ -911,40 +998,40 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
       </div>
     </div>
     <div class="quick-card">
-      <div class="quick-title">🆘 S.O.S. CLÍNICO</div>
+      <div class="quick-title"><span class="home-title-icon home-icon-red"><i class="ti ti-first-aid-kit"></i></span><span>S.O.S. CLÍNICO</span></div>
       <div class="quick-buttons-wrap">
       <div class="quick-buttons" id="sos-buttons"></div>
       </div><!-- /quick-buttons-wrap -->
     </div>
     <div id="favs-box" class="fav-box">
       <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <span style="font-weight:800;font-size:13px;color:#F59E0B">⭐ FAVORITOS</span>
+        <span style="font-weight:800;font-size:13px;color:#F59E0B;display:flex;align-items:center;gap:8px;"><span class="home-title-icon home-icon-amber"><i class="ti ti-star"></i></span> FAVORITOS</span>
         <button class="link-btn" onclick="goScreen('favorites')">Ver todos</button>
       </div>
       <div class="fav-chips" id="fav-chips"></div>
     </div>
  <!-- CARD PRESCRIÇÕES NA HOME -->
-<div class="quick-card" onclick="goScreen('prescricoes')" style="cursor:pointer;">
+<div class="quick-card home-prescricoes-card" onclick="goScreen('prescricoes')" style="cursor:pointer;">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-    <span style="font-size:20px;">💊</span>
-    <span style="font-size:14px;font-weight:800;color:#0F172A;">Prescrições</span>
+    <span class="home-title-icon home-icon-purple"><i class="ti ti-pill"></i></span>
+    <span class="home-prescricoes-title">Prescrições</span>
   </div>
   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;">
-    <div onclick="event.stopPropagation();abrirPrescricao('abscesso-periodontal')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
-      <span style="font-size:18px;">🦷</span>
-      <span style="font-size:12px;font-weight:600;color:#0F172A;">Abscesso periodontal</span>
+    <div class="home-prescricoes-item" onclick="event.stopPropagation();abrirPrescricao('abscesso-periodontal')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+      <span class="home-mini-icon home-icon-purple"><i class="ti ti-virus"></i></span>
+      <span class="home-prescricoes-label">Abscesso periodontal</span>
     </div>
-    <div onclick="event.stopPropagation();abrirPrescricao('abscesso-periapical')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
-      <span style="font-size:18px;">🔴</span>
-      <span style="font-size:12px;font-weight:600;color:#0F172A;">Abscesso periapical</span>
+    <div class="home-prescricoes-item" onclick="event.stopPropagation();abrirPrescricao('abscesso-periapical')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+      <span class="home-mini-icon home-icon-red"><i class="ti ti-microscope"></i></span>
+      <span class="home-prescricoes-label">Abscesso periapical</span>
     </div>
-    <div onclick="event.stopPropagation();abrirPrescricao('alveolite')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
-      <span style="font-size:18px;">🩸</span>
-      <span style="font-size:12px;font-weight:600;color:#0F172A;">Alveolite</span>
+    <div class="home-prescricoes-item" onclick="event.stopPropagation();abrirPrescricao('alveolite')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+      <span class="home-mini-icon home-icon-purple"><i class="ti ti-dental-broken"></i></span>
+      <span class="home-prescricoes-label">Alveolite</span>
     </div>
-    <div onclick="event.stopPropagation();goScreen('prescricoes')" style="background:#F5EEFB;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
-      <span style="font-size:16px;color:#7C3FA0;font-weight:800;">+9</span>
-      <span style="font-size:12px;font-weight:600;color:#7C3FA0;">situações</span>
+    <div class="home-prescricoes-item home-prescricoes-more" onclick="event.stopPropagation();goScreen('prescricoes')" style="background:#F5EEFB;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+      <span class="home-mini-icon home-icon-purple"><i class="ti ti-plus"></i></span>
+      <span class="home-prescricoes-label">situações</span>
     </div>
   </div>
 </div>
@@ -962,7 +1049,7 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
 <div class="screen" id="screen-favorites">
   <div class="top-bar">
     <button class="back-btn" onclick="goBackToLastScreen()">←</button>
-    <span class="top-title">⭐ Favoritos</span>
+    <span class="top-title"><i class="ti ti-star"></i> Favoritos</span>
     <div style="width:48px"></div>
   </div>
   <div class="body" id="favs-list"></div>
@@ -971,7 +1058,7 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
 <div class="screen" id="screen-prescricoes">
   <div class="top-bar">
     <button class="back-btn" onclick="goBackToLastScreen()">←</button>
-    <span class="top-title">💊 Prescrições</span>
+    <span class="top-title"><i class="ti ti-pill"></i> Prescrições</span>
     <div style="width:36px"></div>
   </div>
   <!-- ABAS -->
@@ -1014,13 +1101,13 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
     <!-- Perfil -->
     <div class="cfg-section">
       <div class="cfg-row" onclick="openEditName()">
-        <div class="cfg-icon">✏️</div>
+        <div class="cfg-icon"><i class="ti ti-user-edit"></i></div>
         <span class="cfg-label">Editar nome</span>
         <span class="cfg-value" id="cfg-nome-val">—</span>
         <span class="cfg-arr">›</span>
       </div>
       <div class="cfg-row" id="cfg-trat-row" onclick="openEditTratamento()">
-        <div class="cfg-icon">🪪</div>
+        <div class="cfg-icon"><i class="ti ti-id-badge"></i></div>
         <span class="cfg-label">Tratamento</span>
         <span class="cfg-value" id="cfg-trat-val">Dr.</span>
         <span class="cfg-arr">›</span>
@@ -1029,7 +1116,7 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
     <!-- Aparência -->
     <div class="cfg-section">
       <div class="cfg-row" onclick="toggleDarkMode();renderSettings()" style="cursor:pointer;">
-        <div class="cfg-icon" id="cfg-dark-icon">🌙</div>
+        <div class="cfg-icon cfg-icon-amber" id="cfg-dark-icon"><i class="ti ti-moon-stars"></i></div>
         <span class="cfg-label" id="cfg-dark-label">Ativar modo escuro</span>
         <div id="cfg-dark-toggle" style="width:44px;height:26px;border-radius:13px;background:#CBD5E1;position:relative;flex-shrink:0;transition:background .2s;">
           <div id="cfg-dark-knob" style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:left .2s;"></div>
@@ -1039,7 +1126,7 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
     <!-- Conta -->
     <div class="cfg-section">
       <div class="cfg-row" onclick="logout()" style="cursor:pointer">
-        <div class="cfg-icon">🚪</div>
+        <div class="cfg-icon cfg-icon-red"><i class="ti ti-logout"></i></div>
         <span class="cfg-label" style="color:#DC2626">Sair da conta</span>
       </div>
     </div>
@@ -1057,7 +1144,7 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
 <!-- EDIT NAME MODAL -->
 <div class="overlay" id="edit-name-overlay" onclick="hideOverlay('edit-name-overlay')">
   <div class="modal" onclick="event.stopPropagation()">
-    <div style="font-size:36px">✏️</div>
+    <div class="cfg-modal-icon"><i class="ti ti-user-edit"></i></div>
     <h2 class="modal-title" style="font-size:18px">Editar nome</h2>
     <input class="cfg-edit-inp" id="edit-name-input" type="text" placeholder="Seu nome completo">
     <div style="display:flex;gap:8px;width:100%;margin-top:8px">
@@ -1070,12 +1157,12 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
 <!-- EDIT TRATAMENTO MODAL -->
 <div class="overlay" id="edit-trat-overlay" onclick="hideOverlay('edit-trat-overlay')">
   <div class="modal" onclick="event.stopPropagation()">
-    <div style="font-size:36px">🪪</div>
+    <div class="cfg-modal-icon"><i class="ti ti-id-badge"></i></div>
     <h2 class="modal-title" style="font-size:18px">Tratamento</h2>
     <p class="modal-sub">Como quer ser chamado no app?</p>
     <div class="cfg-select-row" style="width:100%">
-      <button class="cfg-sel-btn" id="trat-dr" onclick="selectTratEdit('Dr.')">👨‍⚕️ Dr.</button>
-      <button class="cfg-sel-btn" id="trat-dra" onclick="selectTratEdit('Dra.')">👩‍⚕️ Dra.</button>
+      <button class="cfg-sel-btn" id="trat-dr" onclick="selectTratEdit('Dr.')"><i class="ti ti-user-star"></i>Dr.</button>
+      <button class="cfg-sel-btn" id="trat-dra" onclick="selectTratEdit('Dra.')"><i class="ti ti-user-star"></i>Dra.</button>
       <button class="cfg-sel-btn" id="trat-none" onclick="selectTratEdit('')">Sem título</button>
     </div>
     <div style="display:flex;gap:8px;width:100%;margin-top:16px">
@@ -1096,7 +1183,7 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
   <div class="top-bar"><button class="back-btn" onclick="goBackToLastScreen()">←</button><span class="top-title">O que fazer?</span><div style="width:36px"></div></div>
   <div class="body">
     <div class="search-bar-proc" style="background:#F1F5F9; border-radius:20px; padding:10px 16px; margin-bottom:12px; display:flex; align-items:center; gap:8px; border:1px solid #E2E8F0;">
-      <span>🔍</span>
+      <span class="search-icon-inline"><i class="ti ti-search"></i></span>
       <input type="text" id="proc-search-input" placeholder="Filtrar procedimento..." style="flex:1; border:none; outline:none; background:transparent; font-size:14px;" oninput="filterProceduresList(this.value)">
       <button id="proc-search-clear" onclick="clearProcSearch()" style="background:none; border:none; font-size:16px; cursor:pointer; display:none;">✕</button>
     </div>
@@ -1122,7 +1209,7 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
       <div class="prem-hero-orb prem-orb3"></div>
       <button class="prem-close" onclick="hideOverlay('premium-overlay')">✕</button>
       <div class="prem-badge-top">MODO PREMIUM</div>
-      <div class="prem-crown">🔒</div>
+      <div class="prem-crown"><i class="ti ti-lock"></i></div>
       <div class="prem-hero-title">Atenda com mais<br>segurança e velocidade</div>
       <div class="prem-hero-sub">+50 protocolos clínicos prontos para usar.<br>Decisão certa na hora certa.</div>
     </div>
@@ -1131,37 +1218,37 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
     <div class="prem-section-label">O QUE VOCÊ ESTÁ PERDENDO</div>
     <div class="prem-locked-grid">
       <div class="prem-locked-card">
-        <div class="prem-locked-icon">💎</div>
+        <div class="prem-locked-icon"><i class="ti ti-crown"></i></div>
         <div class="prem-locked-name">Prótese completa</div>
         <div class="prem-locked-count">20 protocolos</div>
       </div>
       <div class="prem-locked-card">
-        <div class="prem-locked-icon">🔬</div>
+        <div class="prem-locked-icon"><i class="ti ti-microscope"></i></div>
         <div class="prem-locked-name">Endodontia</div>
         <div class="prem-locked-count">Diagnóstico guiado</div>
       </div>
       <div class="prem-locked-card">
-        <div class="prem-locked-icon">⚕️</div>
+        <div class="prem-locked-icon"><i class="ti ti-clipboard-heart"></i></div>
         <div class="prem-locked-name">Cirurgia</div>
         <div class="prem-locked-count">Siso + alveolite</div>
       </div>
       <div class="prem-locked-card">
-        <div class="prem-locked-icon">🪥</div>
+        <div class="prem-locked-icon"><i class="ti ti-brush"></i></div>
         <div class="prem-locked-name">Periodontia</div>
         <div class="prem-locked-count">Abscesso perio</div>
       </div>
       <div class="prem-locked-card">
-        <div class="prem-locked-icon">🆘</div>
+        <div class="prem-locked-icon"><i class="ti ti-first-aid-kit"></i></div>
         <div class="prem-locked-name">S.O.S. completo</div>
         <div class="prem-locked-count">Infarto, epilepsia…</div>
       </div>
       <div class="prem-locked-card">
-        <div class="prem-locked-icon">✨</div>
+        <div class="prem-locked-icon"><i class="ti ti-sparkles"></i></div>
         <div class="prem-locked-name">Clareamento</div>
         <div class="prem-locked-count">Consultório + caseiro</div>
       </div>
       <div class="prem-locked-card" style="grid-column: 1 / -1;">
-  <div class="prem-locked-icon">💊</div>
+  <div class="prem-locked-icon"><i class="ti ti-pill"></i></div>
   <div class="prem-locked-name">Prescrições completas</div>
   <div class="prem-locked-count">Alveolite, abscesso e mais</div>
 </div>
@@ -1171,28 +1258,28 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
     <div class="prem-section-label">POR QUE VALE CADA CENTAVO</div>
     <div class="prem-benefits">
       <div class="prem-benefit">
-        <div class="prem-benefit-icon">⚡</div>
+        <div class="prem-benefit-icon"><i class="ti ti-bolt"></i></div>
         <div>
           <div class="prem-benefit-title">Decisão em segundos</div>
           <div class="prem-benefit-sub">Sem abrir livro. Sem consultar o colega. O protocolo certo na sua mão.</div>
         </div>
       </div>
       <div class="prem-benefit">
-        <div class="prem-benefit-icon">🚨</div>
+        <div class="prem-benefit-icon"><i class="ti ti-alert-triangle"></i></div>
         <div>
           <div class="prem-benefit-title">Modo Pânico incluído</div>
           <div class="prem-benefit-sub">Deu errado? O app te guia passo a passo na emergência.</div>
         </div>
       </div>
       <div class="prem-benefit">
-        <div class="prem-benefit-icon">📴</div>
+        <div class="prem-benefit-icon"><i class="ti ti-wifi-off"></i></div>
         <div>
           <div class="prem-benefit-title">Funciona offline</div>
           <div class="prem-benefit-sub">Sem internet no consultório? Não importa. Tudo disponível.</div>
         </div>
       </div>
       <div class="prem-benefit">
-        <div class="prem-benefit-icon">🔄</div>
+        <div class="prem-benefit-icon"><i class="ti ti-refresh"></i></div>
         <div>
           <div class="prem-benefit-title">Atualizado mensalmente</div>
           <div class="prem-benefit-sub">Novos protocolos todo mês. Você sempre à frente.</div>
@@ -1230,7 +1317,7 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
 <!-- CRISE MODAL (sem o botão externo, mantido para contexto interno) -->
 <div class="overlay" id="crise-overlay" onclick="hideOverlay('crise-overlay')">
   <div class="modal" onclick="event.stopPropagation()">
-    <div style="font-size:44px">⚡</div>
+    <div class="modal-icon" style="color:#DC2626"><i class="ti ti-bolt"></i></div>
     <h2 class="modal-title" style="color:#DC2626">DEU ERRADO?</h2>
     <p class="modal-sub">Toque no problema para ver a solução</p>
     <div style="width:100%;margin-top:8px" id="crise-options-list"></div>
@@ -1243,24 +1330,24 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
 
     <!-- ETAPA 1: O que você vai perder -->
     <div id="cancel-step-1">
-      <div style="font-size:40px;text-align:center;margin-bottom:12px">💎</div>
+      <div class="modal-icon" style="text-align:center;margin-bottom:12px;color:#7C3FA0"><i class="ti ti-crown"></i></div>
       <h2 class="modal-title" style="font-size:19px;text-align:center;margin-bottom:6px">Cancelar assinatura?</h2>
       <p class="modal-sub" style="text-align:center;margin-bottom:20px">Você vai perder acesso a:</p>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px">
         <div style="display:flex;align-items:center;gap:12px;background:rgba(124,63,160,0.07);border-radius:12px;padding:12px 14px">
-          <span style="font-size:20px">📋</span>
+          <span class="protocol-inline-icon"><i class="ti ti-checklist"></i></span>
           <span style="font-size:14px;font-weight:600;color:var(--text)">Todos os protocolos clínicos completos</span>
         </div>
         <div style="display:flex;align-items:center;gap:12px;background:rgba(124,63,160,0.07);border-radius:12px;padding:12px 14px">
-          <span style="font-size:20px">💊</span>
+          <span class="protocol-inline-icon"><i class="ti ti-pill"></i></span>
           <span style="font-size:14px;font-weight:600;color:var(--text)">Prescrições e pacientes especiais</span>
         </div>
         <div style="display:flex;align-items:center;gap:12px;background:rgba(124,63,160,0.07);border-radius:12px;padding:12px 14px">
-          <span style="font-size:20px">🆘</span>
+          <span class="protocol-inline-icon"><i class="ti ti-first-aid-kit"></i></span>
           <span style="font-size:14px;font-weight:600;color:var(--text)">S.O.S. Clínico completo</span>
         </div>
         <div style="display:flex;align-items:center;gap:12px;background:rgba(124,63,160,0.07);border-radius:12px;padding:12px 14px">
-          <span style="font-size:20px">📴</span>
+          <span class="protocol-inline-icon"><i class="ti ti-wifi-off"></i></span>
           <span style="font-size:14px;font-weight:600;color:var(--text)">Acesso offline no consultório</span>
         </div>
       </div>
@@ -1274,15 +1361,15 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
 
     <!-- ETAPA 2: Motivo -->
     <div id="cancel-step-2" style="display:none">
-      <div style="font-size:40px;text-align:center;margin-bottom:12px">🤔</div>
+      <div class="modal-icon" style="text-align:center;margin-bottom:12px;color:#7C3FA0"><i class="ti ti-help-circle"></i></div>
       <h2 class="modal-title" style="font-size:19px;text-align:center;margin-bottom:6px">Por que está cancelando?</h2>
       <p class="modal-sub" style="text-align:center;margin-bottom:20px">Sua resposta nos ajuda a melhorar</p>
       <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px">
-        <button class="cancel-reason-btn" data-reason="Preço alto" onclick="selectCancelReason(this)">💸 Preço alto</button>
-        <button class="cancel-reason-btn" data-reason="Não uso com frequência" onclick="selectCancelReason(this)">📅 Não uso com frequência</button>
-        <button class="cancel-reason-btn" data-reason="Encontrei outra solução" onclick="selectCancelReason(this)">🔄 Encontrei outra solução</button>
-        <button class="cancel-reason-btn" data-reason="Problemas técnicos" onclick="selectCancelReason(this)">⚙️ Problemas técnicos</button>
-        <button class="cancel-reason-btn" data-reason="Outro" onclick="selectCancelReason(this)">💬 Outro motivo</button>
+        <button class="cancel-reason-btn" data-reason="Preço alto" onclick="selectCancelReason(this)"><i class="ti ti-cash"></i> Preço alto</button>
+        <button class="cancel-reason-btn" data-reason="Não uso com frequência" onclick="selectCancelReason(this)"><i class="ti ti-calendar"></i> Não uso com frequência</button>
+        <button class="cancel-reason-btn" data-reason="Encontrei outra solução" onclick="selectCancelReason(this)"><i class="ti ti-refresh"></i> Encontrei outra solução</button>
+        <button class="cancel-reason-btn" data-reason="Problemas técnicos" onclick="selectCancelReason(this)"><i class="ti ti-settings"></i> Problemas técnicos</button>
+        <button class="cancel-reason-btn" data-reason="Outro" onclick="selectCancelReason(this)"><i class="ti ti-message-circle"></i> Outro motivo</button>
       </div>
       <div id="other-reason-input" style="display:none;margin-bottom:16px">
         <textarea id="cancel-other-text" placeholder="Conte mais..." style="width:100%;border-radius:12px;border:1px solid #E2E8F0;padding:12px;font-size:14px;font-family:inherit;resize:none;height:80px;box-sizing:border-box"></textarea>
@@ -1325,22 +1412,22 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
       <div class="payment-summary-desc">por mês · acesso completo · cancele quando quiser</div>
     </div>
     <div class="payment-security-row">
-      <span style="font-size:20px">🔒</span>
+      <span class="protocol-inline-icon"><i class="ti ti-lock"></i></span>
       <div class="payment-security-txt">Pagamento 100% seguro · Seus dados são protegidos pelo Mercado Pago · PCI DSS compliant</div>
     </div>
     <div style="font-size:12px;color:#64748B;line-height:1.6;padding:12px 0 4px;text-align:center;">Ao assinar, você concorda com nossos <a href="/termos" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Termos de Uso</a> e nossa <a href="/privacidade" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Política de Privacidade</a>. Cancele quando quiser.</div>
     <!-- CUPOM PARCEIRO -->
 <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:4px;">
-  <div style="font-size:11px;font-weight:700;color:#64748B;letter-spacing:0.5px;text-transform:uppercase;">🎟️ Cupom de parceiro</div>
+  <div style="font-size:11px;font-weight:700;color:#64748B;letter-spacing:0.5px;text-transform:uppercase;"><i class="ti ti-ticket"></i> Cupom de parceiro</div>
   <div id="cupom-row" style="display:flex;align-items:center;gap:8px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:14px;padding:11px 14px;">
-    <span style="font-size:16px;">🏷️</span>
+    <span class="protocol-inline-icon"><i class="ti ti-tag"></i></span>
     <input id="cupom-input" type="text" placeholder="Digite o código" maxlength="20" style="flex:1;border:none;background:transparent;font-size:14px;font-weight:600;color:#0F172A;outline:none;text-transform:uppercase;letter-spacing:1px;font-family:inherit;" oninput="verificarCupom(this.value)">
     <span id="cupom-status" style="font-size:18px;"></span>
   </div>
   <div id="cupom-feedback" style="display:none;font-size:12px;font-weight:600;padding:8px 12px;border-radius:10px;"></div>
 </div>
     <button onclick="abrirPixModal()" style="width:100%;background:#00B37E;color:#fff;border:none;border-radius:20px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;">
-  <span style="font-size:22px;">📱</span>
+  <span class="protocol-inline-icon"><i class="ti ti-device-mobile"></i></span>
   <span>Pagar com Pix</span>
 </button>
 <div style="text-align:center;font-size:12px;color:#94A3B8;margin-bottom:16px;">— ou pague com cartão —</div>
@@ -1355,7 +1442,7 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
   <!-- MODAL PIX -->
 <div class="overlay" id="pix-overlay" onclick="fecharPixModal()">
   <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
-    <div style="font-size:44px;margin-bottom:4px;">📱</div>
+    <div class="modal-icon" style="margin-bottom:4px;color:#00B37E;"><i class="ti ti-device-mobile"></i></div>
     <h2 class="modal-title" style="font-size:20px;">Pagar com Pix</h2>
     <p class="modal-sub" id="pix-status-msg">Gerando QR Code...</p>
 
@@ -1369,7 +1456,7 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
       <div style="background:#F1F5F9;border-radius:14px;padding:12px;margin-bottom:16px;word-break:break-all;font-size:11px;color:#475569;text-align:left;max-height:80px;overflow:hidden;" id="pix-code-display"></div>
       
       <button onclick="copiarPixCode()" style="width:100%;background:#00B37E;color:#fff;border:none;border-radius:20px;padding:14px;font-size:14px;font-weight:800;cursor:pointer;font-family:inherit;margin-bottom:8px;">
-        📋 Copiar código Pix
+        <i class="ti ti-clipboard"></i> Copiar código Pix
       </button>
       
       <div id="pix-aguardando" style="display:none;margin-top:8px;padding:10px 14px;background:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;">
@@ -1389,19 +1476,19 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
   <!-- BOTTOM NAV -->
 <div class="bottom-nav" id="bottom-nav">
   <button class="nav-tab active" id="nav-home" onclick="voltarParaHome()">
-    <span class="nav-tab-icon">🏠</span>
+    <span class="nav-tab-icon"><i class="ti ti-home"></i></span>
     <span class="nav-tab-label">Início</span>
   </button>
   <button class="nav-tab" id="nav-favorites" onclick="goScreen('favorites')">
-    <span class="nav-tab-icon">⭐</span>
+    <span class="nav-tab-icon"><i class="ti ti-star"></i></span>
     <span class="nav-tab-label">Favoritos</span>
   </button>
   <button class="nav-tab" id="nav-search" onclick="goScreen('search')">
-    <span class="nav-tab-icon">🔍</span>
+    <span class="nav-tab-icon"><i class="ti ti-search"></i></span>
     <span class="nav-tab-label">Buscar</span>
   </button>
   <button class="nav-tab nav-tab-sos" id="nav-sos" onclick="abrirModalCrise()">
-    <span class="nav-tab-icon">🆘</span>
+    <span class="nav-tab-icon"><i class="ti ti-first-aid-kit"></i></span>
     <span class="nav-tab-label">S.O.S.</span>
   </button>
 </div>
@@ -1430,11 +1517,11 @@ const EMERGENCY_FREE = ["em1","em2"];
 
 const INITIAL_DATA = {
   categories:[
-    {id:"dentistica",label:"Dentística",icon:"🦷"},
-    {id:"protese",label:"Prótese",icon:"💎"},
-    {id:"endodontia",label:"Endodontia",icon:"🔬"},
-    {id:"cirurgia",label:"Cirurgia",icon:"⚕️"},
-    {id:"perio",label:"Periodontia",icon:"🪥"}
+    {id:"dentistica",label:"Dentística",icon:'<i class="ti ti-dental"></i>'},
+    {id:"protese",label:"Prótese",icon:'<i class="ti ti-crown"></i>'},
+    {id:"endodontia",label:"Endodontia",icon:'<i class="ti ti-microscope"></i>'},
+    {id:"cirurgia",label:"Cirurgia",icon:'<i class="ti ti-medical-cross"></i>'},
+    {id:"perio",label:"Periodontia",icon:'<i class="ti ti-brush"></i>'}
   ],
   situations:{
     dentistica:[{id:"d1",label:"Cárie profunda"},{id:"d2",label:"Fratura de dente"},{id:"d3",label:"Restauração de rotina"},{id:"d4",label:"Dente sensível"},{id:"d5",label:"Troca de amálgama"},{id:"d6",label:"Clareamento dental"}],
@@ -1613,7 +1700,7 @@ async function registrarAcessoUsuario(userId) {
     }
     
     await db.collection('users').doc(userId).update(updates);
-    console.log('✅ Acesso registrado para', userId);
+    console.log('Acesso registrado para', userId);
     
   } catch (error) {
     console.error('Erro ao registrar acesso:', error);
@@ -1632,7 +1719,7 @@ async function registrarAcaoUsuario(userId, actionType, details = {}) {
       data: new Date().toISOString().split('T')[0],
       ...details
     });
-    console.log('✅ Ação registrada:', actionType);
+    console.log('Ação registrada:', actionType);
   } catch (error) {
     console.error('Erro ao registrar ação:', error);
   }
@@ -1669,7 +1756,7 @@ async function vincularSessionIdUsuario(userId) {
       source: getSource()
     });
     
-    console.log('✅ Conversão da landing registrada para sessionId:', sessionId);
+    console.log('Conversão da landing registrada para sessionId:', sessionId);
     
   } catch (error) {
     console.error('Erro ao vincular sessionId:', error);
@@ -1713,33 +1800,34 @@ let navigationHistory = [];
 
 // ==================== STORAGE ====================
 // ==================== PRESCRIÇÕES ====================
-const AVISO_LEGAL = `⚕️ Este conteúdo é uma referência clínica de apoio. A prescrição final é responsabilidade exclusiva do profissional habilitado. Adapte conforme o paciente, anamnese e condição clínica.`;
+const AVISO_LEGAL = `Este conteúdo é uma referência clínica de apoio. A prescrição final é responsabilidade exclusiva do profissional habilitado. Adapte conforme o paciente, anamnese e condição clínica.`;
+const AVISO_LEGAL_HTML = `<span class="protocol-inline-icon"><i class="ti ti-clipboard-heart"></i></span><span>${AVISO_LEGAL}</span>`;
  
   const PRESCRICOES_LIST = [
-  {id:"abscesso-periodontal", label:"Abscesso periodontal", icon:"🦷", free:true},
-  {id:"abscesso-periapical", label:"Abscesso periapical agudo", icon:"🔴", free:true},
-  {id:"alveolite", label:"Alveolite", icon:"🩸", free:true},
-  {id:"pericoronarite", label:"Pericoronarite", icon:"🦷", free:false},
-  {id:"profilaxia", label:"Profilaxia antibiótica", icon:"💉", free:false},
-  {id:"dentes-impactados", label:"Dentes impactados", icon:"⚕️", free:false},
-  {id:"gengivoestomatite", label:"Gengivoestomatite herpética primária", icon:"🦠", free:false},
-  {id:"candidíase", label:"Candidíase oral", icon:"🤍", free:false},
-  {id:"hemorragias", label:"Hemorragias", icon:"🩸", free:false},
-  {id:"herpes", label:"Herpes simples recorrente", icon:"💋", free:false},
-  {id:"ulceracoes", label:"Ulcerações aftosas recorrentes", icon:"🔵", free:false},
-  {id:"odontopediatria", label:"Odontopediatria", icon:"👶", free:false},
+  {id:"abscesso-periodontal", label:"Abscesso periodontal", icon:'<i class="ti ti-virus"></i>', free:true},
+  {id:"abscesso-periapical", label:"Abscesso periapical agudo", icon:'<i class="ti ti-microscope"></i>', free:true},
+  {id:"alveolite", label:"Alveolite", icon:'<i class="ti ti-dental-broken"></i>', free:true},
+  {id:"pericoronarite", label:"Pericoronarite", icon:'<i class="ti ti-dental"></i>', free:false},
+  {id:"profilaxia", label:"Profilaxia antibiótica", icon:'<i class="ti ti-vaccine"></i>', free:false},
+  {id:"dentes-impactados", label:"Dentes impactados", icon:'<i class="ti ti-clipboard-heart"></i>', free:false},
+  {id:"gengivoestomatite", label:"Gengivoestomatite herpética primária", icon:'<i class="ti ti-virus"></i>', free:false},
+  {id:"candidíase", label:"Candidíase oral", icon:'<i class="ti ti-shield"></i>', free:false},
+  {id:"hemorragias", label:"Hemorragias", icon:'<i class="ti ti-droplet"></i>', free:false},
+  {id:"herpes", label:"Herpes simples recorrente", icon:'<i class="ti ti-alert-circle"></i>', free:false},
+  {id:"ulceracoes", label:"Ulcerações aftosas recorrentes", icon:'<i class="ti ti-circle-dot"></i>', free:false},
+  {id:"odontopediatria", label:"Odontopediatria", icon:'<i class="ti ti-baby-bottle"></i>', free:false},
 ];
 
 const PACIENTES_ESPECIAIS_LIST = [
-  {id:"idosos", label:"Idosos", icon:"👴", free:false},
-  {id:"epilepticos", label:"Epilépticos", icon:"🧠", free:false},
-  {id:"coagulopatas", label:"Coagulopatas", icon:"🩸", free:false},
-  {id:"gestantes", label:"Gestantes e lactantes", icon:"🤰", free:false},
-  {id:"nefropatas", label:"Nefropatas", icon:"🫘", free:false},
-  {id:"hepatopatas", label:"Hepatopatas", icon:"🍺", free:false},
-  {id:"cardiopatas", label:"Cardiopatas", icon:"🫀", free:false},
-  {id:"diabeticos", label:"Diabéticos", icon:"💉", free:false},
-  {id:"asmaticos", label:"Asmáticos", icon:"🫁", free:false},
+  {id:"idosos", label:"Idosos", icon:'<i class="ti ti-user-heart"></i>', free:false},
+  {id:"epilepticos", label:"Epilépticos", icon:'<i class="ti ti-brain"></i>', free:false},
+  {id:"coagulopatas", label:"Coagulopatas", icon:'<i class="ti ti-droplet"></i>', free:false},
+  {id:"gestantes", label:"Gestantes e lactantes", icon:'<i class="ti ti-baby-carriage"></i>', free:false},
+  {id:"nefropatas", label:"Nefropatas", icon:'<i class="ti ti-medical-cross"></i>', free:false},
+  {id:"hepatopatas", label:"Hepatopatas", icon:'<i class="ti ti-flask"></i>', free:false},
+  {id:"cardiopatas", label:"Cardiopatas", icon:'<i class="ti ti-heartbeat"></i>', free:false},
+  {id:"diabeticos", label:"Diabéticos", icon:'<i class="ti ti-vaccine"></i>', free:false},
+  {id:"asmaticos", label:"Asmáticos", icon:'<i class="ti ti-lungs"></i>', free:false},
 ];
 
 const PRESCRICOES_DATA = {
@@ -2636,7 +2724,7 @@ const dnFmt = dn.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.s
  const planBadge = document.getElementById('cfg-plan-badge');
 if(planBadge){
   if(window.userIsPremium){
-    planBadge.textContent = '💎 PREMIUM';
+    planBadge.innerHTML = '<i class="ti ti-crown"></i> PREMIUM';
     planBadge.style.background = 'linear-gradient(135deg, #F59E0B, #FCD34D)';
     planBadge.style.color = '#92400E';
     planBadge.style.border = 'none';
@@ -2673,7 +2761,7 @@ if(planBadge){
   const darkLabel = document.getElementById('cfg-dark-label');
   const darkToggle = document.getElementById('cfg-dark-toggle');
   const darkKnob = document.getElementById('cfg-dark-knob');
-  if(darkIcon) darkIcon.textContent = isDark ? '☀️' : '🌙';
+  if(darkIcon) darkIcon.innerHTML = isDark ? '<i class="ti ti-sun"></i>' : '<i class="ti ti-moon-stars"></i>';
   if(darkLabel) darkLabel.textContent = isDark ? 'Ativar modo claro' : 'Ativar modo escuro';
   if(darkToggle) darkToggle.style.background = isDark ? '#7C3FA0' : '#CBD5E1';
   if(darkKnob) darkKnob.style.left = isDark ? '21px' : '3px';
@@ -2739,8 +2827,8 @@ async function saveEditTratamento(){
   renderSettings();
 }
 
-function toggleDarkMode(){document.body.classList.toggle("dark");const btn=document.getElementById("dark-toggle");if(btn)btn.textContent=document.body.classList.contains("dark")?"☀️":"🌙";localStorage.setItem("darkMode",document.body.classList.contains("dark"));}
-function initDarkMode(){if(localStorage.getItem("darkMode")==="true"){document.body.classList.add("dark");const btn=document.getElementById("dark-toggle");if(btn)btn.textContent="☀️";}}
+function toggleDarkMode(){document.body.classList.toggle("dark");const btn=document.getElementById("dark-toggle");if(btn)btn.innerHTML=document.body.classList.contains("dark")?'<i class="ti ti-sun"></i>':'<i class="ti ti-moon-stars"></i>';localStorage.setItem("darkMode",document.body.classList.contains("dark"));}
+function initDarkMode(){const btn=document.getElementById("dark-toggle");if(localStorage.getItem("darkMode")==="true"){document.body.classList.add("dark");if(btn)btn.innerHTML='<i class="ti ti-sun"></i>';}else if(btn){btn.innerHTML='<i class="ti ti-moon-stars"></i>';}}
 function hideOverlay(id){const el=document.getElementById(id);if(el)el.classList.remove("active");}
 function showOverlay(id){const el=document.getElementById(id);if(el)el.classList.add("active");}
 function uid(){return Math.random().toString(36).slice(2,8);}
@@ -2929,10 +3017,10 @@ function renderForcepsWidget(inputId, confirmId, resultId, alertId, passo6Id){
   confirm.classList.add('show');
   result.innerHTML =
     '<div class="fw-sec"><div class="fw-sec-label">Fórceps indicado</div><div class="fw-sec-value">' + f.forceps + '</div><div class="fw-sec-sub">' + f.tipo + '</div><span class="fw-tecnica-tag">' + f.tecnica + '</span></div>' +
-    (f.alerta ? '<div class="fw-widget-alert show">⚠️ ' + f.alerta + '</div>' : '');
+    (f.alerta ? '<div class="fw-widget-alert show"><span class="protocol-inline-icon"><i class="ti ti-alert-triangle"></i></span>' + f.alerta + '</div>' : '');
   result.classList.add('show');
 
-  if(p6){ p6.className='step-txt'; p6.style.color='#6B2F8E'; p6.style.fontWeight='700'; p6.textContent='🎯 Usar ' + f.forceps + ' — ' + f.tecnica; }
+  if(p6){ p6.className='step-txt'; p6.style.color='#6B2F8E'; p6.style.fontWeight='700'; p6.innerHTML='<span class="protocol-inline-icon"><i class="ti ti-target"></i></span>Usar ' + f.forceps + ' — ' + f.tecnica; }
   
   // NOVO: Registrar uso do fórceps
   if(currentUser && f) {
@@ -2942,6 +3030,12 @@ function renderForcepsWidget(inputId, confirmId, resultId, alertId, passo6Id){
       nome: f.nome
     });
   }
+}
+
+function renderCorteIcon(icon){
+  const map = {'✂️':'ti-cut','➡️':'ti-arrow-right','🔧':'ti-tool','📐':'ti-ruler-measure'};
+  const iconClass = map[icon];
+  return iconClass ? '<i class="ti ' + iconClass + '"></i>' : icon;
 }
 
 function renderOdontoWidget(inputId, confirmId, resultId, passo7Id){
@@ -2964,17 +3058,17 @@ function renderOdontoWidget(inputId, confirmId, resultId, passo7Id){
   confirm.classList.add('show');
 
   var cortesHtml = f.corte.map(function(c){
-    return '<div class="fw-corte-card' + (c.active?' active':'') + '"><div class="fw-corte-icon">' + c.icon + '</div><div class="fw-corte-label">' + c.label + '</div><div class="fw-corte-sub">' + c.sub + '</div></div>';
+    return '<div class="fw-corte-card' + (c.active?' active':'') + '"><div class="fw-corte-icon">' + renderCorteIcon(c.icon) + '</div><div class="fw-corte-label">' + c.label + '</div><div class="fw-corte-sub">' + c.sub + '</div></div>';
   }).join('');
 
   result.innerHTML =
     '<div class="fw-sec"><div class="fw-sec-label">Anatomia radicular</div><div class="fw-sec-value">' + f.raizes + '</div><div class="fw-sec-sub">' + f.raizesSub + '</div></div>' +
     '<div class="fw-sec"><div class="fw-sec-label">Técnica de odontosecção</div><div class="fw-sec-value">' + f.tecnica + '</div><div class="fw-corte-visual">' + cortesHtml + '</div></div>' +
     '<div class="fw-sec"><div class="fw-sec-label">Fórceps após secção</div><div class="fw-sec-value">' + f.forceps + '</div></div>' +
-    (f.alerta ? '<div class="fw-widget-alert show">⚠️ ' + f.alerta + '</div>' : '');
+    (f.alerta ? '<div class="fw-widget-alert show"><span class="protocol-inline-icon"><i class="ti ti-alert-triangle"></i></span>' + f.alerta + '</div>' : '');
   result.classList.add('show');
 
-  if(p7){ p7.className='step-txt'; p7.style.color='#6B2F8E'; p7.style.fontWeight='700'; p7.textContent='✂️ ' + f.tecnica; }
+  if(p7){ p7.className='step-txt'; p7.style.color='#6B2F8E'; p7.style.fontWeight='700'; p7.innerHTML='<span class="protocol-inline-icon"><i class="ti ti-cut"></i></span>' + f.tecnica; }
 }
 
 // ==================== RENDERIZAÇÃO ====================
@@ -2999,7 +3093,7 @@ function renderHome(){
         const isPremiumCat = PREMIUM_CATEGORIES.includes(cat.id) && !window.userIsPremium;
         const btn=document.createElement("button");
         btn.className="cat-horizontal" + (isPremiumCat ? " cat-locked" : "");
-        btn.innerHTML=`<span class="cat-horizontal-icon">${cat.icon}</span><span class="cat-horizontal-label">${cat.label}</span>${isPremiumCat ? '<span class="cat-crown">🔒</span>' : ''}`;
+        btn.innerHTML=`<span class="cat-horizontal-icon">${cat.icon}</span><span class="cat-horizontal-label">${cat.label}</span>${isPremiumCat ? '<span class="cat-crown"><i class="ti ti-lock"></i></span>' : ''}`;
         btn.onclick=()=>{
           if(isPremiumCat){
             showUpgradeModal(cat.id);
@@ -3051,7 +3145,7 @@ function renderHome(){
         const item=document.createElement("div");
         item.className="stat-item";
         item.onclick=()=>openProto(id);
-        item.innerHTML=`<div class="stat-item-left"><span class="stat-item-num">${idx+1}</span><span class="stat-item-name">${p.title}</span></div><span class="stat-item-count">🔥 ${count}x</span>`;
+        item.innerHTML=`<div class="stat-item-left"><span class="stat-item-num">${idx+1}</span><span class="stat-item-name">${p.title}</span></div><span class="stat-item-count"><span class="stat-count-icon"><i class="ti ti-flame"></i></span>${count}x</span>`;
         muList.appendChild(item);
       });
     } else {
@@ -3072,7 +3166,7 @@ function renderSituations(){
     widgetDiv.innerHTML = `
       <div class="fw-widget">
         <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-          <div class="fw-widget-label" style="margin-bottom:0;">🔍 Não sabe o diagnóstico? Comece aqui</div>
+          <div class="fw-widget-label" style="margin-bottom:0;"><span class="protocol-inline-icon"><i class="ti ti-search"></i></span>Não sabe o diagnóstico? Comece aqui</div>
           <button onclick="togglePulpiteSit()" id="pulpite-sit-toggle" style="background:none;border:0.5px solid #D9B8F0;border-radius:20px;padding:4px 12px;font-size:11px;font-weight:700;color:#7C3FA0;cursor:pointer;font-family:inherit;">Usar</button>
         </div>
         <div id="pulpite-sit-content" style="display:none;">
@@ -3129,7 +3223,7 @@ function renderSituations(){
     const btn=document.createElement("button");
     btn.className="list-btn";
     if(isLocked){
-      btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="prem-tag">🔒 Premium</span>`;
+      btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="prem-tag"><i class="ti ti-lock"></i>Premium</span>`;
       btn.onclick=()=>showUpgradeModal(null);
     } else {
       btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="arr">›</span>`;
@@ -3168,14 +3262,13 @@ function renderProceduresList(procs) {
   
   procs.forEach(proc => {
     const p = DATA.protocols[proc.id];
-    const timeHtml = p ? `<span class="list-time">⏱ ${p.time}</span>` : '';
     const seenHtml = HISTORY.includes(proc.id) ? '<span class="seen-badge">✓ Visto</span>' : '';
     const btn = document.createElement("button");
     btn.className = "list-btn";
    if(proc.free || window.userIsPremium) {
-  btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}${seenHtml}<span class="arr">›</span>`;
+  btn.innerHTML = `<span class="list-txt">${proc.label}</span>${seenHtml}<span class="arr">›</span>`;
 } else {
-  btn.innerHTML = `<span class="list-txt">${proc.label}</span>${timeHtml}<span class="prem-tag">🔒 Premium</span>`;
+  btn.innerHTML = `<span class="list-txt">${proc.label}</span><span class="prem-tag"><i class="ti ti-lock"></i>Premium</span>`;
 }
     btn.onclick = () => openProto(proc.id);
     list.appendChild(btn);
@@ -3213,11 +3306,11 @@ function clearProcSearch() {
 }
 function renderSOSButtons(){
   const SOS_ITEMS = [
-    {icon:"😰", label:"Desmaio",  proto:"sincope-protocolo",  free:true},
-    {icon:"💔", label:"Infarto",  proto:"infarto-protocolo",  free:false},
-    {icon:"⚡", label:"Epilepsia",proto:"epilepsia-protocolo",free:false},
-    {icon:"🩸", label:"Sangramento",proto:"hemostasia",       free:false},
-    {icon:"😨", label:"Ansiedade",proto:"ansiedade-protocolo",free:false},
+    {icon:'<i class="ti ti-bed"></i>', label:"Desmaio",  proto:"sincope-protocolo",  free:true},
+    {icon:'<i class="ti ti-heartbeat"></i>', label:"Infarto",  proto:"infarto-protocolo",  free:false},
+    {icon:'<i class="ti ti-brain"></i>', label:"Epilepsia",proto:"epilepsia-protocolo",free:false},
+    {icon:'<i class="ti ti-droplet"></i>', label:"Sangramento",proto:"hemostasia",       free:false},
+    {icon:'<i class="ti ti-mood-nervous"></i>', label:"Ansiedade",proto:"ansiedade-protocolo",free:false},
   ];
   const container = document.getElementById("sos-buttons");
   if(!container) return;
@@ -3226,7 +3319,7 @@ function renderSOSButtons(){
     const locked = !item.free && !window.userIsPremium;
     const btn = document.createElement("div");
     btn.className = "quick-btn" + (locked ? " sos-locked" : "");
-    btn.innerHTML = `<span class="quick-btn-icon">${item.icon}</span><span class="quick-btn-label">${item.label}</span>${locked ? '<span class="sos-crown">🔒</span>' : ''}`;
+    btn.innerHTML = `<span class="quick-btn-icon">${item.icon}</span><span class="quick-btn-label">${item.label}</span>${locked ? '<span class="sos-crown"><i class="ti ti-lock"></i></span>' : ''}`;
     btn.onclick = () => locked ? showUpgradeModal(null) : openProto(item.proto);
     container.appendChild(btn);
   });
@@ -3245,7 +3338,7 @@ function showUpgradeModal(catId){
     if(sitsEl){
       sitsEl.style.display = 'flex';
       sitsEl.innerHTML = PREMIUM_CATEGORY_PREVIEW[catId].map(s =>
-        `<div style="font-size:13px;font-weight:600;color:#92400E;display:flex;align-items:center;gap:6px">🔒 ${s}</div>`
+        `<div style="font-size:13px;font-weight:600;color:#92400E;display:flex;align-items:center;gap:6px"><i class="ti ti-lock"></i> ${s}</div>`
       ).join('');
     }
   } else {
@@ -3282,7 +3375,7 @@ async function registrarUsoProtocolo(protocoloId) {
       diaSemana: diaSemana
     });
     
-    console.log('✅ Analytics: uso registrado', protocolo.title);
+    console.log('Analytics: uso registrado', protocolo.title);
   } catch (error) {
     console.error('Erro ao registrar uso:', error);
   }
@@ -3324,8 +3417,6 @@ function renderProtocol(id){
   const p=DATA.protocols[id];
   if(!p)return;
   const isFav=FAVS.includes(id);
-  const lc={fácil:"#059669",médio:"#D97706",difícil:"#DC2626",urgente:"#DC2626"}[p.level]||"#6B7280";
-  const li={fácil:"🟢",médio:"🟡",difícil:"🔴",urgente:"🚨"}[p.level]||"";
   const body=document.getElementById("protocol-body");
   if(!body)return;
   // Monta breadcrumb da categoria e situação
@@ -3341,26 +3432,24 @@ function renderProtocol(id){
           ${breadcrumb?`<div class="proto-hdr-cat">${breadcrumb}</div>`:''}
           <div class="proto-hdr-title">${p.title}</div>
           <div class="proto-hdr-badges">
-            <span class="proto-hdr-badge">⏱ ${p.time}</span>
-            <span class="proto-hdr-badge">${li} ${p.level}</span>
-            ${!p.free?'<span class="prem-tag">🔒 Premium</span>':''}
-            <button class="proto-hdr-fav ${isFav?'active':''}" id="fav-btn-proto" onclick="toggleFav('${id}')" style="margin-left:auto">${isFav?'★':'☆'}</button>
+            ${!p.free?'<span class="prem-tag"><i class="ti ti-lock"></i>Premium</span>':''}
+            <button class="proto-hdr-fav ${isFav?'active':''}" id="fav-btn-proto" onclick="toggleFav('${id}')" style="margin-left:auto">${isFav?'<i class="ti ti-star-filled"></i>':'<i class="ti ti-star"></i>'}</button>
           </div>
         </div>
       </div>
     </div>
-    <div class="clinical-note">⚕️ Este protocolo é um guia de apoio clínico. Adapte conforme a condição do paciente. A responsabilidade pela decisão clínica é exclusivamente do profissional habilitado.</div>
+    <div class="clinical-note"><span class="protocol-inline-icon"><i class="ti ti-clipboard-heart"></i></span><span>Este protocolo é um guia de apoio clínico. Adapte conforme a condição do paciente. A responsabilidade pela decisão clínica é exclusivamente do profissional habilitado.</span></div>
     ${id==='extracao-simples'?`
     <div class="fw-widget">
-      <div class="fw-widget-label">🎯 Fórceps Dinâmico</div>
+      <div class="fw-widget-label"><span class="protocol-inline-icon"><i class="ti ti-target"></i></span>Fórceps Dinâmico</div>
       <input class="fw-widget-input" id="fw-es-input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="Digite o nº do dente" oninput="renderForcepsWidget('fw-es-input','fw-es-confirm','fw-es-result','fw-es-alert','fw-es-p6')">
-      <div class="fw-confirm" id="fw-es-confirm"><span>🦷</span><span class="fw-confirm-txt" id="fw-es-confirm-txt"></span><span class="fw-confirm-ok">✓</span></div>
+      <div class="fw-confirm" id="fw-es-confirm"><span class="protocol-inline-icon"><i class="ti ti-dental"></i></span><span class="fw-confirm-txt" id="fw-es-confirm-txt"></span><span class="fw-confirm-ok">✓</span></div>
       <div class="fw-result" id="fw-es-result"></div>
     </div>`:''}
     ${id==='endo-urgencia'?`
     <div class="fw-widget" id="pulpite-widget-box">
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div class="fw-widget-label">🔍 Não sabe o diagnóstico? Comece aqui</div>
+        <div class="fw-widget-label"><span class="protocol-inline-icon"><i class="ti ti-search"></i></span>Não sabe o diagnóstico? Comece aqui</div>
         <button onclick="togglePulpiteWidget()" id="pulpite-toggle-btn" style="background:none;border:0.5px solid var(--color-border-tertiary);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:#7C3FA0;cursor:pointer;">Usar</button>
       </div>
       <div id="pulpite-widget-content" style="display:none;">
@@ -3382,13 +3471,13 @@ function renderProtocol(id){
     </div>`:''}
     ${id==='extracao-cirurgica'?`
     <div class="fw-widget">
-      <div class="fw-widget-label">✂️ Odontosecção Dinâmica</div>
+      <div class="fw-widget-label"><span class="protocol-inline-icon"><i class="ti ti-cut"></i></span>Odontosecção Dinâmica</div>
       <input class="fw-widget-input" id="fw-ec-input" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="Digite o nº do dente" oninput="renderOdontoWidget('fw-ec-input','fw-ec-confirm','fw-ec-result','fw-ec-p7')">
-      <div class="fw-confirm" id="fw-ec-confirm"><span>🦷</span><span class="fw-confirm-txt" id="fw-ec-confirm-txt"></span><span class="fw-confirm-ok">✓</span></div>
+      <div class="fw-confirm" id="fw-ec-confirm"><span class="protocol-inline-icon"><i class="ti ti-dental"></i></span><span class="fw-confirm-txt" id="fw-ec-confirm-txt"></span><span class="fw-confirm-ok">✓</span></div>
       <div class="fw-result" id="fw-ec-result"></div>
     </div>`:''}
     <div class="sec">
-      <div class="sec-title">📋 Passo a Passo</div>
+      <div class="sec-title"><span class="protocol-inline-icon"><i class="ti ti-checklist"></i></span>Passo a Passo</div>
       ${(p.steps||[]).map((s,i)=>{
         if(id==='extracao-simples' && i===5) return '<div class="step-row"><div class="step-num">'+(i+1)+'</div><div class="step-txt" id="fw-es-p6">'+s+'</div></div>';
         if(id==='extracao-cirurgica' && i===6) return '<div class="step-row"><div class="step-num">'+(i+1)+'</div><div class="step-txt" id="fw-ec-p7">'+s+'</div></div>';
@@ -3396,16 +3485,16 @@ function renderProtocol(id){
       }).join("")}
     </div>
     <div class="sec">
-      <div class="sec-title">⚠️ Erros que Ferram</div>
+      <div class="sec-title"><span class="protocol-inline-icon"><i class="ti ti-alert-triangle"></i></span>Erros que Ferram</div>
       ${(p.errors||[]).map(e=>`<div class="err-row"><span class="err-dot">✗</span><span class="err-txt">${e}</span></div>`).join("")}
     </div>
     <div class="sec">
-      <div class="sec-title">🔀 Decisão Rápida</div>
+      <div class="sec-title"><span class="protocol-inline-icon"><i class="ti ti-arrows-split"></i></span>Decisão Rápida</div>
       ${(p.decisions||[]).map(d=>`<div class="dec-row"><span class="dec-if-lbl">Se</span><span class="dec-if">${d.if}</span><span class="dec-arr">→</span><span class="dec-then">${d.then||''}</span></div>`).join("")}
     </div>
     <div class="sec">
-      <div class="sec-title">🚨 Modo Pânico</div>
-      ${(p.panic||[]).map(item=>`<div class="panic-card"><div class="panic-prob">⚡ ${item.problem}</div><div class="panic-sol">${item.solution||''}</div></div>`).join("")}
+      <div class="sec-title"><span class="protocol-inline-icon"><i class="ti ti-alert-triangle"></i></span>Modo Pânico</div>
+      ${(p.panic||[]).map(item=>`<div class="panic-card"><div class="panic-prob"><span class="protocol-inline-icon"><i class="ti ti-bolt"></i></span>${item.problem}</div><div class="panic-sol">${item.solution||''}</div></div>`).join("")}
     </div>
     <div class="spacer"></div>`;
    body.scrollTop = 0;
@@ -3432,7 +3521,7 @@ function toggleFav(id){
   const btn = document.getElementById("fav-btn-proto");
   if(btn){
     const nowFav = FAVS.includes(id);
-    btn.textContent = nowFav ? '★' : '☆';
+    btn.innerHTML = nowFav ? '<i class="ti ti-star-filled"></i>' : '<i class="ti ti-star"></i>';
     btn.className = nowFav ? 'proto-hdr-fav active' : 'proto-hdr-fav';
   }
 }
@@ -3446,11 +3535,9 @@ function renderFavs(){
   if(vf.length===0){list.innerHTML='<p class="empty-msg">Use ★ em qualquer protocolo para salvar.</p>';return;}
   vf.forEach(fid=>{
     const p=DATA.protocols[fid];
-    const lc={fácil:"#059669",médio:"#D97706",difícil:"#DC2626",urgente:"#DC2626"}[p.level]||"#6B7280";
-    const li={fácil:"🟢",médio:"🟡",difícil:"🔴",urgente:"🚨"}[p.level]||"";
     const btn=document.createElement("button");
     btn.className="result-card";
-    btn.innerHTML=`<span class="result-title">${p.title}</span><span class="result-meta">${p.time} · <span style="color:${lc}">${li} ${p.level}</span></span>`;
+    btn.innerHTML=`<span class="result-title">${p.title}</span>`;
     btn.onclick=()=>openProto(fid);
     list.appendChild(btn);
   });
@@ -3484,12 +3571,10 @@ function doHomeSearch(q){
     resDiv.innerHTML='<p class="empty-msg" style="margin-top:20px">Nenhum resultado para "'+q+'"</p>';
     return;
   }
-  const lcs={fácil:"#059669",médio:"#D97706",difícil:"#DC2626",urgente:"#DC2626"};
-  const lis={fácil:"🟢",médio:"🟡",difícil:"🔴",urgente:"🚨"};
   found.forEach(p=>{
     const btn=document.createElement("button");
     btn.className="home-result-card";
-    btn.innerHTML='<div style="display:flex;align-items:center;gap:6px"><span class="result-title">'+p.title+'</span>'+(!p.free && !window.userIsPremium ? '<span class="prem-tag">🔒</span>' : '')+'</div><span class="result-meta">'+p.time+' · <span style="color:'+(lcs[p.level]||"#6B7280")+'">'+(lis[p.level]||"")+" "+p.level+'</span></span>';
+    btn.innerHTML='<div style="display:flex;align-items:center;gap:6px"><span class="result-title">'+p.title+'</span>'+(!p.free && !window.userIsPremium ? '<span class="prem-tag"><i class="ti ti-lock"></i></span>' : '')+'</div>';
     btn.onclick=()=>{clearHomeSearch();openProto(p.id);};
     resDiv.appendChild(btn);
   });
@@ -3533,11 +3618,9 @@ function doSearch(q){
   if(found.length===0){res.innerHTML=`<p class="empty-msg">Nenhum resultado para "${q}"</p>`;return;}
   res.innerHTML="";
   found.forEach(p=>{
-    const lc={fácil:"#059669",médio:"#D97706",difícil:"#DC2626",urgente:"#DC2626"}[p.level]||"#6B7280";
-    const li={fácil:"🟢",médio:"🟡",difícil:"🔴",urgente:"🚨"}[p.level]||"";
     const btn=document.createElement("button");
     btn.className="result-card";
-    btn.innerHTML=`<div style="display:flex;align-items:center;gap:6px"><span class="result-title">${p.title}</span>${!p.free && !window.userIsPremium ? '<span class="prem-tag">🔒</span>' : ''}</div><span class="result-meta">${p.time} · <span style="color:${lc}">${li} ${p.level}</span></span>`;
+    btn.innerHTML=`<div style="display:flex;align-items:center;gap:6px"><span class="result-title">${p.title}</span>${!p.free && !window.userIsPremium ? '<span class="prem-tag"><i class="ti ti-lock"></i></span>' : ''}</div>`;
     btn.onclick=()=>openProto(p.id);
     res.appendChild(btn);
   });
@@ -3582,7 +3665,7 @@ function renderPulpiteSitPergunta(){
     const btn=document.createElement('button');
     btn.className='fw-confirm show';
     btn.style.cssText='cursor:pointer;width:100%;text-align:left;border:0.5px solid #475569;border-radius:10px;background:none;padding:6px 10px;font-family:inherit;margin-bottom:2px;';
-    btn.innerHTML='<span>🦷</span><span class="fw-confirm-txt" style="font-size:13px;">'+op.label+'</span><span class="fw-confirm-ok">›</span>';
+    btn.innerHTML='<span class="protocol-inline-icon"><i class="ti ti-dental"></i></span><span class="fw-confirm-txt" style="font-size:13px;">'+op.label+'</span><span class="fw-confirm-ok">›</span>';
     btn.onclick=()=>responderPulpiteSit(op.valor);
     opcoesEl.appendChild(btn);
   });
@@ -3611,9 +3694,9 @@ function mostrarResultadoPulpiteSit(){
   else if(r[1]==='longa' || r[2]==='frioPiora') tipo='transicao';
   const dk=document.body.classList.contains('dark');
   const configs={
-    reversivel:{icon:'✓',iconBg:dk?'#1A3A0A':'#EAF3DE',iconColor:dk?'#9FE1CB':'#27500A',badge:'Pulpite reversível',badgeBg:dk?'#27500A':'#C0DD97',badgeColor:dk?'#C0DD97':'#27500A',title:'Polpa com potencial de recuperação',titleColor:dk?'#C0DD97':'#27500A',body:'Remover fator causal + proteção pulpar. Não indica endodontia agora — acompanhar em 1–2 semanas.',ctaText:'Ver protocolo',ctaBg:'#3B6D11',ctaColor:'#fff',proto:'pulpite-reversivel'},
-    transicao:{icon:'~',iconBg:dk?'#3D2200':'#FAEEDA',iconColor:dk?'#FAC775':'#633806',badge:'Fase de transição',badgeBg:dk?'#633806':'#FAC775',badgeColor:dk?'#FAC775':'#633806',title:'Entre reversível e irreversível',titleColor:dk?'#FAC775':'#633806',body:'Conduta conservadora. Acompanhar em 2–4 semanas. Se piorar: endodontia.',ctaText:'Ver protocolo',ctaBg:'#854F0B',ctaColor:'#fff',proto:'pulpite-reversivel'},
-    irreversivel:{icon:'!',iconBg:dk?'#3D0A0A':'#FCEBEB',iconColor:dk?'#F7C1C1':'#791F1F',badge:'Pulpite irreversível',badgeBg:dk?'#791F1F':'#F7C1C1',badgeColor:dk?'#F7C1C1':'#791F1F',title:'Endodontia indicada',titleColor:dk?'#F7C1C1':'#791F1F',body:'Abertura de urgência para alívio da dor + encaminhar endodontista.',ctaText:'Abrir protocolo de urgência',ctaBg:'#A32D2D',ctaColor:'#fff',proto:'pulpite-irreversivel'}
+    reversivel:{icon:'ti-circle-check',iconBg:dk?'#1A3A0A':'#EAF3DE',iconColor:dk?'#9FE1CB':'#27500A',badge:'Pulpite reversível',badgeBg:dk?'#27500A':'#C0DD97',badgeColor:dk?'#C0DD97':'#27500A',title:'Polpa com potencial de recuperação',titleColor:dk?'#C0DD97':'#27500A',body:'Remover fator causal + proteção pulpar. Não indica endodontia agora — acompanhar em 1–2 semanas.',ctaText:'Ver protocolo',ctaBg:'#3B6D11',ctaColor:'#fff',proto:'pulpite-reversivel'},
+    transicao:{icon:'ti-alert-circle',iconBg:dk?'#3D2200':'#FAEEDA',iconColor:dk?'#FAC775':'#633806',badge:'Fase de transição',badgeBg:dk?'#633806':'#FAC775',badgeColor:dk?'#FAC775':'#633806',title:'Entre reversível e irreversível',titleColor:dk?'#FAC775':'#633806',body:'Conduta conservadora. Acompanhar em 2–4 semanas. Se piorar: endodontia.',ctaText:'Ver protocolo',ctaBg:'#854F0B',ctaColor:'#fff',proto:'pulpite-reversivel'},
+    irreversivel:{icon:'ti-alert-triangle',iconBg:dk?'#3D0A0A':'#FCEBEB',iconColor:dk?'#F7C1C1':'#791F1F',badge:'Pulpite irreversível',badgeBg:dk?'#791F1F':'#F7C1C1',badgeColor:dk?'#F7C1C1':'#791F1F',title:'Endodontia indicada',titleColor:dk?'#F7C1C1':'#791F1F',body:'Abertura de urgência para alívio da dor + encaminhar endodontista.',ctaText:'Abrir protocolo de urgência',ctaBg:'#A32D2D',ctaColor:'#fff',proto:'pulpite-irreversivel'}
   };
   const c=configs[tipo];
   const quiz=document.getElementById('pulpite-sit-quiz');
@@ -3627,7 +3710,7 @@ function mostrarResultadoPulpiteSit(){
   quiz.style.display='none';
   res.style.display='block';
   icon.style.cssText='width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;background:'+c.iconBg+';color:'+c.iconColor+';';
-  icon.textContent=c.icon;
+  icon.innerHTML='<i class="ti '+c.icon+'"></i>';
   badge.style.cssText='font-size:11px;font-weight:700;padding:3px 10px;border-radius:30px;display:inline-block;margin-bottom:5px;background:'+c.badgeBg+';color:'+c.badgeColor+';';
   badge.textContent=c.badge;
   title.style.cssText='font-size:15px;font-weight:700;color:#0F172A;';
@@ -3761,7 +3844,7 @@ function abrirModalCrise(){
       const proto=DATA.protocols[item.protocol];
       const btn=document.createElement("button");
       btn.className="crise-option";
-      btn.innerHTML=`<span class="crise-option-icon">⚡</span><div class="crise-option-text"><div class="crise-option-title">${item.label}</div><div class="crise-option-sub">→ ${proto?proto.title:item.protocol}</div></div>`;
+      btn.innerHTML=`<span class="crise-option-icon"><i class="ti ti-bolt"></i></span><div class="crise-option-text"><div class="crise-option-title">${item.label}</div><div class="crise-option-sub">→ ${proto?proto.title:item.protocol}</div></div>`;
       btn.onclick=()=>{hideOverlay("crise-overlay");openProto(item.protocol);};
       opt.appendChild(btn);
     });
@@ -4036,20 +4119,20 @@ async function logout(){
   overlay.className = 'overlay active';
   overlay.innerHTML = `
     <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
-      <div style="font-size:52px;margin-bottom:4px;">😢</div>
+      <div class="modal-icon" style="margin-bottom:4px;color:#DC2626;"><i class="ti ti-alert-triangle"></i></div>
       <h2 class="modal-title" style="font-size:20px;">Seu acesso Premium expirou</h2>
       <p class="modal-sub" style="margin:8px 0 16px;">Você perdeu o acesso a mais de 50 protocolos clínicos, S.O.S. completo e prescrições.</p>
       <div style="background:#F5EEFB;border-radius:16px;padding:14px 16px;margin-bottom:20px;text-align:left;width:100%;">
         <div style="font-size:13px;font-weight:700;color:#7C3FA0;margin-bottom:8px;">O que você perde sem o Premium:</div>
         <div style="font-size:13px;color:#1E293B;line-height:1.8;">
-          🔒 Prótese, Endodontia, Cirurgia, Periodontia<br>
-          🔒 S.O.S. Clínico completo<br>
-          🔒 Prescrições detalhadas<br>
-          🔒 Modo Pânico em todos os protocolos
+          <i class="ti ti-lock"></i> Prótese, Endodontia, Cirurgia, Periodontia<br>
+          <i class="ti ti-lock"></i> S.O.S. Clínico completo<br>
+          <i class="ti ti-lock"></i> Prescrições detalhadas<br>
+          <i class="ti ti-lock"></i> Modo Pânico em todos os protocolos
         </div>
       </div>
       <button class="btn-primary" onclick="localStorage.setItem('modalExpiradoMostrado','1');this.closest('.overlay').remove();abrirTelaPayment();" style="margin-bottom:10px;">
-  🔓 Renovar por R$9,90/mês
+  <i class="ti ti-lock-open"></i> Renovar por R$9,90/mês
 </button>
 <button class="btn-ghost" onclick="localStorage.setItem('modalExpiradoMostrado','1');this.closest('.overlay').remove()">Continuar sem Premium</button>
     </div>
@@ -4061,20 +4144,20 @@ function mostrarModalTrialManual() {
   overlay.className = 'overlay active';
   overlay.innerHTML = `
     <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
-      <div style="font-size:52px;margin-bottom:4px;">🎁</div>
+      <div class="modal-icon" style="margin-bottom:4px;color:#7C3FA0;"><i class="ti ti-gift"></i></div>
       <h2 class="modal-title" style="font-size:20px;">Você ganhou acesso Premium!</h2>
       <p class="modal-sub" style="margin:8px 0 16px;">O time OdontoDex liberou <strong>7 dias de acesso completo</strong> especialmente para você. Aproveite!</p>
       <div style="background:#F5EEFB;border-radius:16px;padding:14px 16px;margin-bottom:20px;text-align:left;width:100%;">
-        <div style="font-size:13px;font-weight:700;color:#7C3FA0;margin-bottom:8px;">✅ O que você tem acesso agora:</div>
+        <div style="font-size:13px;font-weight:700;color:#7C3FA0;margin-bottom:8px;"><i class="ti ti-circle-check"></i> O que você tem acesso agora:</div>
         <div style="font-size:13px;color:#1E293B;line-height:1.9;">
-          🔓 Todos os protocolos clínicos<br>
-          🔓 Prescrições completas<br>
-          🔓 S.O.S. Clínico completo<br>
-          🔓 Pacientes especiais
+          <i class="ti ti-lock-open"></i> Todos os protocolos clínicos<br>
+          <i class="ti ti-lock-open"></i> Prescrições completas<br>
+          <i class="ti ti-lock-open"></i> S.O.S. Clínico completo<br>
+          <i class="ti ti-lock-open"></i> Pacientes especiais
         </div>
       </div>
       <button class="btn-primary" onclick="this.closest('.overlay').remove()" style="margin-bottom:10px;">
-        🚀 Explorar agora
+        <i class="ti ti-rocket"></i> Explorar agora
       </button>
     </div>
   `;
@@ -4085,21 +4168,21 @@ function mostrarModalTrialBoasVindas() {
   overlay.className = 'overlay active';
   overlay.innerHTML = `
     <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
-      <div style="font-size:52px;margin-bottom:4px;">🎉</div>
+      <div class="modal-icon" style="margin-bottom:4px;color:#7C3FA0;"><i class="ti ti-confetti"></i></div>
       <h2 class="modal-title" style="font-size:20px;">Bem-vindo ao OdontoDex!</h2>
       <p class="modal-sub" style="margin:8px 0 16px;">Você ganhou <strong>7 dias de acesso completo</strong> a todos os protocolos, prescrições e ferramentas do app.</p>
       <div style="background:#F5EEFB;border-radius:16px;padding:14px 16px;margin-bottom:20px;text-align:left;width:100%;">
-        <div style="font-size:13px;font-weight:700;color:#7C3FA0;margin-bottom:8px;">✅ O que você tem acesso agora:</div>
+        <div style="font-size:13px;font-weight:700;color:#7C3FA0;margin-bottom:8px;"><i class="ti ti-circle-check"></i> O que você tem acesso agora:</div>
         <div style="font-size:13px;color:#1E293B;line-height:1.8;">
-          🔓 Todos os protocolos clínicos<br>
-          🔓 Prescrições completas<br>
-          🔓 S.O.S. Clínico completo<br>
-          🔓 Pacientes especiais
+          <i class="ti ti-lock-open"></i> Todos os protocolos clínicos<br>
+          <i class="ti ti-lock-open"></i> Prescrições completas<br>
+          <i class="ti ti-lock-open"></i> S.O.S. Clínico completo<br>
+          <i class="ti ti-lock-open"></i> Pacientes especiais
         </div>
       </div>
       <p class="modal-sub" style="margin-bottom:20px;font-size:12px;">Após os 7 dias, você migra automaticamente para o plano gratuito. Para continuar com acesso completo, assine o Premium por R$9,90/mês.</p>
       <button class="btn-primary" onclick="this.closest('.overlay').remove();">
-        🚀 Começar a usar
+        <i class="ti ti-rocket"></i> Começar a usar
       </button>
     </div>
   `;
@@ -4446,21 +4529,21 @@ function adicionarBannerEstudante() {
       line-height: 1;
     ">✕</button>
     <div style="margin-bottom: 4px;">
-      <strong>⚠️ ATENÇÃO ESTUDANTE:</strong>
+      <strong><i class="ti ti-alert-triangle"></i> ATENÇÃO ESTUDANTE:</strong>
     </div>
     <div style="margin-bottom: 6px;">
       Os protocolos clínicos exibidos neste app refletem práticas gerais da odontologia.
       Cada faculdade ou universidade pode adotar técnicas, materiais ou fluxos diferentes.
     </div>
     <div>
-      <strong>⚠ PORTANTO:</strong><br>
+      <strong><i class="ti ti-alert-triangle"></i> PORTANTO:</strong><br>
       • Este conteúdo NÃO substitui a orientação do seu professor<br>
       • NÃO execute procedimentos sem supervisão adequada<br>
       • Em caso de dúvida, CONSULTE seu supervisor
     </div>
   `;
   
-  // 🔥 INSERE O BANNER ENTRE O .hdr-nome e o .hdr-pergunta
+  // Insere o banner entre o .hdr-nome e o .hdr-pergunta
   const nomeEl = header.querySelector('.hdr-nome');
   const perguntaEl = header.querySelector('.hdr-pergunta');
   
@@ -4536,16 +4619,16 @@ async function verificarCupom(valor) {
         cupomValido = valor.toUpperCase();
         row.style.borderColor = '#059669';
         row.style.background = '#F0FDF4';
-        status.textContent = '✅';
+        status.innerHTML = '<i class="ti ti-circle-check"></i>';
         feedback.style.display = 'block';
         feedback.style.background = '#F0FDF4';
         feedback.style.border = '1px solid #BBF7D0';
         feedback.style.color = '#059669';
-        feedback.innerHTML = '✓ Indicado por <strong>' + nome + '</strong>';
+        feedback.innerHTML = '<i class="ti ti-circle-check"></i> Indicado por <strong>' + nome + '</strong>';
       } else {
         row.style.borderColor = '#DC2626';
         row.style.background = '#FEF2F2';
-        status.textContent = '❌';
+        status.innerHTML = '<i class="ti ti-circle-x"></i>';
         feedback.style.display = 'block';
         feedback.style.background = '#FEF2F2';
         feedback.style.border = '1px solid #FECACA';
@@ -4788,7 +4871,7 @@ if (isCartao) {
     console.error("Erro ao iniciar Brick:", e);
     container.innerHTML = `
       <div style="text-align:center;padding:30px 20px;">
-        <div style="font-size:32px;margin-bottom:8px">⚠️</div>
+        <div class="modal-icon" style="font-size:32px;margin-bottom:8px;color:#DC2626"><i class="ti ti-alert-triangle"></i></div>
         <div style="font-size:14px;font-weight:700;color:#DC2626;margin-bottom:16px">Erro ao carregar pagamento</div>
        <button onclick="iniciarBrick()" style="background:#7C3FA0;color:#fff;border:none;border-radius:20px;padding:10px 24px;font-size:14px;font-weight:700;cursor:pointer;">Tentar novamente</button>
       </div>`;
@@ -4797,7 +4880,7 @@ if (isCartao) {
 async function onPaymentApproved() {
   window.userIsPremium = true;
   localStorage.setItem('userIsPremium', 'true');
-  showToast("🎉 Bem-vindo ao Premium!", "success");
+  showToast("Bem-vindo ao Premium!", "success");
   voltarParaHome();
   renderHome();
 }
@@ -4845,8 +4928,8 @@ function renderPrescricoesList() {
   list.innerHTML = '';
 
   const aviso = document.createElement('div');
-  aviso.style.cssText = 'background:#FFF3CD;border-left:3px solid #F59E0B;border-radius:12px;padding:12px 14px;margin-bottom:16px;font-size:12px;color:#856404;line-height:1.5;';
-  aviso.textContent = AVISO_LEGAL;
+  aviso.className = 'rx-legal-note';
+  aviso.innerHTML = AVISO_LEGAL_HTML;
   list.appendChild(aviso);
 
   if(abaAtivaPrescricao === 'situacoes') {
@@ -4855,11 +4938,11 @@ function renderPrescricoesList() {
       const btn = document.createElement('button');
       btn.className = 'list-btn';
       btn.innerHTML = `
-        <span style="font-size:22px;margin-right:4px;">${rx.icon}</span>
+      <span class="rx-list-icon">${rx.icon}</span>
         <div style="flex:1;text-align:left;">
           <div class="list-txt">${rx.label}</div>
         </div>
-        ${locked ? '<span class="prem-tag">🔒 Premium</span>' : '<span class="arr">›</span>'}
+        ${locked ? '<span class="prem-tag"><i class="ti ti-lock"></i>Premium</span>' : '<span class="arr">›</span>'}
       `;
       btn.onclick = () => {
         if(locked) { showUpgradeModal(null); return; }
@@ -4869,15 +4952,15 @@ function renderPrescricoesList() {
     });
   } else {
     const grid = document.createElement('div');
-    grid.style.cssText = 'display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;';
+    grid.className = 'patient-special-grid';
     PACIENTES_ESPECIAIS_LIST.forEach(pe => {
       const locked = !pe.free && !window.userIsPremium;
       const btn = document.createElement('button');
-      btn.style.cssText = `background:${locked ? '#F8FAFC' : '#fff'};border:1px solid #E2E8F0;border-radius:16px;padding:16px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;position:relative;`;
+      btn.className = 'patient-special-card' + (locked ? ' locked' : '');
       btn.innerHTML = `
-        <span style="font-size:28px;">${pe.icon}</span>
-        <span style="font-size:12px;font-weight:700;color:#0F172A;text-align:center;line-height:1.3;">${pe.label}</span>
-        ${locked ? '<span style="position:absolute;top:6px;right:8px;font-size:10px;">🔒</span>' : ''}
+        <span class="patient-special-icon">${pe.icon}</span>
+        <span class="patient-special-label">${pe.label}</span>
+        ${locked ? '<span class="patient-special-lock"><i class="ti ti-lock"></i></span>' : ''}
       `;
       btn.onclick = () => {
         if(locked) { showUpgradeModal(null); return; }
@@ -4940,10 +5023,10 @@ function renderPacienteEspecialDetalhe(id) {
     blocosHtml += `</div></div>`;
   });
 
-  const avisoHtml = `<div style="background:#FFF3CD;border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:11px;color:#856404;line-height:1.5;">${AVISO_LEGAL}</div>`;
+  const avisoHtml = `<div class="rx-legal-note" style="margin-bottom:12px;font-size:11px;">${AVISO_LEGAL_HTML}</div>`;
   const btnHtml = `
     <button onclick="copiarPacienteEspecial('${id}')" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:24px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:16px;">
-      📋 Copiar prescrição
+      <i class="ti ti-clipboard"></i> Copiar prescrição
     </button>`;
 
   body.innerHTML = blocosHtml + avisoHtml + btnHtml;
@@ -4990,10 +5073,10 @@ function renderPrescricaoDetalhe() {
     blocosHtml += `</div></div>`;
   });
 
-  const avisoHtml = `<div style="background:#FFF3CD;border-radius:12px;padding:12px 14px;margin-bottom:12px;font-size:11px;color:#856404;line-height:1.5;">${AVISO_LEGAL}</div>`;
+  const avisoHtml = `<div class="rx-legal-note" style="margin-bottom:12px;font-size:11px;">${AVISO_LEGAL_HTML}</div>`;
   const btnHtml = `
     <button onclick="copiarPrescricao()" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:24px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;font-family:inherit;margin-bottom:8px;">
-      📋 Copiar prescrição
+      <i class="ti ti-clipboard"></i> Copiar prescrição
     </button>
     <div style="font-size:11px;color:#94A3B8;text-align:center;line-height:1.5;margin-bottom:16px;">Ao copiar, confirmo que sou profissional habilitado e que adaptei a prescrição conforme o paciente.</div>
   `;
