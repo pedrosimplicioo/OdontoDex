@@ -11,6 +11,7 @@
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <title>OdontoDex</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
@@ -897,7 +898,7 @@ body.dark .bottom-nav { background: #1E293B; border-top-color: #475569; }
     <div class="hdr-nome" id="hdr-nome">Olá!</div>
     <div class="hdr-pergunta">Como posso te ajudar hoje?</div>
     <div class="search-bar" onclick="document.getElementById('home-search-input').focus()">
-      <span style="font-size:16px">🔍</span>
+      <span style="font-size:18px;color:#7C3FA0"><i class="ti ti-search"></i></span>
       <input class="search-input-real" id="home-search-input" placeholder="Digite sua dúvida clínica..." oninput="doHomeSearch(this.value)" onfocus="showHomeResults()" autocomplete="off">
       <button id="home-search-clear" onclick="clearHomeSearch()" style="display:none;background:none;border:none;cursor:pointer;font-size:16px;color:#94A3B8;padding:0;line-height:1;">✕</button>
     </div>
