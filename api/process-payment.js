@@ -1,25 +1,18 @@
-const admin = require("firebase-admin");
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: process.env.FIREBASE_PROJECT_ID,
-      privateKeyId: process.env.FIREBASE_PRIVATE_KEY_ID,
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, "\n"),
-      clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-      clientId: process.env.FIREBASE_CLIENT_ID,
-    }),
-  });
-}
-
-const db = admin.firestore();
+const { admin, db, requireSameUser, sendAuthError } = require("./_auth");
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
+  let decodedToken;
   try {
-    const { uid, email, ...formData } = req.body;
-    if (!uid) return res.status(400).json({ error: "UID obrigatório" });
+    decodedToken = await requireSameUser(req, req.body?.uid);
+  } catch (e) {
+    return sendAuthError(res, e);
+  }
+
+  try {
+    const { uid: bodyUid, email, ...formData } = req.body;
+    const uid = decodedToken.uid;
 
     const mpRes = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
@@ -30,12 +23,12 @@ module.exports = async (req, res) => {
       },
       body: JSON.stringify({
         ...formData,
-        metadata: { uid, email },
+        metadata: { uid, email: email || decodedToken.email || "" },
       }),
     });
 
     const payment = await mpRes.json();
-    console.log("Payment status:", payment.status, payment.id);
+    console.log("Payment status:", { status: payment.status, paymentId: payment.id, uid });
 
     if (payment.status === "approved") {
       const agora = new Date();
@@ -49,7 +42,7 @@ module.exports = async (req, res) => {
         ultimoPagamentoId: payment.id,
       });
 
-      console.log(`Premium ativado para ${uid} até ${expira.toISOString()}`);
+      console.log("Premium ativado por pagamento direto", { uid, paymentId: payment.id });
     }
 
     return res.status(200).json({

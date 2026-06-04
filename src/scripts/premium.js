@@ -81,9 +81,13 @@ async function submitCancel() {
     });
 
     // Cancela a assinatura no Mercado Pago
+    const idToken = await currentUser.getIdToken();
     const res = await fetch('/api/cancel-subscription', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`
+      },
       body: JSON.stringify({ uid: currentUser.uid }),
     });
     const data = await res.json();

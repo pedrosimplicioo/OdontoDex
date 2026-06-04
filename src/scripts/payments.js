@@ -5,9 +5,13 @@ async function iniciarPagamento() {
   }
   showLoading();
   try {
+    const idToken = await currentUser.getIdToken();
     const res = await fetch("/api/create-preference", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${idToken}`
+      },
       body: JSON.stringify({
         uid: currentUser.uid,
         email: currentUser.email,
@@ -99,9 +103,13 @@ async function abrirPixModal() {
   showOverlay('pix-overlay');
 
   try {
+    const idToken = await currentUser.getIdToken();
     const res = await fetch('/api/create-pix', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`
+      },
       body: JSON.stringify({
         uid: currentUser.uid,
         email: currentUser.email,
@@ -257,9 +265,13 @@ const isCartao = !!cardToken;
 let payRes, payData;
 
 if (isCartao) {
+  const idToken = await currentUser.getIdToken();
   payRes = await fetch("/api/create-subscription", {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": `Bearer ${idToken}`
+    },
     body: JSON.stringify({
       uid: currentUser.uid,
       email: currentUser.email,
@@ -275,9 +287,13 @@ if (isCartao) {
                   showToast("Assinatura não autorizada. Tente outro cartão.", "error");
                 }
               } else {
+                const idToken = await currentUser.getIdToken();
                 payRes = await fetch("/api/process-payment", {
                   method: "POST",
-                  headers: { "Content-Type": "application/json" },
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${idToken}`
+                  },
                   body: JSON.stringify({
                     ...formData,
                     uid: currentUser.uid,

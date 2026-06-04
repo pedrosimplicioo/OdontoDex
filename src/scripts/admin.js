@@ -986,6 +986,15 @@ function fecharDrawer() {
   drawerUsuarioAtual = null;
 }
 
+async function adminAuthHeaders() {
+  const token = await auth.currentUser?.getIdToken();
+  if (!token) throw new Error('Sessão admin expirada. Faça login novamente.');
+  return {
+    'Content-Type': 'application/json',
+    'Authorization': `Bearer ${token}`
+  };
+}
+
 async function acaoPremium(tipo) {
   if (!drawerUsuarioAtual) return;
   const feedback = document.getElementById('drawer-feedback');
@@ -1009,7 +1018,7 @@ async function acaoPremium(tipo) {
 
     const res = await fetch('https://www.odontodex.com.br/api/set-premium', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: await adminAuthHeaders(),
       body: JSON.stringify(body)
     });
     const data = await res.json();
@@ -1204,7 +1213,7 @@ async function marcarRepasse(codigo) {
   try {
     const res = await fetch('https://www.odontodex.com.br/api/set-repasse', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: await adminAuthHeaders(),
       body: JSON.stringify({ cupom: codigo, mes: mesAtual, status: 'pago' })
     });
     const data = await res.json();
@@ -1238,7 +1247,7 @@ async function salvarEdicaoCupom(codigo) {
   try {
     const res = await fetch('https://www.odontodex.com.br/api/update-cupom', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: await adminAuthHeaders(),
       body: JSON.stringify({ codigo, nome, email, pixKey, valorRepasse })
     });
     const data = await res.json();
@@ -1260,7 +1269,7 @@ async function toggleCupom(codigo, novoAtivo) {
   try {
     const res = await fetch('https://www.odontodex.com.br/api/update-cupom', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: await adminAuthHeaders(),
       body: JSON.stringify({ codigo, ativo: novoAtivo })
     });
     const data = await res.json();
@@ -1293,7 +1302,7 @@ async function criarCupom() {
   try {
     const res = await fetch('https://www.odontodex.com.br/api/create-cupom', {
       method: 'POST',
-      headers: {'Content-Type': 'application/json'},
+      headers: await adminAuthHeaders(),
       body: JSON.stringify({ codigo, nome, email, pixKey, valorRepasse })
     });
     const data = await res.json();

@@ -49,12 +49,6 @@ if(agora > expira) {
               window.userIsPremium = false;
               localStorage.setItem('userIsPremium', 'false');
               window._premiumExpirou = true;
-              // Atualiza o Firestore via backend
-              fetch('/api/expire-premium', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ uid: user.uid }),
-              }).catch(e => console.log(e));
             } else {
               window.userIsPremium = true;
               localStorage.setItem('userIsPremium', 'true');

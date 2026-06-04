@@ -49,6 +49,14 @@ function showReset(){
 }
 async function doLoginGoogle(){
   const provider = new firebase.auth.GoogleAuthProvider();
+  const err=document.getElementById("login-error");
+  if(location.protocol==="file:"){
+    const msg="Para entrar com Google, abra o OdontoDex pelo domínio publicado ou por localhost.";
+    if(err){err.textContent=msg;err.style.display="block";}
+    showToast(msg, "error");
+    console.warn("Google login bloqueado em file://. Use https://www.odontodex.com.br ou localhost autorizado no Firebase.");
+    return;
+  }
   showLoading();
   try {
     const res = await auth.signInWithPopup(provider);
@@ -71,7 +79,18 @@ async function doLoginGoogle(){
     }
   } catch(e) {
     hideLoading();
-    showToast("Erro ao entrar com Google", "error");
+    console.error("Erro no login com Google:", e);
+    const msgs={
+      "auth/unauthorized-domain":"Este domínio não está autorizado no Firebase para login com Google.",
+      "auth/popup-blocked":"O navegador bloqueou a janela do Google. Permita pop-ups ou abra no navegador.",
+      "auth/popup-closed-by-user":"Login com Google cancelado antes de concluir.",
+      "auth/cancelled-popup-request":"Já existe uma tentativa de login com Google em andamento.",
+      "auth/operation-not-allowed":"Login com Google não está habilitado no Firebase.",
+      "auth/network-request-failed":"Falha de conexão. Verifique sua internet e tente novamente."
+    };
+    const msg=msgs[e.code]||"Erro ao entrar com Google. Tente abrir pelo navegador ou usar email e senha.";
+    if(err){err.textContent=msg;err.style.display="block";}
+    showToast(msg, "error");
   }
 }
 async function doLogin(){

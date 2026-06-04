@@ -1,50 +1,50 @@
+const { requireSameUser, sendAuthError } = require("./_auth");
+
 module.exports = async (req, res) => {
-  if (req.method !== "POST") {
-    return res.status(405).json({ error: "Method not allowed" });
+  if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
+  let decodedToken;
+  try {
+    decodedToken = await requireSameUser(req, req.body?.uid);
+  } catch (e) {
+    return sendAuthError(res, e);
   }
 
   try {
-    const { uid, email } = req.body;
+    const { email } = req.body;
+    const uid = decodedToken.uid;
+    const userEmail = email || decodedToken.email;
 
-    if (!uid || !email) {
-      return res.status(400).json({ error: "UID e email são obrigatórios" });
-    }
+    if (!userEmail) return res.status(400).json({ error: "Email obrigatório" });
 
-    const mpResponse = await fetch(
-      "https://api.mercadopago.com/checkout/preferences",
-      {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+    const mpResponse = await fetch("https://api.mercadopago.com/checkout/preferences", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
+      },
+      body: JSON.stringify({
+        items: [
+          {
+            title: "OdontoDex Premium",
+            description: "Acesso premium por 30 dias",
+            quantity: 1,
+            currency_id: "BRL",
+            unit_price: 9.90,
+          },
+        ],
+        payer: { email: userEmail },
+        metadata: { uid },
+        back_urls: {
+          success: "https://odontodex.vercel.app?payment=success",
+          failure: "https://odontodex.vercel.app?payment=failure",
+          pending: "https://odontodex.vercel.app?payment=pending",
         },
-        body: JSON.stringify({
-          items: [
-            {
-              title: "OdontoDex Premium",
-              description: "Acesso premium por 30 dias",
-              quantity: 1,
-              currency_id: "BRL",
-              unit_price: 9.90,
-            },
-          ],
-          payer: {
-            email: email,
-          },
-          metadata: {
-            uid: uid,
-          },
-          back_urls: {
-            success: "https://odontodex.vercel.app?payment=success",
-            failure: "https://odontodex.vercel.app?payment=failure",
-            pending: "https://odontodex.vercel.app?payment=pending",
-          },
-          auto_return: "approved",
-          notification_url: "https://guia-odonto1.vercel.app/api/webhook",
-          statement_descriptor: "ODONTODEX",
-        }),
-      }
-    );
+        auto_return: "approved",
+        notification_url: "https://guia-odonto1.vercel.app/api/webhook",
+        statement_descriptor: "ODONTODEX",
+      }),
+    });
 
     const preference = await mpResponse.json();
 
@@ -57,7 +57,6 @@ module.exports = async (req, res) => {
       initPoint: preference.init_point,
       sandboxInitPoint: preference.sandbox_init_point,
     });
-
   } catch (error) {
     console.error("Erro ao criar preferência:", error);
     return res.status(500).json({ error: error.message });
