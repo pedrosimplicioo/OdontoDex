@@ -2,6 +2,7 @@
 let searchSheetReturnInputId = "home-search-input";
 let searchSheetStack = [];
 let persistedHomeSearchValue = "";
+let searchLogTimer = null;
 
 function createHomeSearchButton(title,kind,onClick,badges){
   const btn=document.createElement("button");
@@ -558,7 +559,12 @@ function doSearch(q){
   
   // NOVO: Registrar busca (se tiver pelo menos 2 caracteres)
   if(currentUser && q && q.length >= 2) {
-    registrarAcaoUsuario(currentUser.uid, 'search', { termo: q });
+    const searchTerm = q;
+    const searchUserId = currentUser.uid;
+    clearTimeout(searchLogTimer);
+    searchLogTimer = setTimeout(() => {
+      registrarAcaoUsuario(searchUserId, 'search', { termo: searchTerm });
+    }, 800);
   }
 
   if(typeof clinicalIntentSearch==="function"){

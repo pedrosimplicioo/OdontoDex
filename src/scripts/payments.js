@@ -334,6 +334,7 @@ if (isCartao) {
 async function onPaymentApproved() {
   window.userIsPremium = true;
   localStorage.setItem('userIsPremium', 'true');
+  if (typeof updatePremiumUI === 'function') updatePremiumUI();
   showToast("Bem-vindo ao Premium!", "success");
   voltarParaHome();
   renderHome();

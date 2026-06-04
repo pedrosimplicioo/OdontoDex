@@ -69,7 +69,7 @@ function renderProtocol(id){
           ${breadcrumb?`<div class="proto-hdr-cat">${breadcrumb}</div>`:''}
           <div class="proto-hdr-title">${p.title}</div>
           <div class="proto-hdr-badges">
-            ${!p.free?'<span class="prem-tag"><i class="ti ti-lock"></i>Premium</span>':''}
+            ${!p.free&&!window.userIsPremium?'<span class="prem-tag"><i class="ti ti-lock"></i>Premium</span>':''}
             <button class="proto-hdr-fav ${isFav?'active':''}" id="fav-btn-proto" onclick="toggleFav('${id}')" style="margin-left:auto">${isFav?'<i class="ti ti-star-filled"></i>':'<i class="ti ti-star"></i>'}</button>
           </div>
         </div>
