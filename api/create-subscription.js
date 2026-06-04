@@ -1,23 +1,20 @@
-const admin = require("firebase-admin");
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      type: "service_account",
-      project_id: process.env.FIREBASE_PROJECT_ID,
-      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-      private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-      client_email: process.env.FIREBASE_CLIENT_EMAIL,
-      client_id: process.env.FIREBASE_CLIENT_ID,
-    }),
-  });
-}
-const db = admin.firestore();
+const { admin, db, requireSameUser, sendAuthError } = require("./_auth");
+
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
+  let decodedToken;
   try {
-    const { uid, email, token, cupom } = req.body;
-    if (!uid || !token) return res.status(400).json({ error: "UID e token obrigatórios" });
-    // Cria a assinatura recorrente no Mercado Pago
+    decodedToken = await requireSameUser(req, req.body?.uid);
+  } catch (e) {
+    return sendAuthError(res, e);
+  }
+
+  try {
+    const { email, token, cupom } = req.body;
+    const uid = decodedToken.uid;
+    if (!token) return res.status(400).json({ error: "Token obrigatório" });
+
     const mpRes = await fetch("https://api.mercadopago.com/preapproval", {
       method: "POST",
       headers: {
@@ -28,7 +25,7 @@ module.exports = async (req, res) => {
         preapproval_plan_id: null,
         reason: "OdontoDex Premium",
         external_reference: uid,
-        payer_email: email,
+        payer_email: email || decodedToken.email,
         card_token_id: token,
         auto_recurring: {
           frequency: 1,
@@ -41,15 +38,15 @@ module.exports = async (req, res) => {
       }),
     });
     const assinatura = await mpRes.json();
-    console.log("Preapproval response:", JSON.stringify(assinatura));
+    console.log("Preapproval response:", { id: assinatura.id, status: assinatura.status, uid });
     if (!assinatura.id) {
       throw new Error("Falha ao criar assinatura: " + JSON.stringify(assinatura));
     }
-    // Calcula expiração inicial (30 dias)
+
     const agora = new Date();
     const expira = new Date(agora);
     expira.setDate(expira.getDate() + 30);
-    // Grava no Firestore
+
     await db.collection("users").doc(uid).update({
       premium: true,
       premiumExpira: admin.firestore.Timestamp.fromDate(expira),
@@ -60,12 +57,11 @@ module.exports = async (req, res) => {
       proximaCobranca: admin.firestore.Timestamp.fromDate(expira),
     });
 
-    // Registra conversão do cupom se houver
     if (cupom) {
       await db.collection("conversoes_cupom").add({
         cupom,
         userId: uid,
-        userEmail: email || "",
+        userEmail: email || decodedToken.email || "",
         valor: 3.00,
         timestamp: admin.firestore.FieldValue.serverTimestamp(),
       });

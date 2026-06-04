@@ -1,26 +1,17 @@
-const admin = require("firebase-admin");
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      type: "service_account",
-      project_id: process.env.FIREBASE_PROJECT_ID,
-      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-      private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-      client_email: process.env.FIREBASE_CLIENT_EMAIL,
-      client_id: process.env.FIREBASE_CLIENT_ID,
-    }),
-  });
-}
-
-const db = admin.firestore();
+const { db, requireSameUser, sendAuthError } = require("./_auth");
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
+  let decodedToken;
   try {
-    const { uid } = req.body;
-    if (!uid) return res.status(400).json({ error: "UID obrigatório" });
+    decodedToken = await requireSameUser(req, req.body?.uid);
+  } catch (e) {
+    return sendAuthError(res, e);
+  }
+
+  try {
+    const uid = decodedToken.uid;
 
     const userDoc = await db.collection("users").doc(uid).get();
     const userData = userDoc.data();
@@ -40,7 +31,7 @@ module.exports = async (req, res) => {
     });
 
     const resultado = await mpRes.json();
-    console.log("Cancel response:", JSON.stringify(resultado));
+    console.log("Cancel response:", { status: resultado.status, uid });
 
     if (resultado.status !== "cancelled") {
       throw new Error("MP não confirmou cancelamento: " + JSON.stringify(resultado));
@@ -51,7 +42,6 @@ module.exports = async (req, res) => {
     });
 
     return res.status(200).json({ status: "cancelled" });
-
   } catch (e) {
     console.error("Erro cancel-subscription:", e);
     return res.status(500).json({ error: e.message });

@@ -1,0 +1,192 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulacao - Cards de Situacoes Rapidas</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      min-height:100vh;
+      background:#0f172a;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
+      display:flex;
+      justify-content:center;
+      padding:20px 0;
+      color:#f8fafc;
+    }
+    .phone{
+      width:100%;
+      max-width:430px;
+      min-height:720px;
+      background:#111c2d;
+      overflow:hidden;
+    }
+    .header{
+      padding:22px 24px 18px;
+      border-bottom:1px solid #334155;
+      background:#1e293b;
+    }
+    .search{
+      height:52px;
+      border:1px solid #475569;
+      border-radius:20px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:0 16px;
+      color:#94a3b8;
+      font-size:15px;
+    }
+    .search .ti{font-size:20px;color:#a855f7}
+    .body{padding:18px 24px 32px}
+    .section-label{
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:1.1px;
+      color:#8aa2cc;
+      margin:0 0 10px;
+      text-transform:uppercase;
+    }
+    .quick-conduct-list{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+      margin:0 0 24px;
+      padding:0;
+      overflow:visible;
+    }
+    .quick-conduct-card{
+      width:100%;
+      aspect-ratio:1/1;
+      min-height:0;
+      background:#1e293b;
+      border:1px solid #475569;
+      border-radius:18px;
+      padding:12px 9px 10px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:flex-start;
+      gap:8px;
+      text-align:center;
+      color:inherit;
+      box-shadow:none;
+    }
+    .quick-conduct-icon{
+      width:36px;
+      height:36px;
+      border-radius:50%;
+      background:rgba(124,63,160,.28);
+      color:#b07fd4;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      flex-shrink:0;
+      margin:0 auto;
+    }
+    .quick-conduct-icon .ti{
+      font-size:20px;
+      line-height:1;
+      display:block;
+    }
+    .quick-conduct-copy{
+      width:100%;
+      min-width:0;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:3px;
+    }
+    .quick-conduct-title{
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:2;
+      overflow:hidden;
+      font-size:12px;
+      font-weight:850;
+      line-height:1.15;
+      color:#fff;
+    }
+    .quick-conduct-sub{
+      display:-webkit-box;
+      -webkit-box-orient:vertical;
+      -webkit-line-clamp:2;
+      overflow:hidden;
+      font-size:9.5px;
+      line-height:1.18;
+      color:#94a3b8;
+    }
+    .categories{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+    }
+    .category-card{
+      aspect-ratio:1/1;
+      border:1px solid #475569;
+      border-radius:18px;
+      background:#1e293b;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:12px;
+      font-size:12px;
+      font-weight:800;
+    }
+    .category-icon{
+      width:40px;
+      height:40px;
+      border-radius:50%;
+      background:rgba(124,63,160,.28);
+      color:#d8b4fe;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .category-icon .ti{font-size:22px}
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <header class="header">
+      <div class="search"><i class="ti ti-search"></i><span>Digite o problema ou procedimento...</span></div>
+    </header>
+    <section class="body">
+      <div class="section-label">Situacoes rapidas</div>
+      <div class="quick-conduct-list">
+        <button class="quick-conduct-card">
+          <span class="quick-conduct-icon"><i class="ti ti-crown"></i></span>
+          <span class="quick-conduct-copy">
+            <span class="quick-conduct-title">A coroa caiu</span>
+            <span class="quick-conduct-sub">Avalie adaptacao, remanescente e recimentacao.</span>
+          </span>
+        </button>
+        <button class="quick-conduct-card">
+          <span class="quick-conduct-icon"><i class="ti ti-dental-broken"></i></span>
+          <span class="quick-conduct-copy">
+            <span class="quick-conduct-title">Dente quebrou</span>
+            <span class="quick-conduct-sub">Defina se restaura, protege ou encaminha.</span>
+          </span>
+        </button>
+        <button class="quick-conduct-card">
+          <span class="quick-conduct-icon"><i class="ti ti-alert-triangle"></i></span>
+          <span class="quick-conduct-copy">
+            <span class="quick-conduct-title">Dor pos-procedimento</span>
+            <span class="quick-conduct-sub">Diferencie ajuste, inflamacao e urgencia.</span>
+          </span>
+        </button>
+      </div>
+
+      <div class="section-label">Explorar por area</div>
+      <div class="categories">
+        <div class="category-card"><span class="category-icon"><i class="ti ti-dental"></i></span>Dentistica</div>
+        <div class="category-card"><span class="category-icon"><i class="ti ti-crown"></i></span>Protese</div>
+        <div class="category-card"><span class="category-icon"><i class="ti ti-microscope"></i></span>Endo</div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

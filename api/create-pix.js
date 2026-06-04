@@ -1,26 +1,18 @@
-const admin = require("firebase-admin");
-
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      type: "service_account",
-      project_id: process.env.FIREBASE_PROJECT_ID,
-      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-      private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-      client_email: process.env.FIREBASE_CLIENT_EMAIL,
-      client_id: process.env.FIREBASE_CLIENT_ID,
-    }),
-  });
-}
-
-const db = admin.firestore();
+const { admin, db, requireSameUser, sendAuthError } = require("./_auth");
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
+  let decodedToken;
   try {
-    const { uid, email, nome, cupom } = req.body;
-    if (!uid) return res.status(400).json({ error: "UID obrigatório" });
+    decodedToken = await requireSameUser(req, req.body?.uid);
+  } catch (e) {
+    return sendAuthError(res, e);
+  }
+
+  try {
+    const { email, nome, cupom } = req.body;
+    const uid = decodedToken.uid;
 
     const mpRes = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
@@ -34,10 +26,10 @@ module.exports = async (req, res) => {
         description: "OdontoDex Premium - 1 mês",
         payment_method_id: "pix",
         payer: {
-          email: email,
+          email: email || decodedToken.email,
           first_name: nome || "Usuario",
         },
-        metadata: { uid, email },
+        metadata: { uid, email: email || decodedToken.email || "" },
         external_reference: uid,
       }),
     });
@@ -48,11 +40,10 @@ module.exports = async (req, res) => {
       throw new Error("QR Code não gerado: " + JSON.stringify(payment));
     }
 
-    // Salva o pagamento pendente com o cupom
     await db.collection("pix_pendentes").doc(String(payment.id)).set({
       paymentId: String(payment.id),
       uid,
-      email,
+      email: email || decodedToken.email || "",
       cupom: cupom || null,
       criadoEm: admin.firestore.FieldValue.serverTimestamp(),
     });
@@ -62,7 +53,6 @@ module.exports = async (req, res) => {
       qrCode: payment.point_of_interaction.transaction_data.qr_code,
       qrCodeBase64: payment.point_of_interaction.transaction_data.qr_code_base64,
     });
-
   } catch (e) {
     console.error("Erro create-pix:", e);
     return res.status(500).json({ error: e.message });

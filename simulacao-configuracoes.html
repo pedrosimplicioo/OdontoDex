@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Simulacao - Configuracoes</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      min-height:100vh;
+      background:#0b1220;
+      color:#f8fafc;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,sans-serif;
+      display:flex;
+      justify-content:center;
+      padding:18px 0 36px;
+    }
+    .phone{width:100%;max-width:430px;background:#0f172a;min-height:100vh;overflow:hidden}
+    .top-bar{height:56px;background:#1e293b;border-bottom:1px solid #334155;display:flex;align-items:center;justify-content:space-between;padding:0 22px}
+    .back{font-size:24px;color:#f8fafc}
+    .title{font-size:17px;font-weight:800}
+    .body{padding:18px 16px 28px;display:flex;flex-direction:column;gap:22px}
+    .label{font-size:11px;font-weight:900;letter-spacing:1.1px;color:#8aa2cc;text-transform:uppercase;margin-bottom:9px}
+    .option{border-bottom:1px solid rgba(148,163,184,.22);padding-bottom:22px}
+    .option:last-child{border-bottom:none}
+    .user-name{font-size:17px;font-weight:800;color:#fff}
+    .email{font-size:13px;color:#94a3b8;margin-top:3px}
+    .badge{font-size:11px;font-weight:700;padding:5px 12px;border-radius:999px;background:#334155;color:#cbd5e1;border:1px solid #475569}
+    .badge.premium{background:#fef3c7;color:#92400e;border-color:#fbbf24}
+    .plan-icon{width:58px;height:58px;border-radius:18px;display:flex;align-items:center;justify-content:center;background:#334155;border:1px solid #475569;color:#cbd5e1;flex-shrink:0}
+    .plan-icon .ti{font-size:28px;line-height:1}
+    .plan-icon.premium{background:linear-gradient(135deg,#4a1d6e,#7c3fa0);border-color:#a855f7;color:#fbbf24;box-shadow:0 10px 24px rgba(124,63,160,.28)}
+
+    .hero-a{background:#1e293b;border:1px solid #334155;border-radius:22px;padding:16px;display:flex;align-items:center;gap:14px}
+    .hero-a .meta{min-width:0;flex:1}
+    .hero-a .email{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .hero-b{position:relative;border:1px solid #334155;border-radius:22px;background:#1e293b;overflow:hidden;padding:42px 16px 16px}
+    .hero-b::before{content:"";position:absolute;left:0;right:0;top:0;height:58px;background:#6d2f90}
+    .hero-b .row{position:relative;display:flex;align-items:flex-end;gap:14px}
+    .hero-b .meta{padding-bottom:3px;min-width:0;flex:1}
+    .hero-b .badge{position:relative;margin-left:auto;margin-bottom:6px}
+
+    .hero-c{background:linear-gradient(135deg,#1e293b,#172033);border:1px solid #334155;border-radius:24px;padding:18px}
+    .hero-c .top{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .hero-c .plan-icon{width:52px;height:52px;border-radius:16px}
+    .hero-c .name-line{display:flex;align-items:center;gap:12px}
+    .hero-c .meta{min-width:0}
+
+    .hero-d{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#111827;border:1px solid #334155;border-radius:18px;padding:14px 16px}
+    .hero-d .left{display:flex;align-items:center;gap:12px;min-width:0}
+    .hero-d .plan-icon{width:46px;height:46px;border-radius:15px}
+    .hero-d .user-name{font-size:16px}
+    .hero-d .email{max-width:205px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+    .fake-section{margin-top:12px;background:#1e293b;border:1px solid #334155;border-radius:18px;overflow:hidden}
+    .fake-row{height:54px;display:flex;align-items:center;gap:12px;padding:0 14px;border-bottom:1px solid #334155;color:#cbd5e1;font-size:14px}
+    .fake-row:last-child{border-bottom:none}
+    .fake-icon{width:32px;height:32px;border-radius:10px;background:#334155}
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <div class="top-bar">
+      <div class="back">←</div>
+      <div class="title">Configurações</div>
+      <div style="width:24px"></div>
+    </div>
+    <section class="body">
+      <div class="option">
+        <div class="label">Opção 1 - card limpo</div>
+        <div class="hero-a">
+          <div class="plan-icon"><i class="ti ti-user"></i></div>
+          <div class="meta">
+            <div class="user-name">Dr. Pedro</div>
+            <div class="email">pedrosimplicio.sousa@gmail.com</div>
+          </div>
+          <span class="badge">Gratuito</span>
+        </div>
+        <div class="fake-section"><div class="fake-row"><span class="fake-icon"></span>Editar nome</div></div>
+      </div>
+
+      <div class="option">
+        <div class="label">Opção 2 - faixa mais discreta</div>
+        <div class="hero-b">
+          <div class="row">
+            <div class="plan-icon"><i class="ti ti-user"></i></div>
+            <div class="meta">
+              <div class="user-name">Dr. Pedro</div>
+              <div class="email">pedrosimplicio.sousa@gmail.com</div>
+            </div>
+            <span class="badge">Gratuito</span>
+          </div>
+        </div>
+        <div class="fake-section"><div class="fake-row"><span class="fake-icon"></span>Editar nome</div></div>
+      </div>
+
+      <div class="option">
+        <div class="label">Opção 3 - painel premium/conta</div>
+        <div class="hero-c">
+          <div class="top">
+            <span class="badge premium">Conta premium</span>
+            <span style="font-size:12px;color:#94a3b8;font-weight:700">OdontoDex</span>
+          </div>
+          <div class="name-line">
+            <div class="plan-icon premium"><i class="ti ti-crown"></i></div>
+            <div class="meta">
+              <div class="user-name">Dr. Pedro</div>
+              <div class="email">pedrosimplicio.sousa@gmail.com</div>
+            </div>
+          </div>
+        </div>
+        <div class="fake-section"><div class="fake-row"><span class="fake-icon"></span>Editar nome</div></div>
+      </div>
+
+      <div class="option">
+        <div class="label">Opção 4 - compacto</div>
+        <div class="hero-d">
+          <div class="left">
+            <div class="plan-icon premium"><i class="ti ti-crown"></i></div>
+            <div>
+              <div class="user-name">Dr. Pedro</div>
+              <div class="email">pedrosimplicio.sousa@gmail.com</div>
+            </div>
+          </div>
+          <span class="badge premium">Premium</span>
+        </div>
+        <div class="fake-section"><div class="fake-row"><span class="fake-icon"></span>Editar nome</div></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

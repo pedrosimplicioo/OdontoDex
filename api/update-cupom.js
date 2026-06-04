@@ -1,23 +1,15 @@
-const admin = require("firebase-admin");
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      type: "service_account",
-      project_id: process.env.FIREBASE_PROJECT_ID,
-      private_key_id: process.env.FIREBASE_PRIVATE_KEY_ID,
-      private_key: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-      client_email: process.env.FIREBASE_CLIENT_EMAIL,
-      client_id: process.env.FIREBASE_CLIENT_ID,
-    }),
-  });
-}
-const db = admin.firestore();
+const { db, setCors, requireAdmin, sendAuthError } = require("./_auth");
+
 module.exports = async (req, res) => {
-  res.setHeader('Access-Control-Allow-Origin', 'https://adm.odontodex.com.br');
-  res.setHeader('Access-Control-Allow-Methods', 'POST, OPTIONS');
-  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
-  if (req.method === 'OPTIONS') return res.status(200).end();
+  if (setCors(req, res)) return;
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
+
+  try {
+    await requireAdmin(req);
+  } catch (e) {
+    return sendAuthError(res, e);
+  }
+
   try {
     const { codigo, nome, email, pixKey, valorRepasse, ativo } = req.body;
     if (!codigo) return res.status(400).json({ error: "Código obrigatório" });
@@ -28,6 +20,7 @@ module.exports = async (req, res) => {
     if (valorRepasse !== undefined) updates.valorRepasse = valorRepasse;
     if (ativo !== undefined) updates.ativo = ativo;
     await db.collection("CUPONS").doc(codigo.toUpperCase()).update(updates);
+    console.log("Admin update-cupom executado", { codigo: codigo.toUpperCase() });
     return res.status(200).json({ ok: true });
   } catch (e) {
     return res.status(500).json({ error: e.message });
