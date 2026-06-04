@@ -1,0 +1,1329 @@
+const firebaseConfig = {
+  apiKey: "AIzaSyBGYluL3f0yuaZnpc-fX8sIQhlCeVo6bwk",
+  authDomain: "guia-odonto-a24ed.firebaseapp.com",
+  projectId: "guia-odonto-a24ed",
+  storageBucket: "guia-odonto-a24ed.firebasestorage.app",
+  messagingSenderId: "822223061470",
+  appId: "1:822223061470:web:8b1447dcfb37e7eeda1d4f"
+};
+
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+const db = firebase.firestore();
+
+let currentUser = null;
+let charts = {};
+let dadosUsuarios = [];
+let usuariosFiltrados = [];
+let currentPage = 1;
+let itemsPerPage = 10;
+let currentSort = { field: 'usos', order: 'desc' };
+let searchTerm = '';
+let filtroStatus = '';
+let currentSection = 'dashboard';
+let cachedDados = null;
+let cachedLandingStats = null;
+let cachedMetricasProduto = null;
+
+const ADMIN_EMAILS = ["pedrosimplicio.sousa@gmail.com"];
+
+// ========== SISTEMA DE IGNORAR USUÁRIOS ==========
+let usuariosIgnorados = [];
+
+function carregarIgnorados() {
+  try {
+    const saved = localStorage.getItem('admin_usuarios_ignorados');
+    if (saved) {
+      usuariosIgnorados = JSON.parse(saved);
+      console.log('✅ Ignorados carregados:', usuariosIgnorados);
+    } else {
+      usuariosIgnorados = [];
+      console.log('📋 Nenhum ignorado encontrado, lista vazia');
+    }
+  } catch(e) { 
+    console.error('Erro ao carregar ignorados:', e);
+    usuariosIgnorados = []; 
+  }
+}
+
+function salvarIgnorados() {
+  try {
+    localStorage.setItem('admin_usuarios_ignorados', JSON.stringify(usuariosIgnorados));
+    console.log('💾 Ignorados salvos:', usuariosIgnorados);
+  } catch(e) {
+    console.error('Erro ao salvar ignorados:', e);
+  }
+}
+
+function isUsuarioIgnorado(userId) {
+  return usuariosIgnorados.includes(userId);
+}
+
+async function toggleIgnorarUsuario(userId) {
+  console.log('🔘 toggleIgnorarUsuario chamado para:', userId);
+  console.log('📋 Lista atual:', usuariosIgnorados);
+  
+  const index = usuariosIgnorados.indexOf(userId);
+  if (index === -1) {
+    usuariosIgnorados.push(userId);
+    mostrarToastAdmin('👤 Usuário ignorado das estatísticas', 'warning');
+    console.log('➕ Adicionado à lista');
+  } else {
+    usuariosIgnorados.splice(index, 1);
+    mostrarToastAdmin('✅ Usuário reincluído nas estatísticas', 'success');
+    console.log('➖ Removido da lista');
+  }
+  
+  salvarIgnorados();
+  
+  try {
+    console.log('🔄 Recarregando dados...');
+    await carregarDados();
+    renderizarSecaoAtual();
+    console.log('✅ Dados recarregados com sucesso');
+  } catch (error) {
+    console.error('❌ Erro ao recarregar:', error);
+  }
+}
+
+function mostrarToastAdmin(mensagem, tipo) {
+  const toast = document.createElement('div');
+  toast.textContent = mensagem;
+  let cor = '#3B82F6';
+  if (tipo === 'success') cor = '#10B981';
+  if (tipo === 'warning') cor = '#F59E0B';
+  if (tipo === 'error') cor = '#EF4444';
+  toast.style.cssText = `position:fixed;bottom:20px;right:20px;background:${cor};color:white;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:600;z-index:9999;animation:fadeInOutAdmin 2s ease;font-family:'Inter',sans-serif;box-shadow:0 4px 12px rgba(0,0,0,0.15)`;
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 2000);
+}
+
+// ========== LOGIN ==========
+async function doAdminLogin() {
+  const email = document.getElementById('admin-email').value;
+  const password = document.getElementById('admin-password').value;
+  const errorDiv = document.getElementById('login-error');
+  try {
+    const res = await auth.signInWithEmailAndPassword(email, password);
+    currentUser = res.user;
+    if (!ADMIN_EMAILS.includes(currentUser.email)) {
+      await auth.signOut();
+      errorDiv.textContent = "Acesso negado. Você não é administrador.";
+      return;
+    }
+    document.getElementById('login-container').style.display = 'none';
+    document.getElementById('dashboard-container').style.display = 'flex';
+    await carregarDados();
+    renderizarSecaoAtual();
+  } catch(e) {
+    errorDiv.textContent = "Email ou senha incorretos";
+  }
+}
+
+function toggleSidebar() {
+  const sidebar = document.getElementById('sidebar');
+  if (sidebar.classList.contains('expanded')) {
+    sidebar.classList.remove('expanded');
+    sidebar.classList.add('collapsed');
+  } else {
+    sidebar.classList.remove('collapsed');
+    sidebar.classList.add('expanded');
+  }
+  setTimeout(() => {
+    if (currentSection === 'graficos' && charts.horas) {
+      if (charts.horas) charts.horas.resize();
+      if (charts.dias) charts.dias.resize();
+      if (charts.mensal) charts.mensal.resize();
+    }
+    if (currentSection === 'landing' && charts.landingVisitas) {
+      if (charts.landingVisitas) charts.landingVisitas.resize();
+    }
+  }, 300);
+}
+
+// ========== CARREGAR DADOS DO APP (COM FILTRO DE IGNORADOS) ==========
+async function carregarDados() {
+  try {
+    const agora = new Date();
+    const mesAtual = agora.toISOString().split('T')[0].substring(0, 7);
+    const usersSnapshot = await db.collection('users').get({source: 'server'});
+    const usuarios = [];
+    let totalPremium = 0, totalFree = 0;
+    
+    // Primeiro, coletar todos os usuários
+    usersSnapshot.forEach(doc => {
+      const userId = doc.id;
+      const isIgnorado = isUsuarioIgnorado(userId);
+      const userData = doc.data();
+      const isPremium = userData.premium === true;
+      
+      // Só conta para os totais se NÃO for ignorado
+      if (!isIgnorado) {
+        if (isPremium) totalPremium++;
+        else totalFree++;
+      }
+      
+    usuarios.push({
+        id: userId, 
+        email: userData.email || '', 
+        nome: userData.nome || userData.displayName || '-',
+        premium: isPremium, 
+        criadoEm: userData.criadoEm || userData.criado_em || null,
+        dataPrimeiroAcesso: userData.dataPrimeiroAcesso || null,
+        ultimoAcesso: userData.ultimoAcesso || null,
+        acessosPorDia: userData.acessosPorDia || {}, 
+        usos: 0, 
+        ignorado: isIgnorado,
+        premiumExpira: userData.premiumExpira || null,
+        premiumAtivadoEm: userData.premiumAtivadoEm || null,
+        ultimoPagamentoId: userData.ultimoPagamentoId || null,
+        trialAtivado: userData.trialAtivado || false
+      });
+    });
+    
+    const noventaDiasAtras = new Date();
+    noventaDiasAtras.setDate(noventaDiasAtras.getDate() - 90);
+    const analyticsSnapshot = await db.collection('analytics_uso_protocolos')
+      .where('timestamp', '>=', noventaDiasAtras).get();
+    
+    const analytics = {
+      protocolos: {}, usuariosCount: {}, porMes: {},
+      porHora: Array(24).fill(0), porDiaSemana: Array(7).fill(0),
+      total: 0, usuariosAtivosMes: new Set()
+    };
+    
+    analyticsSnapshot.forEach(doc => {
+      const data = doc.data();
+      const userId = data.usuarioId;
+      
+      // Pular analytics de usuários ignorados
+      if (userId && isUsuarioIgnorado(userId)) return;
+      
+      analytics.total++;
+      if (data.protocoloTitulo) analytics.protocolos[data.protocoloTitulo] = (analytics.protocolos[data.protocoloTitulo] || 0) + 1;
+      if (userId) analytics.usuariosCount[userId] = (analytics.usuariosCount[userId] || 0) + 1;
+      if (data.mes === mesAtual && userId) analytics.usuariosAtivosMes.add(userId);
+      if (data.mes) analytics.porMes[data.mes] = (analytics.porMes[data.mes] || 0) + 1;
+      if (data.hora !== undefined) analytics.porHora[data.hora]++;
+      if (data.diaSemana !== undefined) analytics.porDiaSemana[data.diaSemana]++;
+    });
+    
+    // Atualizar usos apenas para usuários NÃO ignorados
+    usuarios.forEach(user => { 
+      if (!user.ignorado) {
+        user.usos = analytics.usuariosCount[user.id] || 0;
+      } else {
+        user.usos = 0;
+      }
+    });
+    
+    // Filtrar usuários ignorados para os cards do dashboard
+    const usuariosNaoIgnorados = usuarios.filter(u => !u.ignorado);
+    const totalUsuarios = usuariosNaoIgnorados.length;
+    const totalPremiumCount = usuariosNaoIgnorados.filter(u => u.premium).length;
+    const totalFreeCount = totalUsuarios - totalPremiumCount;
+    const taxaConversao = totalUsuarios > 0 ? Math.round((totalPremiumCount / totalUsuarios) * 100) : 0;
+    
+    const protocolosArray = Object.entries(analytics.protocolos).map(([nome, count]) => ({ nome, count, percentual: analytics.total > 0 ? (count / analytics.total) * 100 : 0 })).sort((a,b) => b.count - a.count);
+    const topProtocolos = protocolosArray.slice(0, 10);
+    const lowProtocolos = protocolosArray.filter(p => p.percentual < 5).slice(0, 10);
+    // --- Novos cálculos para cards do dashboard ---
+    const agora2 = new Date();
+    const inicioDia = new Date(agora2); inicioDia.setHours(0,0,0,0);
+    const inicioMes = new Date(agora2.getFullYear(), agora2.getMonth(), 1);
+    const em7dias = new Date(agora2); em7dias.setDate(em7dias.getDate() + 7);
+
+    let totalTrial = 0, totalPremiumPago = 0, totalFreeReal = 0;
+    let abrirHoje = 0, novosHoje = 0, novosMes = 0;
+    let assinaramMes = 0, expiramEm7 = 0, churnMes = 0;
+    let nuncaUsaram = 0;
+
+    usuariosNaoIgnorados.forEach(u => {
+      const expira = u.premiumExpira?.toDate ? u.premiumExpira.toDate() : null;
+      const pagou = !!u.ultimoPagamentoId;
+      const expirado = expira ? expira < agora2 : true;
+
+      // Classificação Trial / Premium / Free
+      if (!expirado && pagou)  totalPremiumPago++;
+      else if (!expirado && !pagou) totalTrial++;
+      else totalFreeReal++;
+
+      // Abriram hoje
+      const ultimo = u.ultimoAcesso?.toDate ? u.ultimoAcesso.toDate() : null;
+      if (ultimo && ultimo >= inicioDia) abrirHoje++;
+
+      // Novos hoje e no mês
+      const primeiro = u.dataPrimeiroAcesso?.toDate ? u.dataPrimeiroAcesso.toDate() : null;
+      if (primeiro && primeiro >= inicioDia) novosHoje++;
+      if (primeiro && primeiro >= inicioMes) novosMes++;
+
+      // Assinaram no mês (pagou E premiumAtivadoEm dentro do mês)
+      const ativadoEm = u.premiumAtivadoEm?.toDate ? u.premiumAtivadoEm.toDate() : null;
+      if (ativadoEm && ativadoEm >= inicioMes) assinaramMes++;
+
+      // Expiram em 7 dias (premium ativo, expira entre hoje e hoje+7)
+      if (expira && !expirado && expira <= em7dias) expiramEm7++;
+
+      // Churn no mês: expirou dentro deste mês e não renovou
+      if (expira && expira >= inicioMes && expira < agora2 && expirado) churnMes++;
+      if ((analytics.usuariosCount[u.id] || 0) === 0) nuncaUsaram++;
+    });
+    // --- fim novos cálculos ---
+    cachedDados = {
+      usuarios: usuariosNaoIgnorados,
+      analytics, 
+      totalUsuarios, 
+      totalPremium: totalPremiumCount, 
+      totalFree: totalFreeCount,
+      taxaConversao, 
+      topProtocolos, 
+      lowProtocolos, 
+      totalUsos: analytics.total,
+      usosMes: analytics.porMes[mesAtual] || 0, 
+      usuariosAtivosMes: analytics.usuariosAtivosMes.size,
+      topProtocoloNome: topProtocolos[0]?.nome || '-', 
+      topProtocoloCount: topProtocolos[0]?.count || 0,
+      topProtocoloPercentual: topProtocolos[0]?.percentual || 0, 
+      porHora: analytics.porHora,
+      porDiaSemana: analytics.porDiaSemana, 
+      porMes: analytics.porMes,
+      totalTrial,
+      totalPremiumPago,
+      totalFreeReal,
+      abrirHoje,
+      novosHoje,
+      novosMes,
+      assinaramMes,
+      expiramEm7,
+      churnMes,
+      nuncaUsaram
+    };
+    dadosUsuarios = [...usuarios];
+    aplicarFiltroOrdenacao();
+  } catch (error) { 
+    console.error("Erro ao carregar dados:", error); 
+  }
+}
+
+// ========== CARREGAR MÉTRICAS DE PRODUTO (COM FILTRO DE IGNORADOS) ==========
+async function carregarMetricasProduto() {
+  try {
+    const usersSnapshot = await db.collection('users').get();
+    const usuarios = [];
+    usersSnapshot.forEach(doc => {
+      const userData = doc.data();
+      usuarios.push({
+        id: doc.id, 
+        dataPrimeiroAcesso: userData.dataPrimeiroAcesso?.toDate() || null,
+        ultimoAcesso: userData.ultimoAcesso?.toDate() || null,
+        acessosPorDia: userData.acessosPorDia || {}, 
+        premium: userData.premium === true
+      });
+    });
+    
+    const noventaDiasAtras = new Date();
+    noventaDiasAtras.setDate(noventaDiasAtras.getDate() - 90);
+    const actionsSnapshot = await db.collection('user_actions').where('timestamp', '>=', noventaDiasAtras).get();
+    
+    const userActions = {};
+    actionsSnapshot.forEach(doc => {
+      const data = doc.data();
+      const userId = data.userId;
+      // Pular ações de usuários ignorados
+      if (userId && isUsuarioIgnorado(userId)) return;
+      if (!userActions[userId]) userActions[userId] = [];
+      userActions[userId].push({ actionType: data.actionType, timestamp: data.timestamp?.toDate() || new Date() });
+    });
+    
+    const metricas = {
+      totalNovosUltimos30: 0, ativadosUltimos30: 0, taxaAtivacao: 0,
+      acaoAtivacao: { open_protocol: 0, search: 0, favorite: 0, forceps: 0, diagnostico: 0 },
+      coortes: {}, primeiroAcaoRetornantes: {}, scores: [],
+      tipoUso: { passivo: 0, hibrido: 0, interativo: 0 }
+    };
+    
+    const trintaDiasAtras = new Date();
+    trintaDiasAtras.setDate(trintaDiasAtras.getDate() - 30);
+    
+    for (const user of usuarios) {
+      if (isUsuarioIgnorado(user.id)) continue;
+      
+      if (user.dataPrimeiroAcesso && user.dataPrimeiroAcesso >= trintaDiasAtras) {
+        metricas.totalNovosUltimos30++;
+        const userActionsList = userActions[user.id] || [];
+        const usouProtocolo = userActionsList.some(a => a.actionType === 'open_protocol');
+        const usouBusca = userActionsList.some(a => a.actionType === 'search');
+        const ativado = usouProtocolo || usouBusca;
+        if (ativado) {
+          metricas.ativadosUltimos30++;
+          if (usouProtocolo) metricas.acaoAtivacao.open_protocol++;
+          if (usouBusca) metricas.acaoAtivacao.search++;
+          if (userActionsList.some(a => a.actionType === 'favorite')) metricas.acaoAtivacao.favorite++;
+          if (userActionsList.some(a => a.actionType === 'forceps')) metricas.acaoAtivacao.forceps++;
+          if (userActionsList.some(a => a.actionType === 'diagnostico')) metricas.acaoAtivacao.diagnostico++;
+        }
+      }
+      
+      if (user.dataPrimeiroAcesso) {
+        const coorteKey = `${user.dataPrimeiroAcesso.getFullYear()}-${user.dataPrimeiroAcesso.getMonth()+1}`;
+        if (!metricas.coortes[coorteKey]) metricas.coortes[coorteKey] = { total: 0, d1: 0, d7: 0, d30: 0 };
+        metricas.coortes[coorteKey].total++;
+        
+        const acessoDias = Object.keys(user.acessosPorDia).map(d => new Date(d));
+        const diaSeguinte = new Date(user.dataPrimeiroAcesso); diaSeguinte.setDate(diaSeguinte.getDate() + 1);
+        if (acessoDias.some(d => d.toDateString() === diaSeguinte.toDateString())) metricas.coortes[coorteKey].d1++;
+        const dia7 = new Date(user.dataPrimeiroAcesso); dia7.setDate(dia7.getDate() + 7);
+        if (acessoDias.some(d => d.toDateString() === dia7.toDateString())) metricas.coortes[coorteKey].d7++;
+        const dia30 = new Date(user.dataPrimeiroAcesso); dia30.setDate(dia30.getDate() + 30);
+        if (acessoDias.some(d => d.toDateString() === dia30.toDateString())) metricas.coortes[coorteKey].d30++;
+      }
+      
+      if (user.ultimoAcesso && user.dataPrimeiroAcesso && user.ultimoAcesso > user.dataPrimeiroAcesso) {
+        const userActionsList = (userActions[user.id] || []).sort((a,b) => a.timestamp - b.timestamp);
+        const primeiraAcao = userActionsList[0];
+        if (primeiraAcao) metricas.primeiroAcaoRetornantes[primeiraAcao.actionType] = (metricas.primeiroAcaoRetornantes[primeiraAcao.actionType] || 0) + 1;
+      }
+      
+      const userActionsList = userActions[user.id] || [];
+      const protocolosCount = userActionsList.filter(a => a.actionType === 'open_protocol').length;
+      const buscasCount = userActionsList.filter(a => a.actionType === 'search').length;
+      const favoritosCount = userActionsList.filter(a => a.actionType === 'favorite').length;
+      const forcepsCount = userActionsList.filter(a => a.actionType === 'forceps').length;
+      const diagnosticoCount = userActionsList.filter(a => a.actionType === 'diagnostico').length;
+      
+      let score = 0;
+      if (protocolosCount >= 5) score += 20;
+      if (protocolosCount >= 10) score += 20;
+      if (buscasCount >= 3) score += 15;
+      if (favoritosCount >= 3) score += 15;
+      if (forcepsCount >= 1) score += 15;
+      if (diagnosticoCount >= 1) score += 15;
+      metricas.scores.push(score);
+      
+      const temInterativo = buscasCount > 0 || favoritosCount > 0 || forcepsCount > 0 || diagnosticoCount > 0;
+      const temPassivo = protocolosCount > 0;
+      if (temPassivo && !temInterativo) metricas.tipoUso.passivo++;
+      else if (temPassivo && temInterativo) metricas.tipoUso.hibrido++;
+      else if (!temPassivo && temInterativo) metricas.tipoUso.interativo++;
+    }
+    
+    metricas.taxaAtivacao = metricas.totalNovosUltimos30 > 0 ? Math.round((metricas.ativadosUltimos30 / metricas.totalNovosUltimos30) * 100) : 0;
+    metricas.mediaProfundidade = metricas.scores.length > 0 ? Math.round(metricas.scores.reduce((a,b) => a+b, 0) / metricas.scores.length) : 0;
+    metricas.distribuicaoProfundidade = {
+      baixo: metricas.scores.filter(s => s <= 30).length,
+      medio: metricas.scores.filter(s => s > 30 && s <= 70).length,
+      alto: metricas.scores.filter(s => s > 70).length
+    };
+    
+    let ahaCampeao = '', ahaMax = 0;
+    for (const [acao, count] of Object.entries(metricas.primeiroAcaoRetornantes)) {
+      if (count > ahaMax) { ahaMax = count; ahaCampeao = acao; }
+    }
+    metricas.ahaCampeao = ahaCampeao;
+    metricas.ahaPercentual = ahaMax > 0 ? Math.round((ahaMax / Object.values(metricas.primeiroAcaoRetornantes).reduce((a,b) => a+b, 0)) * 100) : 0;
+    
+    cachedMetricasProduto = metricas;
+  } catch (error) {
+    console.error("Erro ao carregar métricas:", error);
+    cachedMetricasProduto = {
+      totalNovosUltimos30: 0, ativadosUltimos30: 0, taxaAtivacao: 0, acaoAtivacao: {},
+      coortes: {}, primeiroAcaoRetornantes: {}, scores: [],
+      tipoUso: { passivo: 0, hibrido: 0, interativo: 0 }, mediaProfundidade: 0,
+      distribuicaoProfundidade: { baixo: 0, medio: 0, alto: 0 }, ahaCampeao: '', ahaPercentual: 0
+    };
+  }
+}
+
+// ========== CARREGAR DADOS DA LANDING PAGE ==========
+async function carregarLandingStats() {
+  try {
+    const snapshot = await db.collection('landing_stats').orderBy('timestamp', 'desc').limit(10000).get();
+    const stats = {
+      totalVisitas: 0, visitasUnicas: new Set(), eventos: {}, eventosPorDia: {},
+      cliquesPorCta: {}, scrollDepth: { 25:0, 50:0, 75:0, 100:0 },
+      sources: {}, devices: {}, tempoMedio: 0, temposTotais: [], secoesVistas: {},
+      timerClicks: { total: 0, tempos: [] }, bounces: 0
+    };
+    let eventosPorData = {};
+    
+    snapshot.forEach(doc => {
+      const data = doc.data();
+      const dataStr = data.timestamp?.toDate?.()?.toISOString().split('T')[0] || new Date().toISOString().split('T')[0];
+      if (data.event === 'page_view') {
+        stats.totalVisitas++;
+        stats.visitasUnicas.add(data.sessionId);
+        if (!eventosPorData[dataStr]) eventosPorData[dataStr] = {};
+        eventosPorData[dataStr].visitas = (eventosPorData[dataStr].visitas || 0) + 1;
+        if (data.source) stats.sources[data.source] = (stats.sources[data.source] || 0) + 1;
+        if (data.deviceType) stats.devices[data.deviceType] = (stats.devices[data.deviceType] || 0) + 1;
+      }
+      stats.eventos[data.event] = (stats.eventos[data.event] || 0) + 1;
+      if (data.event && data.event.startsWith('click_')) {
+        stats.cliquesPorCta[data.event] = (stats.cliquesPorCta[data.event] || 0) + 1;
+        if (!eventosPorData[dataStr]) eventosPorData[dataStr] = {};
+        eventosPorData[dataStr].cliques = (eventosPorData[dataStr].cliques || 0) + 1;
+      }
+      if (data.event === 'scroll_25') stats.scrollDepth[25]++;
+      if (data.event === 'scroll_50') stats.scrollDepth[50]++;
+      if (data.event === 'scroll_75') stats.scrollDepth[75]++;
+      if (data.event === 'scroll_100') stats.scrollDepth[100]++;
+      if (data.event === 'section_view' && data.section) stats.secoesVistas[data.section] = (stats.secoesVistas[data.section] || 0) + 1;
+      if (data.event === 'exit' && data.timeOnPageSeconds) stats.temposTotais.push(data.timeOnPageSeconds);
+      if (data.event === 'timer_click' && data.timeToClickSeconds) { stats.timerClicks.total++; stats.timerClicks.tempos.push(data.timeToClickSeconds); }
+      if (data.event === 'bounce_detected') stats.bounces++;
+    });
+    
+    if (stats.temposTotais.length > 0) stats.tempoMedio = Math.round(stats.temposTotais.reduce((a,b)=>a+b,0) / stats.temposTotais.length);
+    if (stats.timerClicks.tempos.length > 0) stats.timerClicks.tempoMedio = Math.round(stats.timerClicks.tempos.reduce((a,b)=>a+b,0) / stats.timerClicks.tempos.length);
+    
+    const cliquesAssinar = stats.cliquesPorCta['click_assinar_premium'] || 0;
+    stats.taxaConversaoLanding = stats.totalVisitas > 0 ? Math.round((cliquesAssinar / stats.totalVisitas) * 100) : 0;
+    const totalCliques = Object.values(stats.cliquesPorCta).reduce((a,b)=>a+b,0);
+    stats.cliquesPorVisita = stats.totalVisitas > 0 ? (totalCliques / stats.totalVisitas).toFixed(2) : 0;
+    stats.taxaRejeicao = stats.totalVisitas > 0 ? Math.round((stats.bounces / stats.totalVisitas) * 100) : 0;
+    stats.visitasPorDia = Object.entries(eventosPorData).map(([data,valores]) => ({ data, visitas: valores.visitas || 0, cliques: valores.cliques || 0 })).sort((a,b)=>a.data.localeCompare(b.data)).slice(-30);
+    stats.usuariosUnicos = stats.visitasUnicas.size;
+    cachedLandingStats = stats;
+  } catch(error) {
+    console.error("Erro ao carregar landing stats:", error);
+    cachedLandingStats = { totalVisitas:0, usuariosUnicos:0, eventos:{}, cliquesPorCta:{}, scrollDepth:{25:0,50:0,75:0,100:0}, sources:{}, devices:{}, tempoMedio:0, secoesVistas:{}, timerClicks:{total:0,tempoMedio:0}, taxaConversaoLanding:0, cliquesPorVisita:0, taxaRejeicao:0, bounces:0, visitasPorDia:[] };
+  }
+}
+
+function aplicarFiltroOrdenacao() {
+  let filtered = [...dadosUsuarios];
+  if (searchTerm) {
+    const term = searchTerm.toLowerCase();
+    filtered = filtered.filter(u => u.email.toLowerCase().includes(term) || u.nome.toLowerCase().includes(term));
+  }
+  if (filtroStatus) {
+    const agora = new Date();
+    filtered = filtered.filter(u => {
+      const expira = u.premiumExpira?.toDate ? u.premiumExpira.toDate() : null;
+      const pagou = !!u.ultimoPagamentoId;
+      const expirado = expira ? expira < agora : true;
+      const isLivre = u.premium === false;
+      const em7dias = expira ? (expira - agora) / (1000*60*60*24) <= 7 && !expirado : false;
+      if (filtroStatus === 'premium') return !isLivre && !expirado && pagou;
+      if (filtroStatus === 'trial') return !isLivre && !expirado && !pagou;
+      if (filtroStatus === 'free') return isLivre || expirado;
+      if (filtroStatus === 'expira7') return em7dias;
+      if (filtroStatus === 'nunca') return (u.usos || 0) === 0;
+      return true;
+    });
+  }
+  filtered.sort((a,b) => {
+    let valA = a[currentSort.field], valB = b[currentSort.field];
+    if (currentSort.field === 'usos') { valA = valA || 0; valB = valB || 0; }
+    if (typeof valA === 'boolean') return currentSort.order === 'desc' ? (valA === valB ? 0 : valA ? -1 : 1) : (valA === valB ? 0 : valA ? 1 : -1);
+    if (valA < valB) return currentSort.order === 'desc' ? 1 : -1;
+    if (valA > valB) return currentSort.order === 'desc' ? -1 : 1;
+    return 0;
+  });
+  usuariosFiltrados = filtered;
+}
+function changeSort(field) {
+  if (currentSort.field === field) currentSort.order = currentSort.order === 'desc' ? 'asc' : 'desc';
+  else { currentSort.field = field; currentSort.order = 'desc'; }
+  aplicarFiltroOrdenacao();
+  currentPage = 1;
+  renderizarSecaoAtual();
+}
+
+function getPaginatedUsers() { const start = (currentPage-1)*itemsPerPage; return usuariosFiltrados.slice(start, start+itemsPerPage); }
+const totalPages = () => Math.ceil(usuariosFiltrados.length / itemsPerPage);
+function mudarPagina(page) { currentPage = Math.max(1, Math.min(page, totalPages())); renderizarSecaoAtual(); }
+function buscarUsuarios(termo) { searchTerm = termo; aplicarFiltroOrdenacao(); currentPage = 1; renderizarSecaoAtual(); }
+
+function renderizarSecaoAtual() {
+  const area = document.getElementById('content-area');
+  if (!area) return;
+  switch(currentSection) {
+    case 'dashboard': area.innerHTML = renderDashboard(); break;
+    case 'metricas': area.innerHTML = renderMetricasProduto(); break;
+    case 'usuarios': area.innerHTML = renderUsuarios(); break;
+    case 'parceiros': area.innerHTML = renderParceiros(); renderizarSecaoAtual.parceirosCarregado = false; carregarParceiros(); break;
+    case 'rankings': area.innerHTML = renderRankings(); break;
+    case 'landing': area.innerHTML = renderLandingPage(); setTimeout(() => renderLandingCharts(), 100); break;
+    case 'graficos': area.innerHTML = renderGraficos(); setTimeout(() => renderGraficosChart(), 100); break;
+    case 'exportar': area.innerHTML = renderExportar(); break;
+  }
+}
+
+function renderDashboard() {
+  if (!cachedDados) return '<div class="section">Carregando...</div>';
+  const d = cachedDados;
+
+  // Badge para top protocolo
+  let topBadge = '';
+  if (d.topProtocoloPercentual > 20) topBadge = '<span class="ranking-badge badge-hot">🔥 MUITO POPULAR</span>';
+  else if (d.topProtocoloPercentual > 10) topBadge = '<span class="ranking-badge badge-popular">👍 POPULAR</span>';
+  else if (d.topProtocoloPercentual > 5) topBadge = '<span class="ranking-badge badge-normal">👌 NORMAL</span>';
+  else topBadge = '<span class="ranking-badge badge-low">⚠️ BAIXO</span>';
+
+  // Alert de expiração
+  const alertExpira = d.expiramEm7 > 0 ? `
+    <div style="background:#FFF7ED;border:1px solid #FED7AA;border-radius:12px;padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;gap:10px;">
+      <span style="font-size:18px">⚠️</span>
+      <div>
+        <div style="font-size:12px;font-weight:700;color:#92400E">${d.expiramEm7} usuário(s) expiram nos próximos 7 dias</div>
+        <div style="font-size:11px;color:#B45309;margin-top:1px">Considere entrar em contato para conversão</div>
+      </div>
+    </div>` : '';
+
+  return `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
+      <div>
+        <h1 style="font-size:20px;font-weight:800;color:#0F172A">📊 Dashboard</h1>
+        <p style="font-size:12px;color:#94A3B8;margin-top:2px">Visão geral do OdontoDex</p>
+      </div>
+      <button onclick="refreshData()" style="background:#F1F5F9;border:none;padding:8px 16px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;color:#475569">⟳ Atualizar</button>
+    </div>
+
+    <div style="display:flex;gap:4px;background:#E2E8F0;padding:4px;border-radius:12px;width:fit-content;margin-bottom:20px;">
+      <button onclick="showDashTab('usuarios',this)" id="dtab-usuarios" style="padding:8px 18px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;background:#fff;color:#7C3FA0;box-shadow:0 1px 4px rgba(0,0,0,0.1)">👥 Usuários</button>
+      <button onclick="showDashTab('atividade',this)" id="dtab-atividade" style="padding:8px 18px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#64748B">📅 Atividade</button>
+      <button onclick="showDashTab('alertas',this)" id="dtab-alertas" style="padding:8px 18px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#64748B">⚠️ Alertas</button>
+      <button onclick="showDashTab('protocolos',this)" id="dtab-protocolos" style="padding:8px 18px;border-radius:9px;border:none;font-size:13px;font-weight:600;cursor:pointer;background:transparent;color:#64748B">📋 Protocolos</button>
+    </div>
+
+    <div id="dpanel-usuarios">
+      <div class="stats-grid">
+        <div class="stat-card card-users" style="display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer" onclick="irParaUsuariosFiltrado('')">
+          <div style="width:40px;height:40px;border-radius:10px;background:#EDE9FE;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👥</div>
+          <div><div style="font-size:22px;font-weight:800;color:#0F172A">${d.totalUsuarios}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Total de usuários</div></div>
+        </div>
+        <div class="stat-card card-premium" style="display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer" onclick="irParaUsuariosFiltrado('premium')">
+          <div style="width:40px;height:40px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💎</div>
+          <div><div style="font-size:22px;font-weight:800;color:#10B981">${d.totalPremiumPago}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Premium (pagantes)</div></div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid #F59E0B;display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer" onclick="irParaUsuariosFiltrado('trial')">
+          <div style="width:40px;height:40px;border-radius:10px;background:#FEF9C3;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⏳</div>
+          <div><div style="font-size:22px;font-weight:800;color:#F59E0B">${d.totalTrial}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Em Trial</div></div>
+        </div>
+        <div class="stat-card card-free" style="display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer" onclick="irParaUsuariosFiltrado('free')">
+          <div style="width:40px;height:40px;border-radius:10px;background:#F1F5F9;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🆓</div>
+          <div><div style="font-size:22px;font-weight:800;color:#94A3B8">${d.totalFreeReal}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Free (expirados)</div></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title"><span>📊</span> Distribuição de planos</div>
+        <div style="display:flex;height:12px;border-radius:8px;overflow:hidden;gap:2px;margin-bottom:10px">
+          <div style="flex:${d.totalPremiumPago};background:#10B981;min-width:${d.totalPremiumPago>0?'4px':'0'}"></div>
+          <div style="flex:${d.totalTrial};background:#F59E0B;min-width:${d.totalTrial>0?'4px':'0'}"></div>
+          <div style="flex:${d.totalFreeReal};background:#E2E8F0;min-width:${d.totalFreeReal>0?'4px':'0'}"></div>
+        </div>
+        <div style="display:flex;gap:16px">
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><span style="width:8px;height:8px;background:#10B981;border-radius:2px;display:inline-block"></span>Premium ${d.totalUsuarios>0?Math.round(d.totalPremiumPago/d.totalUsuarios*100):0}%</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><span style="width:8px;height:8px;background:#F59E0B;border-radius:2px;display:inline-block"></span>Trial ${d.totalUsuarios>0?Math.round(d.totalTrial/d.totalUsuarios*100):0}%</div>
+          <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:#64748B"><span style="width:8px;height:8px;background:#E2E8F0;border-radius:2px;display:inline-block"></span>Free ${d.totalUsuarios>0?Math.round(d.totalFreeReal/d.totalUsuarios*100):0}%</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dpanel-atividade" style="display:none">
+      <div class="stats-grid">
+        <div class="stat-card" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🟢</div>
+          <div><div style="font-size:22px;font-weight:800;color:#3B82F6">${d.abrirHoje}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Abriram hoje</div></div>
+        </div>
+        <div class="stat-card" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#DBEAFE;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">🆕</div>
+          <div><div style="font-size:22px;font-weight:800;color:#3B82F6">${d.novosHoje}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Novos hoje</div></div>
+        </div>
+        <div class="stat-card card-month" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#EDE9FE;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📅</div>
+          <div><div style="font-size:22px;font-weight:800;color:#7C3FA0">${d.novosMes}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Novos no mês</div></div>
+        </div>
+        <div class="stat-card card-conversion" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💰</div>
+          <div><div style="font-size:22px;font-weight:800;color:#10B981">${d.assinaramMes}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Assinaram no mês</div></div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-title"><span>👥</span> Ativos no mês</div>
+        <div style="font-size:28px;font-weight:800;color:#7C3FA0">${d.usuariosAtivosMes} <span style="font-size:13px;color:#64748B;font-weight:500">usuários usaram o app este mês</span></div>
+      </div>
+    </div>
+
+    <div id="dpanel-alertas" style="display:none">
+      ${alertExpira}
+      <div class="stats-grid">
+       <div class="stat-card" style="border-left:3px solid #F97316;display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer" onclick="irParaUsuariosFiltrado('expira7')">
+          <div style="width:40px;height:40px;border-radius:10px;background:#FFEDD5;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⚠️</div>
+          <div><div style="font-size:22px;font-weight:800;color:#F97316">${d.expiramEm7}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Expiram em 7 dias</div></div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid #EF4444;display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#FEE2E2;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📉</div>
+          <div><div style="font-size:22px;font-weight:800;color:#EF4444">${d.churnMes}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Churn no mês</div></div>
+        </div>
+        <div class="stat-card" style="border-left:3px solid #94A3B8;display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer" onclick="irParaUsuariosFiltrado('nunca')">
+          <div style="width:40px;height:40px;border-radius:10px;background:#F1F5F9;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">😴</div>
+          <div><div style="font-size:22px;font-weight:800;color:#94A3B8">${d.nuncaUsaram}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Nunca usaram</div></div>
+        </div>
+        <div class="stat-card card-active" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👥</div>
+          <div><div style="font-size:22px;font-weight:800;color:#10B981">${d.usuariosAtivosMes}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Ativos no mês</div></div>
+        </div>
+        <div class="stat-card card-total" style="display:flex;align-items:center;gap:14px;padding:16px 18px">
+          <div style="width:40px;height:40px;border-radius:10px;background:#EDE9FE;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">📋</div>
+          <div><div style="font-size:22px;font-weight:800;color:#7C3FA0">${d.totalUsos.toLocaleString()}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Protocolos (90d)</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="dpanel-protocolos" style="display:none">
+      <div class="section">
+        <div class="section-title"><span>🏆</span> Top 5 Protocolos Mais Usados</div>
+        ${d.topProtocolos.slice(0,5).map((p,i) => {
+          let badge='';
+          if(p.percentual>20) badge='<span class="ranking-badge badge-hot">🔥 MUITO POPULAR</span>';
+          else if(p.percentual>10) badge='<span class="ranking-badge badge-popular">👍 POPULAR</span>';
+          else if(p.percentual>5) badge='<span class="ranking-badge badge-normal">👌 NORMAL</span>';
+          else badge='<span class="ranking-badge badge-low">⚠️ BAIXO</span>';
+          return `<div class="ranking-item"><div class="ranking-header"><span class="ranking-name">${i+1}. ${p.nome}</span><span class="ranking-stats">${p.count} usos · ${p.percentual.toFixed(1)}% ${badge}</span></div><div class="ranking-bar"><div class="ranking-fill" style="width:${Math.min(p.percentual*2,100)}%;background:#7C3FA0;height:6px;border-radius:4px"></div></div></div>`;
+        }).join('')}
+      </div>
+      ${d.lowProtocolos.length>0?`<div class="alert-card"><div class="alert-title">⚠️ Protocolos com baixa representatividade (&lt;5%)</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">${d.lowProtocolos.slice(0,6).map(p=>`<span style="background:#F1F5F9;padding:4px 10px;border-radius:16px;font-size:11px;">📌 ${p.nome} (${p.count} usos)</span>`).join('')}</div></div>`:''}
+    </div>
+  `;
+}
+  function showDashTab(tab, el) {
+  ['usuarios','atividade','alertas','protocolos'].forEach(t => {
+    document.getElementById('dpanel-'+t).style.display = t===tab ? 'block' : 'none';
+    document.getElementById('dtab-'+t).style.background = t===tab ? '#fff' : 'transparent';
+    document.getElementById('dtab-'+t).style.color = t===tab ? '#7C3FA0' : '#64748B';
+    document.getElementById('dtab-'+t).style.boxShadow = t===tab ? '0 1px 4px rgba(0,0,0,0.1)' : 'none';
+  });
+}
+window.showDashTab = showDashTab;
+  function irParaUsuariosFiltrado(status) {
+  filtroStatus = status;
+  currentSection = 'usuarios';
+  currentPage = 1;
+  aplicarFiltroOrdenacao();
+  document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
+  document.querySelector('[data-section="usuarios"]').classList.add('active');
+  renderizarSecaoAtual();
+}
+window.irParaUsuariosFiltrado = irParaUsuariosFiltrado;
+
+function renderMetricasProduto() {
+  if (!cachedMetricasProduto) return '<div class="section">Carregando...</div>';
+  const m = cachedMetricasProduto;
+  const formatTipoAcao = (acao) => { const map = { 'open_protocol':'📖 Abriu protocolo', 'search':'🔍 Usou busca', 'favorite':'⭐ Favoritou', 'forceps':'🦷 Fórceps dinâmico', 'diagnostico':'🩺 Diagnóstico guiado' }; return map[acao] || acao; };
+  const tipoUsoTotal = m.tipoUso.passivo + m.tipoUso.hibrido + m.tipoUso.interativo;
+  const passivoPercent = tipoUsoTotal>0 ? Math.round((m.tipoUso.passivo/tipoUsoTotal)*100) : 0;
+  const hibridoPercent = tipoUsoTotal>0 ? Math.round((m.tipoUso.hibrido/tipoUsoTotal)*100) : 0;
+  const interativoPercent = tipoUsoTotal>0 ? Math.round((m.tipoUso.interativo/tipoUsoTotal)*100) : 0;
+  const totalRetornantes = Object.values(m.primeiroAcaoRetornantes).reduce((a,b)=>a+b,0);
+  return `
+    <div class="content-header"><h1>📈 Métricas de Produto</h1><p>Análise de comportamento e retenção</p></div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">🚀</div><div class="stat-number">${m.taxaAtivacao}%</div><div class="stat-label">Taxa de Ativação</div></div>
+      <div class="stat-card"><div class="stat-icon">🔄</div><div class="stat-number">${Object.keys(m.coortes).length} coortes</div><div class="stat-label">Coortes analisadas</div></div>
+      <div class="stat-card"><div class="stat-icon">⚡</div><div class="stat-number">${m.ahaPercentual}%</div><div class="stat-label">AHA: ${formatTipoAcao(m.ahaCampeao)}</div></div>
+      <div class="stat-card"><div class="stat-icon">📊</div><div class="stat-number">${m.mediaProfundidade}</div><div class="stat-label">Score médio de profundidade</div></div>
+    </div>
+    <div class="graficos-grid">
+      <div class="section"><div class="section-title"><span>🚀</span> ATIVAÇÃO (últimos 30 dias)</div><div class="stats-grid" style="grid-template-columns:1fr 1fr;margin-bottom:0;"><div><div class="stat-number" style="font-size:20px;">${m.totalNovosUltimos30}</div><div class="stat-label">Novos usuários</div></div><div><div class="stat-number" style="font-size:20px;color:#10B981;">${m.ativadosUltimos30}</div><div class="stat-label">Ativados</div></div></div><div class="ranking-bar" style="margin:12px 0;"><div class="ranking-fill fill-normal" style="width:${m.taxaAtivacao}%;background:#10B981;"></div></div><div style="font-size:12px;color:#64748B;">O que fez ativar?</div><div class="click-chart" style="margin-top:8px;">${Object.entries(m.acaoAtivacao).map(([acao,count])=>`<div class="click-bar"><div class="click-bar-label">${formatTipoAcao(acao)}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${Math.min((count/m.ativadosUltimos30)*100,100)}%;background:#10B981;">${count}</div></div></div>`).join('')}</div></div>
+      <div class="section"><div class="section-title"><span>🎮</span> TIPO DE USO DO APP</div><div class="click-chart"><div class="click-bar"><div class="click-bar-label">📖 Passivo (só protocolos)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${passivoPercent}%;background:#64748B;">${passivoPercent}%</div></div></div><div class="click-bar"><div class="click-bar-label">🔄 Híbrido</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${hibridoPercent}%;background:#F59E0B;">${hibridoPercent}%</div></div></div><div class="click-bar"><div class="click-bar-label">⚡ Interativo (busca/favoritos/ferramentas)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${interativoPercent}%;background:#7C3FA0;">${interativoPercent}%</div></div></div></div>${interativoPercent<30?`<div class="warning-card"><div class="warning-title">💡 Insight</div><div class="insight-text">Apenas ${interativoPercent}% dos usuários usam ferramentas interativas. Considere destacar a busca e o fórceps dinâmico na home.</div></div>`:''}</div>
+    </div>
+    <div class="graficos-grid">
+      <div class="section"><div class="section-title"><span>📊</span> PROFUNDIDADE DE USO</div><div class="click-chart"><div class="click-bar"><div class="click-bar-label">🟡 Superficial (0-30)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${Math.min((m.distribuicaoProfundidade.baixo/m.scores.length)*100,100)}%;background:#EF4444;">${m.distribuicaoProfundidade.baixo}</div></div></div><div class="click-bar"><div class="click-bar-label">🟠 Médio (31-70)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${Math.min((m.distribuicaoProfundidade.medio/m.scores.length)*100,100)}%;background:#F59E0B;">${m.distribuicaoProfundidade.medio}</div></div></div><div class="click-bar"><div class="click-bar-label">🟢 Profundo (71-100)</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${Math.min((m.distribuicaoProfundidade.alto/m.scores.length)*100,100)}%;background:#10B981;">${m.distribuicaoProfundidade.alto}</div></div></div></div><div class="insight-card"><div class="insight-title">📊 Score médio: ${m.mediaProfundidade}</div><div class="insight-text">Meta: 60 até Jun/2025</div></div></div>
+      <div class="section"><div class="section-title"><span>⚡</span> MOMENTO "AHA"</div><div class="click-chart">${Object.entries(m.primeiroAcaoRetornantes).sort((a,b)=>b[1]-a[1]).slice(0,4).map(([acao,count])=>{const percent=totalRetornantes>0?Math.round((count/totalRetornantes)*100):0; return `<div class="click-bar"><div class="click-bar-label">${formatTipoAcao(acao)}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${percent}%;background:#7C3FA0;">${percent}%</div></div></div>`;}).join('')}</div><div class="insight-card"><div class="insight-title">🏆 Funcionalidade campeã: ${formatTipoAcao(m.ahaCampeao)}</div><div class="insight-text">${m.ahaPercentual}% dos usuários que voltaram no D1 começaram por esta funcionalidade.</div></div></div>
+    </div>
+    <div class="section"><div class="section-title"><span>🔄</span> RETENÇÃO POR COORTE (D1 / D7 / D30)</div><div class="table-wrapper"><table><thead><tr><th>Mês</th><th>Usuários</th><th>D1</th><th>D7</th><th>D30</th></tr></thead><tbody>${Object.entries(m.coortes).sort((a,b)=>b[0].localeCompare(a[0])).slice(0,6).map(([mes,coorte])=>{const d1Percent=coorte.total>0?Math.round((coorte.d1/coorte.total)*100):0; const d7Percent=coorte.total>0?Math.round((coorte.d7/coorte.total)*100):0; const d30Percent=coorte.total>0?Math.round((coorte.d30/coorte.total)*100):0; return `<tr><td>${mes}</td><td>${coorte.total}</td><td>${coorte.d1} (${d1Percent}%)</td><td>${coorte.d7} (${d7Percent}%)</td><td>${coorte.d30} (${d30Percent}%)</td></tr>`;}).join('')}${Object.keys(m.coortes).length===0?'<tr><td colspan="5" style="text-align:center;">Nenhuma coorte disponível ainda</td></tr>':''}</tbody></table></div></div>
+  `;
+}
+
+function renderUsuarios() {
+  const paginated = getPaginatedUsers();
+  const total = totalPages();
+  return `
+    <div class="content-header"><h1>👥 Usuários</h1><p>Gerencie os usuários do OdontoDex</p></div>
+    <div class="section"><div class="search-box"><input type="text" class="search-input" id="search-usuario" placeholder="🔍 Buscar por nome ou email..." oninput="buscarUsuarios(this.value)"></div>
+    <div class="table-wrapper"><table><thead><tr><th onclick="changeSort('nome')">Nome ${currentSort.field==='nome'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('email')">Email ${currentSort.field==='email'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('premium')">Status ${currentSort.field==='premium'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('usos')">Usos ${currentSort.field==='usos'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th>Cadastro</th><th>Expira em</th><th>Ação</th></tr></thead>
+    <tbody>${paginated.map(user => `<tr class="usuario-row" onclick="abrirDrawer('${user.id}')"><td>${user.nome}${user.ignorado?'<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">⊘ Ignorado</span>':''}${user.email === 'pedrosimplicio.sousa@gmail.com' ? '<span style="background:#DBEAFE;color:#1E40AF;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">👑 Admin</span>' : ''}</td><td>${user.email}</td><td>${(()=>{const expira=user.premiumExpira?.toDate?user.premiumExpira.toDate():null;const pagou=!!user.ultimoPagamentoId;const expirado=expira?expira<new Date():true;const isLivrePorPremium=user.premium===false;if(!isLivrePorPremium&&!expirado&&pagou)return'<span class="badge-premium">💎 Premium</span>';if(!isLivrePorPremium&&!expirado&&!pagou)return'<span style="background:#FEF9C3;color:#92400E;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block">⏳ Trial</span>';return'<span class="badge-free">🆓 Free</span>';})()}</td><td><strong>${user.usos}</strong> ${user.usos===0?'⚠️':user.usos>50?'🔥':''}</td><td>${user.criadoEm?new Date(user.criadoEm).toLocaleDateString():'-'}</td><td>${(()=>{const expira=user.premiumExpira?.toDate?user.premiumExpira.toDate():null;if(!expira)return'-';const hoje=new Date();const diff=Math.ceil((expira-hoje)/(1000*60*60*24));if(diff<0)return'<span style="color:#EF4444;font-size:11px;font-weight:600">Expirado</span>';if(diff<=7)return`<span style="color:#F97316;font-weight:600;font-size:11px">⚠️ ${diff}d</span>`;return`<span style="color:#64748B;font-size:11px">${expira.toLocaleDateString()}</span>`;})()}</td><td><button onclick="toggleIgnorarUsuario('${user.id}')" style="background:${user.ignorado?'#10B981':'#EF4444'};color:white;border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">${user.ignorado?'✓ Incluir':'⊘ Ignorar'}</button></td></tr>`).join('')}${paginated.length===0?'<tr><td colspan="6" style="text-align:center;">Nenhum usuário encontrado</td></tr>':''}</tbody></table></div>
+    <div class="pagination"><button class="page-btn" onclick="mudarPagina(1)" ${currentPage===1?'disabled':''}>«</button><button class="page-btn" onclick="mudarPagina(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>${(()=>{const totalP=total; let buttons=[]; if(totalP<=5){for(let i=1;i<=totalP;i++)buttons.push(i)}else{if(currentPage<=3){for(let i=1;i<=5;i++)buttons.push(i)}else if(currentPage>=totalP-2){for(let i=totalP-4;i<=totalP;i++)buttons.push(i)}else{for(let i=currentPage-2;i<=currentPage+2;i++)buttons.push(i)}} return buttons.map(p=>`<button class="page-btn ${p===currentPage?'active':''}" onclick="mudarPagina(${p})">${p}</button>`).join('');})()}<button class="page-btn" onclick="mudarPagina(${currentPage+1})" ${currentPage===total||total===0?'disabled':''}>›</button><button class="page-btn" onclick="mudarPagina(${total})" ${currentPage===total||total===0?'disabled':''}>»</button></div>
+    <div style="text-align:center;margin-top:14px;font-size:11px;color:#64748B;">Mostrando ${Math.min(itemsPerPage,usuariosFiltrados.length)} de ${usuariosFiltrados.length} usuários</div></div>
+  `;
+}
+
+function renderRankings() {
+  if (!cachedDados) return '<div class="section">Carregando...</div>';
+  const d = cachedDados;
+  return `
+    <div class="content-header"><h1>🏆 Rankings</h1><p>Análise de uso dos protocolos</p></div>
+    <div class="stats-grid"><div class="stat-card"><div class="stat-icon">📊</div><div class="stat-number">${d.totalUsos.toLocaleString()}</div><div class="stat-label">Total de usos (90 dias)</div></div><div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-number" style="font-size:14px;">${d.topProtocolos[0]?.nome.substring(0,20)||'-'}</div><div class="stat-label">Mais usado · ${d.topProtocolos[0]?.percentual.toFixed(1)}% do total</div></div></div>
+    <div class="section"><div class="section-title"><span>🔥</span> TOP 10 MAIS USADOS</div>${d.topProtocolos.map((p,i)=>{let fillClass='',badge=''; if(p.percentual>20){fillClass='fill-hot';badge='<span class="ranking-badge badge-hot">🔥 MUITO POPULAR</span>'}else if(p.percentual>10){fillClass='fill-popular';badge='<span class="ranking-badge badge-popular">👍 POPULAR</span>'}else if(p.percentual>5){fillClass='fill-normal';badge='<span class="ranking-badge badge-normal">👌 NORMAL</span>'}else{fillClass='fill-low';badge='<span class="ranking-badge badge-low">⚠️ BAIXO</span>'}; return `<div class="ranking-item"><div class="ranking-header"><span class="ranking-name">${i+1}. ${p.nome}</span><span class="ranking-stats">${p.count} usos · ${p.percentual.toFixed(1)}% do total ${badge}</span></div><div class="ranking-bar"><div class="ranking-fill ${fillClass}" style="width:${Math.min(p.percentual*2,100)}%"></div></div></div>`;}).join('')}</div>
+    <div class="section"><div class="section-title"><span>⚠️</span> PROTOCOLOS COM BAIXA REPRESENTATIVIDADE (&lt;5% do total)</div>${d.lowProtocolos.length>0?d.lowProtocolos.map(p=>`<div class="ranking-item"><div class="ranking-header"><span class="ranking-name">📌 ${p.nome}</span><span class="ranking-stats">${p.count} usos · ${p.percentual.toFixed(1)}% do total</span></div><div class="ranking-bar"><div class="ranking-fill fill-low" style="width:${Math.min(p.percentual*2,100)}%"></div></div></div>`).join(''):'<p style="color:#64748B;">Nenhum protocolo com baixa representatividade!</p>'}</div>
+    ${d.lowProtocolos.some(p=>p.count===0)?`<div class="alert-card"><div class="alert-title">❓ PROTOCOLOS COM ZERO USOS</div><div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;">${d.lowProtocolos.filter(p=>p.count===0).map(p=>`<span style="background:#FEF2F2;color:#DC2626;padding:4px 10px;border-radius:16px;font-size:11px;">📌 ${p.nome}</span>`).join('')}</div><div style="font-size:11px;color:#64748B;margin-top:10px;">💡 <strong>Sugestão:</strong> Estes protocolos NUNCA foram usados. Considere removê-los ou reposicioná-los.</div></div>`:''}
+  `;
+}
+
+function renderLandingPage() {
+  if (!cachedLandingStats) return '<div class="section">Carregando dados da Landing Page...</div>';
+  const l = cachedLandingStats;
+  const sortedClicks = Object.entries(l.cliquesPorCta).sort((a,b)=>b[1]-a[1]);
+  const sortedSources = Object.entries(l.sources).sort((a,b)=>b[1]-a[1]);
+  const formatTime = (seconds) => { if(!seconds) return '0s'; const mins=Math.floor(seconds/60); const secs=seconds%60; return mins>0?`${mins}m ${secs}s`:`${secs}s`; };
+  return `
+    <div class="content-header"><h1>🌐 Landing Page Analytics</h1><p>Métricas de performance da página de vendas</p></div>
+    <div class="landing-stats-grid"><div class="stat-card"><div class="stat-icon">👁️</div><div class="stat-number">${l.totalVisitas}</div><div class="stat-label">Total de Visitas</div></div><div class="stat-card"><div class="stat-icon">🆔</div><div class="stat-number">${l.usuariosUnicos}</div><div class="stat-label">Usuários Únicos</div></div><div class="stat-card"><div class="stat-icon">💰</div><div class="stat-number">${l.taxaConversaoLanding}%</div><div class="stat-label">Taxa de Conversão</div></div><div class="stat-card"><div class="stat-icon">🖱️</div><div class="stat-number">${l.cliquesPorVisita}</div><div class="stat-label">Cliques por Visita</div></div><div class="stat-card"><div class="stat-icon">📉</div><div class="stat-number">${l.taxaRejeicao}%</div><div class="stat-label">Taxa de Rejeição</div></div></div>
+    <div class="section"><div class="section-title"><span>🖱️</span> CLIQUE NOS CTAs</div>${sortedClicks.length>0?`<div class="click-chart">${sortedClicks.map(([cta,count])=>{const maxCount=sortedClicks[0][1]; const width=maxCount>0?(count/maxCount)*100:0; let ctaLabel=cta.replace('click_','').replace(/_/g,' '); return `<div class="click-bar"><div class="click-bar-label">📌 ${ctaLabel}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${width}%">${count}</div></div></div>`;}).join('')}</div>`:'<p style="color:#64748B;">Nenhum clique registrado ainda.</p>'}</div>
+    <div class="graficos-grid"><div class="section"><div class="section-title"><span>📱</span> DISPOSITIVOS</div><div class="click-chart">${Object.entries(l.devices).map(([device,count])=>{const maxCount=Math.max(...Object.values(l.devices),1); const width=(count/maxCount)*100; const icons={desktop:'🖥️',mobile:'📱',tablet:'📟'}; return `<div class="click-bar"><div class="click-bar-label">${icons[device]||'💻'} ${device}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${width}%">${count}</div></div></div>`;}).join('')}</div></div>
+    <div class="section"><div class="section-title"><span>🌐</span> FONTE DE TRÁFEGO</div><div class="click-chart">${sortedSources.slice(0,5).map(([source,count])=>{const maxCount=sortedSources[0][1]; const width=maxCount>0?(count/maxCount)*100:0; const icons={direct:'🔗',google:'🔍',facebook:'📘',instagram:'📸',linkedin:'💼',referrer:'↪️'}; return `<div class="click-bar"><div class="click-bar-label">${icons[source]||'🌍'} ${source}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${width}%">${count}</div></div></div>`;}).join('')}</div></div></div>
+    <div class="graficos-grid"><div class="section"><div class="section-title"><span>📜</span> SCROLL DEPTH</div><div class="click-chart">${[25,50,75,100].map(p=>{const count=l.scrollDepth[p]||0; const percent=l.totalVisitas>0?Math.round((count/l.totalVisitas)*100):0; return `<div class="click-bar"><div class="click-bar-label">📏 ${p}% da página</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${percent}%">${percent}%</div></div></div>`;}).join('')}</div>${l.scrollDepth[25]===0?`<div class="warning-card"><div class="warning-title">⚠️ Alerta</div><div class="insight-text">Nenhum usuário rolou até 25% da página. O conteúdo acima da dobra pode não estar atraente.</div></div>`:''}</div>
+    <div class="section"><div class="section-title"><span>⏰</span> TIMER DA OFERTA</div><div class="click-chart"><div class="click-bar"><div class="click-bar-label">⏱️ Cliques durante oferta</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${Math.min(l.timerClicks.total*5,100)}%">${l.timerClicks.total}</div></div></div>${l.timerClicks.tempoMedio?`<div class="click-bar"><div class="click-bar-label">⚡ Tempo médio até clicar</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${Math.min((l.timerClicks.tempoMedio/60)*100,100)}%">${formatTime(l.timerClicks.tempoMedio)}</div></div></div>`:''}</div></div></div>
+    <div class="section"><div class="section-title"><span>📊</span> VISITAS E CLiques POR DIA (Últimos 30 dias)</div><canvas id="grafico-landing-visitas" height="200"></canvas></div>
+    <div class="section"><div class="section-title"><span>🎯</span> SEÇÕES MAIS VISUALIZADAS</div><div class="click-chart">${Object.entries(l.secoesVistas).sort((a,b)=>b[1]-a[1]).map(([secao,count])=>{const maxCount=Math.max(...Object.values(l.secoesVistas),1); const width=(count/maxCount)*100; const icons={problema:'❓',solucao:'💡',planos:'💰',faq:'❔'}; return `<div class="click-bar"><div class="click-bar-label">${icons[secao]||'📌'} ${secao}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${width}%">${count}</div></div></div>`;}).join('')}</div></div>
+    <div class="insight-card"><div class="insight-title">💡 Insights da Landing Page</div><div class="insight-text">${l.taxaRejeicao>50?'🔴 Taxa de rejeição alta (>50%). Revise o CTA acima da dobra.<br>':''}${l.scrollDepth[50]<20?'🟡 Poucos usuários chegam a 50% da página. O conteúdo pode não estar engajando.<br>':''}${l.timerClicks.total===0?'🟡 Ninguém clicou na oferta com timer. Considere destacar mais o botão.':''}</div></div>
+  `;
+}
+
+function renderLandingCharts() {
+  if (!cachedLandingStats) return;
+  const l = cachedLandingStats;
+  const ctxVisitas = document.getElementById('grafico-landing-visitas')?.getContext('2d');
+  if (ctxVisitas) {
+    if (charts.landingVisitas) charts.landingVisitas.destroy();
+    charts.landingVisitas = new Chart(ctxVisitas, {
+      type: 'line',
+      data: { labels: l.visitasPorDia.map(d=>d.data.substring(5)), datasets: [{ label:'Visitas', data:l.visitasPorDia.map(d=>d.visitas), borderColor:'#7C3FA0', backgroundColor:'rgba(124,63,160,0.1)', fill:true, tension:0.3 }, { label:'Cliques', data:l.visitasPorDia.map(d=>d.cliques), borderColor:'#F59E0B', backgroundColor:'rgba(245,158,11,0.1)', fill:true, tension:0.3 }] },
+      options: { responsive: true, maintainAspectRatio: true }
+    });
+  }
+}
+
+function renderGraficos() {
+  return `<div class="content-header"><h1>📈 Gráficos</h1><p>Visualização de uso do app</p></div><div class="graficos-grid"><div class="section"><div class="section-title"><span>⏰</span> USO POR HORA DO DIA</div><canvas id="grafico-horas" height="200"></canvas></div><div class="section"><div class="section-title"><span>📅</span> USO POR DIA DA SEMANA</div><canvas id="grafico-dias" height="200"></canvas></div></div><div class="section"><div class="section-title"><span>📈</span> EVOLUÇÃO MENSAL</div><canvas id="grafico-mensal" height="200"></canvas></div>`;
+}
+
+function renderGraficosChart() {
+  if (!cachedDados) return;
+  const d = cachedDados;
+  if (charts.horas) charts.horas.destroy();
+  if (charts.dias) charts.dias.destroy();
+  if (charts.mensal) charts.mensal.destroy();
+  const ctxHoras = document.getElementById('grafico-horas')?.getContext('2d');
+  if (ctxHoras) charts.horas = new Chart(ctxHoras, { type:'bar', data:{ labels:Array.from({length:24},(_,i)=>`${i}h`), datasets:[{ label:'Usos', data:d.porHora, backgroundColor:'#7C3FA0', borderRadius:6 }] }, options:{ responsive:true, maintainAspectRatio:true } });
+  const ctxDias = document.getElementById('grafico-dias')?.getContext('2d');
+  if (ctxDias) charts.dias = new Chart(ctxDias, { type:'bar', data:{ labels:['Dom','Seg','Ter','Qua','Qui','Sex','Sáb'], datasets:[{ label:'Usos', data:d.porDiaSemana, backgroundColor:'#7C3FA0', borderRadius:6 }] }, options:{ responsive:true, maintainAspectRatio:true } });
+  const mesesOrdenados = Object.entries(d.porMes).sort();
+  const ctxMensal = document.getElementById('grafico-mensal')?.getContext('2d');
+  if (ctxMensal) charts.mensal = new Chart(ctxMensal, { type:'line', data:{ labels:mesesOrdenados.map(m=>m[0]), datasets:[{ label:'Usos por mês', data:mesesOrdenados.map(m=>m[1]), borderColor:'#7C3FA0', backgroundColor:'rgba(124,63,160,0.1)', fill:true, tension:0.3 }] }, options:{ responsive:true, maintainAspectRatio:true } });
+}
+
+function renderExportar() {
+  return `<div class="content-header"><h1>📥 Exportar Dados</h1><p>Exporte os dados do OdontoDex</p></div><div class="section"><div class="section-title"><span>📄</span> Exportar Analytics</div><div class="export-buttons"><button class="export-btn" onclick="exportarCSV()">📄 Exportar CSV</button><button class="export-btn json" onclick="exportarJSON()" style="background:#3B82F6;color:white;">📦 Exportar JSON</button><button class="export-btn" onclick="exportarUsuariosCSV()" style="background:#7C3FA0;color:white;">👥 Exportar Usuários</button><button class="export-btn" onclick="exportarLandingCSV()" style="background:#10B981;color:white;">🌐 Exportar Landing Stats</button><button class="export-btn" onclick="exportarMetricasCSV()" style="background:#F59E0B;color:white;">📈 Exportar Métricas</button><button class="export-btn refresh-btn" onclick="refreshData()">⟳ Atualizar Dados</button></div></div><div class="section"><div class="section-title"><span>ℹ️</span> Sobre os dados</div><p style="color:#64748B;font-size:13px;">Os dados incluem todos os protocolos abertos nos últimos 90 dias. As métricas de produto são calculadas em tempo real.</p></div>`;
+}
+
+async function exportarCSV() {
+  const snapshot = await db.collection('analytics_uso_protocolos').orderBy('timestamp','desc').limit(10000).get();
+  const headers = ['Data','Protocolo','Usuário','Hora'];
+  const rows = [headers];
+  snapshot.forEach(doc=>{const d=doc.data(); rows.push([d.data||'',d.protocoloTitulo||'',d.usuarioEmail||'',d.hora!==undefined?`${d.hora}h`:'']);});
+  const csv=rows.map(row=>row.join(',')).join('\n');
+  const blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`odontodex_analytics_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
+}
+async function exportarJSON() {
+  const snapshot=await db.collection('analytics_uso_protocolos').orderBy('timestamp','desc').limit(10000).get();
+  const dados=[]; snapshot.forEach(doc=>dados.push({id:doc.id,...doc.data()}));
+  const json=JSON.stringify(dados,null,2);
+  const blob=new Blob([json],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`odontodex_analytics_${new Date().toISOString().split('T')[0]}.json`; a.click(); URL.revokeObjectURL(url);
+}
+async function exportarUsuariosCSV() {
+  const headers=['Email','Nome','Status','Cadastro','Protocolos Abertos'];
+  const rows=[headers];
+  dadosUsuarios.forEach(user=>{rows.push([user.email,user.nome,user.premium?'Premium':'Free',user.criadoEm?new Date(user.criadoEm).toLocaleDateString():'-',user.usos]);});
+  const csv=rows.map(row=>row.join(',')).join('\n');
+  const blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`odontodex_usuarios_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
+}
+async function exportarLandingCSV() {
+  const snapshot=await db.collection('landing_stats').orderBy('timestamp','desc').limit(10000).get();
+  const headers=['Data','Evento','SessionId','Dispositivo','Fonte','Detalhes'];
+  const rows=[headers];
+  snapshot.forEach(doc=>{const d=doc.data(); const dataStr=d.timestamp?.toDate?.()?.toLocaleString()||'-'; let detalhes=''; if(d.event==='click_cta')detalhes=d.elementText||''; if(d.event==='section_view')detalhes=d.section||''; if(d.event==='exit')detalhes=`${d.timeOnPageSeconds}s na página`; if(d.event==='timer_click')detalhes=`${d.timeToClickSeconds}s até clicar`; rows.push([dataStr,d.event||'-',d.sessionId||'-',d.deviceType||'-',d.source||'-',detalhes]);});
+  const csv=rows.map(row=>row.join(',')).join('\n');
+  const blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`odontodex_landing_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
+}
+async function exportarMetricasCSV() {
+  if(!cachedMetricasProduto)return;
+  const m=cachedMetricasProduto;
+  const headers=['Métrica','Valor'];
+  const rows=[headers];
+  rows.push(['Taxa de Ativação (últimos 30 dias)',`${m.taxaAtivacao}%`]);
+  rows.push(['Novos usuários (últimos 30 dias)',m.totalNovosUltimos30]);
+  rows.push(['Usuários ativados',m.ativadosUltimos30]);
+  rows.push(['Score médio de profundidade',m.mediaProfundidade]);
+  rows.push(['Usuários superficiais (0-30)',m.distribuicaoProfundidade.baixo]);
+  rows.push(['Usuários médios (31-70)',m.distribuicaoProfundidade.medio]);
+  rows.push(['Usuários profundos (71-100)',m.distribuicaoProfundidade.alto]);
+  rows.push(['Tipo de uso - Passivo',m.tipoUso.passivo]);
+  rows.push(['Tipo de uso - Híbrido',m.tipoUso.hibrido]);
+  rows.push(['Tipo de uso - Interativo',m.tipoUso.interativo]);
+  rows.push(['Momento AHA campeão',m.ahaCampeao]);
+  rows.push(['Percentual do AHA',`${m.ahaPercentual}%`]);
+  for(const[mes,coorte]of Object.entries(m.coortes)){rows.push([`Coorte ${mes} - Total`,coorte.total]); rows.push([`Coorte ${mes} - D1`, `${coorte.d1} (${Math.round((coorte.d1/coorte.total)*100)}%)`]); rows.push([`Coorte ${mes} - D7`, `${coorte.d7} (${Math.round((coorte.d7/coorte.total)*100)}%)`]); rows.push([`Coorte ${mes} - D30`, `${coorte.d30} (${Math.round((coorte.d30/coorte.total)*100)}%)`]);}
+  const csv=rows.map(row=>row.join(',')).join('\n');
+  const blob=new Blob(["\uFEFF"+csv],{type:'text/csv;charset=utf-8;'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download=`odontodex_metricas_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
+}
+async function refreshData() { await carregarDados(); renderizarSecaoAtual(); }
+function logout() { auth.signOut(); document.getElementById('login-container').style.display='flex'; document.getElementById('dashboard-container').style.display='none'; }
+function initMenu() { document.querySelectorAll('.sidebar-item').forEach(item=>{item.addEventListener('click',()=>{document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); currentSection=item.getAttribute('data-section'); renderizarSecaoAtual();});}); }
+
+auth.onAuthStateChanged(async(user)=>{
+  if(user && ADMIN_EMAILS.includes(user.email)){
+    currentUser=user;
+    carregarIgnorados();
+    document.getElementById('login-container').style.display='none';
+    document.getElementById('dashboard-container').style.display='flex';
+    initMenu();
+    await carregarDados();
+    await carregarLandingStats();
+    await carregarMetricasProduto();
+    renderizarSecaoAtual();
+  } else if(user){
+    await auth.signOut();
+    document.getElementById('login-container').style.display='flex';
+    document.getElementById('dashboard-container').style.display='none';
+  }
+});
+
+window.doAdminLogin=doAdminLogin;
+window.toggleSidebar=toggleSidebar;
+window.mudarPagina=mudarPagina;
+window.buscarUsuarios=buscarUsuarios;
+window.changeSort=changeSort;
+window.exportarCSV=exportarCSV;
+window.exportarJSON=exportarJSON;
+window.exportarUsuariosCSV=exportarUsuariosCSV;
+window.exportarLandingCSV=exportarLandingCSV;
+window.exportarMetricasCSV=exportarMetricasCSV;
+window.refreshData=refreshData;
+window.logout=logout;
+window.toggleIgnorarUsuario = toggleIgnorarUsuario;
+  let drawerUsuarioAtual = null;
+
+function abrirDrawer(userId) {
+  const user = dadosUsuarios.find(u => u.id === userId);
+  if (!user) return;
+  drawerUsuarioAtual = user;
+
+  const expira = user.premiumExpira?.toDate ? user.premiumExpira.toDate() : null;
+  const pagou = !!user.ultimoPagamentoId;
+  const expirado = expira ? expira < new Date() : true;
+  const hoje = new Date();
+
+  let statusLabel = '';
+  const isLivrePorPremium = user.premium === false;
+  if (!isLivrePorPremium && !expirado && pagou) statusLabel = '💎 Premium (pagante)';
+  else if (!isLivrePorPremium && !expirado && !pagou) statusLabel = '⏳ Trial';
+  else statusLabel = '🆓 Free (expirado)';
+
+  let expiraLabel = '-';
+  if (expira) {
+    const diff = Math.ceil((expira - hoje) / (1000*60*60*24));
+    if (diff < 0) expiraLabel = `Expirado há ${Math.abs(diff)} dias`;
+    else if (diff === 0) expiraLabel = 'Expira hoje';
+    else expiraLabel = `${expira.toLocaleDateString()} (${diff} dias)`;
+  }
+
+  document.getElementById('drawer-nome').textContent = user.nome || '-';
+  document.getElementById('di-email').textContent = user.email || '-';
+  document.getElementById('di-status').textContent = statusLabel;
+  document.getElementById('di-perfil').textContent = user.perfil || '-';
+  document.getElementById('di-cadastro').textContent = user.criadoEm ? new Date(user.criadoEm).toLocaleDateString() : '-';
+  document.getElementById('di-primeiro').textContent = user.dataPrimeiroAcesso?.toDate ? user.dataPrimeiroAcesso.toDate().toLocaleDateString() : '-';
+  document.getElementById('di-ultimo').textContent = user.ultimoAcesso?.toDate ? user.ultimoAcesso.toDate().toLocaleString() : '-';
+  document.getElementById('di-expira').textContent = expiraLabel;
+  document.getElementById('di-usos').textContent = user.usos ?? '-';
+  document.getElementById('di-pagamento').textContent = user.ultimoPagamentoId || 'Nenhum';
+
+  const acoes = document.getElementById('drawer-acoes-conteudo');
+  document.getElementById('drawer-feedback').className = 'drawer-feedback';
+  document.getElementById('drawer-feedback').textContent = '';
+
+  if (!expirado && pagou) {
+    acoes.innerHTML = `
+      <button class="drawer-action-btn btn-remover" onclick="acaoPremium('remover')">
+        🚫 Remover Premium
+      </button>`;
+  } else {
+    acoes.innerHTML = `
+      <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+        <input type="number" class="dias-input" id="dias-premium" value="30" min="1" max="365">
+        <button class="drawer-action-btn btn-ativar" style="margin:0;flex:1" onclick="acaoPremium('premium')">
+          💎 Ativar Premium
+        </button>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <input type="number" class="dias-input" id="dias-trial" value="7" min="1" max="30">
+        <button class="drawer-action-btn btn-trial" style="margin:0;flex:1" onclick="acaoPremium('trial')">
+          ⏳ Dar Trial
+        </button>
+      </div>`;
+  }
+
+  document.getElementById('drawer-overlay').classList.add('open');
+  document.getElementById('user-drawer').classList.add('open');
+}
+
+function fecharDrawer() {
+  document.getElementById('drawer-overlay').classList.remove('open');
+  document.getElementById('user-drawer').classList.remove('open');
+  drawerUsuarioAtual = null;
+}
+
+async function acaoPremium(tipo) {
+  if (!drawerUsuarioAtual) return;
+  const feedback = document.getElementById('drawer-feedback');
+  const btns = document.querySelectorAll('.drawer-action-btn');
+  btns.forEach(b => b.disabled = true);
+  feedback.className = 'drawer-feedback';
+  feedback.textContent = 'Processando...';
+  feedback.style.display = 'block';
+
+  try {
+    let body = { uid: drawerUsuarioAtual.id };
+    if (tipo === 'remover') {
+      body.premium = false;
+    } else if (tipo === 'premium') {
+      body.premium = true;
+      body.dias = parseInt(document.getElementById('dias-premium').value) || 30;
+    } else if (tipo === 'trial') {
+      body.premium = true;
+      body.dias = parseInt(document.getElementById('dias-trial').value) || 7;
+    }
+
+    const res = await fetch('https://www.odontodex.com.br/api/set-premium', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body)
+    });
+    const data = await res.json();
+
+       if (data.ok) {
+      feedback.className = 'drawer-feedback ok';
+      feedback.textContent = '✓ Atualizado com sucesso! Recarregando...';
+     setTimeout(async () => {
+        fecharDrawer();
+        cachedDados = null;
+        dadosUsuarios = [];
+        await carregarDados();
+        renderizarSecaoAtual();
+      }, 2500);
+    } else {
+      throw new Error(data.error || 'Erro desconhecido');
+    }
+  } catch (e) {
+    feedback.className = 'drawer-feedback err';
+    feedback.textContent = '✗ Erro: ' + e.message;
+    btns.forEach(b => b.disabled = false);
+  }
+}
+// ========== PARCEIROS ==========
+let cachedParceiros = null;
+
+async function carregarParceiros() {
+  try {
+    const agora = new Date();
+    const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}`;
+
+    const [cuponsSnap, conversoesSnap, repassesSnap] = await Promise.all([
+      db.collection('CUPONS').get(),
+      db.collection('conversoes_cupom').get(),
+      db.collection('repasses').get()
+    ]);
+
+    const repasses = {};
+    repassesSnap.forEach(doc => { repasses[doc.id] = doc.data(); });
+
+    const conversoesPorCupomMes = {};
+    const conversoesPorCupomTotal = {};
+    conversoesSnap.forEach(doc => {
+      const d = doc.data();
+      const cupom = d.cupom;
+      if (!cupom) return;
+      conversoesPorCupomTotal[cupom] = (conversoesPorCupomTotal[cupom] || 0) + 1;
+      const ts = d.timestamp?.toDate ? d.timestamp.toDate() : null;
+      if (ts) {
+        const mes = `${ts.getFullYear()}-${String(ts.getMonth()+1).padStart(2,'0')}`;
+        if (mes === mesAtual) {
+          conversoesPorCupomMes[cupom] = (conversoesPorCupomMes[cupom] || 0) + 1;
+        }
+      }
+    });
+
+    const cupons = [];
+    cuponsSnap.forEach(doc => {
+      const d = doc.data();
+      const codigo = doc.id;
+      const convMes = conversoesPorCupomMes[codigo] || 0;
+      const convTotal = conversoesPorCupomTotal[codigo] || 0;
+      const valorRepasse = d.valorRepasse || 3.00;
+      const valorMes = convMes * valorRepasse;
+      const repasseId = `${codigo}_${mesAtual}`;
+      const repasse = repasses[repasseId];
+      const repasseStatus = repasse?.status || 'pendente';
+
+      cupons.push({
+        codigo,
+        nome: d.nome || '-',
+        email: d.email || null,
+        ativo: d.ativo !== false,
+        pixKey: d.pixKey || null,
+        valorRepasse,
+        conversoes: d.conversoes || 0,
+        convMes,
+        convTotal,
+        valorMes,
+        repasseStatus,
+        criadoem: d.criadoem || '-'
+      });
+    });
+
+    cupons.sort((a, b) => b.convMes - a.convMes);
+    cachedParceiros = { cupons, mesAtual };
+    document.getElementById('content-area').innerHTML = renderParceiros();
+  } catch(e) {
+    console.error('Erro ao carregar parceiros:', e);
+  }
+}
+
+function renderParceiros() {
+  if (!cachedParceiros) return '<div class="section">Carregando parceiros...</div>';
+  const { cupons, mesAtual } = cachedParceiros;
+  const totalConvMes = cupons.reduce((a, c) => a + c.convMes, 0);
+  const totalValorMes = cupons.reduce((a, c) => a + c.valorMes, 0);
+  const pendentes = cupons.filter(c => c.convMes > 0 && c.repasseStatus === 'pendente');
+
+  return `
+    <div class="content-header"><h1>🤝 Parceiros</h1><p>Gestão de cupons e repasses — ${mesAtual}</p></div>
+
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">🎟️</div><div class="stat-number" style="color:#7C3FA0">${cupons.length}</div><div class="stat-label">Cupons ativos</div></div>
+      <div class="stat-card"><div class="stat-icon">🔄</div><div class="stat-number" style="color:#10B981">${totalConvMes}</div><div class="stat-label">Conversões no mês</div></div>
+      <div class="stat-card"><div class="stat-icon">💰</div><div class="stat-number" style="color:#F59E0B">R$ ${totalValorMes.toFixed(2)}</div><div class="stat-label">A repassar no mês</div></div>
+      <div class="stat-card" style="border-top:3px solid #EF4444"><div class="stat-icon">⏳</div><div class="stat-number" style="color:#EF4444">${pendentes.length}</div><div class="stat-label">Repasses pendentes</div></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span>🏆</span> RANKING DO MÊS — ${mesAtual}</div>
+      ${cupons.filter(c => c.convMes > 0).length === 0 ? '<p style="color:#64748B;font-size:13px;">Nenhuma conversão este mês ainda.</p>' : ''}
+      ${cupons.filter(c => c.convMes > 0).map((c, i) => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #F1F5F9;">
+          <div style="display:flex;align-items:center;gap:12px;">
+            <span style="font-size:18px;font-weight:800;color:#7C3FA0;width:24px">${i+1}</span>
+            <div>
+              <div style="font-weight:700;font-size:13px">${c.nome} <span style="background:#F1F5F9;color:#475569;padding:2px 8px;border-radius:8px;font-size:11px">${c.codigo}</span></div>
+              <div style="font-size:11px;color:#64748B;margin-top:2px">${c.convMes} conversões · R$ ${c.valorMes.toFixed(2)} a repassar${c.pixKey ? ` · Pix: ${c.pixKey}` : ' · ⚠️ Sem chave Pix'}</div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px;">
+            ${c.repasseStatus === 'pago'
+              ? '<span style="background:#DCFCE7;color:#166534;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600">✓ Pago</span>'
+              : `<button onclick="marcarRepasse('${c.codigo}')" style="background:#7C3FA0;color:#fff;border:none;padding:6px 14px;border-radius:8px;font-size:11px;font-weight:700;cursor:pointer">Marcar pago</button>`
+            }
+          </div>
+        </div>
+      `).join('')}
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span>🎟️</span> TODOS OS CUPONS</div>
+      <div class="table-wrapper"><table>
+        <thead><tr>
+          <th>Código</th><th>Nome</th><th>Email</th><th>Status</th><th>Conv. mês</th><th>Conv. total</th><th>Repasse/conv.</th><th>Receita gerada</th><th>Comissão paga</th><th>Chave Pix</th><th>Ações</th>
+        </tr></thead>
+        <tbody>
+    ${cupons.map(c => `
+            <tr id="row-${c.codigo}">
+              <td><strong>${c.codigo}</strong></td>
+              <td id="nome-${c.codigo}">${c.nome}</td>
+              <td style="font-size:11px;color:#64748B">${c.email || '-'}</td>
+              <td><span style="background:${c.ativo?'#DCFCE7':'#F1F5F9'};color:${c.ativo?'#166534':'#64748B'};padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600">${c.ativo?'✓ Ativo':'✗ Inativo'}</span></td>
+              <td>${c.convMes}</td>
+              <td>${c.convTotal}</td>
+              <td>R$ ${c.valorRepasse.toFixed(2)}</td>
+              <td style="font-weight:700;color:#10B981">R$ ${(c.convTotal * 9.90).toFixed(2)}</td>
+              <td style="font-weight:700;color:#EF4444">R$ ${(c.convTotal * c.valorRepasse).toFixed(2)}</td>
+              <td style="font-size:11px;color:#64748B">${c.pixKey || '-'}</td>
+              <td style="display:flex;gap:6px;flex-wrap:wrap">
+                <button onclick="editarCupom('${c.codigo}')" style="background:#E2E8F0;color:#0F172A;border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer">✏️ Editar</button>
+                <button onclick="toggleCupom('${c.codigo}', ${!c.ativo})" style="background:${c.ativo?'#FEE2E2':'#DCFCE7'};color:${c.ativo?'#991B1B':'#166534'};border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer">${c.ativo?'Desativar':'Ativar'}</button>
+              </td>
+            </tr>
+            <tr id="edit-${c.codigo}" style="display:none">
+              <td colspan="11" style="background:#F8FAFC;padding:16px;border-radius:12px">
+                <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:12px">
+                  <div><label style="font-size:11px;font-weight:600;color:#64748B">Nome</label><input id="edit-nome-${c.codigo}" value="${c.nome}" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+                  <div><label style="font-size:11px;font-weight:600;color:#64748B">Email</label><input id="edit-email-${c.codigo}" value="${c.email||''}" placeholder="email@parceiro.com" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+                  <div><label style="font-size:11px;font-weight:600;color:#64748B">Chave Pix</label><input id="edit-pix-${c.codigo}" value="${c.pixKey||''}" placeholder="CPF, email ou chave" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+                  <div><label style="font-size:11px;font-weight:600;color:#64748B">Valor repasse (R$)</label><input id="edit-valor-${c.codigo}" type="number" value="${c.valorRepasse}" step="0.01" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+                </div>
+                <div style="display:flex;gap:8px">
+                  <button onclick="salvarEdicaoCupom('${c.codigo}')" style="background:#7C3FA0;color:#fff;border:none;padding:8px 20px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">💾 Salvar</button>
+                  <button onclick="cancelarEdicao('${c.codigo}')" style="background:#E2E8F0;color:#0F172A;border:none;padding:8px 20px;border-radius:8px;font-size:12px;font-weight:700;cursor:pointer">Cancelar</button>
+                  <span id="feedback-${c.codigo}" style="font-size:12px;font-weight:600;padding:8px;display:none"></span>
+                </div>
+              </td>
+            </tr>
+          `).join('')}
+        </tbody>
+      </table></div>
+    </div>
+
+    <div class="section">
+      <div class="section-title"><span>➕</span> CRIAR NOVO CUPOM</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:12px;margin-bottom:16px">
+        <div><label style="font-size:11px;font-weight:600;color:#64748B">Código</label><input id="novo-codigo" placeholder="Ex: PEDRO10" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px;text-transform:uppercase"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#64748B">Nome do parceiro</label><input id="novo-nome" placeholder="Ex: Dr. Pedro" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#64748B">Email do parceiro</label><input id="novo-email" placeholder="email@parceiro.com" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#64748B">Chave Pix</label><input id="novo-pix" placeholder="CPF, email ou chave" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+        <div><label style="font-size:11px;font-weight:600;color:#64748B">Valor repasse (R$)</label><input id="novo-valor" type="number" value="3.00" step="0.01" style="width:100%;padding:8px;border:1.5px solid #E2E8F0;border-radius:8px;font-size:13px;margin-top:4px"></div>
+      <button onclick="criarCupom()" style="background:#7C3FA0;color:#fff;border:none;padding:10px 24px;border-radius:10px;font-size:13px;font-weight:700;cursor:pointer">➕ Criar Cupom</button>
+      <span id="feedback-criar" style="font-size:12px;font-weight:600;padding:8px;margin-left:8px;display:none"></span>
+    </div>
+  `;
+}
+
+async function marcarRepasse(codigo) {
+  const { mesAtual } = cachedParceiros;
+  try {
+    const res = await fetch('https://www.odontodex.com.br/api/set-repasse', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ cupom: codigo, mes: mesAtual, status: 'pago' })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      await carregarParceiros();
+    } else {
+      alert('Erro: ' + data.error);
+    }
+  } catch(e) {
+    alert('Erro: ' + e.message);
+  }
+}
+
+function editarCupom(codigo) {
+  document.getElementById(`edit-${codigo}`).style.display = 'table-row';
+}
+
+function cancelarEdicao(codigo) {
+  document.getElementById(`edit-${codigo}`).style.display = 'none';
+}
+
+async function salvarEdicaoCupom(codigo) {
+  const nome = document.getElementById(`edit-nome-${codigo}`).value;
+  const email = document.getElementById(`edit-email-${codigo}`).value;
+  const pixKey = document.getElementById(`edit-pix-${codigo}`).value;
+  const valorRepasse = parseFloat(document.getElementById(`edit-valor-${codigo}`).value);
+  const feedback = document.getElementById(`feedback-${codigo}`);
+  feedback.style.display = 'inline';
+  feedback.style.color = '#64748B';
+  feedback.textContent = 'Salvando...';
+  try {
+    const res = await fetch('https://www.odontodex.com.br/api/update-cupom', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ codigo, nome, email, pixKey, valorRepasse })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      feedback.style.color = '#166534';
+      feedback.textContent = '✓ Salvo!';
+      setTimeout(() => carregarParceiros(), 1000);
+    } else {
+      feedback.style.color = '#991B1B';
+      feedback.textContent = '✗ Erro: ' + data.error;
+    }
+  } catch(e) {
+    feedback.style.color = '#991B1B';
+    feedback.textContent = '✗ Erro: ' + e.message;
+  }
+}
+
+async function toggleCupom(codigo, novoAtivo) {
+  try {
+    const res = await fetch('https://www.odontodex.com.br/api/update-cupom', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ codigo, ativo: novoAtivo })
+    });
+    const data = await res.json();
+    if (data.ok) await carregarParceiros();
+    else alert('Erro: ' + data.error);
+  } catch(e) {
+    alert('Erro: ' + e.message);
+  }
+}
+
+async function criarCupom() {
+  const codigo = document.getElementById('novo-codigo').value.trim().toUpperCase();
+  const nome = document.getElementById('novo-nome').value.trim();
+  const email = document.getElementById('novo-email').value.trim();
+  const pixKey = document.getElementById('novo-pix').value.trim();
+  const valorRepasse = parseFloat(document.getElementById('novo-valor').value);
+  const feedback = document.getElementById('feedback-criar');
+
+  if (!codigo || !nome) {
+    feedback.style.display = 'inline';
+    feedback.style.color = '#991B1B';
+    feedback.textContent = '✗ Código e nome são obrigatórios';
+    return;
+  }
+
+  feedback.style.display = 'inline';
+  feedback.style.color = '#64748B';
+  feedback.textContent = 'Criando...';
+
+  try {
+    const res = await fetch('https://www.odontodex.com.br/api/create-cupom', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({ codigo, nome, email, pixKey, valorRepasse })
+    });
+    const data = await res.json();
+    if (data.ok) {
+      feedback.style.color = '#166534';
+      feedback.textContent = '✓ Cupom criado!';
+      document.getElementById('novo-codigo').value = '';
+      document.getElementById('novo-nome').value = '';
+      document.getElementById('novo-pix').value = '';
+      document.getElementById('novo-valor').value = '3.00';
+      setTimeout(() => carregarParceiros(), 1000);
+    } else {
+      feedback.style.color = '#991B1B';
+      feedback.textContent = '✗ Erro: ' + data.error;
+    }
+  } catch(e) {
+    feedback.style.color = '#991B1B';
+    feedback.textContent = '✗ Erro: ' + e.message;
+  }
+}
+
+window.marcarRepasse = marcarRepasse;
+window.editarCupom = editarCupom;
+window.cancelarEdicao = cancelarEdicao;
+window.salvarEdicaoCupom = salvarEdicaoCupom;
+window.toggleCupom = toggleCupom;
+window.criarCupom = criarCupom;
+// ========== FIM PARCEIROS ==========
+window.abrirDrawer = abrirDrawer;
+window.fecharDrawer = fecharDrawer;
+window.acaoPremium = acaoPremium;
+window.carregarIgnorados = carregarIgnorados;
+window.salvarIgnorados = salvarIgnorados;
