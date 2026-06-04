@@ -57,36 +57,19 @@ const dn = perfil === 'estudante'
   ? rawDn.replace(/^(Dr\.|Dra\.)\s*/i, '').trim()
   : rawDn;
 const dnFmt = dn.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1);}).join(' ');
-  // Avatar com iniciais
-  const partes = dnFmt.split(' ').filter(function(p){return p.length>1;});
-  const iniciais = partes.length>=2 ? partes[0][0]+partes[partes.length-1][0] : dnFmt.slice(0,2);
   const av = document.getElementById('cfg-avatar');
   if(av){
-    av.textContent = iniciais.toUpperCase();
-    av.style.borderColor = document.body.classList.contains('dark') ? '#1E293B' : '#fff';
+    av.className = window.userIsPremium ? 'cfg-plan-icon premium' : 'cfg-plan-icon';
+    av.innerHTML = window.userIsPremium ? '<i class="ti ti-crown"></i>' : '<i class="ti ti-user"></i>';
   }
  const planBadge = document.getElementById('cfg-plan-badge');
 if(planBadge){
   if(window.userIsPremium){
-    planBadge.innerHTML = '<i class="ti ti-crown"></i> PREMIUM';
-    planBadge.style.background = 'linear-gradient(135deg, #F59E0B, #FCD34D)';
-    planBadge.style.color = '#92400E';
-    planBadge.style.border = 'none';
-    planBadge.style.fontSize = '11px';
-    planBadge.style.fontWeight = '800';
-    planBadge.style.padding = '4px 14px';
-    planBadge.style.borderRadius = '30px';
-    planBadge.style.boxShadow = '0 2px 8px rgba(245,158,11,0.3)';
+    planBadge.innerHTML = '<i class="ti ti-crown"></i> Premium';
+    planBadge.className = 'cfg-plan-badge premium';
   } else {
     planBadge.textContent = 'Gratuito';
-    planBadge.style.background = '#334155';
-    planBadge.style.color = '#94A3B8';
-    planBadge.style.border = '1px solid #475569';
-    planBadge.style.fontSize = '11px';
-    planBadge.style.fontWeight = '600';
-    planBadge.style.padding = '4px 12px';
-    planBadge.style.borderRadius = '30px';
-    planBadge.style.boxShadow = 'none';
+    planBadge.className = 'cfg-plan-badge';
   }
 }
   const cn = document.getElementById('cfg-user-name');

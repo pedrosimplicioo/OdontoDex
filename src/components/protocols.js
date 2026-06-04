@@ -30,6 +30,25 @@ function openProto(id){
   renderProtocol(id);
   goScreen("protocol");
 }
+
+function getProtocolTipText(tip){
+  if(!tip)return "";
+  if(typeof tip==="string")return tip;
+  return [tip.text,tip.note].filter(Boolean).join(" ");
+}
+
+function renderProtocolTip(tip){
+  if(!tip)return "";
+  const text=typeof tip==="string"?tip:tip.text;
+  const note=typeof tip==="string"?"":tip.note;
+  if(!text&&!note)return "";
+  return `<div class="protocol-tip-card">
+      <div class="protocol-tip-title"><span class="protocol-inline-icon"><i class="ti ti-bulb"></i></span>Dica</div>
+      ${text?`<div class="protocol-tip-text">${text}</div>`:""}
+      ${note?`<div class="protocol-tip-note"><i class="ti ti-alert-circle"></i><span>${note}</span></div>`:""}
+    </div>`;
+}
+
 function renderProtocol(id){
   if(!DATA)return;
   const p=DATA.protocols[id];
@@ -102,6 +121,7 @@ function renderProtocol(id){
         return '<div class="step-row"><div class="step-num">'+(i+1)+'</div><div class="step-txt">'+s+'</div></div>';
       }).join("")}
     </div>
+    ${renderProtocolTip(p.tip)}
     <div class="sec">
       <div class="sec-title"><span class="protocol-inline-icon"><i class="ti ti-alert-triangle"></i></span>Erros que Ferram</div>
       ${(p.errors||[]).map(e=>`<div class="err-row"><span class="err-dot">✗</span><span class="err-txt">${e}</span></div>`).join("")}

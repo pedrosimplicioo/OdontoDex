@@ -29,8 +29,10 @@ function quickConductMatches(card, query){
 
 function protocolMatches(protocol, query){
   const q = normalizeSearchText(query);
+  const tipText = protocol.tip ? (typeof protocol.tip === "string" ? protocol.tip : [protocol.tip.text, protocol.tip.note].filter(Boolean).join(" ")) : "";
   return normalizeSearchText(protocol.title).includes(q) ||
     protocol.steps?.some(s => normalizeSearchText(s).includes(q)) ||
+    normalizeSearchText(tipText).includes(q) ||
     protocol.errors?.some(e => normalizeSearchText(e).includes(q)) ||
     protocol.decisions?.some(d => normalizeSearchText((d.if || "") + " " + (d.then || "")).includes(q));
 }
@@ -46,7 +48,6 @@ function renderQuickConductCards(){
       <span class="quick-conduct-icon">${card.icon}</span>
       <span class="quick-conduct-copy">
         <span class="quick-conduct-title">${card.title}</span>
-        <span class="quick-conduct-sub">${card.subtitle}</span>
       </span>
       <span class="quick-conduct-arrow">›</span>
     `;
@@ -182,7 +183,7 @@ function renderQuickConduct(id){
 }
 
 function renderHome(){
-  clearHomeSearch();
+  clearHomeSearch({preserveValue:true});
   if(!DATA) return;
   
   // NOVO: Registrar que o usuário está ativo (para métricas de retenção)

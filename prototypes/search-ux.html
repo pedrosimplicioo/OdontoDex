@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>OdontoDex - Protótipo de busca</title>
+  <link rel="stylesheet" href="search-ux.css">
+</head>
+<body>
+  <main class="app-shell" id="app-shell">
+    <header class="home-header">
+      <div>
+        <p class="eyebrow">ODONTODEX</p>
+        <h1>Olá, Dr. Pedro!</h1>
+      </div>
+      <button class="icon-button" type="button" aria-label="Configurações">DP</button>
+    </header>
+
+    <div class="search-combo" id="search-combo">
+      <div class="search-input-wrap">
+        <span class="search-icon" aria-hidden="true"></span>
+        <input id="search-input" type="search" autocomplete="off" placeholder="Digite o problema, procedimento ou protocolo...">
+        <button class="clear-search" type="button" id="clear-search" aria-label="Limpar busca">×</button>
+      </div>
+      <div class="suggestions-panel" id="suggestions-panel" aria-label="Sugestões de busca">
+        <div class="search-meta">
+          <span id="result-count">0 resultados</span>
+        </div>
+        <div class="result-list" id="result-list"></div>
+      </div>
+    </div>
+
+    <section class="section-block">
+      <div class="section-title">Situações rápidas</div>
+      <div class="quick-grid">
+        <article class="quick-card">
+          <div class="quick-icon">♛</div>
+          <h2>A coroa caiu</h2>
+        </article>
+        <article class="quick-card">
+          <div class="quick-icon">⌁</div>
+          <h2>O pino soltou</h2>
+        </article>
+        <article class="quick-card">
+          <div class="quick-icon">☷</div>
+          <h2>A coroa não entra</h2>
+        </article>
+      </div>
+    </section>
+
+    <section class="section-block">
+      <div class="section-title">Explorar por área</div>
+      <div class="area-grid">
+        <article class="area-card">
+          <div class="area-icon">♢</div>
+          <h2>Dentística</h2>
+        </article>
+        <article class="area-card">
+          <div class="area-icon">◈</div>
+          <h2>Prótese</h2>
+        </article>
+        <article class="area-card">
+          <div class="area-icon">✚</div>
+          <h2>Urgência</h2>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div class="sheet-layer" id="sheet-layer" aria-hidden="true">
+    <div class="sheet-backdrop" id="sheet-backdrop"></div>
+    <article class="bottom-sheet" id="bottom-sheet" aria-label="Detalhe simulado">
+      <div class="sheet-handle" aria-hidden="true"></div>
+      <button class="sheet-close" type="button" id="sheet-close" aria-label="Fechar">×</button>
+      <div class="sheet-kicker" id="sheet-type">Conduta rápida</div>
+      <h2 id="sheet-title">A coroa caiu</h2>
+      <p id="sheet-summary"></p>
+      <div class="sheet-content" id="sheet-content"></div>
+    </article>
+  </div>
+
+  <script src="search-ux.js"></script>
+</body>
+</html>

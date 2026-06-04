@@ -122,17 +122,15 @@ function renderPacienteEspecialDetalhe(id) {
   let blocosHtml = '';
   data.blocos.forEach(bloco => {
     const isAlerta = bloco.secao.includes('⚠️');
-    const bgColor = isAlerta ? '#FEF2F2' : '#fff';
-    const borderColor = isAlerta ? '#FECACA' : '#E2E8F0';
-    const labelColor = isAlerta ? '#DC2626' : '#64748B';
+    const blockClass = isAlerta ? 'rx-block alert' : 'rx-block';
 
-    blocosHtml += `<div style="border:0.5px solid ${borderColor};border-radius:16px;overflow:hidden;margin-bottom:10px;background:${bgColor};">
-      <div style="padding:10px 14px;border-bottom:0.5px solid ${borderColor};">
-        <div style="font-size:11px;font-weight:700;color:${labelColor};letter-spacing:1px;">${bloco.secao}</div>
+    blocosHtml += `<div class="${blockClass}">
+      <div class="rx-block-head">
+        <div class="rx-block-label">${bloco.secao}</div>
       </div>
-      <div style="padding:12px 16px;">`;
+      <div class="rx-block-body">`;
     bloco.itens.forEach(item => {
-      blocosHtml += `<div style="font-size:13px;color:#1E293B;line-height:1.6;margin-bottom:6px;display:flex;gap:8px;align-items:flex-start;"><span style="flex-shrink:0;color:#7C3FA0;">•</span><span>${item}</span></div>`;
+      blocosHtml += `<div class="rx-item"><span class="rx-dot">•</span><span>${item}</span></div>`;
     });
     blocosHtml += `</div></div>`;
   });
@@ -159,11 +157,11 @@ function renderPrescricaoDetalhe() {
   let filtrosHtml = '';
   if(data.filtros && data.filtros.length > 0) {
     filtrosHtml = `<div style="margin-bottom:16px;">
-      <div style="font-size:11px;font-weight:700;color:#64748B;letter-spacing:1px;margin-bottom:8px;">PERFIL DO PACIENTE</div>
-      <div style="display:flex;gap:6px;flex-wrap:wrap;">`;
+      <div class="rx-filter-label">PERFIL DO PACIENTE</div>
+      <div class="rx-filter-row">`;
     data.filtros.forEach(f => {
       const ativo = f === filtroAtual;
-      filtrosHtml += `<button onclick="selecionarFiltro('${f}')" style="border-radius:20px;padding:6px 12px;font-size:12px;font-weight:600;cursor:pointer;border:${ativo ? '1.5px solid #7C3FA0' : '0.5px solid #E2E8F0'};background:${ativo ? '#F5EEFB' : '#F8FAFC'};color:${ativo ? '#7C3FA0' : '#64748B'};font-family:inherit;">${FILTROS_LABELS[f] || f}</button>`;
+      filtrosHtml += `<button onclick="selecionarFiltro('${f}')" class="rx-filter-btn${ativo ? ' active' : ''}">${FILTROS_LABELS[f] || f}</button>`;
     });
     filtrosHtml += `</div></div>`;
   }
@@ -172,17 +170,15 @@ function renderPrescricaoDetalhe() {
   blocos.forEach(bloco => {
     const isAlerta = bloco.secao.includes('⚠️');
     const isInfo = bloco.secao.includes('ℹ️');
-    const bgColor = isAlerta ? '#FEF2F2' : isInfo ? '#EFF6FF' : '#fff';
-    const borderColor = isAlerta ? '#FECACA' : isInfo ? '#BFDBFE' : '#E2E8F0';
-    const labelColor = isAlerta ? '#DC2626' : isInfo ? '#1D4ED8' : '#64748B';
+    const blockClass = isAlerta ? 'rx-block alert' : isInfo ? 'rx-block info' : 'rx-block';
 
-    blocosHtml += `<div style="border:0.5px solid ${borderColor};border-radius:16px;overflow:hidden;margin-bottom:10px;background:${bgColor};">
-      <div style="padding:10px 14px;border-bottom:0.5px solid ${borderColor};">
-        <div style="font-size:11px;font-weight:700;color:${labelColor};letter-spacing:1px;">${bloco.secao}</div>
+    blocosHtml += `<div class="${blockClass}">
+      <div class="rx-block-head">
+        <div class="rx-block-label">${bloco.secao}</div>
       </div>
-      <div style="padding:12px 16px;">`;
+      <div class="rx-block-body">`;
     bloco.itens.forEach(item => {
-      blocosHtml += `<div style="font-size:13px;color:#1E293B;line-height:1.6;margin-bottom:6px;display:flex;gap:8px;align-items:flex-start;"><span style="flex-shrink:0;color:#7C3FA0;">•</span><span>${item}</span></div>`;
+      blocosHtml += `<div class="rx-item"><span class="rx-dot">•</span><span>${item}</span></div>`;
     });
     blocosHtml += `</div></div>`;
   });

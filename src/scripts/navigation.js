@@ -35,7 +35,13 @@ function _activateScreen(id) {
 }
 
 function _renderScreen(id) {
-  if(id === "home")        { if(!document.getElementById("categories-scroll")) { setTimeout(()=>_renderScreen("home"),80); return; } renderHome(); }
+  if(id === "home")        {
+    if(!document.getElementById("categories-scroll")) { setTimeout(()=>_renderScreen("home"),80); return; }
+    const savedHomeSearchValue = (typeof persistedHomeSearchValue !== "undefined") ? persistedHomeSearchValue : "";
+    const homeSearchValue = document.getElementById("home-search-input")?.value || savedHomeSearchValue || "";
+    renderHome();
+    if(homeSearchValue.length > 0 && typeof restoreHomeSearch === "function") restoreHomeSearch(homeSearchValue);
+  }
   if(id === "settings")    { renderSettings(); }
   if(id === "favorites")   renderFavs();
   if(id === "situations")  renderSituations();

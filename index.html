@@ -173,13 +173,15 @@
     <div id="logo-tap" style="position:absolute;left:-9999px;opacity:0;pointer-events:auto;width:1px;height:1px"></div>
     <div class="hdr-nome" id="hdr-nome">Olá!</div>
     <div class="hdr-pergunta">O que você precisa resolver agora?</div>
-    <div class="search-bar" onclick="document.getElementById('home-search-input').focus()">
-      <span style="font-size:18px;color:#7C3FA0"><i class="ti ti-search"></i></span>
-      <input class="search-input-real" id="home-search-input" placeholder="Digite o problema ou procedimento..." oninput="doHomeSearch(this.value)" onfocus="showHomeResults()" autocomplete="off">
-      <button id="home-search-clear" onclick="clearHomeSearch()" style="display:none;background:none;border:none;cursor:pointer;font-size:16px;color:#94A3B8;padding:0;line-height:1;">✕</button>
+    <div class="home-search-wrap">
+      <div class="search-bar" onclick="document.getElementById('home-search-input').focus()">
+        <span style="font-size:18px;color:#7C3FA0"><i class="ti ti-search"></i></span>
+        <input class="search-input-real" id="home-search-input" placeholder="Digite o problema ou procedimento..." oninput="doHomeSearch(this.value)" onfocus="showHomeResults()" autocomplete="off">
+        <button id="home-search-clear" onclick="clearHomeSearch()" style="display:none;background:none;border:none;cursor:pointer;font-size:16px;color:#94A3B8;padding:0;line-height:1;">✕</button>
+      </div>
+      <div id="home-search-results" class="home-search-dropdown" style="display:none;"></div>
     </div>
   </div>
-  <div id="home-search-results" style="display:none;padding:0 14px 8px;"></div>
   <div class="body" id="home-body">
     <div>
       <div class="section-label">SITUAÇÕES RÁPIDAS</div>
@@ -224,6 +226,19 @@
 </div>
     <div class="spacer"></div>
   </div>
+</div>
+
+<!-- SEARCH DETAIL BOTTOM SHEET -->
+<div class="search-sheet-layer" id="search-sheet-layer" aria-hidden="true">
+  <div class="search-sheet-backdrop" onclick="closeSearchBottomSheet()"></div>
+  <article class="search-bottom-sheet" id="search-bottom-sheet" aria-label="Detalhe da busca">
+    <div class="search-sheet-handle" aria-hidden="true"></div>
+    <button class="search-sheet-back" id="search-sheet-back" type="button" onclick="goBackSearchBottomSheet()" aria-label="Voltar"><i class="ti ti-arrow-left"></i></button>
+    <button class="search-sheet-close" type="button" onclick="closeSearchBottomSheet()" aria-label="Fechar">✕</button>
+    <div class="search-sheet-kind" id="search-sheet-kind"></div>
+    <h2 class="search-sheet-title" id="search-sheet-title"></h2>
+    <div class="search-sheet-content" id="search-sheet-content"></div>
+  </article>
 </div>
 
 <!-- SEARCH -->
@@ -273,17 +288,15 @@
     <div style="width:36px"></div>
   </div>
   <div class="body" id="settings-body">
-    <div style="margin:-14px -14px 16px;border-radius:20px 20px 0 0;overflow:hidden;">
-      <div style="height:72px;background:linear-gradient(135deg,#3D1260,#7C3FA0);position:relative;">
-        <div id="cfg-avatar" style="position:absolute;bottom:-28px;left:20px;width:58px;height:58px;border-radius:50%;background:#F5EEFB;border:3px solid #fff;display:flex;align-items:center;justify-content:center;font-size:20px;font-weight:800;color:#7C3FA0;">?</div>
-      </div>
-      <div style="background:var(--color-background-primary);padding:36px 20px 14px;border:0.5px solid var(--color-border-tertiary);border-top:none;display:flex;align-items:center;justify-content:space-between;">
-        <div>
-          <div class="cfg-user-name" id="cfg-user-name" style="text-align:left;font-size:17px;">—</div>
-          <div class="cfg-user-email" id="cfg-user-email" style="text-align:left;">—</div>
+    <div class="cfg-profile-card">
+      <div class="cfg-profile-left">
+        <div id="cfg-avatar" class="cfg-plan-icon"><i class="ti ti-user"></i></div>
+        <div class="cfg-profile-meta">
+          <div class="cfg-user-name" id="cfg-user-name">?</div>
+          <div class="cfg-user-email" id="cfg-user-email">?</div>
         </div>
-        <span id="cfg-plan-badge" style="background:#F1F5F9;color:#64748B;font-size:11px;font-weight:700;padding:4px 12px;border-radius:30px;border:0.5px solid #E2E8F0;white-space:nowrap;">Gratuito</span>
       </div>
+      <span id="cfg-plan-badge" class="cfg-plan-badge">Gratuito</span>
     </div>
     <!-- Perfil -->
     <div class="cfg-section">
@@ -692,6 +705,8 @@
 <script src="src/components/render.js" defer></script>
 <script src="src/scripts/usage-analytics.js" defer></script>
 <script src="src/components/protocols.js" defer></script>
+<script src="src/data/search-intents.js" defer></script>
+<script src="src/scripts/clinical-intent-engine.js" defer></script>
 <script src="src/scripts/search.js" defer></script>
 <script src="src/components/pulpite.js" defer></script>
 <script src="src/components/crisis.js" defer></script>
