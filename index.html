@@ -301,6 +301,72 @@ body.dark .crise-option-title{color:#FCA5A5;}
 .home-result-card{display:flex;flex-direction:column;gap:4px;background:#fff;border-radius:16px;padding:14px 16px;border:1px solid #E2E8F0;cursor:pointer;text-align:left;width:100%;margin-bottom:8px;}
 .home-result-card:active{transform:scale(0.98);background:#F8FAFC;}
 body.dark .home-result-card{background:#1E293B;border-color:#475569;}
+.quick-conduct-list{display:flex;flex-direction:row;gap:10px;overflow-x:auto;overflow-y:hidden;scroll-snap-type:x proximity;scrollbar-width:none;margin:0 -14px 2px;padding:0 14px 8px;-webkit-mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 36px),rgba(0,0,0,0.12) 100%);mask-image:linear-gradient(to right,#000 0,#000 calc(100% - 36px),rgba(0,0,0,0.12) 100%);}
+.quick-conduct-list::-webkit-scrollbar{display:none;}
+.quick-conduct-card{flex:0 0 148px;min-height:104px;background:#fff;border:1px solid #E2E8F0;border-radius:18px;padding:12px;display:flex;flex-direction:column;align-items:flex-start;justify-content:space-between;gap:9px;text-align:left;cursor:pointer;scroll-snap-align:start;box-shadow:0 2px 6px rgba(15,23,42,0.04);}
+.quick-conduct-card:active{transform:scale(0.98);background:#F8FAFC;}
+.quick-conduct-icon{width:34px;height:34px;border-radius:50%;background:#F0E6F7;color:#7C3FA0;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.quick-conduct-icon .ti{font-size:19px;line-height:1;display:block;color:inherit;}
+.quick-conduct-copy{min-width:0;width:100%;}
+.quick-conduct-title{display:-webkit-box;font-size:13px;font-weight:800;color:#0F172A;line-height:1.2;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.quick-conduct-sub{display:-webkit-box;font-size:10px;color:#64748B;margin-top:4px;line-height:1.25;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+.quick-conduct-arrow{display:none;}
+body.dark .quick-conduct-card{background:#1E293B;border-color:#475569;box-shadow:none;}
+body.dark .quick-conduct-card:active{background:#273449;}
+body.dark .quick-conduct-icon{background:rgba(124,63,160,0.25);color:#B07FD4;}
+body.dark .quick-conduct-title{color:#F1F5F9;}
+body.dark .quick-conduct-sub{color:#94A3B8;}
+.result-kind{align-self:flex-start;border-radius:999px;padding:3px 8px;font-size:10px;font-weight:800;letter-spacing:.2px;}
+.result-kind.conduta{background:#F0E6F7;color:#7C3FA0;}
+.result-kind.protocol{background:#E0F2FE;color:#0369A1;}
+body.dark .result-kind.conduta{background:rgba(124,63,160,0.25);color:#D8B4FE;}
+body.dark .result-kind.protocol{background:rgba(14,165,233,0.16);color:#7DD3FC;}
+.conduta-hero{background:#fff;border:1px solid #E2E8F0;border-radius:22px;padding:16px;margin-bottom:12px;}
+.conduta-eyebrow{font-size:10px;font-weight:800;letter-spacing:1.2px;color:#7C3FA0;text-transform:uppercase;margin-bottom:8px;}
+.conduta-title{font-size:22px;font-weight:900;color:#0F172A;line-height:1.18;}
+.conduta-smart-block{border-radius:20px;padding:14px 15px;margin-bottom:11px;border:1px solid #E2E8F0;background:#fff;}
+.conduta-smart-block.primary{background:#F5EEFB;border-color:#E9D5FF;}
+.conduta-smart-block.alert{background:#FFF7ED;border-color:#FED7AA;}
+.conduta-smart-label{font-size:10px;font-weight:950;letter-spacing:1.3px;text-transform:uppercase;margin-bottom:9px;display:flex;align-items:center;gap:7px;color:#7C3FA0;}
+.conduta-smart-label .ti{font-size:16px;line-height:1;color:inherit;}
+.conduta-smart-block.alert .conduta-smart-label{color:#B45309;}
+.conduta-smart-headline{font-size:15px;font-weight:900;line-height:1.35;color:#3D1260;margin-bottom:7px;}
+.conduta-smart-block.alert .conduta-smart-headline{color:#7C2D12;}
+.conduta-smart-body{font-size:13px;line-height:1.62;color:#475569;}
+.conduta-smart-list{display:flex;flex-direction:column;gap:8px;}
+.conduta-smart-item{background:#fff;border:1px solid #E2E8F0;border-radius:14px;padding:10px 11px;display:flex;gap:9px;align-items:flex-start;}
+.conduta-smart-block.alert .conduta-smart-item{background:#FFFBF5;border-color:#FED7AA;}
+.conduta-smart-dot{width:7px;height:7px;border-radius:999px;background:#7C3FA0;flex-shrink:0;margin-top:8px;}
+.conduta-smart-block.alert .conduta-smart-dot{background:#F59E0B;}
+.conduta-smart-item-text{min-width:0;}
+.conduta-smart-item-head{font-size:13px;font-weight:850;line-height:1.35;color:#1E293B;}
+.conduta-smart-item-rest{font-size:12px;line-height:1.48;color:#64748B;margin-top:2px;}
+.conduta-behind-grid{display:grid;grid-template-columns:1fr;gap:7px;}
+.conduta-behind-chip{border:1px solid #E2E8F0;background:#F8FAFC;border-radius:14px;padding:9px 10px;font-size:12px;line-height:1.35;font-weight:700;color:#334155;display:flex;gap:8px;align-items:center;}
+.conduta-behind-chip .ti{font-size:16px;color:#7C3FA0;flex-shrink:0;}
+.conduta-behind-toggle{width:100%;border:1px solid #E2E8F0;background:#F8FAFC;border-radius:14px;padding:11px 12px;display:flex;align-items:center;justify-content:space-between;gap:8px;font-family:inherit;font-size:13px;font-weight:850;color:#0F172A;cursor:pointer;text-align:left;}
+.conduta-behind-toggle .ti{font-size:17px;color:#7C3FA0;line-height:1;}
+.conduta-behind-list{display:none;margin-top:10px;}
+.conduta-behind-list.open{display:block;}
+.conduta-protocol-btn,.conduta-related-btn{width:100%;border:1px solid #E2E8F0;background:#fff;border-radius:14px;padding:11px 12px;font-family:inherit;text-align:left;cursor:pointer;display:flex;align-items:center;gap:9px;color:#0F172A;font-size:13px;font-weight:750;margin-bottom:7px;}
+.conduta-protocol-btn:active,.conduta-related-btn:active{transform:scale(0.98);background:#F8FAFC;}
+.conduta-protocol-btn .ti,.conduta-related-btn .ti{font-size:17px;color:#7C3FA0;flex-shrink:0;}
+.conduta-related-btn.disabled{opacity:.45;cursor:default;}
+.conduta-related-btn.disabled:active{transform:none;background:#fff;}
+body.dark .conduta-hero,body.dark .conduta-smart-block{background:#1E293B;border-color:#475569;}
+body.dark .conduta-title{color:#F1F5F9;}
+body.dark .conduta-eyebrow{color:#B07FD4;}
+body.dark .conduta-smart-block.primary{background:rgba(124,63,160,0.22);border-color:rgba(176,127,212,0.32);}
+body.dark .conduta-smart-block.alert{background:rgba(245,158,11,0.12);border-color:rgba(245,158,11,0.28);}
+body.dark .conduta-smart-headline{color:#E9D5FF;}
+body.dark .conduta-smart-block.alert .conduta-smart-headline{color:#FDBA74;}
+body.dark .conduta-smart-body,body.dark .conduta-smart-item-rest{color:#CBD5E1;}
+body.dark .conduta-smart-item,body.dark .conduta-behind-chip,body.dark .conduta-behind-toggle,body.dark .conduta-protocol-btn,body.dark .conduta-related-btn{background:#273449;border-color:#475569;color:#F1F5F9;}
+body.dark .conduta-smart-block.alert .conduta-smart-item{background:rgba(245,158,11,0.10);border-color:rgba(245,158,11,0.28);}
+body.dark .conduta-smart-block.alert .conduta-smart-item-head{color:#FED7AA;}
+body.dark .conduta-smart-block.alert .conduta-smart-item-rest{color:#F8FAFC;}
+body.dark .conduta-smart-item-head{color:#F1F5F9;}
+body.dark .conduta-related-btn.disabled:active{background:#273449;}
 .result-card{display:flex;flex-direction:column;gap:4px;background:#fff;border-radius:18px;padding:14px 16px;border:1px solid #E2E8F0;cursor:pointer;text-align:left;width:100%;min-height:60px;}
 .result-card:active{transform:scale(0.98);}
 .result-title{font-size:15px;font-weight:700;color:#0F172A;}
@@ -473,7 +539,7 @@ body.dark .login-logo h1{color:#F1F5F9;}
 .prem-locked-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;padding:0 20px;}
 .prem-locked-card{background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:12px 10px;text-align:center;position:relative;overflow:hidden;}
 .prem-locked-card::before{content:'';position:absolute;top:7px;right:8px;width:7px;height:7px;border-radius:50%;background:rgba(255,255,255,0.35);opacity:0.5;}
-.prem-locked-icon{font-size:22px;margin-bottom:6px;}
+.prem-locked-icon{font-size:22px;margin-bottom:6px;color:#B07FD4;}
 .prem-locked-icon .ti{font-size:22px;line-height:1;display:block;color:inherit;}
 .prem-locked-name{font-size:11px;font-weight:700;color:rgba(255,255,255,0.8);line-height:1.3;margin-bottom:3px;}
 .prem-locked-count{font-size:10px;color:rgba(255,255,255,0.35);font-weight:500;}
@@ -482,7 +548,7 @@ body.dark .login-logo h1{color:#F1F5F9;}
 .prem-benefits{display:flex;flex-direction:column;gap:0;padding:0 20px;}
 .prem-benefit{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,0.06);}
 .prem-benefit:last-child{border-bottom:none;}
-.prem-benefit-icon{font-size:22px;flex-shrink:0;width:34px;height:34px;background:rgba(124,63,160,0.25);border-radius:10px;display:flex;align-items:center;justify-content:center;}
+.prem-benefit-icon{font-size:22px;flex-shrink:0;width:34px;height:34px;background:rgba(124,63,160,0.25);border-radius:10px;display:flex;align-items:center;justify-content:center;color:#B07FD4;}
 .prem-benefit-icon .ti{font-size:22px;line-height:1;display:block;color:inherit;}
 .prem-benefit-title{font-size:14px;font-weight:700;color:#fff;margin-bottom:3px;}
 .prem-benefit-sub{font-size:12px;color:rgba(255,255,255,0.45);line-height:1.5;}
@@ -982,17 +1048,21 @@ body.dark .nav-tab-sos.active .nav-tab-icon { background:rgba(153,27,27,0.38); }
     </div>
     <div id="logo-tap" style="position:absolute;left:-9999px;opacity:0;pointer-events:auto;width:1px;height:1px"></div>
     <div class="hdr-nome" id="hdr-nome">Olá!</div>
-    <div class="hdr-pergunta">O Que precisa resolver agora?</div>
+    <div class="hdr-pergunta">O que você precisa resolver agora?</div>
     <div class="search-bar" onclick="document.getElementById('home-search-input').focus()">
       <span style="font-size:18px;color:#7C3FA0"><i class="ti ti-search"></i></span>
-      <input class="search-input-real" id="home-search-input" placeholder="Digite o problema ou procedimento:" oninput="doHomeSearch(this.value)" onfocus="showHomeResults()" autocomplete="off">
+      <input class="search-input-real" id="home-search-input" placeholder="Digite o problema ou procedimento..." oninput="doHomeSearch(this.value)" onfocus="showHomeResults()" autocomplete="off">
       <button id="home-search-clear" onclick="clearHomeSearch()" style="display:none;background:none;border:none;cursor:pointer;font-size:16px;color:#94A3B8;padding:0;line-height:1;">✕</button>
     </div>
   </div>
   <div id="home-search-results" style="display:none;padding:0 14px 8px;"></div>
   <div class="body" id="home-body">
     <div>
-      <div class="section-label">CATEGORIAS</div>
+      <div class="section-label">SITUAÇÕES RÁPIDAS</div>
+      <div class="quick-conduct-list" id="quick-conduct-list"></div>
+    </div>
+    <div>
+      <div class="section-label">EXPLORAR POR ÁREA</div>
       <div class="categories-wrapper">
         <div class="categories-scroll" id="categories-scroll"></div>
       </div>
@@ -1002,13 +1072,6 @@ body.dark .nav-tab-sos.active .nav-tab-icon { background:rgba(153,27,27,0.38); }
       <div class="quick-buttons-wrap">
       <div class="quick-buttons" id="sos-buttons"></div>
       </div><!-- /quick-buttons-wrap -->
-    </div>
-    <div id="favs-box" class="fav-box">
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
-        <span style="font-weight:800;font-size:13px;color:#F59E0B;display:flex;align-items:center;gap:8px;"><span class="home-title-icon home-icon-amber"><i class="ti ti-star"></i></span> FAVORITOS</span>
-        <button class="link-btn" onclick="goScreen('favorites')">Ver todos</button>
-      </div>
-      <div class="fav-chips" id="fav-chips"></div>
     </div>
  <!-- CARD PRESCRIÇÕES NA HOME -->
 <div class="quick-card home-prescricoes-card" onclick="goScreen('prescricoes')" style="cursor:pointer;">
@@ -1190,6 +1253,12 @@ body.dark .nav-tab-sos.active .nav-tab-icon { background:rgba(153,27,27,0.38); }
     <div class="section-label">ESCOLHA O PROCEDIMENTO</div>
     <div id="procedures-list"></div>
   </div>
+</div>
+
+<!-- CONDUTA RÁPIDA -->
+<div class="screen" id="screen-conduta">
+  <div class="top-bar"><button class="back-btn" onclick="goBackToLastScreen()">←</button><span class="top-title" id="conduta-top-title">Conduta rápida</span><div style="width:36px"></div></div>
+  <div class="body" id="conduta-body"></div>
 </div>
 
 <!-- PROTOCOL -->
@@ -1486,10 +1555,6 @@ body.dark .nav-tab-sos.active .nav-tab-icon { background:rgba(153,27,27,0.38); }
   <button class="nav-tab" id="nav-search" onclick="goScreen('search')">
     <span class="nav-tab-icon"><i class="ti ti-search"></i></span>
     <span class="nav-tab-label">Buscar</span>
-  </button>
-  <button class="nav-tab nav-tab-sos" id="nav-sos" onclick="abrirModalCrise()">
-    <span class="nav-tab-icon"><i class="ti ti-first-aid-kit"></i></span>
-    <span class="nav-tab-label">S.O.S.</span>
   </button>
 </div>
 <!-- PASSWORD MODAL -->
@@ -1796,6 +1861,7 @@ let USAGE_COUNT = {};
 let selCat = null;
 let selSit = null;
 let currentProtoId = '';
+let currentCondutaId = '';
 let navigationHistory = [];
 
 // ==================== STORAGE ====================
@@ -2633,6 +2699,419 @@ const PACIENTES_ESPECIAIS_DATA = {
     ]
   },
 };
+
+const QUICK_CONDUCT_CARDS = {
+  "coroa-caiu": {
+    id: "coroa-caiu",
+    title: "A coroa caiu",
+    icon: '<i class="ti ti-crown"></i>',
+    subtitle: "Veja se dá para recimentar ou se precisa refazer.",
+    synonyms: [
+      "coroa caiu","coroa soltou","coroa descolou","coroa saiu","coroa saiu da boca",
+      "coroa saiu na mão","coroa soltou do dente","coroa descolou do dente",
+      "prótese fixa caiu","prótese fixa soltou","prótese fixa descolou","jaqueta caiu",
+      "jaqueta soltou","jaqueta descolou","bloco caiu","bloco soltou","peça protética caiu",
+      "restauração indireta caiu","paciente chegou com a coroa na mão","coroa caiu mastigando",
+      "coroa soltou mastigando","coroa caiu de novo","coroa soltou de novo"
+    ],
+    quick: "O primeiro caminho é tentar salvar a coroa existente. Se a peça estiver íntegra e adaptar bem, a recimentação costuma ser a solução mais simples e rápida.",
+    changes: [
+      "Se houver cárie, fratura do remanescente, preparo sem retenção ou adaptação ruim, não trate como simples recimentação.",
+      "Nesses casos, avalie reconstruir o remanescente, refazer o preparo ou planejar uma nova coroa."
+    ],
+    behind: [
+      "Falha de cimentação",
+      "Perda de retenção do preparo",
+      "Contato oclusal excessivo",
+      "Cárie secundária",
+      "Fratura do remanescente",
+      "Contaminação na cimentação anterior"
+    ],
+    protocols: [
+      {id: "recimentar-metal", label: "Recimentar — Metalo-cerâmica / Metal"},
+      {id: "recimentar-ceramica", label: "Recimentar — Porcelana / Zircônia / Disilicato"},
+      {id: "nova-coroa", label: "Planejar Nova Coroa"},
+      {id: "moldagem-coroa-ponte", label: "Moldagem para Coroa/Ponte — Silicone de Adição, Técnica Simultânea"}
+    ],
+    related: [
+      {id: "pino-nucleo-soltou", label: "O pino/núcleo soltou"},
+      {id: "porcelana-lascou", label: "Coroa fraturou"},
+      {id: "coroa-nao-entra-card", label: "A coroa não entra"}
+    ]
+  },
+  "pino-nucleo-soltou": {
+    id: "pino-nucleo-soltou",
+    title: "O pino/núcleo soltou",
+    icon: '<i class="ti ti-dental-broken"></i>',
+    subtitle: "Entenda quando reaproveitar e quando reconstruir.",
+    synonyms: [
+      "pino soltou","pino caiu","pino de fibra soltou","pino de fibra caiu",
+      "núcleo soltou","núcleo caiu","coroa caiu com pino","coroa caiu com núcleo",
+      "coroa soltou com pino","coroa soltou com núcleo","coroa saiu com pino",
+      "coroa saiu com núcleo","coroa saiu inteira","coroa saiu levando o pino",
+      "coroa saiu levando o núcleo","prótese fixa caiu com pino","prótese fixa caiu com núcleo",
+      "jaqueta caiu com pino","jaqueta caiu com núcleo"
+    ],
+    quick: "O primeiro caminho é avaliar se o conjunto que saiu com a coroa ainda pode ser reaproveitado. Se o pino/núcleo estiver íntegro, bem adaptado ao conduto e ainda houver remanescente com retenção suficiente, a recimentação do conjunto pode ser considerada.",
+    changes: [
+      "Se houver fratura radicular, cárie, conduto comprometido, pino curto/mal adaptado ou remanescente insuficiente, recimentar tende a falhar.",
+      "Nesses casos, avalie refazer a reconstrução com pino de fibra e núcleo em resina, reconstruir apenas o remanescente, planejar nova coroa ou, se o prognóstico for ruim, considerar exodontia."
+    ],
+    behind: [
+      "Falha de cimentação do pino/núcleo",
+      "Pino curto ou mal adaptado",
+      "Pouca estrutura remanescente",
+      "Cárie secundária",
+      "Sobrecarga oclusal",
+      "Fratura radicular",
+      "Conduto desfavorável ou preparo intrarradicular inadequado"
+    ],
+    protocols: [
+      {id: "pino-nucleo", label: "Pino de Fibra + Núcleo em Resina"},
+      {id: "nova-coroa", label: "Planejar Nova Coroa"},
+      {id: "moldagem-coroa-ponte", label: "Moldagem para Coroa/Ponte — Silicone de Adição, Técnica Simultânea"}
+    ],
+    related: [
+      {id: "coroa-caiu", label: "A coroa caiu"},
+      {id: "dente-pouca-estrutura", label: "Dente com pouca estrutura"},
+      {id: "porcelana-lascou", label: "Coroa fraturou"}
+    ]
+  },
+  "coroa-nao-entra-card": {
+    id: "coroa-nao-entra-card",
+    title: "A coroa não entra",
+    icon: '<i class="ti ti-adjustments-horizontal"></i>',
+    subtitle: "Localize onde trava antes de ajustar ou cimentar.",
+    synonyms: [
+      "coroa não entra","coroa não assenta","coroa não encaixa","coroa não adaptou",
+      "coroa não chega no lugar","coroa não desce","coroa não senta","coroa ficou aberta",
+      "coroa ficou levantada","coroa não fechou na margem","coroa com margem aberta",
+      "coroa com ponto de contato forte","coroa prende no contato","coroa apertada",
+      "coroa travando","coroa não passa no proximal","coroa não adapta na cervical",
+      "coroa não encaixa no preparo","peça não entra","peça não assenta",
+      "prótese fixa não entra","jaqueta não entra","jaqueta não assenta"
+    ],
+    quick: "O primeiro caminho é descobrir onde a coroa está travando antes de ajustar. Na maioria dos casos, o problema está no contato proximal, na parte interna da coroa, em resíduo no preparo ou em tecido mole impedindo o assentamento.",
+    changes: [
+      "Se a coroa não assenta completamente mesmo após ajustes conservadores, não force e não cimente.",
+      "Nesses casos, devolva ao laboratório ou refaça a peça, principalmente se houver margem aberta persistente, erro de moldagem/escaneamento, alteração do preparo ou adaptação inadequada."
+    ],
+    behind: [
+      "Contato proximal excessivo",
+      "Interferência interna da coroa",
+      "Resíduo de cimento provisório ou detrito no preparo",
+      "Tecido mole interferindo no assentamento",
+      "Erro de moldagem ou escaneamento",
+      "Alteração do preparo após a moldagem",
+      "Distorção ou erro laboratorial"
+    ],
+    protocols: [
+      {id: "coroa-nao-entra", label: "Coroa não entra — Ajuste e decisão"},
+      {id: "moldagem-coroa-ponte", label: "Moldagem para Coroa/Ponte — Silicone de Adição, Técnica Simultânea"},
+      {id: "nova-coroa", label: "Planejar Nova Coroa"}
+    ],
+    related: [
+      {id: "coroa-caiu", label: "A coroa caiu"},
+      {id: "porcelana-lascou", label: "A porcelana lascou"},
+      {id: "dente-pouca-estrutura", label: "Dente com pouca estrutura"}
+    ]
+  },
+  "porcelana-lascou": {
+    id: "porcelana-lascou",
+    title: "A porcelana lascou",
+    icon: '<i class="ti ti-dental-broken"></i>',
+    subtitle: "Decida entre polir, reparar, laboratório ou nova peça.",
+    synonyms: [
+      "porcelana lascou","porcelana quebrou","porcelana trincou","porcelana fraturou",
+      "cerâmica lascou","cerâmica quebrou","cerâmica trincou","coroa lascou",
+      "coroa quebrou","coroa trincou","coroa de porcelana lascou",
+      "coroa de porcelana quebrou","metalocerâmica lascou","zircônia lascou",
+      "dissilicato lascou","faceta da coroa quebrou","saiu um pedaço da porcelana",
+      "saiu um pedaço da coroa","ponta da coroa quebrou","porcelana soltou da coroa",
+      "lasca na coroa","fratura de porcelana","fratura de cerâmica"
+    ],
+    quick: "O primeiro caminho é avaliar o tamanho da fratura e o impacto clínico/estético. Pequenos lascamentos, sem exposição importante da infraestrutura e sem prejuízo funcional, podem ser apenas polidos ou reparados em boca.",
+    changes: [
+      "Se houver exposição extensa de metal/zircônia, fratura envolvendo margem, contato proximal, oclusão, estética importante ou sinais de sobrecarga oclusal, não trate como simples polimento.",
+      "Nesses casos, avalie reparo intraoral, encaminhamento ao laboratório ou planejamento de nova coroa/prótese. Se houver bruxismo, apertamento ou fratura recorrente, considere também placa oclusal para reduzir risco de nova falha."
+    ],
+    behind: [
+      "Contato oclusal excessivo",
+      "Bruxismo ou apertamento",
+      "Sobrecarga oclusal",
+      "Espessura insuficiente de cerâmica",
+      "Falta de suporte da infraestrutura",
+      "Trauma mastigatório",
+      "Ajuste oclusal sem polimento adequado",
+      "Falha laboratorial ou escolha inadequada do material"
+    ],
+    protocols: [
+      {id: "reparo-porcelana", label: "Reparo Intraoral de Porcelana/Cerâmica"},
+      {id: "nova-coroa", label: "Planejar Nova Coroa"},
+      {id: "moldagem-coroa-ponte", label: "Moldagem para Coroa/Ponte — Silicone de Adição, Técnica Simultânea"}
+    ],
+    related: [
+      {id: "coroa-nao-entra-card", label: "A coroa não entra"},
+      {id: "coroa-caiu", label: "A coroa caiu"},
+      {id: "dente-pouca-estrutura", label: "Dente com pouca estrutura"}
+    ]
+  },
+  "dente-pouca-estrutura": {
+    id: "dente-pouca-estrutura",
+    title: "Dente com pouca estrutura",
+    icon: '<i class="ti ti-dental"></i>',
+    subtitle: "Avalie reconstrução, pino/núcleo, coroa ou prognóstico.",
+    synonyms: [
+      "dente com pouca estrutura","dente sem estrutura","pouca estrutura dentária",
+      "remanescente pequeno","remanescente insuficiente","dente muito destruído",
+      "dente destruído","dente quebrado para coroa","dente sem parede",
+      "dente com pouca parede","dente com uma parede","dente com duas paredes",
+      "dente precisa de pino","precisa de pino de fibra","quando usar pino de fibra",
+      "quando fazer núcleo","preciso fazer núcleo","dente para núcleo",
+      "dente tratado canal pouca estrutura","dente endodonticamente tratado sem estrutura",
+      "dá para salvar esse dente","dente com prognóstico ruim","preparo sem retenção",
+      "coroa sem retenção"
+    ],
+    quick: "O primeiro caminho é avaliar se ainda existe estrutura suficiente para reconstruir com previsibilidade. Remanescente favorável e bom isolamento? A reconstrução coronária pode ser suficiente. Dente tratado endodonticamente com pouca retenção coronária? Considere pino de fibra associado a núcleo em resina.",
+    changes: [
+      "Se houver margem muito subgengival, fratura radicular, cárie profunda, pouco remanescente ou impossibilidade de isolamento, não trate como simples reconstrução.",
+      "Nesses casos, avalie pino de fibra + núcleo em resina, nova coroa ou encaminhamento periodontal/cirúrgico. Se o prognóstico for ruim, considere exodontia e novo planejamento reabilitador."
+    ],
+    behind: [
+      "Cárie extensa",
+      "Fratura coronária",
+      "Restaurações antigas amplas",
+      "Tratamento endodôntico prévio",
+      "Perda de paredes remanescentes",
+      "Preparo antigo sem retenção",
+      "Margem subgengival ou difícil acesso"
+    ],
+    protocols: [
+      {id: "pino-nucleo", label: "Pino de Fibra + Núcleo em Resina"},
+      {id: "nova-coroa", label: "Planejar Nova Coroa"},
+      {id: "moldagem-coroa-ponte", label: "Moldagem para Coroa/Ponte — Silicone de Adição, Técnica Simultânea"}
+    ],
+    related: [
+      {id: "pino-nucleo-soltou", label: "O pino/núcleo soltou"},
+      {id: "coroa-caiu", label: "A coroa caiu"},
+      {id: "coroa-nao-entra-card", label: "A coroa não entra"},
+      {id: "porcelana-lascou", label: "A porcelana lascou"}
+    ]
+  },
+  "protese-total-machuca": {
+    id: "protese-total-machuca",
+    title: "A prótese total machuca",
+    icon: '<i class="ti ti-bandage"></i>',
+    subtitle: "Separe ponto de pressão, borda, oclusão e adaptação.",
+    synonyms: [
+      "prótese total machuca","dentadura machuca","dentadura ferindo","dentadura fez ferida",
+      "prótese machucando gengiva","prótese total ferindo","prótese total incomoda",
+      "prótese total doendo","prótese total causando ferida","ferida por dentadura",
+      "ferida por prótese","úlcera por prótese","prótese machuca ao mastigar",
+      "prótese machuca no fundo","prótese machuca na borda","prótese total apertando",
+      "dentadura apertando","dentadura incomodando","prótese total nova machuca",
+      "paciente não consegue usar dentadura","dentadura machuca ao comer",
+      "dentadura machuca no céu da boca","prótese machuca palato","prótese machuca freio",
+      "prótese machuca fundo de sulco"
+    ],
+    quick: "O primeiro caminho é localizar se a dor vem de ponto de pressão, borda ou oclusão. Ferida localizada ou área isquemiada costuma indicar ponto de pressão. Dor em fundo de sulco ou região de freio sugere borda sobreestendida. Dor ao mastigar ou vários pontos doloridos pede avaliação de oclusão e adaptação geral.",
+    changes: [
+      "Se a dor persiste após ajustes, a prótese balança, perdeu retenção ou existe reabsorção evidente, não trate como ponto isolado.",
+      "Nesses casos, avalie reembasamento provisório/definitivo ou nova prótese. Se a lesão não cicatriza após remover o trauma, encaminhe para estomatologista/patologista bucal."
+    ],
+    behind: [
+      "Ponto de pressão na base",
+      "Borda sobreestendida",
+      "Freio comprimido",
+      "Oclusão desequilibrada",
+      "Prótese instável ou folgada",
+      "Reabsorção do rebordo",
+      "Superfície interna irregular",
+      "Estomatite protética/candidíase associada"
+    ],
+    protocols: [
+      {id: "protese-incomodando", label: "Prótese Incomodando — Ajuste de Base / Borda"},
+      {id: "reemb-prov-pt", label: "Reembasamento Provisório — PT"},
+      {id: "reemb-def-pt", label: "Reembasamento Definitivo — PT"}
+    ],
+    related: [
+      {id: "protese-total-caindo", label: "A prótese total está caindo"},
+      {id: "ppr-machuca-balanca", label: "A PPR machuca ou balança"},
+      {id: "protese-quebrou-card", label: "A prótese quebrou"},
+      {id: "dente-protese-soltou-card", label: "Dente da prótese soltou"}
+    ]
+  },
+  "protese-total-caindo": {
+    id: "protese-total-caindo",
+    title: "A prótese total está caindo",
+    icon: '<i class="ti ti-arrow-down-circle"></i>',
+    subtitle: "Veja se é adaptação, selado, borda, oclusão ou nova prótese.",
+    synonyms: [
+      "prótese total está caindo","dentadura está caindo","dentadura solta","dentadura folgada",
+      "dentadura balançando","dentadura não segura","dentadura sem pressão",
+      "dentadura sai ao falar","dentadura sai ao comer","prótese total folgada",
+      "prótese total solta","prótese total balançando","prótese total sem retenção",
+      "prótese total não para","prótese total não fica presa","prótese total desloca",
+      "prótese total sai ao falar","prótese total sai ao mastigar","prótese superior está caindo",
+      "prótese inferior está solta","prótese total perdeu retenção","prótese total antiga folgada"
+    ],
+    quick: "O primeiro caminho é descobrir se a prótese só perdeu adaptação da base ou se a peça como um todo já perdeu previsibilidade. Se está folgada, mas ainda estável e sem grandes desgastes/deformações, o reembasamento pode melhorar a adaptação da base e devolver retenção.",
+    changes: [
+      "Se a prótese estiver muito antiga, instável, com base deformada, dentes desgastados, dimensão vertical alterada ou estética comprometida, o reembasamento tende a ser limitado.",
+      "Nesses casos, ajustes podem melhorar temporariamente, mas o caminho mais previsível pode ser uma nova prótese ou outro planejamento reabilitador."
+    ],
+    behind: [
+      "Reabsorção do rebordo",
+      "Base desadaptada",
+      "Perda de selado periférico",
+      "Bordas inadequadas",
+      "Oclusão desequilibrada",
+      "Dentes artificiais desgastados",
+      "Prótese antiga",
+      "Anatomia mandibular desfavorável"
+    ],
+    protocols: [
+      {id: "reemb-prov-pt", label: "Reembasamento Provisório — PT"},
+      {id: "reemb-def-pt", label: "Reembasamento Definitivo — PT"},
+      {id: "protese-incomodando", label: "Prótese Incomodando — Ajuste de Base / Borda"}
+    ],
+    related: [
+      {id: "protese-total-machuca", label: "A prótese total machuca"},
+      {id: "ppr-machuca-balanca", label: "A PPR machuca ou balança"},
+      {id: "protese-quebrou-card", label: "A prótese quebrou"},
+      {id: "dente-protese-soltou-card", label: "Dente da prótese soltou"}
+    ]
+  },
+  "ppr-machuca-balanca": {
+    id: "ppr-machuca-balanca",
+    title: "A PPR machuca ou balança",
+    icon: '<i class="ti ti-dental-broken"></i>',
+    subtitle: "Separe sela, grampos, apoios, oclusão e dentes pilares.",
+    synonyms: [
+      "PPR machuca","PPR balança","PPR está folgada","PPR solta","PPR frouxa",
+      "PPR incomoda","PPR ferindo gengiva","PPR machuca ao mastigar",
+      "PPR machuca na gengiva","PPR machuca no grampo","PPR apertando",
+      "PPR não encaixa","PPR não assenta","PPR sai ao mastigar",
+      "ponte móvel machuca","ponte móvel balança","ponte móvel folgada",
+      "ponte móvel solta","ponte móvel não encaixa","prótese parcial machuca",
+      "prótese parcial balança","prótese parcial removível machuca",
+      "prótese parcial removível folgada","grampo machuca","grampo apertado",
+      "grampo folgado","roach machuca","roach apertado"
+    ],
+    quick: "O primeiro caminho é separar se a queixa é dor localizada ou instabilidade da PPR. Dor em um ponto específico geralmente é pressão na sela, borda ou conector. Se balança ou sai fácil, avalie grampos, sela, apoios, oclusão e dentes pilares.",
+    changes: [
+      "Se houver grampo deformado, apoio sem assentamento, sela muito desadaptada, dente pilar comprometido ou estrutura metálica mal adaptada, não tente resolver apenas apertando grampo.",
+      "Nesses casos, avalie reembasamento, ajuste/reparo laboratorial ou novo planejamento da PPR. Se o dente pilar estiver comprometido, resolva o pilar antes de tentar compensar na prótese."
+    ],
+    behind: [
+      "Ponto de pressão na sela acrílica",
+      "Borda ou conector comprimindo tecido",
+      "Sela desadaptada por reabsorção do rebordo",
+      "Grampo frouxo, apertado ou deformado",
+      "Apoio mal assentado",
+      "Oclusão desequilibrada",
+      "Dente pilar com mobilidade, cárie ou perda periodontal",
+      "Estrutura metálica mal adaptada"
+    ],
+    protocols: [
+      {id: "protese-incomodando", label: "Prótese Incomodando — Ajuste de Base / Borda"},
+      {id: "reemb-prov-ppr", label: "Reembasamento Provisório — PPR"},
+      {id: "reemb-def-ppr", label: "Reembasamento Definitivo — PPR"}
+    ],
+    related: [
+      {id: "protese-total-machuca", label: "A prótese total machuca"},
+      {id: "protese-total-caindo", label: "A prótese total está caindo"},
+      {id: "protese-quebrou-card", label: "A prótese quebrou"},
+      {id: "dente-protese-soltou-card", label: "Dente da prótese soltou"}
+    ]
+  },
+  "dente-protese-soltou-card": {
+    id: "dente-protese-soltou-card",
+    title: "Dente da prótese soltou",
+    icon: '<i class="ti ti-puzzle"></i>',
+    subtitle: "Veja quando reparar na cadeira e quando enviar ao laboratório.",
+    synonyms: [
+      "dente da prótese soltou","dente da dentadura soltou","dente da prótese caiu",
+      "dente da dentadura caiu","dente artificial soltou","dente artificial caiu",
+      "dente da PPR soltou","dente da PPR caiu","dente da PT soltou","dente da PT caiu",
+      "caiu um dente da prótese","saiu um dente da dentadura","prótese sem dente",
+      "dentadura sem dente","dente da prótese saiu","dente da prótese descolou",
+      "dente da ponte móvel soltou","dente da ponte móvel caiu",
+      "paciente chegou com dente da prótese na mão"
+    ],
+    quick: "O primeiro caminho é avaliar se é um reparo simples ou se existe fratura/desadaptação associada. Se o dente soltou, mas a base está íntegra e o espaço está preservado, pode ser possível reparar na cadeira. Se há base fraturada, dente perdido, espaço fechado ou prótese muito desgastada, o laboratório tende a ser mais seguro.",
+    changes: [
+      "Se houver fratura extensa da base, perda de adaptação, vários dentes soltos, prótese muito antiga ou comprometimento estético/funcional importante, não trate como simples colagem.",
+      "Nesses casos, encaminhe ao laboratório ou avalie nova prótese, principalmente se o reparo na cadeira não devolver resistência e previsibilidade."
+    ],
+    behind: [
+      "Falha de retenção do dente na base acrílica",
+      "Trauma mastigatório",
+      "Oclusão desequilibrada",
+      "Desgaste ou envelhecimento da prótese",
+      "Base acrílica fraturada",
+      "Dente artificial muito desgastado",
+      "Reparo anterior mal executado"
+    ],
+    protocols: [
+      {id: "dente-protese-soltou", label: "Reparo na Cadeira — Dente da Prótese Soltou"},
+      {id: "dente-protese-laboratorio", label: "Encaminhar Laboratório — Dente da Prótese"},
+      {id: "protese-quebrada-lab", label: "Prótese Quebrada — Envio ao Laboratório"}
+    ],
+    related: [
+      {id: "protese-quebrou-card", label: "A prótese quebrou"},
+      {id: "protese-total-machuca", label: "A prótese total machuca"},
+      {id: "protese-total-caindo", label: "A prótese total está caindo"},
+      {id: "ppr-machuca-balanca", label: "A PPR machuca ou balança"}
+    ]
+  },
+  "protese-quebrou-card": {
+    id: "protese-quebrou-card",
+    title: "A prótese quebrou",
+    icon: '<i class="ti ti-tool"></i>',
+    subtitle: "Identifique o que quebrou e envie com as referências certas.",
+    synonyms: [
+      "prótese quebrou","dentadura quebrou","prótese rachou","dentadura rachou",
+      "prótese partiu","dentadura partiu","prótese trincou","dentadura trincou",
+      "quebrou a base da prótese","quebrou a base da dentadura","prótese total quebrou",
+      "PPR quebrou","ponte móvel quebrou","prótese parcial quebrou",
+      "prótese removível quebrou","grampo quebrou","grampo da PPR quebrou",
+      "estrutura metálica quebrou","conector da PPR quebrou","prótese quebrou no meio",
+      "paciente quebrou a dentadura","prótese caiu e quebrou","prótese quebrou na mão",
+      "dentadura quebrou no meio"
+    ],
+    quick: "O primeiro caminho é identificar o que quebrou e enviar ao laboratório com as referências corretas. Base acrílica quebrada pede prótese completa, todos os fragmentos e moldagem auxiliar. Se dente artificial soltou ou quebrou, envie o dente junto quando o paciente trouxer. Se grampo, apoio, conector ou estrutura metálica quebrou, não tente compensar com resina.",
+    changes: [
+      "Se a prótese estiver muito antiga, desadaptada, com dentes desgastados, base frágil ou fraturas repetidas, o reparo tende a ser provisório.",
+      "Nesses casos, envie para reparo quando necessário, mas explique ao paciente que pode ser o momento de planejar uma nova prótese."
+    ],
+    behind: [
+      "Queda ou trauma da prótese",
+      "Base acrílica fina ou fragilizada",
+      "Prótese antiga",
+      "Desadaptação da base",
+      "Oclusão desequilibrada",
+      "Dentes artificiais desgastados",
+      "Reparo anterior frágil",
+      "Estrutura metálica sobrecarregada"
+    ],
+    protocols: [
+      {id: "protese-quebrada-lab", label: "Prótese Quebrada — Envio ao Laboratório"},
+      {id: "dente-protese-soltou", label: "Reparo na Cadeira — Dente da Prótese Soltou"},
+      {id: "dente-protese-laboratorio", label: "Encaminhar Laboratório — Dente da Prótese"},
+      {id: "reemb-prov-pt", label: "Reembasamento Provisório — PT"},
+      {id: "reemb-def-pt", label: "Reembasamento Definitivo — PT"},
+      {id: "reemb-prov-ppr", label: "Reembasamento Provisório — PPR"},
+      {id: "reemb-def-ppr", label: "Reembasamento Definitivo — PPR"}
+    ],
+    related: [
+      {id: "dente-protese-soltou-card", label: "Dente da prótese soltou"},
+      {id: "protese-total-machuca", label: "A prótese total machuca"},
+      {id: "protese-total-caindo", label: "A prótese total está caindo"},
+      {id: "ppr-machuca-balanca", label: "A PPR machuca ou balança"}
+    ]
+  }
+};
   function initData(){
   const DATA_VERSION = "v21";
   const storedVersion = localStorage.getItem("guiaOdontoDataVersion");
@@ -2830,18 +3309,40 @@ async function saveEditTratamento(){
 function toggleDarkMode(){document.body.classList.toggle("dark");const btn=document.getElementById("dark-toggle");if(btn)btn.innerHTML=document.body.classList.contains("dark")?'<i class="ti ti-sun"></i>':'<i class="ti ti-moon-stars"></i>';localStorage.setItem("darkMode",document.body.classList.contains("dark"));}
 function initDarkMode(){const btn=document.getElementById("dark-toggle");if(localStorage.getItem("darkMode")==="true"){document.body.classList.add("dark");if(btn)btn.innerHTML='<i class="ti ti-sun"></i>';}else if(btn){btn.innerHTML='<i class="ti ti-moon-stars"></i>';}}
 function hideOverlay(id){const el=document.getElementById(id);if(el)el.classList.remove("active");}
-function showOverlay(id){const el=document.getElementById(id);if(el)el.classList.add("active");}
+function showOverlay(id){
+  const el=document.getElementById(id);
+  if(!el) return;
+  el.classList.add("active");
+  const scrollables=[el, ...el.querySelectorAll(".modal,.prem-modal")];
+  scrollables.forEach(node=>{ if(node) node.scrollTop=0; });
+  window.scrollTo(0,0);
+}
 function uid(){return Math.random().toString(36).slice(2,8);}
 
 // =================== NAVEGAÇÃO ====================
 // Lógica única e definitiva: goScreen empilha, goBack desempilha.
 // Cada tela sabe de onde voltou. Sem race condition, sem tela branca.
 
+function scrollScreenToTop(id) {
+  const screenId = (id === "home") ? "app" : id;
+  const sc = document.getElementById("screen-" + screenId);
+  if(!sc) return;
+  const scrollables = [sc, ...sc.querySelectorAll(".body,.payment-screen-body")];
+  scrollables.forEach(el => { if(el) el.scrollTop = 0; });
+  window.scrollTo(0, 0);
+}
+
+function scheduleScreenTop(id) {
+  scrollScreenToTop(id);
+  requestAnimationFrame(() => scrollScreenToTop(id));
+  setTimeout(() => scrollScreenToTop(id), 80);
+}
+
 function _activateScreen(id) {
   const screenId = (id === "home") ? "app" : id;
   document.querySelectorAll(".screen").forEach(s => s.classList.remove("active"));
   const sc = document.getElementById("screen-" + screenId);
-  if(sc) { sc.classList.add("active"); const b=sc.querySelector(".body"); if(b) b.scrollTop=0; }
+  if(sc) { sc.classList.add("active"); scrollScreenToTop(id); }
 
   // Telas que mostram a nav
   const navScreens = ["home", "favorites", "search"];
@@ -2861,6 +3362,7 @@ function _renderScreen(id) {
   if(id === "situations")  renderSituations();
   if(id === "procedures")  renderProcedures();
   if(id === "prescricoes") { abaAtivaPrescricao = 'situacoes'; renderPrescricoesList(); }
+  if(id === "conduta" && currentCondutaId) renderQuickConduct(currentCondutaId);
   if(id === "protocol" && currentProtoId) renderProtocol(currentProtoId);
   if(id === "search") {
     const si=document.getElementById("search-input"); if(si) si.value="";
@@ -2879,6 +3381,7 @@ function goScreen(id) {
   }
   _activateScreen(id);
   _renderScreen(id);
+  scheduleScreenTop(id);
 }
 
 // Volta para a tela anterior da pilha
@@ -2889,9 +3392,11 @@ function goBackToLastScreen() {
     const target = (last === "app") ? "home" : last;
     _activateScreen(target);
     _renderScreen(target);
+    scheduleScreenTop(target);
   } else {
     _activateScreen("home");
     _renderScreen("home");
+    scheduleScreenTop("home");
   }
 }
 
@@ -2900,6 +3405,7 @@ function voltarParaHome() {
   navigationHistory = [];
   _activateScreen("home");
   _renderScreen("home");
+  scheduleScreenTop("home");
 }
 
 
@@ -3072,6 +3578,188 @@ function renderOdontoWidget(inputId, confirmId, resultId, passo7Id){
 }
 
 // ==================== RENDERIZAÇÃO ====================
+function escapeHtml(text){
+  return String(text || "").replace(/[&<>"']/g, ch => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#39;"
+  }[ch]));
+}
+
+function normalizeSearchText(text){
+  return String(text || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+}
+
+function quickConductMatches(card, query){
+  const q = normalizeSearchText(query);
+  const haystack = [
+    card.title,
+    card.subtitle,
+    card.quick,
+    ...(card.synonyms || []),
+    ...(card.behind || []),
+    ...(card.protocols || []).map(p => p.label),
+    ...(card.related || []).map(r => r.label)
+  ].join(" ");
+  return normalizeSearchText(haystack).includes(q);
+}
+
+function protocolMatches(protocol, query){
+  const q = normalizeSearchText(query);
+  return normalizeSearchText(protocol.title).includes(q) ||
+    protocol.steps?.some(s => normalizeSearchText(s).includes(q)) ||
+    protocol.errors?.some(e => normalizeSearchText(e).includes(q)) ||
+    protocol.decisions?.some(d => normalizeSearchText((d.if || "") + " " + (d.then || "")).includes(q));
+}
+
+function renderQuickConductCards(){
+  const list = document.getElementById("quick-conduct-list");
+  if(!list) return;
+  list.innerHTML = "";
+  Object.values(QUICK_CONDUCT_CARDS).forEach(card => {
+    const btn = document.createElement("button");
+    btn.className = "quick-conduct-card";
+    btn.innerHTML = `
+      <span class="quick-conduct-icon">${card.icon}</span>
+      <span class="quick-conduct-copy">
+        <span class="quick-conduct-title">${card.title}</span>
+        <span class="quick-conduct-sub">${card.subtitle}</span>
+      </span>
+      <span class="quick-conduct-arrow">›</span>
+    `;
+    btn.onclick = () => openConduta(card.id);
+    list.appendChild(btn);
+  });
+}
+
+function openConduta(id){
+  if(!QUICK_CONDUCT_CARDS[id]) {
+    showToast("Conduta rápida não disponível", "error");
+    return;
+  }
+  currentCondutaId = id;
+  goScreen("conduta");
+}
+
+function toggleCondutaBehind(){
+  const list = document.getElementById("conduta-behind-list");
+  const icon = document.getElementById("conduta-behind-icon");
+  if(!list) return;
+  const willOpen = !list.classList.contains("open");
+  list.classList.toggle("open", willOpen);
+  if(icon) icon.className = willOpen ? "ti ti-chevron-up" : "ti ti-chevron-down";
+}
+
+function splitFirstSentence(text){
+  const clean = String(text || "").trim();
+  const match = clean.match(/^(.+?\.)\s+(.+)$/s);
+  return match ? {headline: match[1], rest: match[2]} : {headline: "", rest: clean};
+}
+
+function renderCondutaSmartText(text){
+  const split = splitFirstSentence(text);
+  if(!split.headline) return `<div class="conduta-smart-body">${escapeHtml(split.rest)}</div>`;
+  return `
+    <div class="conduta-smart-headline">${escapeHtml(split.headline)}</div>
+    <div class="conduta-smart-body">${escapeHtml(split.rest)}</div>
+  `;
+}
+
+function renderCondutaSmartList(items){
+  if(!Array.isArray(items)) return renderCondutaSmartText(items);
+  return `
+    <div class="conduta-smart-list">
+      ${items.map(item => {
+        const split = splitFirstSentence(item);
+        if(!split.headline) {
+          return `
+            <div class="conduta-smart-item">
+              <span class="conduta-smart-dot"></span>
+              <div class="conduta-smart-item-text"><div class="conduta-smart-item-rest">${escapeHtml(split.rest)}</div></div>
+            </div>
+          `;
+        }
+        return `
+          <div class="conduta-smart-item">
+            <span class="conduta-smart-dot"></span>
+            <div class="conduta-smart-item-text">
+              <div class="conduta-smart-item-head">${escapeHtml(split.headline)}</div>
+              <div class="conduta-smart-item-rest">${escapeHtml(split.rest)}</div>
+            </div>
+          </div>
+        `;
+      }).join("")}
+    </div>
+  `;
+}
+
+function renderCondutaBehind(items){
+  if(!Array.isArray(items)) return renderCondutaSmartText(items);
+  return `
+    <div class="conduta-behind-grid">
+      ${items.map(item => `
+        <div class="conduta-behind-chip"><i class="ti ti-point"></i><span>${escapeHtml(item)}</span></div>
+      `).join("")}
+    </div>
+  `;
+}
+
+function renderQuickConduct(id){
+  const card = QUICK_CONDUCT_CARDS[id];
+  const body = document.getElementById("conduta-body");
+  const title = document.getElementById("conduta-top-title");
+  if(!body || !title || !card) return;
+  title.textContent = "Conduta rápida";
+  const protocolButtons = (card.protocols || []).map(proto => `
+    <button class="conduta-protocol-btn" onclick="openProto('${proto.id}')">
+      <i class="ti ti-clipboard-heart"></i><span>${escapeHtml(proto.label)}</span>
+    </button>
+  `).join("");
+  const relatedButtons = (card.related || []).map(rel => {
+    const enabled = rel.id && QUICK_CONDUCT_CARDS[rel.id];
+    return `
+      <button class="conduta-related-btn ${enabled ? "" : "disabled"}" ${enabled ? `onclick="openConduta('${rel.id}')"` : ""}>
+        <i class="ti ti-link"></i><span>${escapeHtml(rel.label)}</span>
+      </button>
+    `;
+  }).join("");
+  body.innerHTML = `
+    <div class="conduta-hero">
+      <div class="conduta-eyebrow">Conduta rápida</div>
+      <div class="conduta-title">${escapeHtml(card.title)}</div>
+    </div>
+    <section class="conduta-smart-block primary">
+      <div class="conduta-smart-label"><i class="ti ti-bolt"></i>Resposta rápida</div>
+      ${renderCondutaSmartText(card.quick)}
+    </section>
+    <section class="conduta-smart-block alert">
+      <div class="conduta-smart-label"><i class="ti ti-alert-triangle"></i>Quando isso muda?</div>
+      ${renderCondutaSmartList(card.changes || [])}
+    </section>
+    <section class="conduta-smart-block">
+      <button class="conduta-behind-toggle" onclick="toggleCondutaBehind()">
+        <span><i class="ti ti-search"></i> O que costuma estar por trás disso?</span>
+        <i class="ti ti-chevron-down" id="conduta-behind-icon"></i>
+      </button>
+      <div class="conduta-behind-list" id="conduta-behind-list">
+        ${renderCondutaBehind(card.behind || [])}
+      </div>
+    </section>
+    <section class="conduta-smart-block">
+      <div class="conduta-smart-label"><i class="ti ti-route"></i>Como resolver</div>
+      ${protocolButtons}
+    </section>
+    <section class="conduta-smart-block">
+      <div class="conduta-smart-label"><i class="ti ti-link"></i>Problemas relacionados</div>
+      ${relatedButtons}
+    </section>
+    <div class="spacer"></div>
+  `;
+  body.scrollTop = 0;
+}
+
 function renderHome(){
   clearHomeSearch();
   if(!DATA) return;
@@ -3083,6 +3771,7 @@ function renderHome(){
   }
   
   renderSOSButtons();
+  renderQuickConductCards();
   // Categories
   const cs=document.getElementById("categories-scroll");
   if(cs){
@@ -3106,26 +3795,6 @@ function renderHome(){
         };
         fd.appendChild(btn);
       });
-    }
-  }
-  // Favoritos — sempre visível
-  const fb=document.getElementById("favs-box");
-  const fc=document.getElementById("fav-chips");
-  const vf=FAVS.filter(f=>DATA.protocols[f]);
-  if(fb&&fc){
-    fb.style.display="block";
-    fc.innerHTML="";
-    if(vf.length>0){
-      vf.slice(0,8).forEach(fid=>{
-        const p=DATA.protocols[fid];
-        const btn=document.createElement("button");
-        btn.className="chip";
-        btn.textContent=p?.title||fid;
-        btn.onclick=()=>openProto(fid);
-        fc.appendChild(btn);
-      });
-    } else {
-      fc.innerHTML='<span style="font-size:13px;color:#94A3B8">Toque em ★ em qualquer protocolo para salvar aqui</span>';
     }
   }
   // Mais usados — sempre visível
@@ -3559,22 +4228,29 @@ function doHomeSearch(q){
   if(homeBody)homeBody.style.display="none";
   resDiv.style.display="block";
   resDiv.innerHTML="";
-  const ql=q.toLowerCase();
+  const ql=q.trim();
+  const conductFound=Object.values(QUICK_CONDUCT_CARDS).filter(card=>quickConductMatches(card, ql));
   const all=Object.entries(DATA.protocols).map(([id,p])=>({id,...p}));
-  const found=all.filter(p=>
-    p.title?.toLowerCase().includes(ql)||
-    p.steps?.some(s=>s.toLowerCase().includes(ql))||
-    p.errors?.some(e=>e.toLowerCase().includes(ql))||
-    p.decisions?.some(d=>((d.if||"")+(d.then||"")).toLowerCase().includes(ql))
-  );
-  if(found.length===0){
-    resDiv.innerHTML='<p class="empty-msg" style="margin-top:20px">Nenhum resultado para "'+q+'"</p>';
+  const found=all.filter(p=>protocolMatches(p, ql));
+  if(conductFound.length===0 && found.length===0){
+    resDiv.innerHTML='<p class="empty-msg" style="margin-top:20px">Nenhum resultado para "'+escapeHtml(q)+'"</p>';
     return;
   }
+  conductFound.forEach(card=>{
+    const btn=document.createElement("button");
+    btn.className="home-result-card";
+    btn.innerHTML=`
+      <span class="result-kind conduta">Conduta rápida</span>
+      <span class="result-title">${card.title}</span>
+      <span class="result-meta">${card.subtitle}</span>
+    `;
+    btn.onclick=()=>{clearHomeSearch();openConduta(card.id);};
+    resDiv.appendChild(btn);
+  });
   found.forEach(p=>{
     const btn=document.createElement("button");
     btn.className="home-result-card";
-    btn.innerHTML='<div style="display:flex;align-items:center;gap:6px"><span class="result-title">'+p.title+'</span>'+(!p.free && !window.userIsPremium ? '<span class="prem-tag"><i class="ti ti-lock"></i></span>' : '')+'</div>';
+    btn.innerHTML='<span class="result-kind protocol">Protocolo</span><div style="display:flex;align-items:center;gap:6px"><span class="result-title">'+p.title+'</span>'+(!p.free && !window.userIsPremium ? '<span class="prem-tag"><i class="ti ti-lock"></i></span>' : '')+'</div>';
     btn.onclick=()=>{clearHomeSearch();openProto(p.id);};
     resDiv.appendChild(btn);
   });
