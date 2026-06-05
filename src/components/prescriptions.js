@@ -96,6 +96,7 @@ function abrirPrescricao(id) {
     filtroAtivoPrescricao = 'padrao';
   }
   document.getElementById('prescricao-detalhe-titulo').textContent = data.titulo;
+  updatePrescricaoFavButton();
   renderPrescricaoDetalhe();
   goScreen('prescricao-detalhe');
   setTimeout(() => {
@@ -103,6 +104,15 @@ function abrirPrescricao(id) {
     els.forEach(el => { if(el) el.scrollTop = 0; });
     window.scrollTo(0, 0);
   }, 100);
+}
+
+function updatePrescricaoFavButton(){
+  const btn = document.getElementById('fav-btn-prescricao');
+  if(!btn || !prescricaoAtualId) return;
+  const active = typeof isFavorite === "function" && isFavorite("prescription", prescricaoAtualId);
+  btn.dataset.favId = prescricaoAtualId;
+  btn.classList.toggle("active", active);
+  btn.innerHTML = active ? '<i class="ti ti-star-filled"></i>' : '<i class="ti ti-star"></i>';
 }
 
 function abrirPacienteEspecial(id) {

@@ -164,7 +164,7 @@
 <!-- MAIN APP -->
 <div class="screen" id="screen-app">
   <div class="hdr" id="main-header">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+    <div class="hdr-top-row">
       <div class="hdr-saudacao"><span class="hdr-dot"></span><span id="hdr-periodo">Disponível agora</span></div>
       <div style="display:flex;gap:6px;align-items:center">
         <button class="gear-btn" onclick="goScreen('settings')" title="Configurações"><i class="ti ti-settings"></i></button>
@@ -172,20 +172,20 @@
     </div>
     <div id="logo-tap" style="position:absolute;left:-9999px;opacity:0;pointer-events:auto;width:1px;height:1px"></div>
     <div class="hdr-nome" id="hdr-nome">Olá!</div>
-    <div class="hdr-pergunta">O que você precisa resolver agora?</div>
+    <div class="hdr-pergunta">O que aconteceu?</div>
     <div class="home-search-wrap">
       <div class="search-bar" onclick="document.getElementById('home-search-input').focus()">
         <span style="font-size:18px;color:#7C3FA0"><i class="ti ti-search"></i></span>
-        <input class="search-input-real" id="home-search-input" placeholder="Digite o problema ou procedimento..." oninput="doHomeSearch(this.value)" onfocus="showHomeResults()" autocomplete="off">
+        <input class="search-input-real" id="home-search-input" placeholder="Ex.: A coroa caiu" oninput="doHomeSearch(this.value)" onfocus="showHomeResults()" autocomplete="off">
         <button id="home-search-clear" onclick="clearHomeSearch()" style="display:none;background:none;border:none;cursor:pointer;font-size:16px;color:#94A3B8;padding:0;line-height:1;">✕</button>
       </div>
       <div id="home-search-results" class="home-search-dropdown" style="display:none;"></div>
     </div>
   </div>
   <div class="body" id="home-body">
-    <div>
-      <div class="section-label">SITUAÇÕES RÁPIDAS</div>
-      <div class="quick-conduct-list" id="quick-conduct-list"></div>
+    <div class="home-favorites-block">
+      <div class="section-label">FAVORITOS</div>
+      <div class="home-favorites-list" id="home-favorites-list"></div>
     </div>
     <div>
       <div class="section-label">EXPLORAR POR ÁREA</div>
@@ -276,7 +276,7 @@
   <div class="top-bar" id="prescricao-detalhe-topbar">
     <button class="back-btn" onclick="goBackToLastScreen()">←</button>
     <span class="top-title" id="prescricao-detalhe-titulo"></span>
-    <div style="width:36px"></div>
+    <button class="rx-fav-btn" id="fav-btn-prescricao" data-fav-type="prescription" data-fav-id="" onclick="toggleTypedFavorite('prescription', prescricaoAtualId)" aria-label="Favoritar prescrição"><i class="ti ti-star"></i></button>
   </div>
   <div class="body" id="prescricao-detalhe-body"></div>
 </div>
@@ -678,21 +678,6 @@
 
     <button onclick="fecharPixModal()" class="btn-ghost" style="margin-top:8px;">Fechar</button>
   </div>
-</div>
-  <!-- BOTTOM NAV -->
-<div class="bottom-nav" id="bottom-nav">
-  <button class="nav-tab active" id="nav-home" onclick="voltarParaHome()">
-    <span class="nav-tab-icon"><i class="ti ti-home"></i></span>
-    <span class="nav-tab-label">Início</span>
-  </button>
-  <button class="nav-tab" id="nav-favorites" onclick="goScreen('favorites')">
-    <span class="nav-tab-icon"><i class="ti ti-star"></i></span>
-    <span class="nav-tab-label">Favoritos</span>
-  </button>
-  <button class="nav-tab" id="nav-search" onclick="goScreen('search')">
-    <span class="nav-tab-icon"><i class="ti ti-search"></i></span>
-    <span class="nav-tab-label">Buscar</span>
-  </button>
 </div>
 <!-- PASSWORD MODAL -->
 <script src="src/data/clinical-data.js" defer></script>

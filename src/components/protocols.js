@@ -53,7 +53,7 @@ function renderProtocol(id){
   if(!DATA)return;
   const p=DATA.protocols[id];
   if(!p)return;
-  const isFav=FAVS.includes(id);
+  const isFav=isFavorite("protocol", id);
   const body=document.getElementById("protocol-body");
   if(!body)return;
   // Monta breadcrumb da categoria e situação
@@ -141,12 +141,14 @@ function renderProtocol(id){
 }
 
 function toggleFav(id){
-  const isFavNow = FAVS.includes(id);
+  const favKey = normalizeFavKey("protocol", id);
+  const legacyKey = id;
+  const isFavNow = isFavorite("protocol", id);
   if(isFavNow){
-    FAVS = FAVS.filter(f => f !== id);
+    FAVS = FAVS.filter(f => f !== favKey && f !== legacyKey);
     showToast("Removido dos favoritos","error");
   } else {
-    FAVS = [id, ...FAVS];
+    FAVS = [favKey, ...FAVS.filter(f => f !== legacyKey)];
     showToast("Adicionado aos favoritos!","success");
     
     // NOVO: Registrar favorito
@@ -155,13 +157,101 @@ function toggleFav(id){
     }
   }
   saveFavs();
+  if(typeof renderHomeFavorites === "function") renderHomeFavorites();
   // Atualiza o botão imediatamente
   const btn = document.getElementById("fav-btn-proto");
   if(btn){
-    const nowFav = FAVS.includes(id);
+    const nowFav = isFavorite("protocol", id);
     btn.innerHTML = nowFav ? '<i class="ti ti-star-filled"></i>' : '<i class="ti ti-star"></i>';
     btn.className = nowFav ? 'proto-hdr-fav active' : 'proto-hdr-fav';
   }
+}
+
+function normalizeFavKey(type,id){
+  return `${type}:${id}`;
+}
+
+function parseFavKey(key){
+  if(typeof key !== "string") return null;
+  if(key.includes(":")){
+    const [type,id] = key.split(":");
+    return {type,id};
+  }
+  return {type:"protocol",id:key};
+}
+
+function isFavorite(type,id){
+  const key = normalizeFavKey(type,id);
+  return FAVS.includes(key) || (type === "protocol" && FAVS.includes(id));
+}
+
+function toggleTypedFavorite(type,id){
+  const key = normalizeFavKey(type,id);
+  const wasFav = isFavorite(type,id);
+  if(wasFav){
+    FAVS = FAVS.filter(f => f !== key && !(type === "protocol" && f === id));
+    showToast("Removido dos favoritos","error");
+  }else{
+    FAVS = [key, ...FAVS];
+    showToast("Adicionado aos favoritos!","success");
+    if(currentUser) registrarAcaoUsuario(currentUser.uid, 'favorite', { tipo:type, id });
+  }
+  saveFavs();
+  updateFavoriteButtons(type,id);
+  if(typeof renderHomeFavorites === "function") renderHomeFavorites();
+}
+
+function updateFavoriteButtons(type,id){
+  const active = isFavorite(type,id);
+  document.querySelectorAll(`[data-fav-type="${type}"][data-fav-id="${id}"]`).forEach(btn => {
+    btn.classList.toggle("active", active);
+    btn.innerHTML = active ? '<i class="ti ti-star-filled"></i>' : '<i class="ti ti-star"></i>';
+  });
+}
+
+function getFavoriteItem(key){
+  const parsed = parseFavKey(key);
+  if(!parsed) return null;
+  if(parsed.type === "protocol" && DATA?.protocols?.[parsed.id]){
+    return {type:"protocol",id:parsed.id,title:DATA.protocols[parsed.id].title,kind:"Protocolo",icon:"ti-clipboard-heart",open:()=>openProto(parsed.id)};
+  }
+  if(parsed.type === "conduct" && QUICK_CONDUCT_CARDS?.[parsed.id]){
+    return {type:"conduct",id:parsed.id,title:QUICK_CONDUCT_CARDS[parsed.id].title,kind:"Conduta rápida",icon:"ti-bolt",open:()=>openConduta(parsed.id)};
+  }
+  if(parsed.type === "prescription" && PRESCRICOES_DATA?.[parsed.id]){
+    return {type:"prescription",id:parsed.id,title:PRESCRICOES_DATA[parsed.id].titulo,kind:"Prescrição",icon:"ti-pill",open:()=>abrirPrescricao(parsed.id)};
+  }
+  return null;
+}
+
+function renderHomeFavorites(){
+  const list = document.getElementById("home-favorites-list");
+  if(!list) return;
+  const items = FAVS.map(getFavoriteItem).filter(Boolean).slice(0,6);
+  if(!items.length){
+    list.innerHTML = `
+      <button class="home-favorite-empty" type="button" onclick="document.getElementById('home-search-input')?.focus()">
+        <span class="home-favorite-empty-title">Seus atalhos clínicos aparecerão aqui</span>
+        <span class="home-favorite-empty-sub">Favorite condutas, protocolos e prescrições para acessar sem procurar.</span>
+      </button>
+    `;
+    return;
+  }
+  list.innerHTML = "";
+  items.forEach(item => {
+    const btn = document.createElement("button");
+    btn.className = `home-favorite-chip ${item.type}`;
+    btn.type = "button";
+    btn.innerHTML = `
+      <span class="home-favorite-icon"><i class="ti ${item.icon}"></i></span>
+      <span class="home-favorite-copy">
+        <span class="home-favorite-title">${escapeHtml(item.title)}</span>
+        <span class="home-favorite-kind">${escapeHtml(item.kind)}</span>
+      </span>
+    `;
+    btn.onclick = item.open;
+    list.appendChild(btn);
+  });
 }
 
 function renderFavs(){
@@ -169,14 +259,13 @@ function renderFavs(){
   const list=document.getElementById("favs-list");
   if(!list)return;
   list.innerHTML="";
-  const vf=FAVS.filter(f=>DATA.protocols[f]);
-  if(vf.length===0){list.innerHTML='<p class="empty-msg">Use ★ em qualquer protocolo para salvar.</p>';return;}
-  vf.forEach(fid=>{
-    const p=DATA.protocols[fid];
+  const vf=FAVS.map(getFavoriteItem).filter(Boolean);
+  if(vf.length===0){list.innerHTML='<p class="empty-msg">Use ★ em condutas, protocolos ou prescrições para salvar.</p>';return;}
+  vf.forEach(item=>{
     const btn=document.createElement("button");
     btn.className="result-card";
-    btn.innerHTML=`<span class="result-title">${p.title}</span>`;
-    btn.onclick=()=>openProto(fid);
+    btn.innerHTML=`<span class="result-title">${escapeHtml(item.title)}</span>`;
+    btn.onclick=item.open;
     list.appendChild(btn);
   });
 }

@@ -1416,5 +1416,356 @@ const QUICK_CONDUCT_CARDS = {
       {id: "protese-total-caindo", label: "A prótese total está caindo"},
       {id: "ppr-machuca-balanca", label: "A PPR machuca ou balança"}
     ]
+  },
+  "fio-dental-nao-passa": {
+    id: "fio-dental-nao-passa",
+    title: "Fio dental não passa",
+    icon: '<i class="ti ti-dental"></i>',
+    subtitle: "Entenda se o fio trava por contato justo ou irregularidade proximal.",
+    intent: "O dentista quer saber se o fio não passa por contato muito justo, excesso de restauração/cimento, cálculo, cárie ou falha de acabamento proximal.",
+    synonyms: [
+      "fio dental não passa",
+      "fio não passa",
+      "fio não entra",
+      "fio dental prende",
+      "fio dental trava",
+      "contato apertado",
+      "contato proximal apertado",
+      "contato muito justo",
+      "ponto de contato forte",
+      "fio não passa na restauração",
+      "fio não passa na coroa",
+      "fio rasga",
+      "fio dental rasga",
+      "fio dental desfia",
+      "excesso de resina",
+      "excesso interproximal",
+      "overhang",
+      "excesso de cimento",
+      "contato proximal travado"
+    ],
+    quick: "👉 O primeiro caminho é descobrir se o fio está apenas travando ou se existe alguma irregularidade cortando o fio.\n✅ O fio não passa, mas não rasga?\nGeralmente é contato muito justo. Tente movimento suave de serra e, se necessário, fita dental ou fio PTFE.\n✅ O fio rasga ou desfia sempre no mesmo ponto?\nProcure excesso, degrau, cálculo, cárie ou margem irregular.",
+    changes: [
+      "⚠️ Se o fio rasga/desfia sempre no mesmo ponto, não trate como “contato apertado normal”.\n➡️ Nesses casos, investigue overhang, excesso de resina/cimento, cálculo ou cárie interproximal.",
+      "⚠️ Se for dente hígido com contato justo, não desgaste estrutura sadia só para facilitar a passagem.\n➡️ Tente mudar a técnica ou o tipo de fio antes de pensar em desgaste.",
+      "⚠️ Se o fio passa frouxo e o paciente relata alimento prendendo, o problema pode ser o oposto.\n➡️ Pense em contato proximal aberto ou ponto de contato deficiente."
+    ],
+    behind: [
+      "📌 Ponto de contato muito justo",
+      "📌 Excesso de resina",
+      "📌 Excesso de cimento",
+      "📌 Sobrecontorno da restauração",
+      "📌 Overhang",
+      "📌 Margem irregular",
+      "📌 Cálculo interproximal",
+      "📌 Cárie interproximal",
+      "📌 Apinhamento dentário",
+      "📌 Acabamento proximal insuficiente"
+    ],
+    protocols: [
+      {id: "acabamento-proximal-restauracao", label: "Acabamento Proximal em Restauração"},
+      {id: "raspagem-supragengival", label: "Raspagem Supragengival"},
+      {id: "coroa-nao-entra", label: "Coroa não entra — Ajuste e Decisão"}
+    ],
+    related: [
+      {id: "contato-proximal-aberto", label: "Contato proximal ficou aberto"},
+      {id: "coroa-nao-entra-card", label: "A coroa não entra"}
+    ]
+  },
+  "contato-proximal-aberto": {
+    id: "contato-proximal-aberto",
+    title: "Contato proximal ficou aberto",
+    icon: '<i class="ti ti-arrows-horizontal"></i>',
+    subtitle: "Separe falha restauradora de posição dentária.",
+    intent: "O dentista quer decidir se deve refazer o contato proximal ou encaminhar para avaliação ortodôntica.",
+    synonyms: [
+      "contato proximal aberto",
+      "contato aberto",
+      "ponto de contato aberto",
+      "contato ficou frouxo",
+      "alimento prendendo",
+      "comida prendendo entre os dentes",
+      "impactação alimentar",
+      "resina sem contato",
+      "restauração sem contato",
+      "ponto de contato fraco",
+      "fio dental passa frouxo",
+      "dente sem contato proximal",
+      "espaço entre os dentes posteriores"
+    ],
+    quick: "👉 O primeiro caminho é descobrir se o problema é restaurador ou de posição dos dentes.\n✅ Abriu após restauração?\nProvavelmente precisa refazer o contato proximal com matriz bem adaptada.\n✅ O espaço já existia, ou os dentes estão inclinados/mal posicionados?\nProvavelmente precisa de avaliação ortodôntica.",
+    changes: [
+      "⚠️ Se alimento prende sempre no mesmo local, não trate como detalhe.\n➡️ Contato aberto pode causar inflamação gengival, dor local e impactação alimentar recorrente.",
+      "⚠️ Se ficou aberto após restauração, ajuste simples raramente resolve bem.\n➡️ O caminho mais previsível é refazer a restauração proximal.",
+      "⚠️ Se vem de inclinação, apinhamento, perda dentária ou movimentação dos dentes, restaurar pode virar gambiarra.\n➡️ Encaminhe para ortodontia ou reabilitação do espaço ausente."
+    ],
+    behind: [
+      "📌 Ponto de contato restaurador insuficiente",
+      "📌 Matriz mal adaptada",
+      "📌 Contorno proximal inadequado",
+      "📌 Dente inclinado",
+      "📌 Apinhamento dentário",
+      "📌 Espaço por perda dentária",
+      "📌 Movimentação dos dentes",
+      "📌 Mordida favorecendo impactação alimentar"
+    ],
+    protocols: [
+      {id: "restauracao-proximal-classe-ii", label: "Restauração Proximal Classe II em Resina"},
+      {id: "nova-coroa", label: "Planejar Nova Coroa"}
+    ],
+    related: [
+      {id: "fio-dental-nao-passa", label: "Fio dental não passa"},
+      {id: "restauracao-ficou-alta", label: "Restauração ficou alta"},
+      {id: "coroa-nao-entra-card", label: "A coroa não entra"}
+    ]
+  },
+  "restauracao-ficou-alta": {
+    id: "restauracao-ficou-alta",
+    title: "Restauração ficou alta",
+    icon: '<i class="ti ti-adjustments-horizontal"></i>',
+    subtitle: "Confirme contato prematuro antes de pensar em dor pulpar.",
+    intent: "O dentista quer confirmar se existe hiperoclusão/contacto prematuro ou se a dor pode ter outra origem.",
+    synonyms: [
+      "restauração alta",
+      "paciente mordendo alto",
+      "dente bate primeiro",
+      "restauração incomodando",
+      "dor ao morder após restauração",
+      "dor depois da restauração",
+      "paciente voltou após restauração",
+      "oclusão alta",
+      "restauração pegando na mordida",
+      "dor ao mastigar após restauração",
+      "desconforto ao fechar a boca",
+      "restauração recém feita doendo"
+    ],
+    quick: "👉 O primeiro caminho é confirmar se existe contato prematuro com papel articular/carbono.\n✅ Se apenas a restauração marca forte e os dentes vizinhos praticamente não tocam, a hiperoclusão está confirmada.\n➡️ Faça ajuste oclusal e reavalie imediatamente a mordida.\n✅ O paciente relata que “bate primeiro” e a dor aparece ao mastigar?\nO mais provável é ponto alto/interferência oclusal.",
+    changes: [
+      "⚠️ Se houver dor espontânea, pulsátil ou persistente mesmo sem mastigar, não trate como simples ponto alto.\n➡️ Avalie comprometimento pulpar.",
+      "⚠️ Se houver dor localizada ao morder em cúspide específica, pense também em trinca.\n➡️ Nem toda dor pós-restauração é apenas oclusal.",
+      "⚠️ Se o paciente relata “dente estranho” logo após anestesia passar, sempre cheque oclusão antes de pensar em endodontia.",
+      "⚠️ Se o ajuste oclusal resolve imediatamente o desconforto, o diagnóstico de hiperoclusão praticamente se confirma."
+    ],
+    behind: [
+      "📌 Contato prematuro",
+      "📌 Interferência oclusal",
+      "📌 Excesso de anatomia oclusal",
+      "📌 Ajuste oclusal insuficiente",
+      "📌 Sensibilidade pós-operatória",
+      "📌 Irritação pulpar",
+      "📌 Trinca dental",
+      "📌 Restauração extensa"
+    ],
+    protocols: [
+      {id: "ajuste-oclusal-restauracao", label: "Ajuste Oclusal em Restauração"},
+      {id: "trocar-rest", label: "Restauração de Rotina"}
+    ],
+    related: [
+      {id: "dor-ao-mastigar", label: "Dor ao mastigar"}
+    ]
+  },
+  "dor-ao-mastigar": {
+    id: "dor-ao-mastigar",
+    title: "Dor ao mastigar",
+    icon: '<i class="ti ti-dental"></i>',
+    subtitle: "Descubra se vem da mordida, da polpa ou de trinca/fratura.",
+    intent: "O dentista quer identificar se a dor vem da mordida, da polpa, de trinca/fratura ou de inflamação periodontal/apical.",
+    synonyms: [
+      "dor ao mastigar",
+      "dor ao morder",
+      "dói quando mastiga",
+      "dor ao fechar a boca",
+      "dente dói ao mastigar",
+      "dor na mordida",
+      "dor quando aperta os dentes",
+      "dor ao encostar o dente",
+      "dor depois da restauração",
+      "dor após restauração",
+      "dente sensível ao mastigar",
+      "dor na oclusão",
+      "dor ao morder comida",
+      "paciente sente dor ao mastigar"
+    ],
+    quick: "👉 O primeiro caminho é descobrir se a dor vem da mordida ou do próprio dente.\n✅ Começou após restauração recente e piora ao morder?\nProvavelmente é contato prematuro/hiperoclusão.\n➡️ Marque com papel articular e procure ponto alto.\n✅ A dor é localizada em uma cúspide específica ou piora em alimento duro?\nPense em trinca ou fratura.\n✅ Tem dor espontânea, latejante ou que permanece após frio/quente?\nUse o Assistente de Pulpite para diferenciar reversível, transição ou irreversível.",
+    changes: [
+      "⚠️ Se houver dor espontânea, pulsátil ou persistente mesmo sem mastigar, não trate como problema apenas oclusal.",
+      "⚠️ Se a dor melhora imediatamente após ajuste oclusal, o diagnóstico de hiperoclusão praticamente se confirma.",
+      "⚠️ Se houver dor à percussão, mobilidade ou sensação de “dente crescido”, pense também em inflamação periodontal/apical.",
+      "⚠️ Se a dor acontece ao aliviar a mordida (“na subida”), suspeite fortemente de trinca."
+    ],
+    tool: {
+      title: "Ferramenta auxiliar",
+      icon: "ti-brain",
+      text: "🧠 Assistente de Pulpite",
+      button: "Usar Assistente de Pulpite"
+    },
+    behind: [
+      "📌 Contato prematuro",
+      "📌 Interferência oclusal",
+      "📌 Restauração alta",
+      "📌 Trinca dental",
+      "📌 Fratura cuspídea",
+      "📌 Irritação pulpar",
+      "📌 Inflamação periodontal",
+      "📌 Lesão periapical",
+      "📌 Restauração extensa"
+    ],
+    protocols: [
+      {id: "ajuste-oclusal-restauracao", label: "Ajuste Oclusal em Restauração"},
+      {id: "pulpite-reversivel", label: "Pulpite Reversível / Fase de Transição"},
+      {id: "pulpite-irreversivel", label: "Pulpite Irreversível — Urgência"},
+      {id: "trocar-rest", label: "Restauração de Rotina"}
+    ],
+    related: [
+      {id: "restauracao-ficou-alta", label: "Restauração ficou alta"},
+      {id: "dente-sensivel", label: "Dente sensível"}
+    ]
+  },
+  "dente-sensivel": {
+    id: "dente-sensivel",
+    title: "Dente sensível",
+    icon: '<i class="ti ti-bolt"></i>',
+    subtitle: "Diferencie sensibilidade dentinária, pulpite, hiperoclusão e trinca.",
+    intent: "Ajudar o dentista a diferenciar sensibilidade dentinária, pulpite, hiperoclusão e trinca, direcionando a primeira conduta.",
+    synonyms: [
+      "dente sensível",
+      "sensibilidade ao frio",
+      "sensibilidade ao gelado",
+      "sensibilidade ao doce",
+      "sensibilidade ao ar",
+      "choque no dente",
+      "dor no frio",
+      "dor ao tomar água gelada",
+      "sensibilidade cervical",
+      "retração gengival",
+      "raiz exposta",
+      "sensibilidade após restauração"
+    ],
+    quick: "👉 Primeiro identifique onde está a sensibilidade e quanto tempo ela dura.\n✅ Sensibilidade cervical com retração gengival ou raiz exposta\n➡️ Provável hipersensibilidade dentinária. Controle a causa e faça dessensibilização.\n✅ Dor curta ao frio, ar ou doce, que passa rápido\n➡️ Pode ser hipersensibilidade dentinária ou pulpite reversível. Remova o irritante provável e acompanhe.\n✅ Dor que permanece, lateja, aparece sozinha ou piora à noite\n➡️ Suspeite de pulpite irreversível. Avalie necessidade de endodontia.\n✅ Sensibilidade começou após restauração recente\n➡️ Pode ser hiperoclusão, infiltração ou falha adesiva. Cheque oclusão e adaptação.\n✅ Dor aguda ao morder e melhora ao abrir a boca\n➡️ Suspeite de trinca. Investigue antes de restaurar ou ajustar.",
+    changes: [
+      "⚠️ Dor espontânea, noturna, pulsátil ou prolongada\n➡️ Não trate como simples sensibilidade.",
+      "⚠️ Dor à percussão\n➡️ Pense em envolvimento periapical.",
+      "⚠️ Cárie, infiltração ou fratura visível\n➡️ Corrija a causa; dessensibilizante isolado tende a falhar.",
+      "⚠️ Sensibilidade localizada logo após restauração\n➡️ Cheque oclusão antes de pensar em endodontia."
+    ],
+    behind: [
+      "📌 Dentina cervical exposta",
+      "📌 Retração gengival",
+      "📌 Lesão cervical não cariosa",
+      "📌 Clareamento",
+      "📌 Pulpite reversível",
+      "📌 Pulpite irreversível",
+      "📌 Hiperoclusão",
+      "📌 Trinca",
+      "📌 Cárie ou restauração infiltrada"
+    ],
+    protocols: [
+      {id: "recessao-gengival", label: "Sensibilidade Cervical por Recessão Gengival"},
+      {id: "pulpite-reversivel", label: "Pulpite Reversível / Fase de Transição"},
+      {id: "pulpite-irreversivel", label: "Pulpite Irreversível — Urgência"},
+      {id: "ajuste-oclusal-restauracao", label: "Ajuste Oclusal em Restauração"},
+      {id: "trocar-rest", label: "Restauração de Rotina"}
+    ],
+    related: [
+      {id: "dor-ao-mastigar", label: "Dor ao mastigar"},
+      {id: "restauracao-ficou-alta", label: "Restauração ficou alta"},
+      {id: "restauracao-caiu", label: "A restauração caiu"}
+    ]
+  },
+  "restauracao-caiu": {
+    id: "restauracao-caiu",
+    title: "A restauração caiu",
+    icon: '<i class="ti ti-dental-broken"></i>',
+    subtitle: "Decida se dá para restaurar novamente ou se precisa mudar o plano.",
+    intent: "Ajudar o dentista a decidir se o dente pode ser restaurado novamente ou se precisa de uma abordagem mais complexa.",
+    synonyms: [
+      "restauração caiu",
+      "obturação caiu",
+      "restauração soltou",
+      "restauração descolou",
+      "perdeu a restauração",
+      "restauração saiu inteira",
+      "restauração quebrou e caiu",
+      "paciente perdeu a restauração",
+      "caiu a resina",
+      "caiu a obturação"
+    ],
+    quick: "👉 O primeiro passo é avaliar o remanescente dentário.\n✅ A restauração caiu e o remanescente está íntegro, supragengival e sem sinais de cárie\n➡️ Normalmente é possível realizar uma nova restauração.\n✅ Existe cárie, infiltração ou fratura do remanescente\n➡️ Corrija a causa antes de simplesmente restaurar novamente.\n✅ A destruição chegou próximo ou abaixo da gengiva\n➡️ Avalie necessidade de aumento de coroa clínica antes de restaurar.\n✅ Sobrou pouca estrutura dentária para retenção previsível\n➡️ Avalie necessidade de reconstrução mais complexa, coroa ou outro plano restaurador.",
+    changes: [
+      "⚠️ Se a mesma restauração já caiu mais de uma vez\n➡️ Reavalie retenção, extensão da cavidade, oclusão e indicação de restauração direta.",
+      "⚠️ Se houver dor espontânea, sensibilidade persistente ou proximidade pulpar\n➡️ Avalie comprometimento pulpar antes de restaurar.",
+      "⚠️ Se a destruição dentária estiver muito profunda ou inviabilizar isolamento adequado\n➡️ Uma nova restauração direta pode não ser a melhor solução.",
+      "⚠️ Se houver comprometimento estrutural severo, fratura radicular ou prognóstico desfavorável\n➡️ Avalie possibilidade de exodontia."
+    ],
+    behind: [
+      "📌 Cárie recorrente",
+      "📌 Falha adesiva",
+      "📌 Contaminação durante o procedimento",
+      "📌 Sobrecarga oclusal",
+      "📌 Bruxismo",
+      "📌 Remanescente fragilizado",
+      "📌 Restauração extensa",
+      "📌 Trinca dental"
+    ],
+    protocols: [
+      {id: "trocar-rest", label: "Restauração de Rotina"},
+      {id: "pino-nucleo", label: "Pino de Fibra + Núcleo em Resina"},
+      {id: "coroa-direta", label: "Coroa Direta"},
+      {id: "extracao-simples", label: "Extração Simples"}
+    ],
+    related: [
+      {id: "restauracao-fraturou", label: "A restauração fraturou"},
+      {id: "dente-sensivel", label: "Dente sensível"},
+      {id: "dor-ao-mastigar", label: "Dor ao mastigar"},
+      {id: "restauracao-ficou-alta", label: "Restauração ficou alta"}
+    ]
+  },
+  "restauracao-fraturou": {
+    id: "restauracao-fraturou",
+    title: "A restauração fraturou",
+    icon: '<i class="ti ti-dental-broken"></i>',
+    subtitle: "Decida entre reparo, troca ou abordagem mais complexa.",
+    intent: "Ajudar o dentista a decidir se a restauração pode ser reparada, refeita ou se o caso exige uma abordagem mais complexa.",
+    synonyms: [
+      "restauração quebrou",
+      "restauração fraturou",
+      "resina quebrou",
+      "lascou a restauração",
+      "pedaço da restauração caiu",
+      "restauração rachou",
+      "restauração trincou",
+      "resina lascou",
+      "restauração posterior quebrou",
+      "paciente quebrou a restauração"
+    ],
+    quick: "👉 Primeiro veja se quebrou só a restauração ou se quebrou dente junto.\n✅ Quebrou pouco e o dente está íntegro\n➡️ Normalmente dá para reparar ou refazer a restauração.\n✅ Quebrou muito, mas ainda sobrou boa estrutura dentária\n➡️ Refaça a restauração ou avalie uma solução mais resistente.\n✅ Quebrou grande parte do dente junto\n➡️ Avalie reconstrução com pino de fibra de vidro, coroa ou exodontia.\n✅ A fratura é profunda ou sobrou pouca estrutura\n➡️ Avalie se o dente ainda é restaurável.",
+    changes: [
+      "⚠️ Se a restauração fraturou mais de uma vez\n➡️ Reavalie oclusão, extensão cavitária e indicação de restauração direta.",
+      "⚠️ Se houver dor ao mastigar ou sensibilidade persistente\n➡️ Investigue trinca, comprometimento pulpar ou sobrecarga oclusal.",
+      "⚠️ Se a fratura estiver próxima ou abaixo da gengiva\n➡️ Avalie restaurabilidade antes de iniciar o tratamento.",
+      "⚠️ Se houver suspeita de trinca propagando para a raiz\n➡️ O prognóstico pode mudar significativamente."
+    ],
+    behind: [
+      "📌 Sobrecarga oclusal",
+      "📌 Bruxismo",
+      "📌 Restauração extensa",
+      "📌 Falha adesiva",
+      "📌 Remanescente fragilizado",
+      "📌 Trinca dental",
+      "📌 Cárie recorrente",
+      "📌 Contato prematuro",
+      "📌 Desgaste excessivo da estrutura dentária"
+    ],
+    protocols: [
+      {id: "trocar-rest", label: "Restauração de Rotina"},
+      {id: "pino-nucleo", label: "Pino de Fibra + Núcleo em Resina"},
+      {id: "coroa-direta", label: "Coroa Direta"},
+      {id: "extracao-simples", label: "Extração Simples"}
+    ],
+    related: [
+      {id: "restauracao-caiu", label: "A restauração caiu"},
+      {id: "dor-ao-mastigar", label: "Dor ao mastigar"},
+      {id: "dente-sensivel", label: "Dente sensível"}
+    ]
   }
 };

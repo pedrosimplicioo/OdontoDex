@@ -18,6 +18,7 @@ function quickConductMatches(card, query){
   const haystack = [
     card.title,
     card.subtitle,
+    card.intent,
     card.quick,
     ...(card.synonyms || []),
     ...(card.behind || []),
@@ -80,8 +81,56 @@ function splitFirstSentence(text){
   return match ? {headline: match[1], rest: match[2]} : {headline: "", rest: clean};
 }
 
+function parseCondutaLine(line){
+  const raw = String(line || "").trim();
+  if(!raw) return null;
+  const marker = raw.match(/^(👉|✅|➡️|➡|⚠️|⚠|📌|🧠)\s*/);
+  const typeByMarker = {
+    "👉": "lead",
+    "✅": "check",
+    "➡️": "action",
+    "➡": "action",
+    "⚠️": "warning",
+    "⚠": "warning",
+    "📌": "cause",
+    "🧠": "tool"
+  };
+  const iconByType = {
+    lead: "ti-route",
+    check: "ti-circle-check",
+    action: "ti-arrow-right",
+    warning: "ti-alert-triangle",
+    cause: "ti-point",
+    tool: "ti-brain",
+    text: "ti-minus"
+  };
+  const type = marker ? typeByMarker[marker[1]] : "text";
+  const text = raw.replace(/^(👉|✅|➡️|➡|⚠️|⚠|📌|🧠)\s*/, "").trim();
+  return {type, icon: iconByType[type] || iconByType.text, text};
+}
+
+function renderCondutaLines(text, options){
+  const lines = String(text || "").split(/\n+/).map(parseCondutaLine).filter(Boolean);
+  if(!lines.length) return "";
+  const compact = options && options.compact;
+  return `
+    <div class="conduta-flow ${compact ? "compact" : ""}">
+      ${lines.map(line => `
+        <div class="conduta-flow-row ${line.type}">
+          ${line.type === "text" ? "" : `<span class="conduta-flow-icon"><i class="ti ${line.icon}"></i></span>`}
+          <span class="conduta-flow-text">${escapeHtml(line.text)}</span>
+        </div>
+      `).join("")}
+    </div>
+  `;
+}
+
 function renderCondutaSmartText(text){
-  const split = splitFirstSentence(text);
+  const value = String(text || "");
+  if(value.includes("\n") || /^(👉|✅|➡️|➡|⚠️|⚠|📌|🧠)/.test(value.trim())) {
+    return renderCondutaLines(value);
+  }
+  const split = splitFirstSentence(value);
   if(!split.headline) return `<div class="conduta-smart-body">${escapeHtml(split.rest)}</div>`;
   return `
     <div class="conduta-smart-headline">${escapeHtml(split.headline)}</div>
@@ -94,6 +143,14 @@ function renderCondutaSmartList(items){
   return `
     <div class="conduta-smart-list">
       ${items.map(item => {
+        const value = String(item || "");
+        if(value.includes("\n") || /^(👉|✅|➡️|➡|⚠️|⚠|📌|🧠)/.test(value.trim())) {
+          return `
+            <div class="conduta-smart-item structured">
+              ${renderCondutaLines(value, {compact:true})}
+            </div>
+          `;
+        }
         const split = splitFirstSentence(item);
         if(!split.headline) {
           return `
@@ -121,10 +178,40 @@ function renderCondutaBehind(items){
   if(!Array.isArray(items)) return renderCondutaSmartText(items);
   return `
     <div class="conduta-behind-grid">
-      ${items.map(item => `
-        <div class="conduta-behind-chip"><i class="ti ti-point"></i><span>${escapeHtml(item)}</span></div>
-      `).join("")}
+      ${items.map(item => {
+        const parsed = parseCondutaLine(item);
+        return `
+        <div class="conduta-behind-chip"><i class="ti ti-point"></i><span>${escapeHtml(parsed ? parsed.text : item)}</span></div>
+      `;
+      }).join("")}
     </div>
+  `;
+}
+
+function openPulpiteAssistantFromCard(){
+  selCat = "endodontia";
+  const st = document.getElementById("sit-title");
+  if(st) st.textContent = "Endodontia";
+  renderSituations();
+  goScreen("situations");
+  setTimeout(() => {
+    const content = document.getElementById("pulpite-sit-content");
+    if(content && content.style.display === "none" && typeof togglePulpiteSit === "function") {
+      togglePulpiteSit();
+    }
+  }, 80);
+}
+
+function renderCondutaTool(card){
+  if(!card.tool) return "";
+  return `
+    <section class="conduta-smart-block">
+      <div class="conduta-smart-label"><i class="ti ${escapeHtml(card.tool.icon || "ti-tool")}"></i>${escapeHtml(card.tool.title || "Ferramenta auxiliar")}</div>
+      <div class="conduta-smart-body">${escapeHtml((parseCondutaLine(card.tool.text) || {text: card.tool.text || ""}).text)}</div>
+      <button class="conduta-protocol-btn" onclick="openPulpiteAssistantFromCard()">
+        <i class="ti ti-brain"></i><span>${escapeHtml(card.tool.button || "Usar")}</span>
+      </button>
+    </section>
   `;
 }
 
@@ -147,9 +234,13 @@ function renderQuickConduct(id){
       </button>
     `;
   }).join("");
+  const isFav = typeof isFavorite === "function" && isFavorite("conduct", card.id);
   body.innerHTML = `
     <div class="conduta-hero">
-      <div class="conduta-eyebrow">Conduta rápida</div>
+      <div class="conduta-hero-top">
+        <div class="conduta-eyebrow">Conduta rápida</div>
+        <button class="conduta-fav-btn ${isFav ? "active" : ""}" data-fav-type="conduct" data-fav-id="${escapeHtml(card.id)}" onclick="toggleTypedFavorite('conduct','${card.id}')">${isFav ? '<i class="ti ti-star-filled"></i>' : '<i class="ti ti-star"></i>'}</button>
+      </div>
       <div class="conduta-title">${escapeHtml(card.title)}</div>
     </div>
     <section class="conduta-smart-block primary">
@@ -160,6 +251,7 @@ function renderQuickConduct(id){
       <div class="conduta-smart-label"><i class="ti ti-alert-triangle"></i>Quando isso muda?</div>
       ${renderCondutaSmartList(card.changes || [])}
     </section>
+    ${renderCondutaTool(card)}
     <section class="conduta-smart-block">
       <button class="conduta-behind-toggle" onclick="toggleCondutaBehind()">
         <span><i class="ti ti-search"></i> O que costuma estar por trás disso?</span>
@@ -193,7 +285,7 @@ function renderHome(){
   }
   
   renderSOSButtons();
-  renderQuickConductCards();
+  if(typeof renderHomeFavorites === "function") renderHomeFavorites();
   // Categories
   const cs=document.getElementById("categories-scroll");
   if(cs){
