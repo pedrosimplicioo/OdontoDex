@@ -8,6 +8,16 @@ var CLINICAL_SEARCH_INTENTS = {
       "sensibilidade intensa", "dor ao frio", "dor ao mastigar"
     ]
   },
+  dor_mastigar: {
+    label: "Dor ao mastigar",
+    badges: [],
+    synonyms: [
+      "dor ao mastigar", "dor ao morder", "dói quando mastiga", "doi quando mastiga",
+      "dor ao fechar a boca", "dente dói ao mastigar", "dente doi ao mastigar",
+      "dor na mordida", "dor quando aperta os dentes", "dor ao encostar o dente",
+      "dor ao morder comida", "dente sensível ao mastigar", "dente sensivel ao mastigar"
+    ]
+  },
   sensibilidade_cervical: {
     label: "Sensibilidade cervical",
     badges: [],
@@ -72,6 +82,19 @@ var CLINICAL_SEARCH_INTENTS = {
       "máxima intercuspidação", "maxima intercuspidacao", "lateralidade",
       "protrusão", "protrusao", "shimstock", "interferência dinâmica",
       "interferencia dinamica"
+    ]
+  },
+  restauracao_solto_fratura: {
+    label: "Restauração caiu / fraturou",
+    badges: [],
+    synonyms: [
+      "restauração caiu", "restauracao caiu", "obturação caiu", "obturacao caiu",
+      "restauração soltou", "restauracao soltou", "restauração descolou",
+      "restauracao descolou", "perdeu a restauração", "perdeu a restauracao",
+      "caiu a resina", "caiu a obturação", "caiu a obturacao",
+      "restauração fraturou", "restauracao fraturou", "restauração quebrou",
+      "restauracao quebrou", "resina quebrou", "resina lascou",
+      "lascou a restauração", "lascou a restauracao"
     ]
   },
   protese_removivel: {
@@ -147,6 +170,7 @@ var CLINICAL_SEARCH_INTENTS = {
 
 var CLINICAL_SEARCH_RELATIONS = {
   sensibilidade_cervical: [
+    {type: "conduct", id: "dente-sensivel", weight: 180},
     {type: "protocol", id: "recessao-gengival", weight: 150},
     {type: "protocol", id: "dessensibilizante", weight: 130},
     {type: "protocol", id: "ajuste-oclusal-restauracao", weight: 46},
@@ -158,6 +182,13 @@ var CLINICAL_SEARCH_RELATIONS = {
     {type: "protocol", id: "pulpite-reversivel", weight: 84},
     {type: "protocol", id: "medicacao", weight: 78, badges: ["Prescrição"]},
     {type: "prescription", id: "abscesso-periapical", weight: 62, badges: ["Prescrição"]}
+  ],
+  dor_mastigar: [
+    {type: "conduct", id: "dor-ao-mastigar", weight: 170},
+    {type: "conduct", id: "restauracao-ficou-alta", weight: 132},
+    {type: "protocol", id: "ajuste-oclusal-restauracao", weight: 102},
+    {type: "protocol", id: "pulpite-reversivel", weight: 64},
+    {type: "protocol", id: "pulpite-irreversivel", weight: 60, badges: ["Urgência"]}
   ],
   infeccao: [
     {type: "protocol", id: "abscesso-drenagem", weight: 96, badges: ["Urgência"]},
@@ -179,11 +210,25 @@ var CLINICAL_SEARCH_RELATIONS = {
     {type: "protocol", id: "nova-coroa", weight: 64}
   ],
   acabamento_proximal: [
+    {type: "conduct", id: "fio-dental-nao-passa", weight: 150},
+    {type: "conduct", id: "contato-proximal-aberto", weight: 132},
     {type: "protocol", id: "acabamento-proximal-restauracao", weight: 106},
     {type: "protocol", id: "restauracao-proximal-classe-ii", weight: 104}
   ],
   ajuste_oclusal_restauracao: [
+    {type: "conduct", id: "restauracao-ficou-alta", weight: 156},
+    {type: "conduct", id: "dor-ao-mastigar", weight: 124},
     {type: "protocol", id: "ajuste-oclusal-restauracao", weight: 108}
+  ],
+  restauracao_solto_fratura: [
+    {type: "conduct", id: "restauracao-caiu", weight: 172},
+    {type: "conduct", id: "restauracao-fraturou", weight: 166},
+    {type: "conduct", id: "dente-sensivel", weight: 80},
+    {type: "conduct", id: "dor-ao-mastigar", weight: 76},
+    {type: "protocol", id: "trocar-rest", weight: 96},
+    {type: "protocol", id: "pino-nucleo", weight: 58},
+    {type: "protocol", id: "coroa-direta", weight: 54},
+    {type: "protocol", id: "extracao-simples", weight: 42}
   ],
   protese_removivel: [
     {type: "conduct", id: "protese-total-machuca", weight: 90},

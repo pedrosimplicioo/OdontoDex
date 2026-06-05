@@ -87,6 +87,8 @@ function detectClinicalIntents(query){
         score+=best;
       });
     });
+    if(id==="restauracao_solto_fratura"&&!/\b(caiu|soltou|descolou|perdeu|saiu|quebrou|fraturou|lascou|rachou|trincou|resina|obturacao)\b/.test(normalized))score=0;
+    if(id==="ajuste_oclusal_restauracao"&&/\b(alta|alto|mordendo|batendo|oclusao|hiperoclusao|prematuro)\b/.test(normalized))score+=80;
     return {id,label:intent.label,score,badges:intent.badges||[]};
   }).filter(intent=>intent.score>=32).sort((a,b)=>b.score-a.score);
 }
@@ -110,7 +112,7 @@ function clinicalTitleForItem(type,id){
 function clinicalSearchTextForItem(type,id){
   if(type==="conduct"){
     const card=QUICK_CONDUCT_CARDS[id]||{};
-    return [card.title,card.subtitle,card.quick,...(card.synonyms||[]),...(card.behind||[]),...(card.changes||[])].join(" ");
+    return [card.title,card.subtitle,card.intent,card.quick,...(card.synonyms||[]),...(card.behind||[]),...(card.changes||[])].join(" ");
   }
   if(type==="protocol"){
     const p=DATA.protocols[id]||{};
@@ -294,7 +296,7 @@ function clinicalIntentSearch(query,options){
 
   const intentIds=intents.map(intent=>intent.id);
   if(intentIds.length){
-    const exclusiveIntentIds=["sensibilidade_cervical","acabamento_proximal","ajuste_oclusal_restauracao"];
+    const exclusiveIntentIds=["sensibilidade_cervical","acabamento_proximal","ajuste_oclusal_restauracao","dor_mastigar","restauracao_solto_fratura"];
     if(exclusiveIntentIds.includes(intents[0]?.id)){
       const topIntentId=intents[0].id;
       const allowed=new Set(((CLINICAL_SEARCH_RELATIONS&&CLINICAL_SEARCH_RELATIONS[topIntentId])||[]).map(rel=>rel.type+":"+rel.id));
@@ -316,6 +318,7 @@ function clinicalIntentSearch(query,options){
         return {...item,score:item.score+300,badges:clinicalMergeBadges(item.badges,["Anticoagulado","Urgência"])};
       }
       if(intentIds.includes("sensibilidade_cervical")){
+        if(item.type==="conduct"&&item.id==="dente-sensivel")return {...item,score:item.score+320};
         if(item.type==="protocol"&&item.id==="recessao-gengival")return {...item,score:item.score+260};
         if(item.type==="protocol"&&item.id==="dessensibilizante")return {...item,score:item.score+180};
         if(item.type==="protocol"&&item.id==="ajuste-oclusal-restauracao")return {...item,score:item.score-60};

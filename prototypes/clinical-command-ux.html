@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OdontoDex - Simulação UX Clínica</title>
+  <link rel="stylesheet" href="clinical-command-ux.css">
+</head>
+<body>
+  <main class="phone">
+    <header class="topbar">
+      <div>
+        <span class="status-dot"></span>
+        <span class="status-text">Pronto para consulta</span>
+        <h1>Olá, Dr. Pedro!</h1>
+        <p>Descreva o problema do paciente.</p>
+      </div>
+      <button class="settings" type="button" aria-label="Configurações">DP</button>
+    </header>
+
+    <section class="command">
+      <label for="clinical-search">Campo de comando clínico</label>
+      <div class="searchbox">
+        <span class="searchmark"></span>
+        <input id="clinical-search" type="search" value="dor ao mastigar" autocomplete="off">
+        <button id="clear-search" type="button" aria-label="Limpar">×</button>
+      </div>
+      <div class="results" id="results"></div>
+    </section>
+
+    <section class="context-strip">
+      <button type="button" data-query="coroa caiu">Coroa caiu</button>
+      <button type="button" data-query="fio dental não passa">Fio não passa</button>
+      <button type="button" data-query="dente sensível">Dente sensível</button>
+      <button type="button" data-query="grávida pode tomar">Gestante</button>
+    </section>
+
+    <section class="quick-panel">
+      <div class="section-heading">
+        <span>Problemas frequentes</span>
+        <small>toque para simular</small>
+      </div>
+      <div class="problem-grid">
+        <button type="button" data-query="restauração caiu">
+          <span class="problem-icon">R</span>
+          <strong>Restauração caiu</strong>
+        </button>
+        <button type="button" data-query="dor ao mastigar">
+          <span class="problem-icon">D</span>
+          <strong>Dor ao mastigar</strong>
+        </button>
+        <button type="button" data-query="fio dental não passa">
+          <span class="problem-icon">F</span>
+          <strong>Fio dental não passa</strong>
+        </button>
+        <button type="button" data-query="dente sensível">
+          <span class="problem-icon">S</span>
+          <strong>Dente sensível</strong>
+        </button>
+      </div>
+    </section>
+
+    <section class="session-memory">
+      <div class="section-heading">
+        <span>Último raciocínio</span>
+        <small>continuidade</small>
+      </div>
+      <button class="memory-card" type="button" id="resume-case">
+        <span class="memory-title">Dente sensível</span>
+        <span class="memory-path">Conduta rápida → Pulpite reversível → Ajuste oclusal</span>
+      </button>
+    </section>
+  </main>
+
+  <div class="sheet-layer" id="sheet-layer" aria-hidden="true">
+    <button class="backdrop" id="backdrop" type="button" aria-label="Fechar"></button>
+    <article class="sheet">
+      <div class="handle"></div>
+      <button class="sheet-back" id="sheet-back" type="button" aria-label="Voltar">←</button>
+      <button class="sheet-close" id="sheet-close" type="button" aria-label="Fechar">×</button>
+      <span class="sheet-kind" id="sheet-kind">Conduta rápida</span>
+      <h2 id="sheet-title">Dor ao mastigar</h2>
+
+      <div class="decision-card">
+        <span class="decision-label">Provavelmente é</span>
+        <p id="sheet-main">Contato prematuro, trinca ou dor pulpar. Primeiro separe se vem da mordida ou do dente.</p>
+      </div>
+
+      <div class="sheet-actions">
+        <button class="primary-action" type="button">Abrir protocolo indicado</button>
+        <button class="secondary-action" type="button">Ver causas possíveis</button>
+      </div>
+
+      <div class="mini-section">
+        <h3>Muda a conduta se</h3>
+        <ul id="sheet-alerts"></ul>
+      </div>
+
+      <div class="mini-section">
+        <h3>Próximos caminhos</h3>
+        <div class="path-list" id="sheet-paths"></div>
+      </div>
+    </article>
+  </div>
+
+  <script src="clinical-command-ux.js"></script>
+</body>
+</html>

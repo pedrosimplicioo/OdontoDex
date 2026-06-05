@@ -3,6 +3,67 @@ let searchSheetReturnInputId = "home-search-input";
 let searchSheetStack = [];
 let persistedHomeSearchValue = "";
 let searchLogTimer = null;
+let homeSearchPlaceholderTimer = null;
+let homeSearchPlaceholderIndex = 0;
+
+const HOME_SEARCH_PLACEHOLDERS = [
+  "Ex.: A coroa caiu",
+  "Ex.: Gestante pode tomar...",
+  "Ex.: Anestesia não pega",
+  "Ex.: Sangramento",
+  "Ex.: Dente sensível",
+  "Ex.: Paciente anticoagulado...",
+  "Ex.: Fio dental não passa",
+  "Ex.: Dor ao mastigar"
+];
+
+function updateHomeSearchPlaceholder(){
+  const input = document.getElementById("home-search-input");
+  if(!input || input.value) return;
+  input.placeholder = HOME_SEARCH_PLACEHOLDERS[homeSearchPlaceholderIndex % HOME_SEARCH_PLACEHOLDERS.length];
+  homeSearchPlaceholderIndex++;
+}
+
+function initHomeSearchPlaceholderRotation(){
+  if(homeSearchPlaceholderTimer) return;
+  updateHomeSearchPlaceholder();
+  homeSearchPlaceholderTimer = setInterval(updateHomeSearchPlaceholder, 4200);
+}
+
+function syncHomeHeaderCompact(){
+  const header = document.getElementById("main-header");
+  const body = document.getElementById("home-body");
+  if(!header || !body) return;
+  header.classList.toggle("home-compact", body.scrollTop > 18);
+}
+
+function initHomeHeaderBehavior(){
+  const body = document.getElementById("home-body");
+  if(!body) return;
+  body.addEventListener("scroll", syncHomeHeaderCompact, { passive: true });
+  syncHomeHeaderCompact();
+}
+
+function setHomeSearchFocusMode(active){
+  const appScreen = document.getElementById("screen-app");
+  if(appScreen) appScreen.classList.toggle("home-search-focused", !!active);
+}
+
+function handleHomeSearchBlur(){
+  setTimeout(() => {
+    const active = document.activeElement;
+    const searchWrap = document.querySelector(".home-search-wrap");
+    if(searchWrap && active && searchWrap.contains(active)) return;
+    setHomeSearchFocusMode(false);
+  }, 120);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  initHomeSearchPlaceholderRotation();
+  initHomeHeaderBehavior();
+  const input = document.getElementById("home-search-input");
+  if(input) input.addEventListener("blur", handleHomeSearchBlur);
+});
 
 function createHomeSearchButton(title,kind,onClick,badges){
   const btn=document.createElement("button");
@@ -77,6 +138,7 @@ function scoreSearchSuggestion(item,query){
     item.title,
     item.kind,
     item.subtitle,
+    item.intent,
     item.quick,
     getSearchProtocolTipText(item.tip),
     ...(item.synonyms||[]),
@@ -108,6 +170,7 @@ function getRelatedSearchSuggestions(query,limit){
       title:card.title,
       kind:"Conduta rápida",
       subtitle:card.subtitle,
+      intent:card.intent,
       quick:card.quick,
       synonyms:card.synonyms,
       behind:card.behind,
@@ -173,6 +236,7 @@ function renderClinicalSearchResults(container,result,returnInputId){
 }
 
 function openClinicalSearchItem(item,returnInputId){
+  setHomeSearchFocusMode(false);
   searchSheetReturnInputId=returnInputId||"home-search-input";
   if(item.type==="conduct")openSearchCondutaSheet(item.id);
   else if(item.type==="prescription")openSearchPrescriptionSheet(item.id,{profile:item.profile,resetStack:true});
@@ -210,6 +274,7 @@ function doHomeSearch(q){
   }
   conductFound.forEach(card=>{
     const btn=createHomeSearchButton(card.title,"Conduta rápida",()=>{
+      setHomeSearchFocusMode(false);
       searchSheetReturnInputId="home-search-input";
       openSearchCondutaSheet(card.id);
     });
@@ -217,6 +282,7 @@ function doHomeSearch(q){
   });
   found.forEach(p=>{
     const btn=createHomeSearchButton(p.title,"Protocolo",()=>{
+      setHomeSearchFocusMode(false);
       searchSheetReturnInputId="home-search-input";
       openSearchProtocolSheet(p.id);
     });
@@ -225,6 +291,7 @@ function doHomeSearch(q){
 }
 
 function showHomeResults(){
+  setHomeSearchFocusMode(true);
   const inp=document.getElementById("home-search-input");
   if(inp&&inp.value.length>=2)doHomeSearch(inp.value);
 }
@@ -238,6 +305,7 @@ function clearHomeSearch(options){
   if(inp&&!shouldPreserve)inp.value="";
   if(resDiv)resDiv.style.display="none";
   if(clearBtn&&!shouldPreserve)clearBtn.style.display="none";
+  if(!shouldPreserve) setHomeSearchFocusMode(false);
 }
 
 function restoreHomeSearch(value){
@@ -254,6 +322,7 @@ function restoreHomeSearch(value){
 function hideHomeSearchResults(){
   const resDiv=document.getElementById("home-search-results");
   if(resDiv)resDiv.style.display="none";
+  setHomeSearchFocusMode(false);
 }
 
 function renderSearchSheetSections(sections){
@@ -354,6 +423,12 @@ function openSearchCondutaSheet(id){
     return;
   }
   currentCondutaId=id;
+  const isFav=typeof isFavorite==="function"&&isFavorite("conduct",id);
+  const favoriteControl=`
+    <button class="search-sheet-fav-btn ${isFav?"active":""}" data-fav-type="conduct" data-fav-id="${escapeHtml(id)}" onclick="toggleTypedFavorite('conduct','${id}')" aria-label="Favoritar conduta">
+      ${isFav?'<i class="ti ti-star-filled"></i>':'<i class="ti ti-star"></i>'}
+    </button>
+  `;
   const protocolButtons=(card.protocols||[]).map(proto=>`
     <button class="search-sheet-link-btn" onclick="openSearchProtocolSheet('${proto.id}')">
       <i class="ti ti-clipboard-heart"></i><span>${escapeHtml(proto.label)}</span>
@@ -380,13 +455,23 @@ function openSearchCondutaSheet(id){
   `;
   const introSections=renderSearchSheetSections([
     {title:"Resposta rápida",items:[`<div class="search-sheet-text">${renderCondutaSmartText(card.quick)}</div>`]},
-    {title:"Quando isso muda?",items:[`<div class="search-sheet-text">${renderCondutaSmartList(card.changes||[])}</div>`]}
+    {title:"Quando isso muda?",items:[`<div class="search-sheet-text">${renderCondutaSmartList(card.changes||[])}</div>`]},
+    {
+      title:card.tool?.title||"Ferramenta auxiliar",
+      icon:card.tool?.icon||"ti-tool",
+      items:card.tool?[`
+        <div class="search-sheet-text">${escapeHtml((parseCondutaLine(card.tool.text)||{text:card.tool.text||""}).text)}</div>
+        <button class="search-sheet-link-btn" onclick="closeSearchBottomSheet();openPulpiteAssistantFromCard();">
+          <i class="ti ti-brain"></i><span>${escapeHtml(card.tool.button||"Usar")}</span>
+        </button>
+      `]:[]
+    }
   ]);
   const actionSections=renderSearchSheetSections([
     {title:"Como resolver",items:protocolButtons},
     {title:"Problemas relacionados",items:relatedButtons}
   ]);
-  const content=introSections+behindBlock+actionSections;
+  const content=favoriteControl+introSections+behindBlock+actionSections;
   openSearchBottomSheet("Conduta rápida",card.title,content,{resetStack:true});
 }
 
