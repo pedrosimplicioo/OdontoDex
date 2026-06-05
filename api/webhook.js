@@ -42,6 +42,12 @@ function validateMercadoPagoSignature(req) {
     throw error;
   }
 
+  if (!/^[a-f0-9]{64}$/i.test(signature.v1)) {
+    const error = new Error("Assinatura do webhook invÃ¡lida");
+    error.status = 403;
+    throw error;
+  }
+
   const manifest = `id:${dataId};request-id:${requestId};ts:${signature.ts};`;
   const expected = crypto.createHmac("sha256", secret).update(manifest).digest("hex");
   const expectedBuffer = Buffer.from(expected, "hex");
@@ -88,11 +94,13 @@ async function processApprovedPayment(paymentId, payment) {
     if (eventDoc.exists) return false;
 
     const pixDoc = await tx.get(pixRef);
+    const premiumOrigem = pixDoc.exists ? "pix" : "pagamento";
     tx.set(eventRef, {
       type: "payment",
       paymentId: String(paymentId),
       uid,
       status: payment.status,
+      premiumOrigem,
       processedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -100,6 +108,7 @@ async function processApprovedPayment(paymentId, payment) {
       premium: true,
       premiumExpira: admin.firestore.Timestamp.fromDate(expiresAt),
       premiumAtivadoEm: admin.firestore.FieldValue.serverTimestamp(),
+      premiumOrigem,
       ultimoPagamentoId: String(paymentId),
     });
 
@@ -143,8 +152,16 @@ async function processAuthorizedSubscriptionPayment(invoiceId, invoice) {
   }
 
   const userDoc = snapshot.docs[0];
+  const userData = userDoc.data() || {};
   const eventRef = db.collection("webhook_events").doc(`subscription_${invoiceId}`);
-  const novaExpiracao = new Date();
+  const now = new Date();
+  const atualExpira = userData?.premiumExpira?.toDate
+    ? userData.premiumExpira.toDate()
+    : (userData?.premiumExpira ? new Date(userData.premiumExpira) : null);
+  const baseExpiracao = atualExpira && !Number.isNaN(atualExpira.getTime()) && atualExpira > now
+    ? atualExpira
+    : now;
+  const novaExpiracao = new Date(baseExpiracao);
   novaExpiracao.setDate(novaExpiracao.getDate() + 30);
 
   const processed = await db.runTransaction(async tx => {
@@ -163,6 +180,7 @@ async function processAuthorizedSubscriptionPayment(invoiceId, invoice) {
     tx.update(userDoc.ref, {
       premium: true,
       premiumExpira: admin.firestore.Timestamp.fromDate(novaExpiracao),
+      premiumOrigem: "assinatura",
       ultimoPagamentoId: String(invoiceId),
       proximaCobranca: admin.firestore.Timestamp.fromDate(novaExpiracao),
     });

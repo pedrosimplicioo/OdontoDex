@@ -176,6 +176,7 @@ async function gwConfirmar() {
       acessosPorDia: {},
       premium: true,
       premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira),
+      premiumOrigem: 'trial',
       trialAtivado: true
     });
     window.userIsPremium = true;
@@ -232,6 +233,7 @@ async function doRegister(){
         acessosPorDia: {},
         premium: true,
         premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira),
+        premiumOrigem: 'trial',
         trialAtivado: true
       });
     }catch(e){console.log('Firestore indisponível',e);}

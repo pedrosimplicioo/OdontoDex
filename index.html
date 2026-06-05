@@ -2,7 +2,7 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#7C3FA0">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -216,7 +216,7 @@
       <span class="home-prescricoes-label">Abscesso periodontal</span>
     </div>
     <div class="home-prescricoes-item" onclick="event.stopPropagation();abrirPrescricao('abscesso-periapical')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
-      <span class="home-mini-icon home-icon-red"><i class="ti ti-microscope"></i></span>
+      <span class="home-mini-icon home-icon-purple"><i class="ti ti-microscope"></i></span>
       <span class="home-prescricoes-label">Abscesso periapical</span>
     </div>
     <div class="home-prescricoes-item" onclick="event.stopPropagation();abrirPrescricao('alveolite')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
@@ -263,13 +263,13 @@
 </div>
 <!-- PRESCRIÇÕES -->
 <div class="screen" id="screen-prescricoes">
-  <div class="top-bar">
+  <div class="top-bar top-bar-with-tabs">
     <button class="back-btn" onclick="goBackToLastScreen()">←</button>
     <span class="top-title"><i class="ti ti-pill"></i> Prescrições</span>
     <div style="width:36px"></div>
   </div>
   <!-- ABAS -->
-  <div style="display:flex;border-bottom:1px solid #E2E8F0;background:#fff;" id="prescricoes-tabs">
+  <div class="sticky-tabs" style="display:flex;border-bottom:1px solid #E2E8F0;background:#fff;" id="prescricoes-tabs">
     <button id="tab-situacoes" onclick="switchPrescricaoTab('situacoes')" style="flex:1;padding:12px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;border-bottom:2px solid #7C3FA0;color:#7C3FA0;font-family:inherit;">Situações</button>
     <button id="tab-especiais" onclick="switchPrescricaoTab('especiais')" style="flex:1;padding:12px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:#94A3B8;font-family:inherit;">Pacientes especiais</button>
   </div>
@@ -301,7 +301,32 @@
           <div class="cfg-user-email" id="cfg-user-email">?</div>
         </div>
       </div>
-      <span id="cfg-plan-badge" class="cfg-plan-badge">Gratuito</span>
+    </div>
+    <div class="cfg-subscription-card" id="cfg-subscription-card">
+      <button class="cfg-subscription-summary" id="cfg-subscription-toggle" type="button" onclick="toggleSubscriptionDetails()" aria-expanded="false">
+        <div class="cfg-subscription-icon" id="cfg-subscription-icon"><i class="ti ti-credit-card"></i></div>
+        <div class="cfg-subscription-copy">
+          <div class="cfg-subscription-kicker" id="cfg-subscription-kicker">Minha assinatura</div>
+          <div class="cfg-subscription-title" id="cfg-subscription-title">Carregando...</div>
+          <div class="cfg-subscription-short" id="cfg-subscription-short">Verificando acesso</div>
+        </div>
+        <span class="cfg-subscription-chevron"><i class="ti ti-chevron-down"></i></span>
+      </button>
+      <div class="cfg-subscription-details" id="cfg-subscription-details">
+        <p id="cfg-subscription-text">Carregando informações da assinatura.</p>
+        <div class="cfg-subscription-grid">
+          <div>
+            <span>Validade</span>
+            <strong id="cfg-subscription-validity">—</strong>
+          </div>
+          <div>
+            <span>Renovação</span>
+            <strong id="cfg-subscription-renewal">—</strong>
+          </div>
+        </div>
+        <button class="cfg-subscription-action" id="cfg-subscription-action" type="button" onclick="handleSubscriptionAction()">Gerenciar</button>
+        <p class="cfg-subscription-note" id="cfg-subscription-note">O pagamento usa o fluxo seguro do OdontoDex.</p>
+      </div>
     </div>
     <!-- Perfil -->
     <div class="cfg-section">
@@ -337,7 +362,7 @@
     </div>
 <!-- Cancelamento Premium (discreto, sem borda, sem ícone) -->
 <div id="cancel-premium-section" style="display: none; text-align: center; margin-top: 24px; margin-bottom: 16px;">
-  <button onclick="openCancelModal()" style="background: none; border: none; font-size: 12px; color: #94A3B8; cursor: pointer; font-family: inherit; text-decoration: none; opacity: 0.6;">
+  <button id="cancel-premium-btn" onclick="openCancelModal()" style="background: none; border: none; font-size: 12px; color: #94A3B8; cursor: pointer; font-family: inherit; text-decoration: none; opacity: 0.6;">
     Cancelar assinatura
   </button>
 </div>
@@ -596,10 +621,10 @@
     <!-- ETAPA 3: Confirmação -->
     <div id="cancel-step-3" style="display:none;text-align:center">
       <div style="font-size:48px;margin-bottom:16px">✓</div>
-      <h2 class="modal-title" style="font-size:19px;margin-bottom:8px">Assinatura cancelada</h2>
-      <p class="modal-sub" style="margin-bottom:8px">Seu acesso premium continua até</p>
+      <h2 class="modal-title" id="cancel-result-title" style="font-size:19px;margin-bottom:8px">Assinatura cancelada</h2>
+      <p class="modal-sub" id="cancel-result-subtitle" style="margin-bottom:8px">Seu acesso premium continua até</p>
       <div id="cancel-expiry-date" style="font-size:18px;font-weight:800;color:#7C3FA0;margin-bottom:16px">—</div>
-      <p class="modal-sub" style="margin-bottom:24px;font-size:13px">Depois disso, você volta ao plano gratuito automaticamente. Se mudar de ideia, é só assinar novamente.</p>
+      <p class="modal-sub" id="cancel-result-note" style="margin-bottom:24px;font-size:13px">Depois disso, você volta ao plano gratuito automaticamente. Se mudar de ideia, é só assinar novamente.</p>
       <button onclick="hideCancelModal()" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;font-family:inherit">
         Entendido
       </button>

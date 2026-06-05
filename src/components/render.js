@@ -371,7 +371,7 @@ function renderSituations(){
                 </div>
               </div>
               <div style="padding:0 12px 10px;">
-                <div class="fw-sec-sub" id="pulpite-sit-body" style="color:#0F172A;line-height:1.5;"></div>
+                <div class="fw-sec-sub pulpite-widget-body" id="pulpite-sit-body" style="line-height:1.5;"></div>
               </div>
               <div style="padding:0 12px 12px;display:flex;flex-direction:column;gap:6px;">
                 <button id="pulpite-sit-cta" style="width:100%;border:none;border-radius:20px;padding:10px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;"></button>

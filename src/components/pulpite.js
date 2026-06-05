@@ -83,9 +83,9 @@ function mostrarResultadoPulpiteSit(){
   icon.innerHTML='<i class="ti '+c.icon+'"></i>';
   badge.style.cssText='font-size:11px;font-weight:700;padding:3px 10px;border-radius:30px;display:inline-block;margin-bottom:5px;background:'+c.badgeBg+';color:'+c.badgeColor+';';
   badge.textContent=c.badge;
-  title.style.cssText='font-size:15px;font-weight:700;color:#0F172A;';
+  title.style.cssText='font-size:15px;font-weight:700;color:'+(dk?c.titleColor:'#0F172A')+';';
   title.textContent=c.title;
-  body.style.cssText='font-size:13px;line-height:1.6;margin-bottom:14px;color:#1E293B;';
+  body.style.cssText='font-size:13px;line-height:1.6;margin-bottom:14px;color:'+(dk?'#CBD5E1':'#1E293B')+';';
   body.textContent=c.body;
   cta.style.cssText='width:100%;border:none;border-radius:30px;padding:13px;font-size:14px;font-weight:800;cursor:pointer;margin-bottom:8px;font-family:inherit;background:'+c.ctaBg+';color:'+c.ctaColor+';';
   cta.textContent=c.ctaText;
@@ -186,6 +186,19 @@ function mostrarResultadoPulpite(){
   title.textContent = c.title;
   body.style.cssText = 'font-size:13px;line-height:1.5;color:'+c.color+';';
   body.textContent = c.body;
+  if(document.body.classList.contains('dark')){
+    const darkColors = {
+      reversivel:{bg:'rgba(34,197,94,0.12)',color:'#BBF7D0',border:'rgba(34,197,94,0.30)'},
+      transicao:{bg:'rgba(245,158,11,0.12)',color:'#FDE68A',border:'rgba(245,158,11,0.30)'},
+      irreversivel:{bg:'rgba(248,113,113,0.12)',color:'#FECACA',border:'rgba(248,113,113,0.34)'}
+    };
+    const dc = darkColors[tipo];
+    res.style.background = dc.bg;
+    res.style.borderColor = dc.border;
+    badge.style.color = dc.color;
+    title.style.color = dc.color;
+    body.style.color = dc.color;
+  }
   
   // NOVO: Registrar uso do diagnóstico
   if(currentUser) {

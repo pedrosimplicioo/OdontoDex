@@ -1,4 +1,4 @@
-const { admin, db, requireSameUser, sendAuthError } = require("./_auth");
+﻿const { admin, db, requireSameUser, sendAuthError } = require("./_auth");
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
@@ -15,6 +15,31 @@ module.exports = async (req, res) => {
     const uid = decodedToken.uid;
     if (!token) return res.status(400).json({ error: "Token obrigatório" });
 
+    const userRef = db.collection("users").doc(uid);
+    const userDoc = await userRef.get();
+    const userData = userDoc.exists ? userDoc.data() : {};
+    const agora = new Date();
+    const atualExpira = userData?.premiumExpira?.toDate
+      ? userData.premiumExpira.toDate()
+      : (userData?.premiumExpira ? new Date(userData.premiumExpira) : null);
+    const hasFutureAccess = userData?.premium === true
+      && atualExpira
+      && !Number.isNaN(atualExpira.getTime())
+      && atualExpira > agora;
+    const subscriptionStartsAt = hasFutureAccess ? atualExpira : agora;
+    const nextExpiry = new Date(subscriptionStartsAt);
+    nextExpiry.setDate(nextExpiry.getDate() + 30);
+    const autoRecurring = {
+      frequency: 1,
+      frequency_type: "months",
+      transaction_amount: 9.90,
+      currency_id: "BRL",
+    };
+
+    if (hasFutureAccess) {
+      autoRecurring.start_date = subscriptionStartsAt.toISOString();
+    }
+
     const mpRes = await fetch("https://api.mercadopago.com/preapproval", {
       method: "POST",
       headers: {
@@ -27,52 +52,65 @@ module.exports = async (req, res) => {
         external_reference: uid,
         payer_email: email || decodedToken.email,
         card_token_id: token,
-        auto_recurring: {
-          frequency: 1,
-          frequency_type: "months",
-          transaction_amount: 9.90,
-          currency_id: "BRL",
-        },
+        auto_recurring: autoRecurring,
         back_url: "https://www.odontodex.com.br",
         status: "authorized",
       }),
     });
     const assinatura = await mpRes.json();
-    console.log("Preapproval response:", { id: assinatura.id, status: assinatura.status, uid });
+    console.log("Preapproval response:", {
+      id: assinatura.id,
+      status: assinatura.status,
+      uid,
+      startsAt: subscriptionStartsAt.toISOString(),
+      preservesFutureAccess: hasFutureAccess,
+    });
     if (!assinatura.id) {
       throw new Error("Falha ao criar assinatura: " + JSON.stringify(assinatura));
     }
 
-    const agora = new Date();
-    const expira = new Date(agora);
-    expira.setDate(expira.getDate() + 30);
-
-    await db.collection("users").doc(uid).update({
+    const updates = {
       premium: true,
-      premiumExpira: admin.firestore.Timestamp.fromDate(expira),
       premiumAtivadoEm: admin.firestore.Timestamp.fromDate(agora),
+      premiumOrigem: "assinatura",
       ultimoPagamentoId: assinatura.id,
       assinaturaId: assinatura.id,
       assinaturaStatus: "authorized",
-      proximaCobranca: admin.firestore.Timestamp.fromDate(expira),
-    });
+      proximaCobranca: admin.firestore.Timestamp.fromDate(subscriptionStartsAt),
+    };
+
+    if (!hasFutureAccess) {
+      updates.premiumExpira = admin.firestore.Timestamp.fromDate(nextExpiry);
+      updates.proximaCobranca = admin.firestore.Timestamp.fromDate(nextExpiry);
+    }
+
+    await userRef.update(updates);
 
     if (cupom) {
-      await db.collection("conversoes_cupom").add({
-        cupom,
-        userId: uid,
-        userEmail: email || decodedToken.email || "",
-        valor: 3.00,
-        timestamp: admin.firestore.FieldValue.serverTimestamp(),
-      });
-      await db.collection("CUPONS").doc(cupom).update({
-        conversoes: admin.firestore.FieldValue.increment(1),
+      const conversionRef = db.collection("conversoes_cupom").doc(`subscription_${assinatura.id}`);
+      await db.runTransaction(async tx => {
+        const conversionDoc = await tx.get(conversionRef);
+        if (conversionDoc.exists) return;
+
+        tx.set(conversionRef, {
+          cupom,
+          userId: uid,
+          userEmail: email || decodedToken.email || "",
+          valor: 3.00,
+          assinaturaId: assinatura.id,
+          timestamp: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        tx.update(db.collection("CUPONS").doc(cupom), {
+          conversoes: admin.firestore.FieldValue.increment(1),
+        });
       });
     }
 
     return res.status(200).json({
       status: "authorized",
       assinaturaId: assinatura.id,
+      startsAt: subscriptionStartsAt.toISOString(),
+      preservesFutureAccess: hasFutureAccess,
     });
   } catch (e) {
     console.error("Erro create-subscription:", e);

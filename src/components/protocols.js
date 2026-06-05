@@ -92,17 +92,17 @@ function renderProtocol(id){
       <div id="pulpite-widget-content" style="display:none;">
         <div id="pulpite-quiz">
           <div style="display:flex;gap:4px;margin-bottom:10px;" id="pulpite-progress"></div>
-          <div style="background:var(--color-background-secondary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px 14px;">
-            <div style="font-size:11px;color:var(--color-text-secondary);margin-bottom:6px;" id="pulpite-perg-num"></div>
-            <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);margin-bottom:10px;" id="pulpite-perg-text"></div>
+          <div class="pulpite-widget-question">
+            <div class="pulpite-widget-num" id="pulpite-perg-num"></div>
+            <div class="pulpite-widget-text" id="pulpite-perg-text"></div>
             <div style="display:flex;flex-direction:column;gap:6px;" id="pulpite-opcoes"></div>
           </div>
         </div>
-        <div id="pulpite-resultado" style="display:none;border-radius:var(--border-radius-md);padding:12px 14px;margin-top:8px;">
-          <div style="font-size:11px;font-weight:600;margin-bottom:4px;" id="pulpite-res-badge"></div>
-          <div style="font-size:14px;font-weight:500;margin-bottom:6px;" id="pulpite-res-title"></div>
-          <div style="font-size:13px;line-height:1.5;" id="pulpite-res-body"></div>
-          <button onclick="resetPulpiteQuiz()" style="margin-top:10px;background:none;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:6px 12px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;width:100%;">Recomeçar diagnóstico</button>
+        <div id="pulpite-resultado" class="pulpite-widget-result" style="display:none;">
+          <div class="pulpite-widget-badge" id="pulpite-res-badge"></div>
+          <div class="pulpite-widget-title" id="pulpite-res-title"></div>
+          <div class="pulpite-widget-body" id="pulpite-res-body"></div>
+          <button onclick="resetPulpiteQuiz()" class="pulpite-widget-reset">Recomeçar diagnóstico</button>
         </div>
       </div>
     </div>`:''}

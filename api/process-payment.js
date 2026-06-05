@@ -31,18 +31,42 @@ module.exports = async (req, res) => {
     console.log("Payment status:", { status: payment.status, paymentId: payment.id, uid });
 
     if (payment.status === "approved") {
+      if (!payment.id) throw new Error("Pagamento aprovado sem ID retornado pelo Mercado Pago");
       const agora = new Date();
       const expira = new Date(agora);
       expira.setDate(expira.getDate() + 30);
+      const paymentId = String(payment.id);
+      const eventRef = db.collection("webhook_events").doc(`direct_payment_${paymentId}`);
+      const userRef = db.collection("users").doc(uid);
 
-      await db.collection("users").doc(uid).update({
-        premium: true,
-        premiumExpira: admin.firestore.Timestamp.fromDate(expira),
-        premiumAtivadoEm: admin.firestore.Timestamp.fromDate(agora),
-        ultimoPagamentoId: payment.id,
+      const processed = await db.runTransaction(async tx => {
+        const eventDoc = await tx.get(eventRef);
+        if (eventDoc.exists) return false;
+
+        tx.set(eventRef, {
+          type: "direct_payment",
+          paymentId,
+          uid,
+          status: payment.status,
+          processedAt: admin.firestore.FieldValue.serverTimestamp(),
+        });
+
+        tx.update(userRef, {
+          premium: true,
+          premiumExpira: admin.firestore.Timestamp.fromDate(expira),
+          premiumAtivadoEm: admin.firestore.Timestamp.fromDate(agora),
+          premiumOrigem: "pagamento",
+          ultimoPagamentoId: paymentId,
+        });
+
+        return true;
       });
 
-      console.log("Premium ativado por pagamento direto", { uid, paymentId: payment.id });
+      if (processed) {
+        console.log("Premium ativado por pagamento direto", { uid, paymentId });
+      } else {
+        console.log("Pagamento direto duplicado ignorado", { uid, paymentId });
+      }
     }
 
     return res.status(200).json({
