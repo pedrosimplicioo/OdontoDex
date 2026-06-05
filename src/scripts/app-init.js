@@ -27,6 +27,7 @@ auth.onAuthStateChanged(async(user) => {
         await db.collection('users').doc(user.uid).update({
           premium: true,
           premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira),
+          premiumOrigem: 'trial',
           trialAtivado: true
         });
         window.userIsPremium = true;

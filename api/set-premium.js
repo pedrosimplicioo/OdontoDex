@@ -17,6 +17,7 @@ module.exports = async (req, res) => {
       const docRef = db.collection("users").doc(uid);
       await docRef.update({ premium: false });
       await docRef.update({ ultimoPagamentoId: admin.firestore.FieldValue.delete() });
+      await docRef.update({ premiumOrigem: admin.firestore.FieldValue.delete() });
     } else {
       const expira = new Date();
       expira.setDate(expira.getDate() + (dias || 30));
@@ -24,6 +25,7 @@ module.exports = async (req, res) => {
         premium: true,
         premiumExpira: admin.firestore.Timestamp.fromDate(expira),
         premiumAtivadoEm: admin.firestore.FieldValue.serverTimestamp(),
+        premiumOrigem: "manual",
       };
       if ((dias || 30) <= 7) {
         updates.mensagemPendente = "trial_manual";

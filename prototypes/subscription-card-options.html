@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OdontoDex - Minha assinatura</title>
+  <link rel="stylesheet" href="subscription-card-options.css">
+</head>
+<body>
+  <main class="phone" id="phone">
+    <header class="top-bar">
+      <button class="back-btn" aria-label="Voltar">←</button>
+      <strong>Configurações</strong>
+      <button class="theme-btn" id="themeBtn" aria-label="Alternar tema">◐</button>
+    </header>
+
+    <section class="content">
+      <article class="profile-card">
+        <div class="profile-left">
+          <div class="plan-icon">DP</div>
+          <div>
+            <h1>Dr. Pedro</h1>
+            <p>pedrosimplicio.sousa@gmail.com</p>
+          </div>
+        </div>
+      </article>
+
+      <section class="section-label">Minha assinatura</section>
+
+      <article class="subscription-card" id="subscriptionCard">
+        <button class="sub-summary" id="subToggle" type="button" aria-expanded="false">
+          <div class="sub-icon" id="subIcon">↻</div>
+          <div class="sub-summary-text">
+            <div class="sub-kicker" id="subKicker">Renovação ativa</div>
+            <h2 id="subTitle">Premium mensal</h2>
+            <p id="subShort">Válido até 4 de julho</p>
+          </div>
+          <span class="sub-chevron" id="subChevron">⌄</span>
+        </button>
+
+        <div class="sub-details" id="subDetails">
+          <p id="subText">Sua assinatura renova automaticamente.</p>
+
+          <div class="sub-grid">
+            <div>
+              <span>Validade</span>
+              <strong id="subValidity">4 de julho de 2026</strong>
+            </div>
+            <div>
+              <span>Renovação</span>
+              <strong id="subRenewal">Ativa</strong>
+            </div>
+          </div>
+
+          <button class="sub-action" id="subAction">Cancelar renovação</button>
+          <p class="sub-note" id="subNote">Alterar a assinatura usa o fluxo seguro de pagamento do app.</p>
+        </div>
+      </article>
+
+      <div class="state-tabs" aria-label="Simular estados">
+        <button class="active" data-state="assinatura">Assinatura</button>
+        <button data-state="pix">Pix</button>
+        <button data-state="trial">Trial</button>
+        <button data-state="free">Free</button>
+        <button data-state="cancelada">Cancelada</button>
+      </div>
+
+      <section class="cfg-section">
+        <div class="cfg-row">
+          <div class="cfg-icon">✎</div>
+          <span>Editar nome</span>
+          <small>Pedro</small>
+        </div>
+        <div class="cfg-row">
+          <div class="cfg-icon">ID</div>
+          <span>Tratamento</span>
+          <small>Dr.</small>
+        </div>
+      </section>
+
+      <section class="cfg-section">
+        <div class="cfg-row danger">
+          <div class="cfg-icon">↪</div>
+          <span>Sair da conta</span>
+        </div>
+      </section>
+
+      <footer>odontodex · Versão 1.0</footer>
+    </section>
+  </main>
+
+  <script src="subscription-card-options.js"></script>
+</body>
+</html>

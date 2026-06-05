@@ -44,6 +44,7 @@ module.exports = async (req, res) => {
       paymentId: String(payment.id),
       uid,
       email: email || decodedToken.email || "",
+      premiumOrigem: "pix",
       cupom: cupom || null,
       criadoEm: admin.firestore.FieldValue.serverTimestamp(),
     });
