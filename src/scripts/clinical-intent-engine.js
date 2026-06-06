@@ -205,6 +205,43 @@ function clinicalScoreTextMatch(item,query){
   return score;
 }
 
+function clinicalQueryMode(query,intentIds){
+  const normalized=clinicalNormalize(query);
+  const hasProfile=/\b(gestante|gravida|lactante|crianca|infantil|pediatrico|anticoagulado|coagulopata|diabetico|hipertenso|asmatico|alergico|idoso)\b/.test(normalized);
+  const hasPrescription=/\b(remedio|medicamento|receita|prescricao|prescrever|tomar|nimesulida|ibuprofeno|amoxicilina|antibiotico|analgesico|antiinflamatorio|dipirona|paracetamol)\b/.test(normalized);
+  const hasTechnical=/\b(classe|moldagem|cimentacao|preparo|restauracao proximal|acabamento proximal|ajuste oclusal|isolamento|capeamento|pulpotomia|endodontia|exodontia|cirurgia|aumento de coroa|provisorio|provisoria|pino de fibra|nucleo|resina|protocolo|passo)\b/.test(normalized);
+  const hasProblem=/\b(caiu|soltou|saiu|quebrou|fraturou|lascou|rachou|nao entra|nao passa|rasga|desfia|dor|doendo|sensivel|sensibilidade|sangra|sangramento|inchado|abscesso|anestesia nao pega|nao anestesia|mastigar|morder|alto|batendo|travou|travado|perdeu)\b/.test(normalized);
+  if(hasProfile||intentIds.some(id=>["gestante","crianca","anticoagulado"].includes(id)))return "profile";
+  if(hasPrescription||intentIds.includes("prescricao"))return "prescription";
+  if(hasTechnical&&!hasProblem)return "protocol";
+  return "conduct";
+}
+
+function clinicalApplyPriority(item,mode,intentIds){
+  if(mode==="profile"){
+    if(item.type==="alert")return {...item,score:item.score+180};
+    if(item.type==="profile")return {...item,score:item.score+150};
+    if(item.type==="prescription")return {...item,score:item.score+90};
+    if(item.type==="conduct")return {...item,score:item.score+20};
+    return item;
+  }
+  if(mode==="prescription"){
+    if(item.type==="prescription")return {...item,score:item.score+180};
+    if(item.type==="alert"||item.type==="profile")return {...item,score:item.score+60};
+    if(item.type==="conduct")return {...item,score:item.score+25};
+    return item;
+  }
+  if(mode==="protocol"){
+    if(item.type==="protocol")return {...item,score:item.score+120};
+    if(item.type==="conduct")return {...item,score:item.score+35};
+    return item;
+  }
+  if(item.type==="conduct")return {...item,score:item.score+160};
+  if(item.type==="protocol")return {...item,score:item.score+10};
+  if(item.type==="prescription"&&!intentIds.includes("prescricao"))return {...item,score:item.score-20};
+  return item;
+}
+
 function clinicalTypeOrder(type,intentIds){
   if(type==="conduct")return 1;
   if(intentIds&&(
@@ -305,8 +342,10 @@ function clinicalIntentSearch(query,options){
       all=all.filter(item=>item.matchSource==="intent"||item.score>=120);
     }
   }
+  const queryMode=clinicalQueryMode(query,intentIds);
   all=all
     .map(item=>({...item,badges:clinicalMergeBadges(item.badges)}))
+    .map(item=>clinicalApplyPriority(item,queryMode,intentIds))
     .map(item=>{
       if(intentIds.includes("crianca")&&item.type==="prescription"&&item.id==="odontopediatria"){
         return {...item,score:item.score+220,badges:clinicalMergeBadges(item.badges,["Pediátrico","Prescrição"])};

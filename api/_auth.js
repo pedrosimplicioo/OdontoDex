@@ -58,16 +58,24 @@ async function requireAdmin(req) {
     .split(",")
     .map(uid => uid.trim())
     .filter(Boolean);
+  const adminEmails = String(process.env.ADMIN_EMAILS || "")
+    .split(",")
+    .map(email => email.trim().toLowerCase())
+    .filter(Boolean);
 
-  if (!adminUids.length) {
-    console.error("ADMIN_UIDS não configurado");
+  if (!adminUids.length && !adminEmails.length) {
+    console.error("ADMIN_UIDS/ADMIN_EMAILS não configurado");
     const error = new Error("Admin não configurado");
     error.status = 500;
     throw error;
   }
 
-  if (!adminUids.includes(decodedToken.uid)) {
-    console.warn("Acesso admin negado", { uid: decodedToken.uid });
+  const tokenEmail = String(decodedToken.email || "").trim().toLowerCase();
+  const isAdminUid = adminUids.includes(decodedToken.uid);
+  const isAdminEmail = tokenEmail && adminEmails.includes(tokenEmail);
+
+  if (!isAdminUid && !isAdminEmail) {
+    console.warn("Acesso admin negado", { uid: decodedToken.uid, email: tokenEmail });
     const error = new Error("Acesso negado");
     error.status = 403;
     throw error;

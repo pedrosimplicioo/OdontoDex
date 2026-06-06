@@ -1,4 +1,4 @@
-// BUSCA
+﻿// BUSCA
 let searchSheetReturnInputId = "home-search-input";
 let searchSheetStack = [];
 let persistedHomeSearchValue = "";
@@ -350,6 +350,7 @@ function getCurrentSearchSheetState(){
   return {
     kind:kindEl.textContent,
     title:titleEl.textContent,
+    titleHtml:titleEl.innerHTML,
     contentHtml:contentEl.innerHTML,
     scrollTop:sheet?sheet.scrollTop:0
   };
@@ -368,7 +369,7 @@ function openSearchBottomSheet(kind,title,contentHtml,options){
   }
   if(options&&options.resetStack)searchSheetStack=[];
   kindEl.textContent=kind;
-  titleEl.textContent=title;
+  titleEl.innerHTML=`<span class="search-sheet-title-text">${escapeHtml(title)}</span>${options?.titleActionHtml||""}`;
   contentEl.innerHTML=contentHtml;
   if(sheet)sheet.scrollTop=0;
   layer.classList.add("active");
@@ -385,7 +386,7 @@ function goBackSearchBottomSheet(){
   const contentEl=document.getElementById("search-sheet-content");
   const sheet=document.getElementById("search-bottom-sheet");
   if(kindEl)kindEl.textContent=previous.kind;
-  if(titleEl)titleEl.textContent=previous.title;
+  if(titleEl)titleEl.innerHTML=previous.titleHtml||escapeHtml(previous.title||"");
   if(contentEl)contentEl.innerHTML=previous.contentHtml;
   if(sheet)sheet.scrollTop=previous.scrollTop||0;
   updateSearchSheetBackButton();
@@ -471,8 +472,8 @@ function openSearchCondutaSheet(id){
     {title:"Como resolver",items:protocolButtons},
     {title:"Problemas relacionados",items:relatedButtons}
   ]);
-  const content=favoriteControl+introSections+behindBlock+actionSections;
-  openSearchBottomSheet("Conduta rápida",card.title,content,{resetStack:true});
+  const content=introSections+behindBlock+actionSections;
+  openSearchBottomSheet("Conduta rápida",card.title,content,{resetStack:true,titleActionHtml:favoriteControl});
 }
 
 function openSearchProtocolSheet(id,options){
@@ -512,7 +513,7 @@ function openSearchProtocolSheet(id,options){
     },
     {
       title:"Erros que ferram",
-      items:(p.errors||[]).map(e=>`<div class="search-error-row"><span class="search-error-dot">✕</span><span>${e}</span></div>`)
+      items:(p.errors||[]).map(e=>`<div class="search-error-row"><span class="search-error-dot">âœ•</span><span>${e}</span></div>`)
     },
     {
       title:"Decisão rápida",
@@ -563,8 +564,8 @@ function isSearchProfileLocked(id){
 function renderSearchRxBlocks(blocks){
   return (blocks||[]).map(block=>{
     const section=block.secao||"";
-    const isAlert=section.includes("⚠")||section.toUpperCase().includes("ALERTA");
-    const isInfo=section.includes("ℹ");
+    const isAlert=section.includes("âš ")||section.toUpperCase().includes("ALERTA");
+    const isInfo=section.includes("â„¹");
     const blockClass=isAlert?"rx-block alert":isInfo?"rx-block info":"rx-block";
     return `
       <div class="${blockClass}">
@@ -572,7 +573,7 @@ function renderSearchRxBlocks(blocks){
           <div class="rx-block-label">${section}</div>
         </div>
         <div class="rx-block-body">
-          ${(block.itens||[]).map(item=>`<div class="rx-item"><span class="rx-dot">•</span><span>${item}</span></div>`).join("")}
+          ${(block.itens||[]).map(item=>`<div class="rx-item"><span class="rx-dot">â€¢</span><span>${item}</span></div>`).join("")}
         </div>
       </div>
     `;
@@ -684,3 +685,5 @@ function doSearch(q){
 }
 
 // SHARE
+
+

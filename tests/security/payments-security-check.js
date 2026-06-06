@@ -49,6 +49,7 @@ for (const file of userPaymentEndpoints) {
 
 assertContains("api/_auth.js", "verifyIdToken(token)", "Firebase ID Token precisa ser validado no backend");
 assertContains("api/_auth.js", "process.env.ADMIN_UIDS", "admins precisam vir de variavel de ambiente");
+assertContains("api/_auth.js", "process.env.ADMIN_EMAILS", "admins por email precisam vir de variavel de ambiente");
 assertContains("api/_auth.js", "bodyUid !== decodedToken.uid", "UID do body precisa bater com UID do token");
 
 assertContains("api/webhook.js", "MP_WEBHOOK_SECRET", "webhook precisa exigir secret");
