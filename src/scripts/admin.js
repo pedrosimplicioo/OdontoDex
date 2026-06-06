@@ -24,6 +24,7 @@ let currentSection = 'dashboard';
 let cachedDados = null;
 let cachedLandingStats = null;
 let cachedMetricasProduto = null;
+let adminDataLoadError = "";
 
 const ADMIN_EMAILS = ["pedrosimplicio.sousa@gmail.com"];
 
@@ -144,6 +145,7 @@ function toggleSidebar() {
 // ========== CARREGAR DADOS DO APP (COM FILTRO DE IGNORADOS) ==========
 async function carregarDados() {
   try {
+    adminDataLoadError = "";
     const agora = new Date();
     const mesAtual = agora.toISOString().split('T')[0].substring(0, 7);
     const usersSnapshot = await db.collection('users').get({source: 'server'});
@@ -302,6 +304,10 @@ async function carregarDados() {
     aplicarFiltroOrdenacao();
   } catch (error) { 
     console.error("Erro ao carregar dados:", error); 
+    adminDataLoadError = error?.message || "Erro ao carregar dados do Firestore";
+    cachedDados = null;
+    dadosUsuarios = [];
+    usuariosFiltrados = [];
   }
 }
 
@@ -551,6 +557,7 @@ function renderizarSecaoAtual() {
 }
 
 function renderDashboard() {
+  if (adminDataLoadError) return `<div class="section" style="border-left:4px solid #EF4444;"><h3>Erro ao carregar dados</h3><p style="color:#64748B;font-size:13px;line-height:1.5;">${adminDataLoadError}</p><p style="color:#64748B;font-size:12px;line-height:1.5;">Verifique se o usuário logado tem permissão para listar a coleção users no Firestore.</p></div>`;
   if (!cachedDados) return '<div class="section">Carregando...</div>';
   const d = cachedDados;
 
@@ -738,6 +745,16 @@ function renderMetricasProduto() {
 }
 
 function renderUsuarios() {
+  if (adminDataLoadError) {
+    return `
+      <div class="content-header"><h1>👥 Usuários</h1><p>Gerencie os usuários do OdontoDex</p></div>
+      <div class="section" style="border-left:4px solid #EF4444;">
+        <h3 style="margin-bottom:8px;color:#0F172A;">Erro ao carregar usuários</h3>
+        <p style="color:#64748B;font-size:13px;line-height:1.5;margin-bottom:12px;">${adminDataLoadError}</p>
+        <button class="login-btn" style="width:auto;padding:10px 16px;" onclick="refreshData()">Tentar novamente</button>
+      </div>
+    `;
+  }
   const paginated = getPaginatedUsers();
   const total = totalPages();
   return `
