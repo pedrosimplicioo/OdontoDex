@@ -422,7 +422,8 @@ body.dark .result-kind.protocol{background:rgba(14,165,233,0.16);color:#7DD3FC;}
 .search-sheet-back .ti{font-size:18px;line-height:1;color:inherit;}
 .search-sheet-close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;background:#F1F5F9;color:#64748B;font-size:14px;line-height:1;display:grid;place-items:center;border:1px solid #E2E8F0;}
 .search-sheet-kind{display:inline-flex;align-items:center;min-height:26px;padding:0 11px;border-radius:999px;background:#F5EEFB;color:#7C3FA0;font-size:11px;font-weight:900;margin-bottom:12px;border:1px solid #E9D5FF;}
-.search-sheet-title{margin:0 44px 16px 0;font-size:23px;line-height:1.12;letter-spacing:0;color:#0F172A;font-weight:900;}
+.search-sheet-title{margin:0 44px 16px 0;font-size:23px;line-height:1.12;letter-spacing:0;color:#0F172A;font-weight:900;display:flex;align-items:center;justify-content:flex-start;gap:8px;flex-wrap:wrap;}
+.search-sheet-title-text{min-width:0;flex:0 1 auto;max-width:calc(100% - 44px);}
 .search-sheet-content{padding-bottom:18px;}
 .search-sheet-section{border:1px solid #E2E8F0;border-radius:16px;padding:16px;margin:12px 0;background:#F8FAFC;box-shadow:0 6px 14px rgba(15,23,42,0.05);}
 .search-sheet-section-title{font-size:11px;font-weight:900;letter-spacing:0.08em;text-transform:uppercase;color:#7C3FA0;margin-bottom:10px;}
@@ -503,7 +504,7 @@ body.dark .protocol-tip-note .ti{color:#FBBF24;}
 .rx-fav-btn{width:36px;height:36px;border-radius:50%;border:1px solid #E2E8F0;background:#F8FAFC;color:#94A3B8;display:grid;place-items:center;flex-shrink:0;}
 .rx-fav-btn .ti{font-size:18px;line-height:1;color:inherit;}
 .rx-fav-btn.active{background:#FFFBEB;border-color:#FDE68A;color:#F59E0B;}
-.search-sheet-fav-btn{position:absolute;top:52px;right:18px;width:34px;height:34px;border-radius:50%;border:1px solid #E2E8F0;background:#F8FAFC;color:#94A3B8;display:grid;place-items:center;z-index:2;}
+.search-sheet-fav-btn{width:34px;height:34px;border-radius:50%;border:1px solid #E2E8F0;background:#F8FAFC;color:#94A3B8;display:grid;place-items:center;flex-shrink:0;}
 .search-sheet-fav-btn .ti{font-size:18px;line-height:1;color:inherit;}
 .search-sheet-fav-btn.active{background:#FFFBEB;border-color:#FDE68A;color:#F59E0B;}
 .conduta-smart-block{border-radius:20px;padding:14px 15px;margin-bottom:11px;border:1px solid #E2E8F0;background:#fff;}
