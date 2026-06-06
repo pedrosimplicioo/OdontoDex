@@ -22,6 +22,11 @@
       "has": [{"type": "host", "value": "landing.odontodex.com.br"}]
     },
     {
+      "src": "/src/(.*)",
+      "dest": "/src/$1",
+      "has": [{"type": "host", "value": "adm.odontodex.com.br"}]
+    },
+    {
       "src": "/(.*)",
       "dest": "/adm.html",
       "has": [{"type": "host", "value": "adm.odontodex.com.br"}]
