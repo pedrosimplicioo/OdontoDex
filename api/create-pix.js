@@ -25,6 +25,7 @@ module.exports = async (req, res) => {
         transaction_amount: 9.90,
         description: "OdontoDex Premium - 1 mês",
         payment_method_id: "pix",
+        notification_url: "https://www.odontodex.com.br/api/webhook",
         payer: {
           email: email || decodedToken.email,
           first_name: nome || "Usuario",

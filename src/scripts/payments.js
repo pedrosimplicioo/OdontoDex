@@ -86,6 +86,8 @@ async function verificarCupom(valor) {
 // ==================== PIX ====================
 let pixCode = '';
 let pixPollingInterval = null;
+let pixPollingTimeout = null;
+let pixPaymentId = '';
 
 async function abrirPixModal() {
   if (!currentUser) {
@@ -99,6 +101,7 @@ async function abrirPixModal() {
   document.getElementById('pix-aguardando').style.display = 'none';
   document.getElementById('pix-status-msg').textContent = 'Gerando QR Code...';
   pixCode = '';
+  pixPaymentId = '';
 
   showOverlay('pix-overlay');
 
@@ -122,6 +125,7 @@ async function abrirPixModal() {
     if (!data.qrCode) throw new Error('QR Code não gerado');
 
     pixCode = data.qrCode;
+    pixPaymentId = data.paymentId ? String(data.paymentId) : '';
 
     document.getElementById('pix-qrcode-img').src = 'data:image/png;base64,' + data.qrCodeBase64;
     document.getElementById('pix-code-display').textContent = data.qrCode;
@@ -130,7 +134,7 @@ async function abrirPixModal() {
     document.getElementById('pix-content').style.display = 'block';
     document.getElementById('pix-aguardando').style.display = 'block';
 
-    iniciarPixPolling();
+    iniciarPixPolling(pixPaymentId);
 
   } catch (e) {
     document.getElementById('pix-loading').style.display = 'none';
@@ -140,32 +144,67 @@ async function abrirPixModal() {
   }
 }
 
-function iniciarPixPolling() {
+function iniciarPixPolling(paymentId) {
   pararPixPolling();
+  if (!paymentId) {
+    document.getElementById('pix-error').style.display = 'block';
+    document.getElementById('pix-error').textContent = 'Erro ao acompanhar pagamento. Tente novamente.';
+    return;
+  }
+
   pixPollingInterval = setInterval(async () => {
     try {
-      const doc = await db.collection('users').doc(currentUser.uid).get();
-      const userData = doc.data();
-      if (userData && userData.premium === true) {
-        const expira = userData.premiumExpira?.toDate
-          ? userData.premiumExpira.toDate()
-          : new Date(userData.premiumExpira);
-        if (expira > new Date()) {
-          pararPixPolling();
-          fecharPixModal();
-          await onPaymentApproved();
-        }
+      const idToken = await currentUser.getIdToken();
+      const res = await fetch('/api/check-pix-status', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${idToken}`
+        },
+        body: JSON.stringify({
+          uid: currentUser.uid,
+          paymentId,
+        }),
+      });
+      const data = await res.json();
+
+      if (res.ok && data.status === 'approved') {
+        pararPixPolling();
+        document.getElementById('pix-status-msg').textContent = 'Pagamento aprovado! Atualizando acesso...';
+        document.getElementById('pix-aguardando').style.display = 'none';
+        fecharPixModal();
+        await onPaymentApproved();
+        return;
+      }
+
+      if (data.falha) {
+        pararPixPolling();
+        document.getElementById('pix-aguardando').style.display = 'none';
+        document.getElementById('pix-error').style.display = 'block';
+        document.getElementById('pix-error').textContent = 'Pagamento Pix nao aprovado. Gere um novo Pix e tente novamente.';
+        document.getElementById('pix-status-msg').textContent = '';
+      } else {
+        document.getElementById('pix-status-msg').textContent = 'Aguardando confirmacao do pagamento...';
       }
     } catch(e) {
       console.log(e);
     }
   }, 5000);
+
+  pixPollingTimeout = setTimeout(() => {
+    pararPixPolling();
+    document.getElementById('pix-status-msg').textContent = 'Ainda aguardando confirmacao do pagamento.';
+  }, 5 * 60 * 1000);
 }
 
 function pararPixPolling() {
   if (pixPollingInterval) {
     clearInterval(pixPollingInterval);
     pixPollingInterval = null;
+  }
+  if (pixPollingTimeout) {
+    clearTimeout(pixPollingTimeout);
+    pixPollingTimeout = null;
   }
 }
 
