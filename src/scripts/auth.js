@@ -295,7 +295,7 @@ async function logout(){
           <i class="ti ti-lock"></i> Prótese, Endodontia, Cirurgia, Periodontia<br>
           <i class="ti ti-lock"></i> S.O.S. Clínico completo<br>
           <i class="ti ti-lock"></i> Prescrições detalhadas<br>
-          <i class="ti ti-lock"></i> Modo Pânico em todos os protocolos
+          <i class="ti ti-lock"></i> Cards de conduta e decisao clinica
         </div>
       </div>
       <button class="btn-primary" onclick="localStorage.setItem('modalExpiradoMostrado','1');this.closest('.overlay').remove();abrirTelaPayment();" style="margin-bottom:10px;">

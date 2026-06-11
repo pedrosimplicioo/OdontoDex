@@ -124,15 +124,11 @@ function renderProtocol(id){
     ${renderProtocolTip(p.tip)}
     <div class="sec">
       <div class="sec-title"><span class="protocol-inline-icon"><i class="ti ti-alert-triangle"></i></span>Erros que Ferram</div>
-      ${(p.errors||[]).map(e=>`<div class="err-row"><span class="err-dot">✗</span><span class="err-txt">${e}</span></div>`).join("")}
+      ${(p.errors||[]).map(e=>`<div class="err-row"><span class="err-dot">&times;</span><span class="err-txt">${e}</span></div>`).join("")}
     </div>
     <div class="sec">
       <div class="sec-title"><span class="protocol-inline-icon"><i class="ti ti-arrows-split"></i></span>Decisão Rápida</div>
       ${(p.decisions||[]).map(d=>`<div class="dec-row"><span class="dec-if-lbl">Se</span><span class="dec-if">${d.if}</span><span class="dec-arr">→</span><span class="dec-then">${d.then||''}</span></div>`).join("")}
-    </div>
-    <div class="sec">
-      <div class="sec-title"><span class="protocol-inline-icon"><i class="ti ti-alert-triangle"></i></span>Modo Pânico</div>
-      ${(p.panic||[]).map(item=>`<div class="panic-card"><div class="panic-prob"><span class="protocol-inline-icon"><i class="ti ti-bolt"></i></span>${item.problem}</div><div class="panic-sol">${item.solution||''}</div></div>`).join("")}
     </div>
     <div class="spacer"></div>`;
    body.scrollTop = 0;

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v2';
+const CACHE_NAME = 'odontodex-v3';
 
 const ARQUIVOS = [
   '/',
@@ -8,7 +8,7 @@ const ARQUIVOS = [
   '/logo512.png'
 ];
 
-// Instala e faz cache dos arquivos principais
+// Cacheia apenas a casca principal do app.
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
@@ -18,7 +18,7 @@ self.addEventListener('install', event => {
   self.skipWaiting();
 });
 
-// Limpa caches antigos
+// Limpa caches antigos.
 self.addEventListener('activate', event => {
   event.waitUntil(
     caches.keys().then(keys =>
@@ -28,21 +28,33 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
-// Estratégia: tenta rede primeiro, cai para cache se offline
+function shouldBypassCache(request) {
+  const url = new URL(request.url);
+  return (
+    request.method !== 'GET' ||
+    url.pathname.startsWith('/api/') ||
+    url.hostname.includes('firebaseio.com') ||
+    url.hostname.includes('googleapis.com') ||
+    url.hostname.includes('mercadopago') ||
+    url.hostname.includes('gstatic.com')
+  );
+}
+
+function shouldStoreResponse(response) {
+  return response && response.ok && (response.type === 'basic' || response.type === 'cors');
+}
+
+// Rede primeiro; cache apenas para assets/navegacao seguros.
 self.addEventListener('fetch', event => {
-  // Ignora requisições do Firebase e Mercado Pago (precisam de internet)
-  if (
-    event.request.url.includes('firebaseio.com') ||
-    event.request.url.includes('googleapis.com') ||
-    event.request.url.includes('mercadopago') ||
-    event.request.url.includes('gstatic.com')
-  ) return;
+  if (shouldBypassCache(event.request)) return;
 
   event.respondWith(
     fetch(event.request)
       .then(response => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        if (shouldStoreResponse(response)) {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+        }
         return response;
       })
       .catch(() => caches.match(event.request))

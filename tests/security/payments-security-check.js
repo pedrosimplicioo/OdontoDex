@@ -21,6 +21,13 @@ function assertMatches(file, pattern, message) {
   }
 }
 
+function assertNotContains(file, needle, message) {
+  const source = read(file);
+  if (source.includes(needle)) {
+    throw new Error(`${file}: ${message}`);
+  }
+}
+
 const adminEndpoints = [
   "api/set-premium.js",
   "api/set-test-user.js",
@@ -70,6 +77,7 @@ assertContains("api/create-subscription.js", "hasFutureAccess", "assinatura futu
 assertContains("api/cancel-subscription.js", "no_subscription_paid_access", "pagamento avulso/Pix sem assinatura deve preservar acesso pago");
 assertContains("src/scripts/premium.js", "no_subscription_paid_access", "frontend deve tratar pagamento avulso/Pix sem cortar premium");
 assertContains("index.html", "cancel-premium-btn", "botao de cancelamento precisa ter ID para texto dinamico");
+assertNotContains("src/styles/app.css", "#cancel-premium-section{display:none!important;}", "CSS nao pode esconder permanentemente o cancelamento");
 assertContains("src/scripts/premium.js", "Acesso", "Pix/pagamento avulso precisa virar informacao de validade");
 assertContains("src/scripts/premium.js", "Cancelar renova", "assinatura ativa precisa mostrar cancelamento de renovacao");
 assertContains("src/scripts/premium.js", "Renova", "assinatura cancelada precisa mostrar status sem nova acao");
@@ -80,5 +88,12 @@ assertContains("api/process-payment.js", "premiumOrigem: \"pagamento\"", "pagame
 assertContains("api/create-pix.js", "premiumOrigem: \"pix\"", "Pix pendente precisa registrar premiumOrigem");
 assertContains("api/webhook.js", "premiumOrigem = pixDoc.exists ? \"pix\" : \"pagamento\"", "webhook precisa diferenciar Pix de pagamento avulso");
 assertContains("api/set-premium.js", "premiumOrigem: \"manual\"", "liberacao manual precisa registrar premiumOrigem");
+
+assertContains("api/create-preference.js", "https://www.odontodex.com.br", "checkout precisa usar dominio oficial");
+assertNotContains("api/create-preference.js", "odontodex.vercel.app", "checkout nao pode usar URL antiga de app");
+assertNotContains("api/create-preference.js", "guia-odonto1.vercel.app", "webhook nao pode usar URL antiga");
+assertNotContains("api/create-preference.js", "sandbox_init_point", "backend nao deve expor link sandbox em producao");
+assertContains("src/scripts/payments.js", "data.initPoint", "frontend deve abrir link de producao do checkout");
+assertNotContains("src/scripts/payments.js", "sandboxInitPoint", "frontend nao deve priorizar checkout sandbox");
 
 console.log("OK: seguranca de pagamentos/admin verificada.");

@@ -241,6 +241,7 @@ function openClinicalSearchItem(item,returnInputId){
   if(item.type==="conduct")openSearchCondutaSheet(item.id);
   else if(item.type==="prescription")openSearchPrescriptionSheet(item.id,{profile:item.profile,resetStack:true});
   else if(item.type==="profile"||item.type==="alert")openSearchPatientProfileSheet(item.id,{kind:item.kind||"Perfil clínico",resetStack:true});
+  else if(item.type==="anesthetic")openSearchAnestheticSheet(item.id,{resetStack:true});
   else openSearchProtocolSheet(item.id,{resetStack:true});
 }
 
@@ -338,7 +339,10 @@ function renderSearchSheetSections(sections){
 
 function updateSearchSheetBackButton(){
   const backBtn=document.getElementById("search-sheet-back");
-  if(backBtn)backBtn.classList.toggle("visible",searchSheetStack.length>0);
+  const sheet=document.getElementById("search-bottom-sheet");
+  const hasBack=searchSheetStack.length>0;
+  if(backBtn)backBtn.classList.toggle("visible",hasBack);
+  if(sheet)sheet.classList.toggle("has-back",hasBack);
 }
 
 function getCurrentSearchSheetState(){
@@ -417,6 +421,55 @@ document.addEventListener("click",function(event){
   hideHomeSearchResults();
 });
 
+function openSearchCondutaAction(type,id){
+  const actionType=type||"protocol";
+  if(actionType==="protocol"){
+    openSearchProtocolSheet(id);
+    return;
+  }
+  if(actionType==="conduct"){
+    openSearchCondutaSheet(id);
+    return;
+  }
+  if(actionType==="tool"&&typeof openClinicalTool==="function"){
+    closeSearchBottomSheet();
+    openClinicalTool(id);
+    return;
+  }
+  if(actionType==="tab"&&id==="anestesicos"){
+    closeSearchBottomSheet();
+    if(typeof openPrescricoesAnestesicosFromCard==="function") openPrescricoesAnestesicosFromCard();
+  }
+}
+
+function renderSearchCondutaActionButton(action){
+  const type=action.type||"protocol";
+  const disabled=type==="note"||!action.id;
+  const icon=type==="conduct"?"ti-link":type==="tool"?"ti-tools":type==="tab"?"ti-layout-list":type==="note"?"ti-info-circle":"ti-clipboard-heart";
+  const parsed=typeof parseCondutaActionLabel==="function"?parseCondutaActionLabel(action.label):{condition:action.label,target:action.label};
+  const openLabel=typeof getCondutaActionOpenLabel==="function"?getCondutaActionOpenLabel(type):"Abrir protocolo de";
+  if(type==="note"){
+    return `
+      <div class="search-sheet-link-btn search-next-step-btn disabled">
+        <div class="conduta-next-step-rule"><i class="ti ${icon}"></i><span>${escapeHtml(parsed.condition)}</span></div>
+        ${parsed.target&&parsed.target!==parsed.condition?`<div class="conduta-next-step-note">${escapeHtml(parsed.target)}</div>`:""}
+      </div>
+    `;
+  }
+  return `
+    <button class="search-sheet-link-btn search-next-step-btn ${disabled?"disabled":""}" ${disabled?"":`onclick="openSearchCondutaAction('${type}','${action.id}')"`}>
+      <div class="conduta-next-step-rule"><i class="ti ti-alert-circle"></i><span>${escapeHtml(parsed.condition)}</span></div>
+      <div class="conduta-next-step-open">
+        <span>
+          <span class="conduta-next-step-open-label">${escapeHtml(openLabel)}</span>
+          <span class="conduta-next-step-open-title">${escapeHtml(parsed.target)}</span>
+        </span>
+        <i class="ti ${icon}"></i>
+      </div>
+    </button>
+  `;
+}
+
 function openSearchCondutaSheet(id){
   const card=QUICK_CONDUCT_CARDS[id];
   if(!card){
@@ -430,11 +483,7 @@ function openSearchCondutaSheet(id){
       ${isFav?'<i class="ti ti-star-filled"></i>':'<i class="ti ti-star"></i>'}
     </button>
   `;
-  const protocolButtons=(card.protocols||[]).map(proto=>`
-    <button class="search-sheet-link-btn" onclick="openSearchProtocolSheet('${proto.id}')">
-      <i class="ti ti-clipboard-heart"></i><span>${escapeHtml(proto.label)}</span>
-    </button>
-  `);
+  const protocolButtons=(card.protocols||[]).map(renderSearchCondutaActionButton);
   const relatedButtons=(card.related||[]).map(rel=>{
     const enabled=rel.id&&QUICK_CONDUCT_CARDS[rel.id];
     return `
@@ -443,20 +492,20 @@ function openSearchCondutaSheet(id){
       </button>
     `;
   });
-  const behindBlock=`
+  const behindBlock=(card.behind||[]).length?`
     <section class="search-sheet-section">
       <button class="search-sheet-toggle" onclick="toggleSearchCondutaBehind()">
-        <span><i class="ti ti-search"></i> O que costuma estar por trás disso?</span>
+        <span><i class="ti ti-search"></i> ${escapeHtml(card.behindLabel||"O que costuma estar por trás disso?")}</span>
         <i class="ti ti-chevron-down" id="search-conduta-behind-icon"></i>
       </button>
       <div class="search-sheet-collapsible" id="search-conduta-behind-list">
         <div class="search-sheet-text">${renderCondutaBehind(card.behind||[])}</div>
       </div>
     </section>
-  `;
+  `:"";
   const introSections=renderSearchSheetSections([
-    {title:"Resposta rápida",items:[`<div class="search-sheet-text">${renderCondutaSmartText(card.quick)}</div>`]},
-    {title:"Quando isso muda?",items:[`<div class="search-sheet-text">${renderCondutaSmartList(card.changes||[])}</div>`]},
+    {title:card.quickLabel||"Resposta rápida",items:[`<div class="search-sheet-text">${renderCondutaSmartText(card.quick)}</div>`]},
+    {title:card.changesLabel||"Quando isso muda?",items:(card.changes||[]).length?[`<div class="search-sheet-text">${renderCondutaSmartList(card.changes||[])}</div>`]:[]},
     {
       title:card.tool?.title||"Ferramenta auxiliar",
       icon:card.tool?.icon||"ti-tool",
@@ -469,7 +518,7 @@ function openSearchCondutaSheet(id){
     }
   ]);
   const actionSections=renderSearchSheetSections([
-    {title:"Como resolver",items:protocolButtons},
+    {title:card.protocolsLabel||"Como resolver",items:protocolButtons},
     {title:"Problemas relacionados",items:relatedButtons}
   ]);
   const content=introSections+behindBlock+actionSections;
@@ -513,15 +562,11 @@ function openSearchProtocolSheet(id,options){
     },
     {
       title:"Erros que ferram",
-      items:(p.errors||[]).map(e=>`<div class="search-error-row"><span class="search-error-dot">âœ•</span><span>${e}</span></div>`)
+      items:(p.errors||[]).map(e=>`<div class="search-error-row"><span class="search-error-dot">&times;</span><span>${e}</span></div>`)
     },
     {
       title:"Decisão rápida",
       items:(p.decisions||[]).map(d=>`<div class="search-decision-row"><span class="search-decision-if">Se ${d.if}</span><span class="search-decision-then">${d.then||""}</span></div>`)
-    },
-    {
-      title:"Modo Pânico",
-      items:(p.panic||[]).map(item=>`<div class="search-panic-card"><div class="search-panic-prob"><i class="ti ti-bolt"></i>${item.problem}</div><div class="search-panic-sol">${item.solution||""}</div></div>`)
     }
   ]);
   openSearchBottomSheet("Protocolo",p.title,content,{
@@ -561,11 +606,17 @@ function isSearchProfileLocked(id){
   return !!(item&&!item.free&&!window.userIsPremium);
 }
 
+function isSearchAnestheticLocked(id){
+  const item=typeof ANESTESICOS_LIST!=="undefined"?ANESTESICOS_LIST.find(profile=>profile.id===id):null;
+  return !!(item&&!item.free&&!window.userIsPremium);
+}
+
 function renderSearchRxBlocks(blocks){
   return (blocks||[]).map(block=>{
     const section=block.secao||"";
-    const isAlert=section.includes("âš ")||section.toUpperCase().includes("ALERTA");
-    const isInfo=section.includes("â„¹");
+    const sectionLower=section.toLowerCase();
+    const isAlert=section.includes("âš ")||section.toUpperCase().includes("ALERTA")||sectionLower.includes("evitar");
+    const isInfo=section.includes("â„¹")||sectionLower.includes("atenção")||sectionLower.includes("recomenda");
     const blockClass=isAlert?"rx-block alert":isInfo?"rx-block info":"rx-block";
     return `
       <div class="${blockClass}">
@@ -623,6 +674,26 @@ function openSearchPatientProfileSheet(id,options){
   const aviso=typeof AVISO_LEGAL_HTML!=="undefined"?`<div class="rx-legal-note" style="margin-bottom:12px;font-size:11px;">${AVISO_LEGAL_HTML}</div>`:"";
   const content=`<section class="search-sheet-section search-sheet-rx-section">${renderSearchRxBlocks(data.blocos||[])}</section>`+aviso;
   openSearchBottomSheet((options&&options.kind)||"Perfil clínico",data.titulo,content,{
+    pushCurrent:!(options&&options.resetStack),
+    resetStack:!!(options&&options.resetStack)
+  });
+}
+
+function openSearchAnestheticSheet(id,options){
+  if(typeof ANESTESICOS_DATA==="undefined")return;
+  const data=ANESTESICOS_DATA[id];
+  if(!data){
+    showToast("Anestésico não disponível","error");
+    return;
+  }
+  if(isSearchAnestheticLocked(id)){
+    closeSearchBottomSheet();
+    showUpgradeModal(null);
+    return;
+  }
+  const aviso=typeof ANESTESICOS_AVISO_HTML!=="undefined"?`<div class="rx-legal-note" style="margin-bottom:12px;font-size:11px;">${ANESTESICOS_AVISO_HTML}</div>`:"";
+  const content=aviso+`<section class="search-sheet-section search-sheet-rx-section">${renderSearchRxBlocks(data.blocos||[])}</section>`;
+  openSearchBottomSheet("Anestésico",data.titulo,content,{
     pushCurrent:!(options&&options.resetStack),
     resetStack:!!(options&&options.resetStack)
   });

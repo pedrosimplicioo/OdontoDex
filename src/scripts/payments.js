@@ -18,8 +18,8 @@ async function iniciarPagamento() {
       }),
     });
     const data = await res.json();
-    if (data.sandboxInitPoint) {
-      window.open(data.sandboxInitPoint, "_blank");
+    if (data.initPoint) {
+      window.open(data.initPoint, "_blank");
     } else {
       throw new Error("Sem link de pagamento");
     }

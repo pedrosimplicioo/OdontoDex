@@ -9,7 +9,7 @@
 <meta name="apple-mobile-web-app-title" content="OdontoDex">
 <meta name="mobile-web-app-capable" content="yes">
 <link rel="manifest" href="manifest.json">
-<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="logo192.png">
 <title>OdontoDex</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
@@ -204,6 +204,40 @@
       <div class="quick-buttons" id="sos-buttons"></div>
       </div><!-- /quick-buttons-wrap -->
     </div>
+    <div class="quick-card home-tools-card">
+      <div class="quick-title"><span class="home-title-icon home-icon-amber"><i class="ti ti-tools"></i></span><span>FERRAMENTAS CLÍNICAS</span></div>
+      <div class="home-tools-grid" id="home-clinical-tools">
+        <button class="home-tool-card" onclick="openClinicalTool('anesthetic-technique')">
+          <span class="home-mini-icon home-icon-amber"><i class="ti ti-needle"></i></span>
+          <span class="home-tool-copy">
+            <span class="home-tool-title">Técnica anestésica</span>
+            <span class="home-tool-sub">por dente</span>
+          </span>
+        </button>
+        <button class="home-tool-card" onclick="openClinicalTool('forceps')">
+          <span class="home-mini-icon home-icon-purple"><i class="ti ti-target"></i></span>
+          <span class="home-tool-copy">
+            <span class="home-tool-title">Fórceps</span>
+            <span class="home-tool-sub">por dente</span>
+          </span>
+        </button>
+        <button class="home-tool-card" onclick="openClinicalTool('odontosection')">
+          <span class="home-mini-icon home-icon-purple"><i class="ti ti-cut"></i></span>
+          <span class="home-tool-copy">
+            <span class="home-tool-title">Odontosecção</span>
+            <span class="home-tool-sub">por dente</span>
+          </span>
+          <span class="home-tool-lock"><i class="ti ti-lock"></i></span>
+        </button>
+        <button class="home-tool-card" onclick="openClinicalTool('pulpite')">
+          <span class="home-mini-icon home-icon-amber"><i class="ti ti-brain"></i></span>
+          <span class="home-tool-copy">
+            <span class="home-tool-title">Pulpite</span>
+            <span class="home-tool-sub">assistente</span>
+          </span>
+        </button>
+      </div>
+    </div>
  <!-- CARD PRESCRIÇÕES NA HOME -->
 <div class="quick-card home-prescricoes-card" onclick="goScreen('prescricoes')" style="cursor:pointer;">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
@@ -261,6 +295,15 @@
   </div>
   <div class="body" id="favs-list"></div>
 </div>
+<!-- FERRAMENTA CLÍNICA DETALHE -->
+<div class="screen" id="screen-clinical-tool-detail">
+  <div class="top-bar">
+    <button class="back-btn" onclick="goBackToLastScreen()">←</button>
+    <span class="top-title" id="clinical-tool-title">Ferramenta clínica</span>
+    <div style="width:48px"></div>
+  </div>
+  <div class="body" id="clinical-tool-body"></div>
+</div>
 <!-- PRESCRIÇÕES -->
 <div class="screen" id="screen-prescricoes">
   <div class="top-bar top-bar-with-tabs">
@@ -272,6 +315,7 @@
   <div class="sticky-tabs" style="display:flex;border-bottom:1px solid #E2E8F0;background:#fff;" id="prescricoes-tabs">
     <button id="tab-situacoes" onclick="switchPrescricaoTab('situacoes')" style="flex:1;padding:12px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;border-bottom:2px solid #7C3FA0;color:#7C3FA0;font-family:inherit;">Situações</button>
     <button id="tab-especiais" onclick="switchPrescricaoTab('especiais')" style="flex:1;padding:12px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:#94A3B8;font-family:inherit;">Pacientes especiais</button>
+    <button id="tab-anestesicos" onclick="switchPrescricaoTab('anestesicos')" style="flex:1;padding:12px 8px;font-size:13px;font-weight:700;border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;color:#94A3B8;font-family:inherit;">Anestésicos</button>
   </div>
   <div class="body" id="prescricoes-list"></div>
 </div>
@@ -355,6 +399,11 @@
     </div>
     <!-- Conta -->
     <div class="cfg-section">
+      <div class="cfg-row" onclick="window.open('/exclusao-conta','_blank')" style="cursor:pointer">
+        <div class="cfg-icon cfg-icon-red"><i class="ti ti-trash"></i></div>
+        <span class="cfg-label" style="color:#DC2626">Excluir conta e dados</span>
+        <span class="cfg-arr">›</span>
+      </div>
       <div class="cfg-row" onclick="logout()" style="cursor:pointer">
         <div class="cfg-icon cfg-icon-red"><i class="ti ti-logout"></i></div>
         <span class="cfg-label" style="color:#DC2626">Sair da conta</span>
