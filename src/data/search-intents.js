@@ -57,6 +57,20 @@ var CLINICAL_SEARCH_INTENTS = {
       "pino núcleo", "pino nucleo", "prótese fixa", "protese fixa", "jaqueta"
     ]
   },
+
+  restauracao_procedimento: {
+    label: "Restaura??o / resina",
+    badges: ["Dent?stica"],
+    synonyms: [
+      "restauracao", "restaura??o", "restau", "restaurar", "fazer restauracao",
+      "fazer restaura??o", "como fazer restauracao", "como fazer restaura??o",
+      "restauracao de rotina", "restaura??o de rotina", "restauracao direta",
+      "restaura??o direta", "resina composta", "resina", "obtura??o",
+      "obturacao", "protocolo de restauracao", "protocolo de restaura??o",
+      "dentistica restauradora", "dent?stica restauradora", "classe i",
+      "classe 1", "classe ii", "classe 2"
+    ]
+  },
   acabamento_proximal: {
     label: "Acabamento proximal",
     badges: [],
@@ -101,8 +115,15 @@ var CLINICAL_SEARCH_INTENTS = {
     label: "Prótese removível",
     badges: [],
     synonyms: [
-      "ppr", "prótese removível", "protese removivel", "prótese total",
-      "protese total", "dentadura", "machuca", "balança", "balanca"
+      "ppr", "pr\u00f3tese remov\u00edvel", "protese removivel", "pr\u00f3tese total",
+      "protese total", "dentadura", "machuca", "balan\u00e7a", "balanca",
+      "nova protese total", "nova pr\u00f3tese total", "fazer dentadura nova",
+      "dentadura nova", "confeccao de protese total", "confec\u00e7\u00e3o de pr\u00f3tese total",
+      "moldagem funcional", "moldeira individual", "selado periferico",
+      "selado perif\u00e9rico", "rodete", "dvo", "nova pprg", "nova ppr",
+      "confeccao de pprg", "confec\u00e7\u00e3o de pprg", "estrutura metalica ppr",
+      "estrutura met\u00e1lica ppr", "dentes pilares", "nichos", "planos guia",
+      "planos-guia", "grampos ppr", "apoios ppr"
     ]
   },
   sangramento: {
@@ -120,6 +141,41 @@ var CLINICAL_SEARCH_INTENTS = {
     synonyms: [
       "trauma", "bateu o dente", "dente quebrou", "fratura", "avulsão",
       "avulsao", "luxação", "luxacao"
+    ]
+  },
+  espicula_ossea: {
+    label: "Esp\u00edcula \u00f3ssea",
+    badges: [],
+    synonyms: [
+      "espicula ossea", "esp\u00edcula \u00f3ssea", "osso espetando",
+      "osso exposto", "ponta de osso", "borda ossea", "borda \u00f3ssea",
+      "regularizacao ossea", "regulariza\u00e7\u00e3o \u00f3ssea", "sequestro osseo",
+      "sequestro \u00f3sseo", "fragmento osseo", "fragmento \u00f3sseo",
+      "alveolo espetando", "alv\u00e9olo espetando", "pos operatorio osso",
+      "p\u00f3s-operat\u00f3rio osso"
+    ]
+  },
+  fratura_radicular: {
+    label: "Fratura radicular",
+    badges: ["Urg\u00eancia"],
+    synonyms: [
+      "fratura radicular", "fratura vertical", "trinca radicular", "raiz fraturada",
+      "dor ao soltar a mordida", "dor ao aliviar a mordida", "dor localizada ao mastigar",
+      "bolsa profunda isolada", "bolsa estreita profunda", "fistula recorrente",
+      "f\u00edstula recorrente", "lesao em j", "les\u00e3o em j", "perda ossea vertical",
+      "perda \u00f3ssea vertical", "dente trincado", "suspeita de fratura"
+    ]
+  },
+  aumento_coroa_clinica: {
+    label: "Aumento de coroa cl\u00ednica",
+    badges: [],
+    synonyms: [
+      "aumento de coroa", "aumento de coroa clinica", "aumento de coroa cl\u00ednica",
+      "margem subgengival", "carie subgengival", "c\u00e1rie subgengival",
+      "fratura subgengival", "pouca estrutura", "pouco remanescente",
+      "sem ferrula", "sem f\u00e9rula", "ferrula", "f\u00e9rula",
+      "espaco biologico", "espa\u00e7o biol\u00f3gico", "osteotomia",
+      "osteoplastia", "gengivectomia", "retencao de coroa", "reten\u00e7\u00e3o de coroa"
     ]
   },
   prescricao: {
@@ -158,6 +214,18 @@ var CLINICAL_SEARCH_INTENTS = {
       "hemofilia", "inr"
     ]
   },
+  exodontia_extracao: {
+    label: "Exodontia / extração",
+    badges: ["Cirurgia"],
+    synonyms: [
+      "exodontia", "extracao", "extração", "extrair", "extrair dente",
+      "tirar dente", "arrancar dente", "remover dente", "dente para extrair",
+      "dente para tirar", "dente incluso", "dente impactado", "siso",
+      "terceiro molar", "raiz partiu na extracao", "raiz partiu na extração",
+      "raiz fraturou na extracao", "raiz fraturou na extração",
+      "pos extracao", "pós extração", "pos exodontia", "pós exodontia"
+    ]
+  },
   urgencia: {
     label: "Urgência",
     badges: ["Urgência"],
@@ -191,8 +259,9 @@ var CLINICAL_SEARCH_RELATIONS = {
     {type: "protocol", id: "pulpite-irreversivel", weight: 60, badges: ["Urgência"]}
   ],
   infeccao: [
-    {type: "protocol", id: "abscesso-drenagem", weight: 96, badges: ["Urgência"]},
-    {type: "protocol", id: "abscesso-perio", weight: 88},
+    
+    
+    {type: "protocol", id: "drenagem-abscesso", weight: 112, badges: ["Urg\u00eancia"]},{type: "protocol", id: "infeccao-odontogenica-sinais-sistemicos", weight: 118, badges: ["Urg\u00eancia", "Prescri\u00e7\u00e3o"]},{type: "protocol", id: "abscesso-perio", weight: 88},
     {type: "protocol", id: "endo-urgencia", weight: 76, badges: ["Urgência"]},
     {type: "prescription", id: "abscesso-periapical", weight: 82, badges: ["Prescrição"]},
     {type: "prescription", id: "abscesso-periodontal", weight: 78, badges: ["Prescrição"]}
@@ -205,9 +274,21 @@ var CLINICAL_SEARCH_RELATIONS = {
     {type: "conduct", id: "coroa-caiu", weight: 96},
     {type: "conduct", id: "pino-nucleo-soltou", weight: 92},
     {type: "conduct", id: "coroa-nao-entra-card", weight: 90},
+    {type: "protocol", id: "recimentacao-coroa-pino-nucleo", weight: 82},
     {type: "protocol", id: "pino-nucleo", weight: 76},
     {type: "protocol", id: "coroa-nao-entra", weight: 74},
     {type: "protocol", id: "nova-coroa", weight: 64}
+  ],
+
+  restauracao_procedimento: [
+    {type: "protocol", id: "trocar-rest", weight: 190, badges: ["Dent?stica"]},
+    {type: "protocol", id: "restauracao-carie", weight: 176, badges: ["Dent?stica"]},
+    {type: "protocol", id: "restauracao-proximal-classe-ii", weight: 156, badges: ["Dent?stica"]},
+    {type: "protocol", id: "restauracao-fratura", weight: 132, badges: ["Dent?stica"]},
+    {type: "protocol", id: "remocao-seletiva", weight: 104},
+    {type: "protocol", id: "protecao-pulpar", weight: 92},
+    {type: "protocol", id: "acabamento-proximal-restauracao", weight: 82},
+    {type: "protocol", id: "resina-comp", weight: 76}
   ],
   acabamento_proximal: [
     {type: "conduct", id: "fio-dental-nao-passa", weight: 150},
@@ -226,11 +307,15 @@ var CLINICAL_SEARCH_RELATIONS = {
     {type: "conduct", id: "dente-sensivel", weight: 80},
     {type: "conduct", id: "dor-ao-mastigar", weight: 76},
     {type: "protocol", id: "trocar-rest", weight: 96},
+    {type: "protocol", id: "aumento-coroa-clinica", weight: 74},
+    {type: "protocol", id: "avaliacao-fratura-radicular", weight: 70, badges: ["Urg\u00eancia"]},
     {type: "protocol", id: "pino-nucleo", weight: 58},
     {type: "protocol", id: "coroa-direta", weight: 54},
     {type: "protocol", id: "extracao-simples", weight: 42}
   ],
   protese_removivel: [
+    {type: "protocol", id: "nova-pprg", weight: 114},
+    {type: "protocol", id: "nova-protese-total", weight: 118},
     {type: "conduct", id: "protese-total-machuca", weight: 90},
     {type: "conduct", id: "ppr-machuca-balanca", weight: 86}
   ],
@@ -243,6 +328,31 @@ var CLINICAL_SEARCH_RELATIONS = {
   trauma: [
     {type: "protocol", id: "extracao-simples", weight: 62, badges: ["Urgência"]},
     {type: "protocol", id: "hemostasia", weight: 58, badges: ["Urgência"]}
+  ],
+  exodontia_extracao: [
+    {type: "protocol", id: "extracao-simples", weight: 190, badges: ["Cirurgia"]},
+    {type: "protocol", id: "extracao-cirurgica", weight: 174, badges: ["Cirurgia"]},
+    {type: "protocol", id: "hemostasia", weight: 86, badges: ["Urgência"]},
+    {type: "conduct", id: "dor-apos-extracao", weight: 72, badges: ["Pós-operatório"]},
+    {type: "protocol", id: "alveolite-seca", weight: 54},
+    {type: "protocol", id: "alveolite-umida", weight: 50}
+  ],
+  espicula_ossea: [
+    {type: "protocol", id: "remocao-espicula-ossea", weight: 124},
+    {type: "protocol", id: "alveolite-seca", weight: 58},
+    {type: "protocol", id: "alveolite-umida", weight: 52}
+  ],
+  fratura_radicular: [
+    {type: "protocol", id: "avaliacao-fratura-radicular", weight: 124, badges: ["Urg\u00eancia"]},
+    {type: "conduct", id: "dor-ao-mastigar", weight: 84},
+    {type: "protocol", id: "endo-urgencia", weight: 52, badges: ["Urg\u00eancia"]}
+  ],
+  aumento_coroa_clinica: [
+    {type: "protocol", id: "aumento-coroa-clinica", weight: 124},
+    {type: "conduct", id: "restauracao-caiu", weight: 84},
+    {type: "conduct", id: "restauracao-fraturou", weight: 80},
+    {type: "protocol", id: "nova-coroa", weight: 68},
+    {type: "protocol", id: "coroa-direta", weight: 56}
   ],
   prescricao: [
     {type: "protocol", id: "medicacao", weight: 82, badges: ["Prescrição"]},
@@ -268,8 +378,9 @@ var CLINICAL_SEARCH_RELATIONS = {
     {type: "protocol", id: "extracao-simples", weight: 64, badges: ["Anticoagulado"]}
   ],
   urgencia: [
-    {type: "protocol", id: "endo-urgencia", weight: 78, badges: ["Urgência"]},
-    {type: "protocol", id: "abscesso-drenagem", weight: 78, badges: ["Urgência"]},
+    
+    
+    {type: "protocol", id: "drenagem-abscesso", weight: 84, badges: ["Urg\u00eancia"]},{type: "protocol", id: "infeccao-odontogenica-sinais-sistemicos", weight: 92, badges: ["Urg\u00eancia", "Prescri\u00e7\u00e3o"]},{type: "protocol", id: "endo-urgencia", weight: 78, badges: ["Urgência"]},
     {type: "protocol", id: "hemostasia", weight: 76, badges: ["Urgência"]},
     {type: "protocol", id: "pulpite-irreversivel", weight: 74, badges: ["Urgência"]}
   ]
@@ -279,8 +390,7 @@ var CLINICAL_SEARCH_COMMON = [
   {type: "conduct", id: "coroa-caiu", weight: 48},
   {type: "conduct", id: "pino-nucleo-soltou", weight: 44},
   {type: "conduct", id: "coroa-nao-entra-card", weight: 42},
-  {type: "protocol", id: "endo-urgencia", weight: 38, badges: ["Urgência"]},
-  {type: "protocol", id: "abscesso-drenagem", weight: 36, badges: ["Urgência"]}
+  {type: "protocol", id: "endo-urgencia", weight: 38, badges: ["Urgência"]}
 ];
 
 var CLINICAL_SEARCH_CONTENT_GAPS = {

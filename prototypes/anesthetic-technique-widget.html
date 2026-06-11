@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OdontoDex - Técnica Anestésica por Dente</title>
+  <link rel="stylesheet" href="anesthetic-technique-widget.css">
+</head>
+<body>
+  <main class="phone">
+    <header class="topbar">
+      <button class="back-btn" type="button" aria-label="Voltar">←</button>
+      <h1>Técnica anestésica</h1>
+      <div class="top-spacer"></div>
+    </header>
+
+    <section class="widget">
+      <div class="widget-label">Número do dente</div>
+      <div class="input-row">
+        <input id="tooth-input" class="tooth-input" type="text" inputmode="numeric" maxlength="2" placeholder="Ex: 36" autocomplete="off">
+        <button id="clear-btn" class="clear-btn" type="button" aria-label="Limpar">×</button>
+      </div>
+
+      <div id="state-empty" class="empty-state">
+        Digite o número do dente para ver a técnica anestésica por região.
+      </div>
+
+      <div id="state-invalid" class="invalid-state" hidden>
+        Use um dente permanente entre 11 e 48 que esteja mapeado neste widget.
+      </div>
+
+      <article id="result" class="result" hidden>
+        <div class="region-pill" id="region-label"></div>
+
+        <section class="result-block primary">
+          <div class="block-label">Técnica principal</div>
+          <p id="primary-technique"></p>
+        </section>
+
+        <section class="result-block">
+          <div class="block-label">Complemento se necessário</div>
+          <ul id="complements"></ul>
+        </section>
+
+        <section class="result-block attention" id="attention-block" hidden>
+          <div class="block-label">Atenção</div>
+          <ul id="attention"></ul>
+        </section>
+
+        <section class="result-block fail">
+          <div class="block-label">Se falhar</div>
+          <ul id="failure"></ul>
+        </section>
+      </article>
+    </section>
+
+    <section class="fixed-note">
+      Antes de anestesiar, consulte a aba Anestésicos conforme o perfil do paciente.
+      <br><br>
+      A técnica indicada é uma referência clínica de apoio. Ajuste conforme anatomia, procedimento, infecção, resposta anestésica e condição sistêmica do paciente.
+    </section>
+  </main>
+
+  <script src="anesthetic-technique-widget.js"></script>
+</body>
+</html>

@@ -66,6 +66,74 @@ function openConduta(id){
   goScreen("conduta");
 }
 
+function openPrescricoesAnestesicosFromCard(){
+  if(typeof abaAtivaPrescricao !== "undefined") abaAtivaPrescricao = "anestesicos";
+  goScreen("prescricoes");
+}
+
+function openCondutaAction(type, id){
+  const actionType = type || "protocol";
+  if(actionType === "protocol") {
+    openProto(id);
+    return;
+  }
+  if(actionType === "conduct") {
+    openConduta(id);
+    return;
+  }
+  if(actionType === "tool" && typeof openClinicalTool === "function") {
+    openClinicalTool(id);
+    return;
+  }
+  if(actionType === "tab" && id === "anestesicos") {
+    openPrescricoesAnestesicosFromCard();
+  }
+}
+
+function parseCondutaActionLabel(label){
+  const text = String(label || "").trim();
+  const parts = text.split(/\s*(?:→|->)\s*/);
+  if(parts.length < 2) return {condition:text, target:text};
+  return {condition:parts[0].trim(), target:parts.slice(1).join(" → ").trim()};
+}
+
+function getCondutaActionOpenLabel(type){
+  const actionType = type || "protocol";
+  if(actionType === "tool") return "Abrir ferramenta";
+  if(actionType === "tab") return "Abrir aba";
+  if(actionType === "conduct") return "Abrir conduta";
+  if(actionType === "note") return "";
+  return "Abrir protocolo de";
+}
+
+function renderCondutaActionButton(action, className){
+  const type = action.type || "protocol";
+  const disabled = type === "note" || !action.id;
+  const icon = type === "conduct" ? "ti-link" : type === "tool" ? "ti-tools" : type === "tab" ? "ti-layout-list" : type === "note" ? "ti-info-circle" : "ti-clipboard-heart";
+  const buttonClass = className || "conduta-protocol-btn";
+  const parsed = parseCondutaActionLabel(action.label);
+  if(type === "note") {
+    return `
+      <div class="${buttonClass} conduta-next-step-btn disabled">
+        <div class="conduta-next-step-rule"><i class="ti ${icon}"></i><span>${escapeHtml(parsed.condition)}</span></div>
+        ${parsed.target && parsed.target !== parsed.condition ? `<div class="conduta-next-step-note">${escapeHtml(parsed.target)}</div>` : ""}
+      </div>
+    `;
+  }
+  return `
+    <button class="${buttonClass} conduta-next-step-btn ${disabled ? "disabled" : ""}" ${disabled ? "" : `onclick="openCondutaAction('${type}','${action.id}')"`}>
+      <div class="conduta-next-step-rule"><i class="ti ti-alert-circle"></i><span>${escapeHtml(parsed.condition)}</span></div>
+      <div class="conduta-next-step-open">
+        <span>
+          <span class="conduta-next-step-open-label">${escapeHtml(getCondutaActionOpenLabel(type))}</span>
+          <span class="conduta-next-step-open-title">${escapeHtml(parsed.target)}</span>
+        </span>
+        <i class="ti ${icon}"></i>
+      </div>
+    </button>
+  `;
+}
+
 function toggleCondutaBehind(){
   const list = document.getElementById("conduta-behind-list");
   const icon = document.getElementById("conduta-behind-icon");
@@ -220,12 +288,31 @@ function renderQuickConduct(id){
   const body = document.getElementById("conduta-body");
   const title = document.getElementById("conduta-top-title");
   if(!body || !title || !card) return;
-  title.textContent = "Conduta rápida";
-  const protocolButtons = (card.protocols || []).map(proto => `
-    <button class="conduta-protocol-btn" onclick="openProto('${proto.id}')">
-      <i class="ti ti-clipboard-heart"></i><span>${escapeHtml(proto.label)}</span>
-    </button>
-  `).join("");
+  title.textContent = "Conduta r??pida";
+  const protocolButtons = (card.protocols || []).map(proto => renderCondutaActionButton(proto, "conduta-protocol-btn")).join("");
+  const changesBlock = (card.changes || []).length ? `
+    <section class="conduta-smart-block alert">
+      <div class="conduta-smart-label"><i class="ti ti-alert-triangle"></i>${escapeHtml(card.changesLabel || "Quando isso muda?")}</div>
+      ${renderCondutaSmartList(card.changes || [])}
+    </section>
+  ` : "";
+  const behindBlock = (card.behind || []).length ? `
+    <section class="conduta-smart-block">
+      <button class="conduta-behind-toggle" onclick="toggleCondutaBehind()">
+        <span><i class="ti ti-search"></i> ${escapeHtml(card.behindLabel || "O que costuma estar por tr??s disso?")}</span>
+        <i class="ti ti-chevron-down" id="conduta-behind-icon"></i>
+      </button>
+      <div class="conduta-behind-list" id="conduta-behind-list">
+        ${renderCondutaBehind(card.behind || [])}
+      </div>
+    </section>
+  ` : "";
+  const protocolBlock = protocolButtons ? `
+    <section class="conduta-smart-block">
+      <div class="conduta-smart-label"><i class="ti ti-route"></i>${escapeHtml(card.protocolsLabel || "Como resolver")}</div>
+      ${protocolButtons}
+    </section>
+  ` : "";
   const relatedButtons = (card.related || []).map(rel => {
     const enabled = rel.id && QUICK_CONDUCT_CARDS[rel.id];
     return `
@@ -234,41 +321,30 @@ function renderQuickConduct(id){
       </button>
     `;
   }).join("");
+  const relatedBlock = relatedButtons ? `
+    <section class="conduta-smart-block">
+      <div class="conduta-smart-label"><i class="ti ti-link"></i>Problemas relacionados</div>
+      ${relatedButtons}
+    </section>
+  ` : "";
   const isFav = typeof isFavorite === "function" && isFavorite("conduct", card.id);
   body.innerHTML = `
     <div class="conduta-hero">
       <div class="conduta-hero-top">
-        <div class="conduta-eyebrow">Conduta rápida</div>
+        <div class="conduta-eyebrow">Conduta r??pida</div>
         <button class="conduta-fav-btn ${isFav ? "active" : ""}" data-fav-type="conduct" data-fav-id="${escapeHtml(card.id)}" onclick="toggleTypedFavorite('conduct','${card.id}')">${isFav ? '<i class="ti ti-star-filled"></i>' : '<i class="ti ti-star"></i>'}</button>
       </div>
       <div class="conduta-title">${escapeHtml(card.title)}</div>
     </div>
     <section class="conduta-smart-block primary">
-      <div class="conduta-smart-label"><i class="ti ti-bolt"></i>Resposta rápida</div>
+      <div class="conduta-smart-label"><i class="ti ti-bolt"></i>${escapeHtml(card.quickLabel || "Resposta r??pida")}</div>
       ${renderCondutaSmartText(card.quick)}
     </section>
-    <section class="conduta-smart-block alert">
-      <div class="conduta-smart-label"><i class="ti ti-alert-triangle"></i>Quando isso muda?</div>
-      ${renderCondutaSmartList(card.changes || [])}
-    </section>
+    ${changesBlock}
     ${renderCondutaTool(card)}
-    <section class="conduta-smart-block">
-      <button class="conduta-behind-toggle" onclick="toggleCondutaBehind()">
-        <span><i class="ti ti-search"></i> O que costuma estar por trás disso?</span>
-        <i class="ti ti-chevron-down" id="conduta-behind-icon"></i>
-      </button>
-      <div class="conduta-behind-list" id="conduta-behind-list">
-        ${renderCondutaBehind(card.behind || [])}
-      </div>
-    </section>
-    <section class="conduta-smart-block">
-      <div class="conduta-smart-label"><i class="ti ti-route"></i>Como resolver</div>
-      ${protocolButtons}
-    </section>
-    <section class="conduta-smart-block">
-      <div class="conduta-smart-label"><i class="ti ti-link"></i>Problemas relacionados</div>
-      ${relatedButtons}
-    </section>
+    ${behindBlock}
+    ${protocolBlock}
+    ${relatedBlock}
     <div class="spacer"></div>
   `;
   body.scrollTop = 0;
@@ -286,6 +362,9 @@ function renderHome(){
   
   renderSOSButtons();
   if(typeof renderHomeFavorites === "function") renderHomeFavorites();
+  document.querySelectorAll(".home-tool-lock").forEach(el => {
+    el.style.display = window.userIsPremium ? "none" : "block";
+  });
   // Categories
   const cs=document.getElementById("categories-scroll");
   if(cs){
@@ -493,7 +572,6 @@ function renderSOSButtons(){
     {icon:'<i class="ti ti-heartbeat"></i>', label:"Infarto",  proto:"infarto-protocolo",  free:false},
     {icon:'<i class="ti ti-brain"></i>', label:"Epilepsia",proto:"epilepsia-protocolo",free:false},
     {icon:'<i class="ti ti-droplet"></i>', label:"Sangramento",proto:"hemostasia",       free:false},
-    {icon:'<i class="ti ti-mood-nervous"></i>', label:"Ansiedade",proto:"ansiedade-protocolo",free:false},
   ];
   const container = document.getElementById("sos-buttons");
   if(!container) return;

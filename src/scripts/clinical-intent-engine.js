@@ -55,6 +55,7 @@ function clinicalLabelForType(type){
   if(type==="conduct")return "Conduta rápida";
   if(type==="prescription")return "Prescrição";
   if(type==="profile")return "Perfil clínico";
+  if(type==="anesthetic")return "Anestésico";
   if(type==="alert")return "Alerta importante";
   return "Protocolo";
 }
@@ -87,8 +88,11 @@ function detectClinicalIntents(query){
         score+=best;
       });
     });
-    if(id==="restauracao_solto_fratura"&&!/\b(caiu|soltou|descolou|perdeu|saiu|quebrou|fraturou|lascou|rachou|trincou|resina|obturacao)\b/.test(normalized))score=0;
-    if(id==="ajuste_oclusal_restauracao"&&/\b(alta|alto|mordendo|batendo|oclusao|hiperoclusao|prematuro)\b/.test(normalized))score+=80;
+    if(id==="restauracao_solto_fratura"&&!/\b(caiu|soltou|descolou|perdeu|saiu|quebrou|fraturou|lascou|rachou|trincou)\b/.test(normalized))score=0;
+    if(id==="restauracao_procedimento"&&/\b(alta|alto|mordendo|batendo|oclusao|hiperoclusao|prematuro|caiu|soltou|descolou|perdeu|saiu|quebrou|fraturou|lascou|rachou|trincou|dor|doendo|sensivel)\b/.test(normalized))score=0;
+    if(id==="acabamento_proximal"&&!/\b(acabamento|polimento|proximal|contato|fio|rasga|desfia|trava|overhang|excesso|sobrecontorno|interproximal|classe ii|classe 2|matriz|cunha|anel)\b/.test(normalized))score=0;
+    if(id==="ajuste_oclusal_restauracao"&&!/\b(alta|alto|mordendo|batendo|oclusao|hiperoclusao|prematuro|papel|carbono|mic|lateralidade|protrusao|shimstock)\b/.test(normalized))score=0;
+    if(id==="ajuste_oclusal_restauracao"&&score>0)score+=80;
     return {id,label:intent.label,score,badges:intent.badges||[]};
   }).filter(intent=>intent.score>=32).sort((a,b)=>b.score-a.score);
 }
@@ -98,6 +102,7 @@ function clinicalItemExists(type,id){
   if(type==="protocol")return !!(typeof DATA!=="undefined"&&DATA&&DATA.protocols&&DATA.protocols[id]);
   if(type==="prescription")return !!(typeof PRESCRICOES_DATA!=="undefined"&&PRESCRICOES_DATA[id]);
   if(type==="profile"||type==="alert")return !!(typeof PACIENTES_ESPECIAIS_DATA!=="undefined"&&PACIENTES_ESPECIAIS_DATA[id]);
+  if(type==="anesthetic")return !!(typeof ANESTESICOS_DATA!=="undefined"&&ANESTESICOS_DATA[id]);
   return false;
 }
 
@@ -106,13 +111,24 @@ function clinicalTitleForItem(type,id){
   if(type==="protocol")return DATA.protocols[id]?.title||id;
   if(type==="prescription")return PRESCRICOES_DATA[id]?.titulo||PRESCRICOES_LIST?.find(item=>item.id===id)?.label||id;
   if(type==="profile"||type==="alert")return PACIENTES_ESPECIAIS_DATA[id]?.titulo||PACIENTES_ESPECIAIS_LIST?.find(item=>item.id===id)?.label||id;
+  if(type==="anesthetic")return ANESTESICOS_DATA[id]?.titulo||ANESTESICOS_LIST?.find(item=>item.id===id)?.label||id;
   return id;
 }
 
 function clinicalSearchTextForItem(type,id){
   if(type==="conduct"){
     const card=QUICK_CONDUCT_CARDS[id]||{};
-    return [card.title,card.subtitle,card.intent,card.quick,...(card.synonyms||[]),...(card.behind||[]),...(card.changes||[])].join(" ");
+    return [
+      card.title,
+      card.subtitle,
+      card.intent,
+      card.quick,
+      ...(card.synonyms||[]),
+      ...(card.behind||[]),
+      ...(card.changes||[]),
+      ...(card.protocols||[]).map(item=>item.label),
+      ...(card.related||[]).map(item=>item.label)
+    ].join(" ");
   }
   if(type==="protocol"){
     const p=DATA.protocols[id]||{};
@@ -122,8 +138,7 @@ function clinicalSearchTextForItem(type,id){
       tipText,
       ...(p.steps||[]),
       ...(p.errors||[]),
-      ...(p.decisions||[]).flatMap(d=>[d.if,d.then]),
-      ...(p.panic||[]).flatMap(panic=>[panic.problem,panic.solution])
+      ...(p.decisions||[]).flatMap(d=>[d.if,d.then])
     ].join(" ");
   }
   if(type==="prescription"){
@@ -135,7 +150,33 @@ function clinicalSearchTextForItem(type,id){
     const data=PACIENTES_ESPECIAIS_DATA[id]||{};
     return [data.titulo,...(data.blocos||[]).flatMap(block=>[block.secao,...(block.itens||[])])].join(" ");
   }
+  if(type==="anesthetic"){
+    const data=ANESTESICOS_DATA[id]||{};
+    return [data.titulo,"anestesia anestésico anestesico",...(data.blocos||[]).flatMap(block=>[block.secao,...(block.itens||[])])].join(" ");
+  }
   return "";
+}
+
+function clinicalQueryHasAnestheticNeed(query){
+  const normalized=clinicalNormalize(query);
+  return /\b(anestesia|anestesico|anestesiar|anestesia local|tubete|vasoconstrictor|lidocaina|prilocaina|mepivacaina|articaina|citanest|xilocaina|scandicaine|biopressin|citocaina|novocol|epinefrina|adrenalina|felipressina)\b/.test(normalized);
+}
+
+function clinicalDetectAnestheticProfile(query){
+  const normalized=clinicalNormalize(query);
+  const patterns=[
+    {id:"gestantes-lactantes", badge:"Gestante", re:/\b(gestante|gravida|lactante|amamentando|gravidez|obstetra)\b/},
+    {id:"odontopediatria", badge:"Pediátrico", re:/\b(crianca|infantil|pediatrico|odontopediatria|bebe|bebezinho|kg)\b/},
+    {id:"idosos", badge:"Idoso", re:/\b(idoso|idosa|geriatrico|fragil|polifarmacia)\b/},
+    {id:"cardiopatas", badge:"Cardiopata", re:/\b(cardiopata|cardiaco|cardiaca|hipertenso|hipertensa|pressao|pa elevada|infarto|arritmia|angina)\b/},
+    {id:"diabeticos", badge:"Diabético", re:/\b(diabetico|diabetica|diabetes|glicemia|hipoglicemia|insulina)\b/},
+    {id:"asmaticos", badge:"Asmático", re:/\b(asmatico|asmatica|asma|bronquite|bombinha|sulfito|sulfitos|chiado)\b/},
+    {id:"epilepticos", badge:"Epiléptico", re:/\b(epileptico|epileptica|epilepsia|convulsao|crise convulsiva|anticonvulsivante)\b/},
+    {id:"coagulopatas", badge:"Coagulopata", re:/\b(coagulopata|coagulopatia|anticoagulado|anticoagulante|hemofilia|inr|marevan|varfarina|xarelto|rivaroxabana|eliquis|apixabana)\b/},
+    {id:"hepatopatas", badge:"Hepatopata", re:/\b(hepatopata|hepatopatia|figado|hepatico|hepatica|cirrose|ictericia)\b/},
+    {id:"nefropatas", badge:"Nefropata", re:/\b(nefropata|nefropatia|renal|rim|rins|dialise|hemodialise)\b/}
+  ];
+  return patterns.find(item=>item.re.test(normalized))||null;
 }
 
 function buildClinicalSearchIndex(){
@@ -158,6 +199,11 @@ function buildClinicalSearchIndex(){
   if(typeof PACIENTES_ESPECIAIS_DATA!=="undefined"){
     Object.keys(PACIENTES_ESPECIAIS_DATA).forEach(id=>{
       items.push({type:"profile",id,title:clinicalTitleForItem("profile",id),kind:clinicalLabelForType("profile"),baseScore:5,badges:[]});
+    });
+  }
+  if(typeof ANESTESICOS_DATA!=="undefined"){
+    Object.keys(ANESTESICOS_DATA).forEach(id=>{
+      items.push({type:"anesthetic",id,title:clinicalTitleForItem("anesthetic",id),kind:clinicalLabelForType("anesthetic"),baseScore:6,badges:["Anestésicos"]});
     });
   }
   return items;
@@ -208,9 +254,13 @@ function clinicalScoreTextMatch(item,query){
 function clinicalQueryMode(query,intentIds){
   const normalized=clinicalNormalize(query);
   const hasProfile=/\b(gestante|gravida|lactante|crianca|infantil|pediatrico|anticoagulado|coagulopata|diabetico|hipertenso|asmatico|alergico|idoso)\b/.test(normalized);
+  const hasAnesthetic=clinicalQueryHasAnestheticNeed(query);
+  const hasAnestheticFailure=/\b(anestesia nao pega|nao anestesia|nao consigo anestesiar|anestesia falhou|falha anestesica|anestesia nao funcionou|dor mesmo anestesiado|bloqueio nao pegou)\b/.test(normalized);
   const hasPrescription=/\b(remedio|medicamento|receita|prescricao|prescrever|tomar|nimesulida|ibuprofeno|amoxicilina|antibiotico|analgesico|antiinflamatorio|dipirona|paracetamol)\b/.test(normalized);
   const hasTechnical=/\b(classe|moldagem|cimentacao|preparo|restauracao proximal|acabamento proximal|ajuste oclusal|isolamento|capeamento|pulpotomia|endodontia|exodontia|cirurgia|aumento de coroa|provisorio|provisoria|pino de fibra|nucleo|resina|protocolo|passo)\b/.test(normalized);
   const hasProblem=/\b(caiu|soltou|saiu|quebrou|fraturou|lascou|rachou|nao entra|nao passa|rasga|desfia|dor|doendo|sensivel|sensibilidade|sangra|sangramento|inchado|abscesso|anestesia nao pega|nao anestesia|mastigar|morder|alto|batendo|travou|travado|perdeu)\b/.test(normalized);
+  if(hasAnestheticFailure)return "conduct";
+  if(hasAnesthetic)return "anesthetic";
   if(hasProfile||intentIds.some(id=>["gestante","crianca","anticoagulado"].includes(id)))return "profile";
   if(hasPrescription||intentIds.includes("prescricao"))return "prescription";
   if(hasTechnical&&!hasProblem)return "protocol";
@@ -218,6 +268,12 @@ function clinicalQueryMode(query,intentIds){
 }
 
 function clinicalApplyPriority(item,mode,intentIds){
+  if(mode==="anesthetic"){
+    if(item.type==="anesthetic")return {...item,score:item.score+180};
+    if(item.type==="profile")return {...item,score:item.score+70};
+    if(item.type==="prescription")return {...item,score:item.score+30};
+    return item;
+  }
   if(mode==="profile"){
     if(item.type==="alert")return {...item,score:item.score+180};
     if(item.type==="profile")return {...item,score:item.score+150};
@@ -250,8 +306,9 @@ function clinicalTypeOrder(type,intentIds){
   )){
     if(type==="alert")return 2;
     if(type==="profile")return 3;
-    if(type==="protocol")return 4;
-    if(type==="prescription")return 5;
+    if(type==="anesthetic")return 4;
+    if(type==="protocol")return 5;
+    if(type==="prescription")return 6;
     return 9;
   }
   if(intentIds&&(
@@ -259,15 +316,17 @@ function clinicalTypeOrder(type,intentIds){
     intentIds.includes("crianca")
   )){
     if(type==="prescription")return 2;
-    if(type==="protocol")return 3;
-    if(type==="alert")return 4;
-    if(type==="profile")return 5;
+    if(type==="anesthetic")return 3;
+    if(type==="protocol")return 4;
+    if(type==="alert")return 5;
+    if(type==="profile")return 6;
     return 9;
   }
   if(type==="protocol")return 2;
   if(type==="prescription")return 3;
-  if(type==="alert")return 4;
-  if(type==="profile")return 5;
+  if(type==="anesthetic")return 4;
+  if(type==="alert")return 5;
+  if(type==="profile")return 6;
   return 9;
 }
 
@@ -333,7 +392,7 @@ function clinicalIntentSearch(query,options){
 
   const intentIds=intents.map(intent=>intent.id);
   if(intentIds.length){
-    const exclusiveIntentIds=["sensibilidade_cervical","acabamento_proximal","ajuste_oclusal_restauracao","dor_mastigar","restauracao_solto_fratura"];
+    const exclusiveIntentIds=["sensibilidade_cervical","restauracao_procedimento","acabamento_proximal","ajuste_oclusal_restauracao","dor_mastigar","restauracao_solto_fratura","exodontia_extracao"];
     if(exclusiveIntentIds.includes(intents[0]?.id)){
       const topIntentId=intents[0].id;
       const allowed=new Set(((CLINICAL_SEARCH_RELATIONS&&CLINICAL_SEARCH_RELATIONS[topIntentId])||[]).map(rel=>rel.type+":"+rel.id));
@@ -341,6 +400,83 @@ function clinicalIntentSearch(query,options){
     }else{
       all=all.filter(item=>item.matchSource==="intent"||item.score>=120);
     }
+  }
+  const anestheticProfile=clinicalQueryHasAnestheticNeed(query)?clinicalDetectAnestheticProfile(query):null;
+  if(anestheticProfile&&clinicalItemExists("anesthetic",anestheticProfile.id)){
+    const profileCard=all.find(item=>item.type==="conduct"&&item.id==="anestesico-perfil-paciente");
+    if(profileCard){
+      profileCard.score+=1120;
+      profileCard.badges=clinicalMergeBadges(profileCard.badges,["Anestésicos",anestheticProfile.badge]);
+      profileCard.matchSource=profileCard.matchSource||"anesthetic-profile";
+    }else if(clinicalItemExists("conduct","anestesico-perfil-paciente")){
+      all.push({
+        type:"conduct",
+        id:"anestesico-perfil-paciente",
+        title:clinicalTitleForItem("conduct","anestesico-perfil-paciente"),
+        kind:clinicalLabelForType("conduct"),
+        score:1120,
+        badges:clinicalMergeBadges(["Anestésicos",anestheticProfile.badge]),
+        matchSource:"anesthetic-profile"
+      });
+    }
+    const existing=all.find(item=>item.type==="anesthetic"&&item.id===anestheticProfile.id);
+    if(existing){
+      existing.score+=900;
+      existing.badges=clinicalMergeBadges(existing.badges,["Anestésicos",anestheticProfile.badge]);
+      existing.matchSource=existing.matchSource||"anesthetic-profile";
+    }else{
+      all.push({
+        type:"anesthetic",
+        id:anestheticProfile.id,
+        title:clinicalTitleForItem("anesthetic",anestheticProfile.id),
+        kind:clinicalLabelForType("anesthetic"),
+        score:980,
+        badges:clinicalMergeBadges(["Anestésicos",anestheticProfile.badge]),
+        matchSource:"anesthetic-profile"
+      });
+    }
+  }
+  const normalizedForManual=clinicalNormalize(query);
+  const ensureManualResult=(type,id,score,badges)=>{
+    if(!clinicalItemExists(type,id))return;
+    const existing=all.find(item=>item.type===type&&item.id===id);
+    if(existing){
+      existing.score+=score;
+      existing.badges=clinicalMergeBadges(existing.badges,badges||[]);
+      existing.matchSource=existing.matchSource||"manual";
+      return;
+    }
+    all.push({
+      type,
+      id,
+      title:clinicalTitleForItem(type,id),
+      kind:clinicalLabelForType(type),
+      score,
+      badges:clinicalMergeBadges(badges||[]),
+      matchSource:"manual"
+    });
+  };
+  if(/\b(dentadura|protese total)\b/.test(normalizedForManual)&&/\b(frouxa|solta|caindo|sem retencao|instavel|perde vacuo)\b/.test(normalizedForManual)){
+    ensureManualResult("conduct","protese-total-caindo",1120,[]);
+  }
+  if(/\b(fistula|pus)\b/.test(normalizedForManual)&&/\b(gengiva|dente|boca|abscesso)\b/.test(normalizedForManual)){
+    ensureManualResult("conduct","fistula-gengiva",980,["Urgência"]);
+  }
+  if(/\b(inchaco|inchado|edema|face|facial|rosto)\b/.test(normalizedForManual)&&/\b(rosto|face|facial|inchaco|inchado|edema)\b/.test(normalizedForManual)){
+    ensureManualResult("conduct","inchaco-rosto",1040,["Urgência"]);
+  }
+  const isExtractionPlanning=/\b(exodontia|extracao|extrair|tirar dente|arrancar dente|remover dente)\b/.test(normalizedForManual);
+  const isPostExtraction=/\b(pos|apos|depois|dor|doendo|alveolite|sangramento|sangra|espicula|osso espetando|mau cheiro|mal cheiro)\b/.test(normalizedForManual);
+  if(isExtractionPlanning&&!isPostExtraction){
+    ensureManualResult("protocol","extracao-simples",1300,["Cirurgia"]);
+    ensureManualResult("protocol","extracao-cirurgica",1180,["Cirurgia"]);
+  }
+  const isRestorationPlanning=/\b(restau|restauracao|restaurar|resina|obturacao)\b/.test(normalizedForManual);
+  const isRestorationProblem=/\b(alta|alto|mordendo|batendo|oclusao|caiu|soltou|descolou|perdeu|saiu|quebrou|fraturou|lascou|rachou|trincou|dor|doendo|sensivel)\b/.test(normalizedForManual);
+  const isSpecificRestoration=/\b(classe ii|classe 2|proximal|contato|fio|matriz|cunha|fratura|carie profunda|carie|cervical)\b/.test(normalizedForManual);
+  if(isRestorationPlanning&&!isRestorationProblem&&!isSpecificRestoration){
+    ensureManualResult("protocol","trocar-rest",780,["Dentística"]);
+    ensureManualResult("protocol","restauracao-carie",520,["Dentística"]);
   }
   const queryMode=clinicalQueryMode(query,intentIds);
   all=all
@@ -361,6 +497,40 @@ function clinicalIntentSearch(query,options){
         if(item.type==="protocol"&&item.id==="recessao-gengival")return {...item,score:item.score+260};
         if(item.type==="protocol"&&item.id==="dessensibilizante")return {...item,score:item.score+180};
         if(item.type==="protocol"&&item.id==="ajuste-oclusal-restauracao")return {...item,score:item.score-60};
+      }
+      const normalizedQuery=clinicalNormalize(query);
+      if(/\b(coroa|protese fixa)\b/.test(normalizedQuery)&&/\b(caiu|soltou|saiu|descolou)\b/.test(normalizedQuery)){
+        if(item.type==="conduct"&&item.id==="coroa-caiu")return {...item,score:item.score+520};
+        if(item.type==="conduct"&&item.id==="restauracao-caiu")return {...item,score:item.score-180};
+        if(item.type==="conduct"&&item.id==="restauracao-fraturou")return {...item,score:item.score-180};
+      }
+      if(/\b(siso|terceiro molar|impactado|incluso|semi incluso|semiincluso)\b/.test(normalizedQuery)){
+        if(item.type==="protocol"&&item.id==="extracao-cirurgica")return {...item,score:item.score+420};
+        if(item.type==="protocol"&&item.id==="extracao-simples")return {...item,score:item.score-80};
+      }
+      if(/\b(extracao|exodontia|extrair|tirar dente|arrancar dente)\b/.test(normalizedQuery)&&/\b(simples|unirradicular|raiz reta|facil)\b/.test(normalizedQuery)){
+        if(item.type==="protocol"&&item.id==="extracao-simples")return {...item,score:item.score+280};
+        if(item.type==="protocol"&&item.id==="extracao-cirurgica")return {...item,score:item.score-80};
+      }
+      if(/\b(pino|nucleo)\b/.test(normalizedQuery)&&/\b(caiu|soltou|saiu|descolou)\b/.test(normalizedQuery)){
+        if(item.type==="conduct"&&item.id==="pino-nucleo-soltou")return {...item,score:item.score+520};
+        if(item.type==="conduct"&&item.id==="coroa-caiu")return {...item,score:item.score-80};
+      }
+      if(/\b(resina|obturacao|restauracao)\b/.test(normalizedQuery)&&/\b(quebrou|fraturou|lascou|rachou|trincou)\b/.test(normalizedQuery)){
+        if(item.type==="conduct"&&item.id==="restauracao-fraturou")return {...item,score:item.score+360};
+        if(item.type==="conduct"&&item.id==="protese-quebrou-card")return {...item,score:item.score-120};
+      }
+      if(/\b(dentadura|protese total)\b/.test(normalizedQuery)&&/\b(frouxa|solta|caindo|sem retencao|instavel|perde vacuo)\b/.test(normalizedQuery)){
+        if(item.type==="conduct"&&item.id==="protese-total-caindo")return {...item,score:item.score+360};
+        if(item.type==="conduct"&&item.id==="protese-quebrou-card")return {...item,score:item.score-120};
+      }
+      if(/\b(dente mole|dente amolecido|dente balancando|mobilidade dental|mobilidade dentaria)\b/.test(normalizedQuery)){
+        if(item.type==="conduct"&&item.id==="mobilidade-dental")return {...item,score:item.score+420};
+        if(item.type==="conduct"&&item.id==="restauracao-caiu")return {...item,score:item.score-120};
+      }
+      if(/\b(anestesia nao pega|nao anestesia|nao consigo anestesiar|anestesia falhou|falha anestesica|anestesia nao funcionou|bloqueio nao pegou)\b/.test(normalizedQuery)){
+        if(item.type==="conduct"&&item.id==="dente-nao-anestesia")return {...item,score:item.score+520};
+        if(item.type==="anesthetic")return {...item,score:item.score-260};
       }
       return item;
     })

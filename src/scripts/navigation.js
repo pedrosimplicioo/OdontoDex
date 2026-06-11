@@ -46,7 +46,8 @@ function _renderScreen(id) {
   if(id === "favorites")   renderFavs();
   if(id === "situations")  renderSituations();
   if(id === "procedures")  renderProcedures();
-  if(id === "prescricoes") { abaAtivaPrescricao = 'situacoes'; renderPrescricoesList(); }
+  if(id === "prescricoes") renderPrescricoesList();
+  if(id === "clinical-tool-detail" && typeof renderClinicalToolDetail === "function") renderClinicalToolDetail();
   if(id === "conduta" && currentCondutaId) renderQuickConduct(currentCondutaId);
   if(id === "protocol" && currentProtoId) renderProtocol(currentProtoId);
   if(id === "search") {

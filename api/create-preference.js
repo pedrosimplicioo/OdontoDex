@@ -1,5 +1,7 @@
 const { requireSameUser, sendAuthError } = require("./_auth");
 
+const APP_URL = "https://www.odontodex.com.br";
+
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
@@ -36,12 +38,12 @@ module.exports = async (req, res) => {
         payer: { email: userEmail },
         metadata: { uid },
         back_urls: {
-          success: "https://odontodex.vercel.app?payment=success",
-          failure: "https://odontodex.vercel.app?payment=failure",
-          pending: "https://odontodex.vercel.app?payment=pending",
+          success: `${APP_URL}?payment=success`,
+          failure: `${APP_URL}?payment=failure`,
+          pending: `${APP_URL}?payment=pending`,
         },
         auto_return: "approved",
-        notification_url: "https://guia-odonto1.vercel.app/api/webhook",
+        notification_url: `${APP_URL}/api/webhook`,
         statement_descriptor: "ODONTODEX",
       }),
     });
@@ -55,7 +57,6 @@ module.exports = async (req, res) => {
     return res.status(200).json({
       preferenceId: preference.id,
       initPoint: preference.init_point,
-      sandboxInitPoint: preference.sandbox_init_point,
     });
   } catch (error) {
     console.error("Erro ao criar preferência:", error);

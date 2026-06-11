@@ -12,7 +12,7 @@
   ],
   "routes": [
     {
-      "src": "/(logo192\\.png|logolanding\\.png|manifest\\.json|sw\\.js|icon-192\\.png|icon-512\\.png)",
+      "src": "/(logo192\\.png|logo512\\.png|logolanding\\.png|manifest\\.json|sw\\.js)",
       "dest": "/$1",
       "has": [{"type": "host", "value": "landing.odontodex.com.br"}]
     },
@@ -40,8 +40,8 @@
       "dest": "/privacidade.html"
     },
     {
-      "src": "/teste",
-      "dest": "/teste.html"
+      "src": "/exclusao-conta",
+      "dest": "/exclusao-conta.html"
     }
   ]
 }

@@ -1,20 +1,28 @@
 {
   "name": "OdontoDex",
   "short_name": "OdontoDex",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "description": "Assistente clinico odontologico para consulta de protocolos e condutas.",
+  "lang": "pt-BR",
+  "orientation": "portrait",
   "background_color": "#0F0A1A",
   "theme_color": "#7C3FA0",
+  "categories": ["medical", "productivity", "education"],
   "icons": [
     {
       "src": "/logo192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     },
     {
       "src": "/logo512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any maskable"
     }
   ]
 }

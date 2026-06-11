@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OdontoDex - Opções de Próximo passo</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css">
+  <style>
+    :root{
+      --bg:#0F172A;
+      --panel:#162238;
+      --panel-2:#1D2A42;
+      --line:#33445F;
+      --text:#F8FAFC;
+      --muted:#A8B3C7;
+      --soft:#CBD5E1;
+      --purple:#B779E7;
+      --purple-bg:#2A1F42;
+      --amber:#F6B451;
+      --amber-bg:#3A2B17;
+      --blue:#76B7F6;
+      --blue-bg:#142E4B;
+      --green:#6EE7B7;
+      --green-bg:#12372E;
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      background:var(--bg);
+      color:var(--text);
+      font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      letter-spacing:0;
+    }
+    .phone{
+      width:min(430px,100%);
+      min-height:100vh;
+      margin:0 auto;
+      background:#101B2F;
+      border-left:1px solid rgba(255,255,255,.06);
+      border-right:1px solid rgba(255,255,255,.06);
+    }
+    .top{
+      position:sticky;
+      top:0;
+      z-index:2;
+      background:#18243A;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      padding:18px 18px 14px;
+    }
+    .top-row{display:flex;align-items:center;justify-content:space-between;gap:12px}
+    .back{width:34px;height:34px;border:0;background:transparent;color:var(--text);font-size:22px;display:grid;place-items:center}
+    h1{font-size:17px;line-height:1.2;margin:0;font-weight:760}
+    .sub{font-size:12px;color:var(--muted);line-height:1.45;margin:8px 0 0}
+    .tabs{
+      display:flex;
+      gap:6px;
+      padding:12px 14px 4px;
+      overflow-x:auto;
+      scrollbar-width:none;
+    }
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{
+      border:1px solid var(--line);
+      background:#162238;
+      color:var(--soft);
+      border-radius:999px;
+      padding:9px 12px;
+      font:inherit;
+      font-size:12px;
+      font-weight:720;
+      white-space:nowrap;
+      cursor:pointer;
+    }
+    .tab.active{background:#34224B;border-color:#8B4CBD;color:#F3D9FF}
+    .content{padding:12px 16px 28px}
+    .option{display:none}
+    .option.active{display:block}
+    .card{
+      border:1px solid var(--line);
+      background:var(--panel);
+      border-radius:var(--radius);
+      padding:14px;
+      margin-bottom:14px;
+    }
+    .card-title{
+      display:flex;
+      align-items:center;
+      gap:9px;
+      font-size:11px;
+      text-transform:uppercase;
+      letter-spacing:1px;
+      font-weight:820;
+      color:var(--purple);
+      margin-bottom:12px;
+    }
+    .case{
+      border:1px solid rgba(255,255,255,.08);
+      background:#132036;
+      border-radius:16px;
+      padding:13px;
+      margin-bottom:14px;
+    }
+    .case-name{font-size:16px;font-weight:800;line-height:1.25;margin-bottom:5px}
+    .case-desc{font-size:12px;color:var(--muted);line-height:1.45}
+
+    .v1-list{display:flex;flex-direction:column;gap:8px}
+    .v1-btn{
+      width:100%;
+      border:1px solid var(--line);
+      background:var(--panel-2);
+      color:var(--text);
+      border-radius:14px;
+      padding:11px 12px;
+      text-align:left;
+      font:inherit;
+      cursor:pointer;
+    }
+    .v1-kicker{
+      display:flex;
+      align-items:center;
+      gap:7px;
+      color:var(--muted);
+      font-size:11px;
+      line-height:1.35;
+      margin-bottom:4px;
+    }
+    .v1-title{font-size:13px;font-weight:760;line-height:1.35;color:var(--text)}
+    .v1-title .ou{color:var(--amber);font-weight:820}
+
+    .v2-grid{display:flex;flex-direction:column;gap:10px}
+    .v2-btn{
+      border:1px solid var(--line);
+      background:#15243A;
+      color:var(--text);
+      border-radius:15px;
+      padding:0;
+      text-align:left;
+      overflow:hidden;
+      font:inherit;
+      cursor:pointer;
+    }
+    .v2-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 12px;
+      background:rgba(255,255,255,.035);
+      border-bottom:1px solid rgba(255,255,255,.06);
+    }
+    .v2-if{font-size:11px;color:var(--muted);line-height:1.35}
+    .v2-action{padding:11px 12px 12px;font-size:14px;font-weight:780;line-height:1.3}
+    .v2-icon{color:var(--purple);font-size:18px}
+
+    .v3-section{display:flex;flex-direction:column;gap:10px}
+    .v3-group{
+      border:1px solid var(--line);
+      background:#142136;
+      border-radius:16px;
+      padding:11px;
+    }
+    .v3-label{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      border-radius:999px;
+      padding:5px 8px;
+      font-size:10px;
+      font-weight:820;
+      text-transform:uppercase;
+      letter-spacing:.7px;
+      margin-bottom:8px;
+    }
+    .v3-label.protocol{background:var(--purple-bg);color:#EACBFF}
+    .v3-label.tool{background:var(--blue-bg);color:#CDE8FF}
+    .v3-label.alert{background:var(--amber-bg);color:#FFE0AB}
+    .v3-text{font-size:12px;color:var(--muted);line-height:1.45;margin-bottom:8px}
+    .v3-btn{
+      width:100%;
+      border:1px solid rgba(255,255,255,.08);
+      background:#1E2B43;
+      color:var(--text);
+      border-radius:13px;
+      padding:10px 11px;
+      text-align:left;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      font:inherit;
+      font-size:13px;
+      font-weight:760;
+      cursor:pointer;
+    }
+
+    .v4-path{display:flex;flex-direction:column;gap:0}
+    .v4-row{
+      position:relative;
+      display:grid;
+      grid-template-columns:28px 1fr;
+      gap:10px;
+      padding:0 0 14px;
+    }
+    .v4-row:not(:last-child)::before{
+      content:"";
+      position:absolute;
+      left:13px;
+      top:30px;
+      bottom:0;
+      width:1px;
+      background:var(--line);
+    }
+    .v4-num{
+      width:28px;
+      height:28px;
+      border-radius:999px;
+      background:#2B1F43;
+      color:#E9D5FF;
+      display:grid;
+      place-items:center;
+      font-size:12px;
+      font-weight:850;
+    }
+    .v4-box{
+      border:1px solid var(--line);
+      background:#17253C;
+      border-radius:14px;
+      padding:10px 11px;
+    }
+    .v4-cond{font-size:11px;color:var(--muted);line-height:1.4;margin-bottom:6px}
+    .v4-action{font-size:13px;font-weight:780;line-height:1.35}
+    .v4-pill{display:inline-flex;margin-top:8px;border-radius:999px;padding:5px 8px;background:rgba(183,121,231,.16);color:#E9D5FF;font-size:11px;font-weight:760}
+
+    .note{
+      border:1px solid rgba(246,180,81,.3);
+      background:rgba(246,180,81,.09);
+      color:#FFE3B2;
+      border-radius:14px;
+      padding:11px 12px;
+      font-size:12px;
+      line-height:1.45;
+      margin-top:12px;
+    }
+
+    .v5-list{display:flex;flex-direction:column;gap:10px}
+    .v5-card{width:100%;border:1px solid var(--line);background:#17253C;color:var(--text);border-radius:15px;padding:12px;text-align:left;font:inherit;cursor:pointer}
+    .v5-rule{display:flex;align-items:flex-start;gap:8px;font-size:12px;line-height:1.45;color:#D7E0EF;margin-bottom:9px}
+    .v5-rule strong{color:#F8FAFC;font-weight:780}
+    .v5-rule .ti{color:var(--amber);font-size:17px;margin-top:1px;flex-shrink:0}
+    .v5-open{display:flex;align-items:center;justify-content:space-between;gap:12px;border-radius:12px;background:#22314C;border:1px solid rgba(255,255,255,.07);padding:10px 11px}
+    .v5-open-label{display:block;font-size:10px;font-weight:820;color:var(--purple);text-transform:uppercase;letter-spacing:.8px;margin-bottom:3px}
+    .v5-open-title{display:block;font-size:13px;font-weight:780;line-height:1.3;color:var(--text)}
+    .v5-open .ti{color:var(--purple);font-size:18px;flex-shrink:0}
+    .v5-card.tool .v5-open-label,.v5-card.tool .v5-open .ti{color:var(--blue)}
+    .v5-card.tab .v5-open-label,.v5-card.tab .v5-open .ti{color:var(--green)}
+    .v5-card.note{cursor:default;border-color:rgba(246,180,81,.28);background:rgba(246,180,81,.08)}
+    .v5-card.note .v5-open{display:none}
+    .mini{font-size:11px;color:var(--muted);line-height:1.45;margin-top:8px}
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <header class="top">
+      <div class="top-row">
+        <button class="back" aria-label="Voltar"><i class="ti ti-arrow-left"></i></button>
+        <h1>Próximo passo</h1>
+        <span style="width:34px"></span>
+      </div>
+      <p class="sub">Simulação isolada. Escolha a opção que parece mais clara para os cards de conduta.</p>
+    </header>
+
+    <nav class="tabs" aria-label="Opções de layout">
+      <button class="tab" data-target="option-1">Opção 1</button>
+      <button class="tab" data-target="option-2">Opção 2</button>
+      <button class="tab" data-target="option-3">Opção 3</button>
+      <button class="tab" data-target="option-4">Opção 4</button>
+      <button class="tab active" data-target="option-5">Opção 5</button>
+    </nav>
+
+    <section class="content">
+      <div class="case">
+        <div class="case-name">A coroa caiu</div>
+        <div class="case-desc">Exemplo com escolhas parecidas e uma opção com OU.</div>
+      </div>
+
+      <section class="option" id="option-1">
+        <div class="card">
+          <div class="card-title"><i class="ti ti-route"></i> Opção 1 - Lista limpa</div>
+          <div class="v1-list">
+            <button class="v1-btn">
+              <div class="v1-kicker"><i class="ti ti-check"></i> Coroa íntegra, bom assentamento e remanescente favorável</div>
+              <div class="v1-title">Recimentar - Metalo-cerâmica / Metal</div>
+            </button>
+            <button class="v1-btn">
+              <div class="v1-kicker"><i class="ti ti-check"></i> Coroa íntegra, bom assentamento e remanescente favorável</div>
+              <div class="v1-title"><span class="ou">OU</span> Recimentar - Porcelana / Zircônia / Disilicato</div>
+            </button>
+            <button class="v1-btn">
+              <div class="v1-kicker"><i class="ti ti-alert-circle"></i> Coroa saiu junto com pino ou núcleo</div>
+              <div class="v1-title">Recimentação do conjunto coroa + pino/núcleo</div>
+            </button>
+            <button class="v1-btn">
+              <div class="v1-kicker"><i class="ti ti-x"></i> Cárie, fratura, margem ruim ou sem adaptação</div>
+              <div class="v1-title">Planejar nova coroa</div>
+            </button>
+          </div>
+          <div class="mini">Mais parecida com o app atual, mas reduz a frase grande e deixa a ação mais visível.</div>
+        </div>
+      </section>
+
+      <section class="option" id="option-2">
+        <div class="card">
+          <div class="card-title"><i class="ti ti-route"></i> Opção 2 - Decisão + ação</div>
+          <div class="v2-grid">
+            <button class="v2-btn">
+              <div class="v2-head">
+                <span class="v2-if">Se for metal ou metalo-cerâmica</span>
+                <i class="ti ti-chevron-right v2-icon"></i>
+              </div>
+              <div class="v2-action">Recimentar com protocolo para metal</div>
+            </button>
+            <button class="v2-btn">
+              <div class="v2-head">
+                <span class="v2-if">Se for porcelana, zircônia ou disilicato</span>
+                <i class="ti ti-chevron-right v2-icon"></i>
+              </div>
+              <div class="v2-action">Recimentar com protocolo adesivo cerâmico</div>
+            </button>
+            <button class="v2-btn">
+              <div class="v2-head">
+                <span class="v2-if">Se caiu com pino/núcleo</span>
+                <i class="ti ti-chevron-right v2-icon"></i>
+              </div>
+              <div class="v2-action">Avaliar e recimentar o conjunto</div>
+            </button>
+          </div>
+          <div class="mini">Boa para leitura clínica: primeiro a condição, depois o que abrir.</div>
+        </div>
+      </section>
+
+      <section class="option" id="option-3">
+        <div class="card">
+          <div class="card-title"><i class="ti ti-route"></i> Opção 3 - Agrupada por tipo</div>
+          <div class="v3-section">
+            <div class="v3-group">
+              <div class="v3-label protocol"><i class="ti ti-clipboard-list"></i> Protocolo</div>
+              <div class="v3-text">Quando a coroa está íntegra e o remanescente permite recimentação.</div>
+              <button class="v3-btn">Recimentar - Metalo-cerâmica / Metal <i class="ti ti-chevron-right"></i></button>
+            </div>
+            <div class="v3-group">
+              <div class="v3-label protocol"><i class="ti ti-clipboard-list"></i> Protocolo</div>
+              <div class="v3-text">Outra via possível para o mesmo cenário, conforme o material.</div>
+              <button class="v3-btn">OU Recimentar - Porcelana / Zircônia / Disilicato <i class="ti ti-chevron-right"></i></button>
+            </div>
+            <div class="v3-group">
+              <div class="v3-label alert"><i class="ti ti-alert-triangle"></i> Atenção</div>
+              <div class="v3-text">Se houver cárie, fratura, margem aberta ou coroa sem assentamento, não tratar como simples recimentação.</div>
+              <button class="v3-btn">Planejar nova coroa <i class="ti ti-chevron-right"></i></button>
+            </div>
+          </div>
+          <div class="mini">Mais organizado, mas ocupa mais espaço na tela.</div>
+        </div>
+      </section>
+
+      <section class="option" id="option-4">
+        <div class="card">
+          <div class="card-title"><i class="ti ti-route"></i> Opção 4 - Fluxo numerado</div>
+          <div class="v4-path">
+            <div class="v4-row">
+              <div class="v4-num">1</div>
+              <div class="v4-box">
+                <div class="v4-cond">Coroa íntegra + remanescente favorável</div>
+                <div class="v4-action">Escolha o material da coroa</div>
+                <span class="v4-pill">Metal ou cerâmica</span>
+              </div>
+            </div>
+            <div class="v4-row">
+              <div class="v4-num">2</div>
+              <div class="v4-box">
+                <div class="v4-cond">Metal / metalo-cerâmica</div>
+                <div class="v4-action">Abrir protocolo de recimentação para metal</div>
+              </div>
+            </div>
+            <div class="v4-row">
+              <div class="v4-num">3</div>
+              <div class="v4-box">
+                <div class="v4-cond">Porcelana / zircônia / disilicato</div>
+                <div class="v4-action">Abrir protocolo de recimentação cerâmica</div>
+              </div>
+            </div>
+          </div>
+          <div class="mini">Parece mais guiado, mas pode ficar pesado quando o card tiver muitas opções.</div>
+        </div>
+      </section>
+
+      <section class="option active" id="option-5">
+        <div class="card">
+          <div class="card-title"><i class="ti ti-route"></i> Opção 5 - Texto original + abrir</div>
+          <div class="v5-list">
+            <button class="v5-card">
+              <div class="v5-rule"><i class="ti ti-alert-circle"></i><span>Coroa íntegra, remanescente favorável e bom assentamento?</span></div>
+              <div class="v5-open"><span><span class="v5-open-label">Abrir protocolo de</span><span class="v5-open-title">Recimentar - Metalo-cerâmica / Metal</span></span><i class="ti ti-chevron-right"></i></div>
+            </button>
+            <button class="v5-card">
+              <div class="v5-rule"><i class="ti ti-alert-circle"></i><span>Coroa íntegra, remanescente favorável e bom assentamento?</span></div>
+              <div class="v5-open"><span><span class="v5-open-label">Abrir protocolo de</span><span class="v5-open-title">Recimentar - Porcelana / Zircônia / Disilicato</span></span><i class="ti ti-chevron-right"></i></div>
+            </button>
+            <button class="v5-card">
+              <div class="v5-rule"><i class="ti ti-alert-circle"></i><span>Coroa caiu com pino/núcleo junto?</span></div>
+              <div class="v5-open"><span><span class="v5-open-label">Abrir protocolo de</span><span class="v5-open-title">Recimentação do conjunto coroa + pino/núcleo</span></span><i class="ti ti-chevron-right"></i></div>
+            </button>
+            <button class="v5-card">
+              <div class="v5-rule"><i class="ti ti-alert-circle"></i><span>Cárie, fratura, margem comprometida ou coroa sem adaptação?</span></div>
+              <div class="v5-open"><span><span class="v5-open-label">Abrir protocolo de</span><span class="v5-open-title">Planejar nova coroa</span></span><i class="ti ti-chevron-right"></i></div>
+            </button>
+          </div>
+          <div class="mini">Mantém o texto original do card e separa visualmente o destino que será aberto.</div>
+        </div>
+      </section>
+
+      <div class="case">
+        <div class="case-name">Dente não anestesia</div>
+        <div class="case-desc">Exemplo com ferramenta, aba e protocolo misturados.</div>
+      </div>
+
+      <div class="card">
+        <div class="card-title"><i class="ti ti-sparkles"></i> Como ficaria no estilo escolhido</div>
+        <div id="live-secondary"></div>
+        <div class="note">Antes de aplicar no app, eu posso adaptar a opção escolhida para os cards da busca também, para ficar igual dentro e fora da página da conduta.</div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const tabs = Array.from(document.querySelectorAll(".tab"));
+    const options = Array.from(document.querySelectorAll(".option"));
+    const secondary = document.getElementById("live-secondary");
+    const examples = {
+      "option-1": `
+        <div class="v1-list">
+          <button class="v1-btn"><div class="v1-kicker"><i class="ti ti-tool"></i> Dúvida sobre técnica para o dente</div><div class="v1-title">Técnica anestésica por dente</div></button>
+          <button class="v1-btn"><div class="v1-kicker"><i class="ti ti-id"></i> Paciente especial ou condição sistêmica</div><div class="v1-title">Anestésicos por perfil do paciente</div></button>
+          <button class="v1-btn"><div class="v1-kicker"><i class="ti ti-flame"></i> Dor intensa ou pulpite irreversível</div><div class="v1-title">Pulpite Irreversível - Urgência</div></button>
+        </div>`,
+      "option-2": `
+        <div class="v2-grid">
+          <button class="v2-btn"><div class="v2-head"><span class="v2-if">Se a dúvida é a técnica por dente</span><i class="ti ti-chevron-right v2-icon"></i></div><div class="v2-action">Abrir ferramenta de técnica anestésica</div></button>
+          <button class="v2-btn"><div class="v2-head"><span class="v2-if">Se o paciente tem perfil especial</span><i class="ti ti-chevron-right v2-icon"></i></div><div class="v2-action">Consultar aba Anestésicos</div></button>
+          <button class="v2-btn"><div class="v2-head"><span class="v2-if">Se há dor espontânea intensa</span><i class="ti ti-chevron-right v2-icon"></i></div><div class="v2-action">Abrir protocolo de pulpite irreversível</div></button>
+        </div>`,
+      "option-3": `
+        <div class="v3-section">
+          <div class="v3-group"><div class="v3-label tool"><i class="ti ti-tool"></i> Ferramenta</div><div class="v3-text">Para escolher técnica conforme o dente.</div><button class="v3-btn">Técnica anestésica por dente <i class="ti ti-chevron-right"></i></button></div>
+          <div class="v3-group"><div class="v3-label protocol"><i class="ti ti-clipboard-list"></i> Aba</div><div class="v3-text">Para ajustar anestésico ao perfil do paciente.</div><button class="v3-btn">Anestésicos por perfil <i class="ti ti-chevron-right"></i></button></div>
+          <div class="v3-group"><div class="v3-label alert"><i class="ti ti-alert-triangle"></i> Urgência</div><div class="v3-text">Quando a dor sugere inflamação pulpar importante.</div><button class="v3-btn">Pulpite Irreversível <i class="ti ti-chevron-right"></i></button></div>
+        </div>`,
+      "option-4": `
+        <div class="v4-path">
+          <div class="v4-row"><div class="v4-num">1</div><div class="v4-box"><div class="v4-cond">Identifique se é técnica, perfil do paciente ou pulpite</div><div class="v4-action">Escolha o caminho mais provável</div></div></div>
+          <div class="v4-row"><div class="v4-num">2</div><div class="v4-box"><div class="v4-cond">Técnica por dente</div><div class="v4-action">Abrir ferramenta de técnica anestésica</div></div></div>
+          <div class="v4-row"><div class="v4-num">3</div><div class="v4-box"><div class="v4-cond">Perfil especial</div><div class="v4-action">Abrir aba Anestésicos</div></div></div>
+        </div>`,
+      "option-5": `
+        <div class="v5-list">
+          <button class="v5-card tool"><div class="v5-rule"><i class="ti ti-alert-circle"></i><span>Dúvida sobre técnica principal para o dente?</span></div><div class="v5-open"><span><span class="v5-open-label">Abrir ferramenta</span><span class="v5-open-title">Técnica anestésica por dente</span></span><i class="ti ti-chevron-right"></i></div></button>
+          <button class="v5-card tab"><div class="v5-rule"><i class="ti ti-alert-circle"></i><span>Paciente gestante, cardiopata, diabético, idoso, asmático, epiléptico, coagulopata, hepatopata ou nefropata?</span></div><div class="v5-open"><span><span class="v5-open-label">Abrir aba</span><span class="v5-open-title">Anestésicos por perfil do paciente</span></span><i class="ti ti-chevron-right"></i></div></button>
+          <button class="v5-card"><div class="v5-rule"><i class="ti ti-alert-circle"></i><span>Dor intensa, espontânea ou pulpite irreversível associada?</span></div><div class="v5-open"><span><span class="v5-open-label">Abrir protocolo de</span><span class="v5-open-title">Pulpite Irreversível - Urgência</span></span><i class="ti ti-chevron-right"></i></div></button>
+          <div class="v5-card note"><div class="v5-rule"><i class="ti ti-alert-circle"></i><span>Dor persistente mesmo com tecido mole anestesiado? Reavaliar diagnóstico e testar dentes vizinhos.</span></div></div>
+        </div>`
+    };
+    function activate(id){
+      tabs.forEach(tab => tab.classList.toggle("active", tab.dataset.target === id));
+      options.forEach(option => option.classList.toggle("active", option.id === id));
+      secondary.innerHTML = examples[id];
+    }
+    tabs.forEach(tab => tab.addEventListener("click", () => activate(tab.dataset.target)));
+    activate("option-5");
+  </script>
+</body>
+</html>
