@@ -2,7 +2,8 @@
   "name": "odontodex",
   "version": "1.0.0",
   "scripts": {
-    "test:security:payments": "node tests/security/payments-security-check.js"
+    "test:security:payments": "node tests/security/payments-security-check.js",
+    "test:security:pix": "node tests/security/pix-status-regression.js"
   },
   "dependencies": {
     "firebase-admin": "^11.11.0"
