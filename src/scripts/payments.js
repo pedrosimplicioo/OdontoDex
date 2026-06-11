@@ -155,13 +155,14 @@ function iniciarPixPolling(paymentId) {
   pixPollingInterval = setInterval(async () => {
     try {
       const idToken = await currentUser.getIdToken();
-      const res = await fetch('/api/check-pix-status', {
+      const res = await fetch('/api/create-pix', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${idToken}`
         },
         body: JSON.stringify({
+          action: 'check-status',
           uid: currentUser.uid,
           paymentId,
         }),

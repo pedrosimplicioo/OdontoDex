@@ -40,7 +40,6 @@ const adminEndpoints = [
 const userPaymentEndpoints = [
   "api/create-preference.js",
   "api/create-pix.js",
-  "api/check-pix-status.js",
   "api/create-subscription.js",
   "api/process-payment.js",
   "api/cancel-subscription.js",
@@ -88,11 +87,12 @@ assertContains("api/create-subscription.js", "premiumOrigem: \"assinatura\"", "a
 assertContains("api/process-payment.js", "premiumOrigem: \"pagamento\"", "pagamento direto precisa registrar premiumOrigem");
 assertContains("api/create-pix.js", "premiumOrigem: \"pix\"", "Pix pendente precisa registrar premiumOrigem");
 assertContains("api/create-pix.js", "notification_url: \"https://www.odontodex.com.br/api/webhook\"", "Pix precisa enviar notification_url oficial para o webhook");
-assertContains("api/check-pix-status.js", "https://api.mercadopago.com/v1/payments/${encodeURIComponent(paymentId)}", "checagem Pix precisa consultar Mercado Pago pelo paymentId");
-assertContains("api/check-pix-status.js", "paymentBelongsToUser(payment, uid)", "checagem Pix precisa validar dono do pagamento");
-assertContains("api/check-pix-status.js", "status === \"approved\"", "checagem Pix so pode ativar premium com approved");
-assertContains("api/check-pix-status.js", "pix_check_events", "checagem Pix precisa ser idempotente");
-assertContains("api/check-pix-status.js", "premiumOrigem: \"pix\"", "checagem Pix aprovada precisa marcar origem Pix");
+assertContains("api/create-pix.js", "req.body?.action === \"check-status\"", "create-pix precisa reaproveitar endpoint para checar Pix");
+assertContains("api/create-pix.js", "https://api.mercadopago.com/v1/payments/${encodeURIComponent(paymentId)}", "checagem Pix precisa consultar Mercado Pago pelo paymentId");
+assertContains("api/create-pix.js", "paymentBelongsToUser(payment, uid)", "checagem Pix precisa validar dono do pagamento");
+assertContains("api/create-pix.js", "status === \"approved\"", "checagem Pix so pode ativar premium com approved");
+assertContains("api/create-pix.js", "pix_check_events", "checagem Pix precisa ser idempotente");
+assertContains("api/create-pix.js", "premiumOrigem: \"pix\"", "checagem Pix aprovada precisa marcar origem Pix");
 assertContains("api/webhook.js", "premiumOrigem = pixDoc.exists ? \"pix\" : \"pagamento\"", "webhook precisa diferenciar Pix de pagamento avulso");
 assertContains("api/set-premium.js", "premiumOrigem: \"manual\"", "liberacao manual precisa registrar premiumOrigem");
 

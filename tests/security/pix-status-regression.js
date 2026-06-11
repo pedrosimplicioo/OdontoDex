@@ -28,7 +28,7 @@ function createResponse() {
 }
 
 function loadCheckPixStatus({ payment, tokenUid = "user_a" }) {
-  const endpointPath = path.join(root, "api", "check-pix-status.js");
+  const endpointPath = path.join(root, "api", "create-pix.js");
   const originalLoad = Module._load;
   const updates = [];
   const sets = [];
@@ -85,19 +85,26 @@ function loadCheckPixStatus({ payment, tokenUid = "user_a" }) {
   return { handler, updates, sets };
 }
 
-async function callHandler(handler, body = { uid: "user_a", paymentId: "pay_1" }) {
+async function callHandler(handler, body = { action: "check-status", uid: "user_a", paymentId: "pay_1" }) {
   const res = createResponse();
   await handler({ method: "POST", body, headers: {} }, res);
   return res;
 }
 
 (async () => {
-  assert(!/premium\s*:\s*true/.test(read("api/create-pix.js")), "gerar Pix nao pode ativar Premium");
+  const createPixSource = read("api/create-pix.js");
+  const checkStatusIndex = createPixSource.indexOf('req.body?.action === "check-status"');
+  const premiumActivationIndex = createPixSource.indexOf("premium: true");
+  const createPaymentIndex = createPixSource.indexOf('fetch("https://api.mercadopago.com/v1/payments"');
+  assert(checkStatusIndex > -1, "create-pix precisa ter ramo check-status");
+  assert(premiumActivationIndex > -1, "check-status approved precisa ativar Premium");
+  assert(createPaymentIndex > checkStatusIndex, "gerar Pix deve continuar no fluxo normal apos check-status");
+  assert(premiumActivationIndex < createPaymentIndex, "gerar Pix nao pode ativar Premium no fluxo de criacao");
 
   const copiarPixCode = read("src/scripts/payments.js").match(/function copiarPixCode\(\) \{[\s\S]*?\n\}/)?.[0] || "";
   assert(!copiarPixCode.includes("onPaymentApproved"), "copiar Pix nao pode aprovar pagamento");
   assert(!copiarPixCode.includes("userIsPremium"), "copiar Pix nao pode alterar premium local");
-  assert(!copiarPixCode.includes("check-pix-status"), "copiar Pix nao pode consultar status");
+  assert(!copiarPixCode.includes("check-status"), "copiar Pix nao pode consultar status");
 
   {
     const { handler, updates } = loadCheckPixStatus({
