@@ -48,6 +48,7 @@ function showRegister(){
   document.getElementById("login-form").style.display="none";
   document.getElementById("register-form").style.display="block";
   document.getElementById("reset-form").style.display="none";
+  validarCadastro();
 }
 function showReset(){
   document.getElementById("login-form").style.display="none";
@@ -76,6 +77,11 @@ async function doLoginGoogle(){
       document.getElementById('gw-nome').value = nomeGoogle;
       gwPerfil = '';
       gwTrat = '';
+      gwTratSelecionado = false;
+      const gwTerms = document.getElementById('gw-terms-accepted');
+      if (gwTerms) gwTerms.checked = false;
+      const gwError = document.getElementById('gw-error');
+      if (gwError) { gwError.textContent = ''; gwError.style.display = 'none'; }
       document.getElementById('gw-btn-dentista').className = 'select-btn';
       document.getElementById('gw-btn-estudante').className = 'select-btn';
       document.getElementById('gw-bloco-trat').style.display = 'none';
@@ -156,7 +162,8 @@ function gwValidarBotao() {
   const nome = document.getElementById('gw-nome').value.trim();
   const perfilOk = gwPerfil !== '';
   const tratOk = gwPerfil === 'estudante' || gwPerfil === 'dentista' && gwTrat !== undefined;
-  const tudo = nome.length > 0 && perfilOk && (gwPerfil === 'estudante' || gwTratSelecionado);
+  const termosOk = document.getElementById('gw-terms-accepted')?.checked === true;
+  const tudo = nome.length > 0 && perfilOk && (gwPerfil === 'estudante' || gwTratSelecionado) && termosOk;
   const btn = document.getElementById('gw-btn-confirmar');
   btn.disabled = !tudo;
   btn.style.background = tudo ? '#7C3FA0' : '#cbd5e1';
@@ -165,7 +172,16 @@ function gwValidarBotao() {
 
 async function gwConfirmar() {
   const nome = document.getElementById('gw-nome').value.trim();
+  const gwError = document.getElementById('gw-error');
+  if (gwError) { gwError.textContent = ''; gwError.style.display = 'none'; }
   if(!nome || !gwPerfil) return;
+  if (document.getElementById('gw-terms-accepted')?.checked !== true) {
+    if (gwError) {
+      gwError.textContent = 'Você precisa aceitar os Termos de Uso e a Política de Privacidade para criar sua conta.';
+      gwError.style.display = 'block';
+    }
+    return;
+  }
   const primeiroNome = nome.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1).toLowerCase();}).join(' ');
   const displayName = gwPerfil === 'estudante' ? primeiroNome : (gwTrat ? gwTrat + ' ' + primeiroNome : primeiroNome);
   showLoading();
@@ -184,7 +200,12 @@ async function gwConfirmar() {
       premium: true,
       premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira),
       premiumOrigem: 'trial',
-      trialAtivado: true
+      trialAtivado: true,
+      termosAceitos: true,
+      termosAceitosEm: firebase.firestore.FieldValue.serverTimestamp(),
+      termosVersao: '1.0',
+      privacidadeVersao: '1.1',
+      origemCadastro: 'google'
     });
     window.userIsPremium = true;
     localStorage.setItem('userIsPremium', 'true');
@@ -215,15 +236,60 @@ function selectPerfil(p){
   document.getElementById('btn-estudante').className='select-btn'+(p==='estudante'?' selected':'');
   document.getElementById('bloco-tratamento').style.display=p==='dentista'?'block':'none';
   if(p==='estudante') selectedTratamento='';
+  validarCadastro();
+}
+
+function togglePasswordVisibility(fieldId, button){
+  const input = document.getElementById(fieldId);
+  if(!input || !button) return;
+  const show = input.type === 'password';
+  input.type = show ? 'text' : 'password';
+  button.setAttribute('aria-label', show ? 'Ocultar senha' : 'Mostrar senha');
+  button.innerHTML = show ? '<i class="ti ti-eye-off"></i>' : '<i class="ti ti-eye"></i>';
+}
+
+function updatePasswordMatchFeedback(){
+  const pwd = document.getElementById("register-password")?.value || '';
+  const confirm = document.getElementById("register-password-confirm")?.value || '';
+  const feedback = document.getElementById("password-match-feedback");
+  if(!feedback) return;
+  if(confirm.length < 5){
+    feedback.textContent = '';
+    feedback.className = 'password-feedback';
+    return;
+  }
+  const matches = pwd === confirm;
+  feedback.textContent = matches ? 'As senhas coincidem.' : 'As senhas não coincidem.';
+  feedback.className = 'password-feedback ' + (matches ? 'success' : 'error');
+}
+
+function validarCadastro(){
+  const name=document.getElementById("register-name")?.value?.trim();
+  const email=document.getElementById("register-email")?.value?.trim();
+  const pwd=document.getElementById("register-password")?.value || '';
+  const confirm=document.getElementById("register-password-confirm")?.value || '';
+  const termosOk=document.getElementById("register-terms-accepted")?.checked === true;
+  const btn=document.getElementById("register-submit-btn");
+  updatePasswordMatchFeedback();
+  if(!btn) return;
+  const podeCriar = !!name && !!email && pwd.length >= 6 && pwd === confirm && termosOk;
+  btn.disabled = !podeCriar;
+  btn.style.opacity = podeCriar ? '1' : '0.55';
+  btn.style.cursor = podeCriar ? 'pointer' : 'not-allowed';
 }
 
 async function doRegister(){
   const name=document.getElementById("register-name")?.value?.trim();
   const email=document.getElementById("register-email")?.value?.trim();
   const pwd=document.getElementById("register-password")?.value;
+  const pwdConfirm=document.getElementById("register-password-confirm")?.value;
+  const termosOk=document.getElementById("register-terms-accepted")?.checked === true;
   const err=document.getElementById("register-error");
+  if(err){err.textContent='';err.style.display='none';}
   if(!name||!email||!pwd){if(err){err.textContent="Preencha todos os campos";err.style.display="block";}return;}
-  if(pwd.length<6){if(err){err.textContent="Mínimo 6 caracteres";err.style.display="block";}return;}
+  if(pwd.length<6){if(err){err.textContent="Use uma senha mais forte.";err.style.display="block";}return;}
+  if(pwd !== pwdConfirm){if(err){err.textContent="As senhas não coincidem.";err.style.display="block";}return;}
+  if(!termosOk){if(err){err.textContent="Você precisa aceitar os Termos de Uso e a Política de Privacidade para criar sua conta.";err.style.display="block";}return;}
   showLoading();
   try{
     const res=await auth.createUserWithEmailAndPassword(email,pwd);
@@ -247,7 +313,12 @@ async function doRegister(){
         premium: true,
         premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira),
         premiumOrigem: 'trial',
-        trialAtivado: true
+        trialAtivado: true,
+        termosAceitos: true,
+        termosAceitosEm: firebase.firestore.FieldValue.serverTimestamp(),
+        termosVersao: '1.0',
+        privacidadeVersao: '1.1',
+        origemCadastro: 'email'
       });
     }catch(e){console.log('Firestore indisponível',e);}
     // Salva perfil e tratamento no localStorage
@@ -268,8 +339,12 @@ showAppScreen();
   }catch(e){
     hideLoading();
     if(err){
-      const msgs={"auth/email-already-in-use":"Este email já está cadastrado","auth/invalid-email":"Email inválido","auth/weak-password":"Senha muito fraca"};
-      err.textContent=msgs[e.code]||"Erro ao criar conta. Tente novamente.";
+      const msgs={
+        "auth/email-already-in-use":"Este e-mail já possui uma conta. Tente entrar ou recuperar sua senha.",
+        "auth/invalid-email":"Digite um e-mail válido.",
+        "auth/weak-password":"Use uma senha mais forte."
+      };
+      err.textContent=msgs[e.code]||"Não foi possível criar sua conta agora. Tente novamente.";
       err.style.display="block";
     }
   }

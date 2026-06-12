@@ -56,7 +56,7 @@
     <div class="login-card">
       <div id="login-form">
         <div class="input-group"><label class="input-label">Email</label><input type="email" id="login-email" class="input-field" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
-        <div class="input-group"><label class="input-label">Senha</label><input type="password" id="login-password" class="input-field" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"></div>
+        <div class="input-group"><label class="input-label">Senha</label><div class="password-field-wrap"><input type="password" id="login-password" class="input-field" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password', this)" aria-label="Mostrar senha"><i class="ti ti-eye"></i></button></div></div>
         <div id="login-error" class="error-message"></div>
         <button class="btn btn-primary" onclick="doLogin()" style="margin-bottom:12px">Entrar</button>
         <div class="divider">ou</div>
@@ -69,9 +69,10 @@
 <div style="text-align:center;margin-top:16px;font-size:12px;color:#94A3B8;line-height:1.6;padding:0 8px;">Ao entrar, você concorda com nossos <a href="/termos" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Termos de Uso</a> e nossa <a href="/privacidade" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Política de Privacidade</a>.</div>
       </div>
       <div id="register-form" style="display:none">
-        <div class="input-group"><label class="input-label">Nome completo</label><input type="text" id="register-name" class="input-field" placeholder="Seu nome" autocomplete="name"></div>
-        <div class="input-group"><label class="input-label">Email</label><input type="email" id="register-email" class="input-field" placeholder="seu@email.com" autocomplete="email"></div>
-        <div class="input-group"><label class="input-label">Senha</label><input type="password" id="register-password" class="input-field" placeholder="mínimo 6 caracteres" autocomplete="new-password"></div>
+        <div class="input-group"><label class="input-label">Nome completo</label><input type="text" id="register-name" class="input-field" placeholder="Seu nome" autocomplete="name" oninput="validarCadastro()"></div>
+        <div class="input-group"><label class="input-label">Email</label><input type="email" id="register-email" class="input-field" placeholder="seu@email.com" autocomplete="email" oninput="validarCadastro()"></div>
+        <div class="input-group"><label class="input-label">Senha</label><div class="password-field-wrap"><input type="password" id="register-password" class="input-field" placeholder="mínimo 6 caracteres" autocomplete="new-password" oninput="validarCadastro()"><button type="button" class="password-toggle" onclick="togglePasswordVisibility('register-password', this)" aria-label="Mostrar senha"><i class="ti ti-eye"></i></button></div></div>
+        <div class="input-group"><label class="input-label">Confirmar senha</label><div class="password-field-wrap"><input type="password" id="register-password-confirm" class="input-field" placeholder="repita sua senha" autocomplete="new-password" oninput="validarCadastro()" onkeydown="if(event.key==='Enter')doRegister()"><button type="button" class="password-toggle" onclick="togglePasswordVisibility('register-password-confirm', this)" aria-label="Mostrar senha"><i class="ti ti-eye"></i></button></div><div id="password-match-feedback" class="password-feedback"></div></div>
         <div style="margin-bottom:16px">
           <span class="select-group-label">Qual é o seu perfil?</span>
           <div class="select-group">
@@ -87,8 +88,12 @@
             <button type="button" class="select-btn" id="btn-semtitulo" onclick="selectTratamento('')"><i class="ti ti-user"></i> Sem título</button>
           </div>
         </div>
+        <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:#64748B;line-height:1.5;margin:0 0 12px;cursor:pointer;">
+          <input type="checkbox" id="register-terms-accepted" onchange="validarCadastro()" style="margin-top:3px;accent-color:#7C3FA0;">
+          <span>Li e concordo com os <a href="/termos" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Termos de Uso</a> e a <a href="/privacidade" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Política de Privacidade</a>.</span>
+        </label>
         <div id="register-error" class="error-message"></div>
-        <button class="btn btn-primary" onclick="doRegister()" style="margin-bottom:12px">Criar conta</button>
+        <button class="btn btn-primary" id="register-submit-btn" onclick="doRegister()" disabled style="margin-bottom:12px;opacity:0.55;cursor:not-allowed;">Criar conta</button>
         <div class="divider">ou</div>
         <button class="btn btn-text" onclick="showLogin()">Voltar para login</button>
       </div>
@@ -123,6 +128,11 @@
         <button type="button" class="select-btn" id="gw-btn-semtitulo" onclick="gwSelecionarTrat('')"><i class="ti ti-user"></i> Sem título</button>
       </div>
     </div>
+    <label style="display:flex;align-items:flex-start;gap:8px;font-size:12px;color:var(--color-text-secondary);line-height:1.5;margin:0 0 12px;cursor:pointer;">
+      <input type="checkbox" id="gw-terms-accepted" onchange="gwValidarBotao()" style="margin-top:3px;accent-color:#7C3FA0;">
+      <span>Li e concordo com os <a href="/termos" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Termos de Uso</a> e a <a href="/privacidade" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Política de Privacidade</a>.</span>
+    </label>
+    <div id="gw-error" class="error-message" style="margin-bottom:10px;"></div>
     <button id="gw-btn-confirmar" onclick="gwConfirmar()" disabled style="width:100%;padding:13px;background:#cbd5e1;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:not-allowed;">Começar a usar o OdontoDex</button>
   </div>
 </div>
