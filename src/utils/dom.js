@@ -356,17 +356,44 @@ function selectTratEdit(t){
 }
 
 async function saveEditTratamento(){
-  localStorage.setItem('guiaTratamento', editTratSelected);
+  const novoTratamento = editTratSelected ?? '';
+
   if(currentUser){
     try{
-      const nome = localStorage.getItem('guiaNome') || (currentUser.displayName||'').split(' ').filter(function(p){return p!=='Dr.'&&p!=='Dra.';}).join(' ').split(' ')[0] || '';
-      const novoDisplay = editTratSelected ? editTratSelected+' '+nome : nome;
-      await currentUser.updateProfile({displayName: novoDisplay});
-    }catch(e){console.log(e);}
+      const nome = localStorage.getItem('guiaNome') || 
+        (currentUser.displayName || '')
+          .split(' ')
+          .filter(function(p){ return p !== 'Dr.' && p !== 'Dra.'; })
+          .join(' ')
+          .split(' ')[0] || '';
+
+      const novoDisplay = novoTratamento ? novoTratamento + ' ' + nome : nome;
+
+      // Salva no Firestore — apenas o campo permitido pelas rules
+      await db.collection('users').doc(currentUser.uid).update({
+        tratamento: novoTratamento
+      });
+
+      // Atualiza também o displayName do Firebase Auth
+      await currentUser.updateProfile({
+        displayName: novoDisplay
+      });
+
+      // Só atualiza o localStorage depois de salvar com sucesso
+      localStorage.setItem('guiaTratamento', novoTratamento);
+
+    }catch(e){
+      console.error('Erro ao salvar tratamento:', e);
+      showToast('Não foi possível salvar o tratamento.', 'error');
+      return;
+    }
+  } else {
+    localStorage.setItem('guiaTratamento', novoTratamento);
   }
+
   hideOverlay('edit-trat-overlay');
   atualizarSaudacao();
-  showToast('Tratamento atualizado!','success');
+  showToast('Tratamento atualizado!', 'success');
   renderSettings();
 }
 
