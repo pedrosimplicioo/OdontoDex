@@ -412,7 +412,7 @@
 <!-- Cancelamento Premium (discreto, sem borda, sem ícone) -->
 <div id="cancel-premium-section" style="display: none; text-align: center; margin-top: 24px; margin-bottom: 16px;">
   <button id="cancel-premium-btn" onclick="openCancelModal()" style="background: none; border: none; font-size: 12px; color: #94A3B8; cursor: pointer; font-family: inherit; text-decoration: none; opacity: 0.6;">
-    Cancelar assinatura
+    Cancelar renovação
   </button>
 </div>
     <div style="text-align:center;font-size:11px;color:#94A3B8;margin-top:8px">odontodex · Versão 1.0</div>
@@ -588,11 +588,11 @@
 
     <!-- CTA -->
     <div class="prem-cta-wrap">
-     <button class="prem-cta-btn" onclick="abrirTelaPayment()">
-        <span>Quero acesso completo</span>
-        <span class="prem-cta-arrow">→</span>
-      </button>
-      <div class="prem-cta-fine">7 dias grátis · Cancele quando quiser · Sem fidelidade</div>
+      <button class="prem-cta-btn" onclick="abrirTelaPayment()">
+         <span>Ver opções de pagamento</span>
+         <span class="prem-cta-arrow">→</span>
+       </button>
+      <div class="prem-cta-fine">Pix avulso ou assinatura mensal no cartão</div>
       <button class="prem-skip-btn" onclick="hideOverlay('premium-overlay')">Continuar com versão gratuita</button>
     </div>
 
@@ -616,7 +616,7 @@
     <!-- ETAPA 1: O que você vai perder -->
     <div id="cancel-step-1">
       <div class="modal-icon" style="text-align:center;margin-bottom:12px;color:#7C3FA0"><i class="ti ti-crown"></i></div>
-      <h2 class="modal-title" style="font-size:19px;text-align:center;margin-bottom:6px">Cancelar assinatura?</h2>
+      <h2 class="modal-title" style="font-size:19px;text-align:center;margin-bottom:6px">Cancelar renovação?</h2>
       <p class="modal-sub" style="text-align:center;margin-bottom:20px">Você vai perder acesso a:</p>
       <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px">
         <div style="display:flex;align-items:center;gap:12px;background:rgba(124,63,160,0.07);border-radius:12px;padding:12px 14px">
@@ -637,10 +637,10 @@
         </div>
       </div>
       <button onclick="hideCancelModal()" style="width:100%;background:#7C3FA0;color:#fff;border:none;border-radius:14px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;margin-bottom:12px;font-family:inherit">
-        Manter minha assinatura
+        Manter renovação mensal
       </button>
       <button onclick="cancelStep(2)" style="width:100%;background:none;border:none;font-size:13px;color:#94A3B8;cursor:pointer;font-family:inherit;padding:4px">
-        Continuar cancelamento
+        Continuar cancelamento da renovação
       </button>
     </div>
 
@@ -686,21 +686,22 @@
   <div class="payment-screen-hdr">
     <button class="back-btn" onclick="goBackToLastScreen()">←</button>
     <div>
-      <div style="font-size:17px;font-weight:800;color:#0F172A" class="top-title">Assinar Premium</div>
-      <div style="font-size:11px;color:#94A3B8;margin-top:1px">Pagamento seguro via Mercado Pago</div>
+      <div style="font-size:17px;font-weight:800;color:#0F172A" class="top-title">Acesso Premium</div>
+      <div style="font-size:11px;color:#94A3B8;margin-top:1px">Escolha a forma de pagamento</div>
     </div>
   </div>
   <div class="payment-screen-body">
     <div class="payment-summary-card">
       <div class="payment-summary-title">OdontoDex Premium</div>
       <div class="payment-summary-value">R$ 9,90</div>
-      <div class="payment-summary-desc">por mês · acesso completo · cancele quando quiser</div>
+      <div class="payment-summary-desc">acesso completo aos recursos Premium</div>
     </div>
     <div class="payment-security-row">
       <span class="protocol-inline-icon"><i class="ti ti-lock"></i></span>
       <div class="payment-security-txt">Pagamento 100% seguro · Seus dados são protegidos pelo Mercado Pago · PCI DSS compliant</div>
     </div>
-    <div style="font-size:12px;color:#64748B;line-height:1.6;padding:12px 0 4px;text-align:center;">Ao assinar, você concorda com nossos <a href="/termos" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Termos de Uso</a> e nossa <a href="/privacidade" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Política de Privacidade</a>. Cancele quando quiser.</div>
+    <div style="font-size:12px;color:#64748B;line-height:1.6;padding:12px 0 4px;text-align:center;">Escolha sua forma de acesso Premium. Você pode pagar 30 dias por Pix, sem renovação automática, ou ativar uma assinatura mensal no cartão.</div>
+    <div style="font-size:12px;color:#64748B;line-height:1.6;padding:0 0 4px;text-align:center;">Ao continuar, você concorda com nossos <a href="/termos" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Termos de Uso</a> e nossa <a href="/privacidade" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Política de Privacidade</a>.</div>
     <!-- CUPOM PARCEIRO -->
 <div style="display:flex;flex-direction:column;gap:6px;margin-bottom:4px;">
   <div style="font-size:11px;font-weight:700;color:#64748B;letter-spacing:0.5px;text-transform:uppercase;"><i class="ti ti-ticket"></i> Cupom de parceiro</div>
@@ -713,13 +714,15 @@
 </div>
     <button onclick="abrirPixModal()" style="width:100%;background:#00B37E;color:#fff;border:none;border-radius:20px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;">
   <span class="protocol-inline-icon"><i class="ti ti-device-mobile"></i></span>
-  <span>Pagar com Pix</span>
+  <span>Pix avulso — 30 dias de acesso, sem renovação automática</span>
 </button>
-<div style="text-align:center;font-size:12px;color:#94A3B8;margin-bottom:16px;">— ou pague com cartão —</div>
+<div style="text-align:center;font-size:12px;color:#94A3B8;margin-bottom:16px;">ou</div>
+    <div class="payment-card-heading">Assinatura mensal no cartão</div>
+    <div class="payment-card-sub">Renovação automática mensal. Cancele quando quiser.</div>
     <div id="mp-brick-container">
       <div class="loading-brick">
         <div class="spinner" style="border-color:#7C3FA0;border-top-color:transparent;"></div>
-        <span>Carregando formulário de pagamento...</span>
+        <span>Carregando assinatura mensal no cartão...</span>
       </div>
     </div>
   </div>
@@ -728,8 +731,8 @@
 <div class="overlay" id="pix-overlay" onclick="fecharPixModal()">
   <div class="modal" onclick="event.stopPropagation()" style="text-align:center;">
     <div class="modal-icon" style="margin-bottom:4px;color:#00B37E;"><i class="ti ti-device-mobile"></i></div>
-    <h2 class="modal-title" style="font-size:20px;">Pagar com Pix</h2>
-    <p class="modal-sub" id="pix-status-msg">Gerando QR Code...</p>
+    <h2 class="modal-title" style="font-size:20px;">Pix avulso</h2>
+    <p class="modal-sub" id="pix-status-msg">Gerando Pix avulso...</p>
 
     <div id="pix-loading" style="padding:20px;">
       <div class="spinner" style="border-color:#00B37E;border-top-color:transparent;margin:0 auto;"></div>
@@ -747,9 +750,9 @@
       <div id="pix-aguardando" style="display:none;margin-top:8px;padding:10px 14px;background:#F8FAFC;border-radius:12px;border:1px solid #E2E8F0;">
   <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
     <div class="spinner" style="width:14px;height:14px;border-width:2px;border-color:#7C3FA0;border-top-color:transparent;flex-shrink:0;"></div>
-    <span style="font-size:13px;font-weight:700;color:#7C3FA0;">Aguardando confirmação do pagamento...</span>
+    <span style="font-size:13px;font-weight:700;color:#7C3FA0;">Aguardando confirmação do Pix avulso...</span>
   </div>
-  <p style="font-size:11px;color:#94A3B8;line-height:1.6;margin:0;">O acesso será liberado automaticamente após a confirmação.</p>
+  <p style="font-size:11px;color:#94A3B8;line-height:1.6;margin:0;">30 dias de acesso, sem renovação automática. O acesso será liberado automaticamente após a confirmação.</p>
 </div>
     </div>
 

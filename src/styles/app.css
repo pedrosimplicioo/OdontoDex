@@ -1012,6 +1012,26 @@ body.dark .payment-screen-hdr {
   font-size: 13px;
   opacity: 0.7;
 }
+.payment-card-heading {
+  font-size: 14px;
+  color: #0F172A;
+  font-weight: 800;
+  margin-bottom: 4px;
+  text-align: center;
+}
+.payment-card-sub {
+  font-size: 12px;
+  color: #64748B;
+  line-height: 1.5;
+  margin-bottom: 12px;
+  text-align: center;
+}
+body.dark .payment-card-heading {
+  color: #F1F5F9;
+}
+body.dark .payment-card-sub {
+  color: #CBD5E1;
+}
 .payment-security-row {
   display: flex;
   align-items: center;

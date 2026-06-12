@@ -259,7 +259,7 @@ async function iniciarBrick() {
   container.innerHTML = `
     <div class="loading-brick">
       <div class="spinner" style="border-color:#7C3FA0;border-top-color:transparent;"></div>
-      <span>Carregando formulário...</span>
+      <span>Carregando assinatura mensal no cartão...</span>
     </div>`;
 
   try {
