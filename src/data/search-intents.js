@@ -214,6 +214,16 @@ var CLINICAL_SEARCH_INTENTS = {
       "hemofilia", "inr"
     ]
   },
+  cardiopata_hipertenso: {
+    label: "Cardiopata / hipertenso",
+    badges: ["Cardiopata"],
+    synonyms: [
+      "hipertenso", "hipertensa", "hipertensao", "hipertensão",
+      "pressao alta", "pressão alta", "pa elevada", "cardiopata",
+      "cardiaco", "cardíaco", "cardiaca", "cardíaca", "arritmia",
+      "angina", "infarto", "pode em hipertenso", "pode hipertenso"
+    ]
+  },
   exodontia_extracao: {
     label: "Exodontia / extração",
     badges: ["Cirurgia"],
@@ -233,6 +243,180 @@ var CLINICAL_SEARCH_INTENTS = {
       "urgência", "urgencia", "emergência", "emergencia", "agudo",
       "aguda", "rápido", "rapido", "socorro", "não aguenta", "nao aguenta"
     ]
+  }
+};
+
+var CLINICAL_INTENT_RULES = {
+  dor_inflamacao: {
+    category: "dor",
+    urgency: "alta",
+    preferredMode: "conduct",
+    symptoms: ["dor espontânea", "dor noturna", "latejando", "dor forte", "dor contínua"],
+    redFlags: ["febre", "edema", "trismo", "rosto inchado", "inchaço facial"],
+    excludes: ["fio dental", "prótese machuca", "dentadura machuca"]
+  },
+  dor_mastigar: {
+    category: "dor",
+    urgency: "moderada",
+    preferredMode: "conduct",
+    exclusive: true,
+    symptoms: ["dor ao morder", "dor ao mastigar", "dor ao soltar a mordida", "dor localizada"],
+    differentiators: ["mordida alta", "trinca", "fratura radicular", "contato prematuro"],
+    excludes: ["febre", "rosto inchado", "trismo"]
+  },
+  sensibilidade_cervical: {
+    category: "dor",
+    urgency: "baixa",
+    preferredMode: "conduct",
+    exclusive: true,
+    symptoms: ["frio", "água gelada", "doce", "raiz exposta", "recessão gengival", "toque cervical"],
+    excludes: ["dor espontânea", "dor noturna", "febre", "pus", "edema"]
+  },
+  infeccao: {
+    category: "infecção",
+    urgency: "alta",
+    preferredMode: "conduct",
+    symptoms: ["abscesso", "pus", "fístula", "edema", "inchaço", "rosto inchado"],
+    redFlags: ["febre", "trismo", "disfagia", "dispneia", "celulite", "mal estar"],
+    differentiators: ["periapical", "periodontal", "origem odontogênica"]
+  },
+  anestesia: {
+    category: "anestesia",
+    urgency: "moderada",
+    preferredMode: "conduct",
+    exclusive: true,
+    symptoms: ["anestesia não pega", "não anestesia", "dor mesmo anestesiado", "não adormeceu"],
+    differentiators: ["pulpite", "bloqueio", "intraligamentar", "intrapulpar"]
+  },
+  coroa_protese_fixa: {
+    category: "prótese fixa",
+    urgency: "baixa",
+    preferredMode: "conduct",
+    symptoms: ["coroa caiu", "coroa soltou", "coroa não entra", "pino soltou", "núcleo soltou"],
+    procedures: ["recimentação", "nova coroa", "pino núcleo"]
+  },
+  restauracao_procedimento: {
+    category: "dentística",
+    urgency: "baixa",
+    preferredMode: "protocol",
+    exclusive: true,
+    procedures: ["restauração direta", "resina composta", "classe i", "classe ii", "dentística restauradora"],
+    excludes: ["dor", "caiu", "soltou", "quebrou", "mordida alta", "sensibilidade", "fio dental", "fio desfia", "fio rasga", "fio não passa", "contato proximal", "overhang"]
+  },
+  acabamento_proximal: {
+    category: "dentística",
+    urgency: "baixa",
+    preferredMode: "conduct",
+    exclusive: true,
+    symptoms: ["fio rasga", "fio desfia", "fio trava", "fio não passa", "contato proximal"],
+    procedures: ["acabamento proximal", "polimento proximal", "matriz seccional", "cunha", "tira de lixa"]
+  },
+  ajuste_oclusal_restauracao: {
+    category: "dentística",
+    urgency: "baixa",
+    preferredMode: "conduct",
+    exclusive: true,
+    symptoms: ["mordida alta", "batendo alto", "dor ao mastigar", "contato prematuro"],
+    procedures: ["ajuste oclusal", "papel articular", "shimstock", "lateralidade", "protrusão"]
+  },
+  restauracao_solto_fratura: {
+    category: "dentística",
+    urgency: "moderada",
+    preferredMode: "conduct",
+    exclusive: true,
+    symptoms: ["restauração caiu", "resina quebrou", "obturação caiu", "restauração fraturou", "resina lascou"],
+    differentiators: ["pouca estrutura", "fratura radicular", "aumento de coroa", "sensibilidade"]
+  },
+  protese_removivel: {
+    category: "prótese removível",
+    urgency: "baixa",
+    preferredMode: "protocol",
+    symptoms: ["dentadura machuca", "prótese balança", "ppr machuca", "dentadura frouxa"],
+    procedures: ["nova ppr", "nova prótese total", "moldagem funcional"]
+  },
+  sangramento: {
+    category: "urgência",
+    urgency: "alta",
+    preferredMode: "conduct",
+    symptoms: ["sangramento", "hemorragia", "não para sangue", "coágulo"],
+    redFlags: ["anticoagulado", "hemofilia", "inr alto", "sangramento intenso"]
+  },
+  trauma: {
+    category: "urgência",
+    urgency: "alta",
+    preferredMode: "conduct",
+    symptoms: ["bateu o dente", "dente quebrou", "avulsão", "luxação", "fratura"],
+    redFlags: ["avulsão", "sangramento", "mobilidade", "dor intensa"]
+  },
+  espicula_ossea: {
+    category: "pós-operatório",
+    urgency: "baixa",
+    preferredMode: "protocol",
+    symptoms: ["osso espetando", "osso exposto", "ponta de osso", "espícula óssea"],
+    procedures: ["remoção de espícula", "regularização óssea"]
+  },
+  fratura_radicular: {
+    category: "diagnóstico",
+    urgency: "alta",
+    preferredMode: "protocol",
+    symptoms: ["dor ao soltar a mordida", "bolsa profunda isolada", "fístula recorrente", "lesão em j"],
+    redFlags: ["bolsa profunda isolada", "fístula recorrente", "perda óssea vertical"]
+  },
+  aumento_coroa_clinica: {
+    category: "periodontia",
+    urgency: "baixa",
+    preferredMode: "protocol",
+    procedures: ["aumento de coroa", "osteotomia", "osteoplastia", "gengivectomia"],
+    symptoms: ["margem subgengival", "cárie subgengival", "pouca estrutura", "sem férula"]
+  },
+  prescricao: {
+    category: "prescrição",
+    urgency: "moderada",
+    preferredMode: "prescription",
+    procedures: ["prescrição", "receita", "medicação", "antibiótico", "analgésico", "anti-inflamatório"]
+  },
+  gestante: {
+    category: "perfil",
+    urgency: "moderada",
+    preferredMode: "profile",
+    profiles: ["gestante", "grávida", "lactante", "amamentando"],
+    procedures: ["prescrição segura", "anestesia em gestante"]
+  },
+  crianca: {
+    category: "perfil",
+    urgency: "moderada",
+    preferredMode: "profile",
+    profiles: ["criança", "infantil", "pediátrico", "bebê", "odontopediatria"],
+    procedures: ["dose pediátrica", "prescrição pediátrica"]
+  },
+  anticoagulado: {
+    category: "perfil",
+    urgency: "alta",
+    preferredMode: "profile",
+    profiles: ["anticoagulado", "coagulopata", "hemofilia", "inr", "marevan", "xarelto"],
+    redFlags: ["sangramento", "hemorragia", "inr alto"]
+  },
+  cardiopata_hipertenso: {
+    category: "perfil",
+    urgency: "moderada",
+    preferredMode: "profile",
+    profiles: ["hipertenso", "hipertensa", "pressão alta", "pa elevada", "cardiopata", "cardíaco"],
+    procedures: ["anestesia em hipertenso", "anestesia em cardiopata", "vasoconstritor", "aferir pressão"],
+    redFlags: ["pa elevada", "pressão muito alta", "crise hipertensiva", "dor no peito", "angina"]
+  },
+  exodontia_extracao: {
+    category: "cirurgia",
+    urgency: "moderada",
+    preferredMode: "protocol",
+    procedures: ["exodontia", "extração", "extrair dente", "siso", "terceiro molar"],
+    differentiators: ["simples", "cirúrgica", "pós extração", "alveolite"]
+  },
+  urgencia: {
+    category: "urgência",
+    urgency: "alta",
+    preferredMode: "conduct",
+    redFlags: ["febre", "trismo", "sangramento não para", "rosto inchado", "dor intensa", "dispneia"],
+    symptoms: ["socorro", "emergência", "urgência", "não aguenta"]
   }
 };
 
@@ -376,6 +560,12 @@ var CLINICAL_SEARCH_RELATIONS = {
     {type: "protocol", id: "hemostasia", weight: 88, badges: ["Anticoagulado", "Urgência"]},
     {type: "prescription", id: "hemorragias", weight: 76, badges: ["Anticoagulado", "Prescrição"]},
     {type: "protocol", id: "extracao-simples", weight: 64, badges: ["Anticoagulado"]}
+  ],
+  cardiopata_hipertenso: [
+    {type: "alert", id: "cardiopatas", weight: 120, badges: ["Cardiopata"]},
+    {type: "protocol", id: "hipertensao-protocolo", weight: 104, badges: ["Urgência"]},
+    {type: "anesthetic", id: "cardiopatas", weight: 98, badges: ["Anestésicos", "Cardiopata"]},
+    {type: "protocol", id: "medicacao", weight: 72, badges: ["Cardiopata", "Prescrição"]}
   ],
   urgencia: [
     

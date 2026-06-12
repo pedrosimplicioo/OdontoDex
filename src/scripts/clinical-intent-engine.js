@@ -70,30 +70,82 @@ function clinicalMergeBadges(){
   return out.slice(0,3);
 }
 
+function clinicalIntentRulesFor(intentId){
+  if(typeof CLINICAL_INTENT_RULES==="undefined"||!CLINICAL_INTENT_RULES)return {};
+  return CLINICAL_INTENT_RULES[intentId]||{};
+}
+
+function clinicalPhrasePresent(normalized,raw){
+  const term=clinicalNormalize(raw);
+  return !!(term&&term.length>2&&(normalized===term||normalized.includes(term)||term.includes(normalized)));
+}
+
+function clinicalAnyTermPresent(normalized,terms){
+  return (terms||[]).some(term=>clinicalPhrasePresent(normalized,term));
+}
+
+function clinicalScoreIntentTerm(normalized,qTokens,raw,weight){
+  const term=clinicalNormalize(raw);
+  const termTokens=clinicalUsefulTokens(raw);
+  if(!term)return 0;
+  let score=0;
+  if(normalized===term)score+=96*weight;
+  else if(term.length>3&&(normalized.includes(term)||term.includes(normalized)))score+=72*weight;
+  termTokens.forEach(st=>{
+    let best=0;
+    qTokens.forEach(qt=>{best=Math.max(best,clinicalFuzzyScore(qt,st));});
+    score+=best*weight;
+  });
+  return score;
+}
+
+function clinicalIntentTermGroups(intent,rules){
+  return [
+    {name:"synonyms",weight:1,terms:intent.synonyms||[]},
+    {name:"symptoms",weight:1.16,terms:rules.symptoms||[]},
+    {name:"redFlags",weight:1.35,terms:rules.redFlags||[]},
+    {name:"procedures",weight:1.08,terms:rules.procedures||[]},
+    {name:"profiles",weight:1.25,terms:rules.profiles||[]},
+    {name:"differentiators",weight:1.1,terms:rules.differentiators||[]}
+  ];
+}
+
 function detectClinicalIntents(query){
   const normalized=clinicalNormalize(query);
   const qTokens=clinicalUsefulTokens(query);
   if(!normalized||!CLINICAL_SEARCH_INTENTS)return [];
   return Object.entries(CLINICAL_SEARCH_INTENTS).map(([id,intent])=>{
     let score=0;
-    (intent.synonyms||[]).forEach(raw=>{
-      const synonym=clinicalNormalize(raw);
-      const synonymTokens=clinicalUsefulTokens(raw);
-      if(!synonym)return;
-      if(normalized===synonym)score+=96;
-      else if(synonym.length>3&&(normalized.includes(synonym)||synonym.includes(normalized)))score+=72;
-      synonymTokens.forEach(st=>{
-        let best=0;
-        qTokens.forEach(qt=>{best=Math.max(best,clinicalFuzzyScore(qt,st));});
-        score+=best;
+    const rules=clinicalIntentRulesFor(id);
+    const matchedGroups=new Set();
+    clinicalIntentTermGroups(intent,rules).forEach(group=>{
+      (group.terms||[]).forEach(raw=>{
+        score+=clinicalScoreIntentTerm(normalized,qTokens,raw,group.weight);
+        if(clinicalPhrasePresent(normalized,raw))matchedGroups.add(group.name);
       });
     });
+    if(rules.excludes&&clinicalAnyTermPresent(normalized,rules.excludes))score-=90;
+    if(rules.requiredAny&&!clinicalAnyTermPresent(normalized,rules.requiredAny))score=0;
+    if(matchedGroups.has("redFlags"))score+=45;
+    if(rules.urgency==="alta"&&score>0)score+=8;
+    if(rules.preferredMode==="profile"&&score>0)score+=10;
     if(id==="restauracao_solto_fratura"&&!/\b(caiu|soltou|descolou|perdeu|saiu|quebrou|fraturou|lascou|rachou|trincou)\b/.test(normalized))score=0;
     if(id==="restauracao_procedimento"&&/\b(alta|alto|mordendo|batendo|oclusao|hiperoclusao|prematuro|caiu|soltou|descolou|perdeu|saiu|quebrou|fraturou|lascou|rachou|trincou|dor|doendo|sensivel)\b/.test(normalized))score=0;
+    if(id==="restauracao_procedimento"&&/\b(fio|proximal|contato|overhang|matriz|cunha)\b/.test(normalized))score=0;
+    if(id==="sensibilidade_cervical"&&/\b(hipertenso|hipertensa|cardiopata|cardiaco|cardiaca|pressao alta|pa elevada)\b/.test(normalized)&&!/\b(sensivel|sensibilidade|frio|gelada|doce|raiz exposta|recessao|retracao|cervical|escovacao|ar)\b/.test(normalized))score=0;
     if(id==="acabamento_proximal"&&!/\b(acabamento|polimento|proximal|contato|fio|rasga|desfia|trava|overhang|excesso|sobrecontorno|interproximal|classe ii|classe 2|matriz|cunha|anel)\b/.test(normalized))score=0;
     if(id==="ajuste_oclusal_restauracao"&&!/\b(alta|alto|mordendo|batendo|oclusao|hiperoclusao|prematuro|papel|carbono|mic|lateralidade|protrusao|shimstock)\b/.test(normalized))score=0;
     if(id==="ajuste_oclusal_restauracao"&&score>0)score+=80;
-    return {id,label:intent.label,score,badges:intent.badges||[]};
+    return {
+      id,
+      label:intent.label,
+      score,
+      badges:clinicalMergeBadges(intent.badges,rules.urgency==="alta"?["Urgência"]:[]),
+      category:rules.category,
+      urgency:rules.urgency,
+      preferredMode:rules.preferredMode,
+      exclusive:!!rules.exclusive
+    };
   }).filter(intent=>intent.score>=32).sort((a,b)=>b.score-a.score);
 }
 
@@ -251,9 +303,21 @@ function clinicalScoreTextMatch(item,query){
   return score;
 }
 
+function clinicalDirectMatchScore(item,query){
+  const normalizedQuery=clinicalNormalize(query);
+  const titleNorm=clinicalNormalize(item.title);
+  const idNorm=clinicalNormalize(item.id);
+  if(!normalizedQuery)return 0;
+  if(titleNorm&&normalizedQuery===titleNorm)return 1600;
+  if(idNorm&&normalizedQuery===idNorm)return 1400;
+  if(titleNorm&&normalizedQuery.length>=4&&(titleNorm.includes(normalizedQuery)||normalizedQuery.includes(titleNorm)))return 900;
+  return 0;
+}
+
 function clinicalQueryMode(query,intentIds){
   const normalized=clinicalNormalize(query);
-  const hasProfile=/\b(gestante|gravida|lactante|crianca|infantil|pediatrico|anticoagulado|coagulopata|diabetico|hipertenso|asmatico|alergico|idoso)\b/.test(normalized);
+  const topRules=intentIds&&intentIds.length?clinicalIntentRulesFor(intentIds[0]):{};
+  const hasProfile=/\b(gestante|gravida|lactante|crianca|infantil|pediatrico|anticoagulado|coagulopata|diabetico|hipertenso|hipertensa|cardiopata|cardiaco|cardiaca|pressao alta|pa elevada|asmatico|alergico|idoso)\b/.test(normalized);
   const hasAnesthetic=clinicalQueryHasAnestheticNeed(query);
   const hasAnestheticFailure=/\b(anestesia nao pega|nao anestesia|nao consigo anestesiar|anestesia falhou|falha anestesica|anestesia nao funcionou|dor mesmo anestesiado|bloqueio nao pegou)\b/.test(normalized);
   const hasPrescription=/\b(remedio|medicamento|receita|prescricao|prescrever|tomar|nimesulida|ibuprofeno|amoxicilina|antibiotico|analgesico|antiinflamatorio|dipirona|paracetamol)\b/.test(normalized);
@@ -263,6 +327,7 @@ function clinicalQueryMode(query,intentIds){
   if(hasAnesthetic)return "anesthetic";
   if(hasProfile||intentIds.some(id=>["gestante","crianca","anticoagulado"].includes(id)))return "profile";
   if(hasPrescription||intentIds.includes("prescricao"))return "prescription";
+  if(topRules.preferredMode)return topRules.preferredMode;
   if(hasTechnical&&!hasProblem)return "protocol";
   return "conduct";
 }
@@ -300,10 +365,7 @@ function clinicalApplyPriority(item,mode,intentIds){
 
 function clinicalTypeOrder(type,intentIds){
   if(type==="conduct")return 1;
-  if(intentIds&&(
-    intentIds.includes("gestante")||
-    intentIds.includes("anticoagulado")
-  )){
+  if(intentIds&&intentIds.some(id=>clinicalIntentRulesFor(id).preferredMode==="profile")){
     if(type==="alert")return 2;
     if(type==="profile")return 3;
     if(type==="anesthetic")return 4;
@@ -335,19 +397,32 @@ function clinicalIntentHasContentGap(intentId){
 }
 
 function clinicalIntentShouldAvoidBest(intentIds){
-  return intentIds.some(id=>["prescricao","gestante","crianca","anticoagulado"].includes(id));
+  return intentIds.some(id=>{
+    const mode=clinicalIntentRulesFor(id).preferredMode;
+    return ["prescricao","gestante","crianca","anticoagulado"].includes(id)||mode==="profile"||mode==="prescription";
+  });
 }
 
 function clinicalIntentSearch(query,options){
   const limit=(options&&options.limit)||8;
   const intents=detectClinicalIntents(query);
+  const normalizedForRules=clinicalNormalize(query);
   const byKey=new Map();
   buildClinicalSearchIndex().forEach(item=>{
     const score=clinicalScoreTextMatch(item,query);
-    if(score>18)byKey.set(item.type+":"+item.id,{...item,score,matchSource:"text"});
+    const directScore=clinicalDirectMatchScore(item,query);
+    if(score>18||directScore>0){
+      byKey.set(item.type+":"+item.id,{
+        ...item,
+        score:score+directScore,
+        directMatch:directScore>0,
+        matchSource:directScore>0?"direct":"text"
+      });
+    }
   });
 
   intents.forEach((intent,intentIndex)=>{
+    const rules=clinicalIntentRulesFor(intent.id);
     const relations=(CLINICAL_SEARCH_RELATIONS&&CLINICAL_SEARCH_RELATIONS[intent.id])||[];
     relations.forEach(rel=>{
       if(!clinicalItemExists(rel.type,rel.id))return;
@@ -362,14 +437,19 @@ function clinicalIntentSearch(query,options){
         badges:[]
       };
       const intentBoost=Math.min(intent.score,92);
-      existing.score+=rel.weight+intentBoost-(intentIndex*8);
+      let relationBoost=rel.weight+intentBoost-(intentIndex*8);
+      if(rules.urgency==="alta")relationBoost+=16;
+      if(rules.preferredMode&&rel.type===rules.preferredMode)relationBoost+=30;
+      if(rules.preferredMode==="profile"&&rel.type==="alert")relationBoost+=30;
+      if(rules.redFlags&&clinicalAnyTermPresent(normalizedForRules,rules.redFlags))relationBoost+=42;
+      existing.score+=relationBoost;
       if((intent.id==="gestante"||intent.id==="crianca")&&rel.type==="prescription")existing.score+=20;
       if(rel.type==="alert"){
         existing.type="alert";
         existing.kind=clinicalLabelForType("alert");
         existing.title=clinicalTitleForItem("alert",rel.id);
       }
-      existing.badges=clinicalMergeBadges(existing.badges,rel.badges,intent.badges);
+      existing.badges=clinicalMergeBadges(existing.badges,rel.badges,intent.badges,rules.urgency==="alta"?["Urgência"]:[]);
       existing.profile=rel.profile||existing.profile;
       existing.matchSource="intent";
       byKey.set(key,existing);
@@ -393,12 +473,20 @@ function clinicalIntentSearch(query,options){
   const intentIds=intents.map(intent=>intent.id);
   if(intentIds.length){
     const exclusiveIntentIds=["sensibilidade_cervical","restauracao_procedimento","acabamento_proximal","ajuste_oclusal_restauracao","dor_mastigar","restauracao_solto_fratura","exodontia_extracao"];
-    if(exclusiveIntentIds.includes(intents[0]?.id)){
+    const topRules=clinicalIntentRulesFor(intents[0]?.id);
+    if(exclusiveIntentIds.includes(intents[0]?.id)||topRules.exclusive){
       const topIntentId=intents[0].id;
       const allowed=new Set(((CLINICAL_SEARCH_RELATIONS&&CLINICAL_SEARCH_RELATIONS[topIntentId])||[]).map(rel=>rel.type+":"+rel.id));
-      all=all.filter(item=>allowed.has(item.type+":"+item.id));
+      intentIds
+        .filter(id=>clinicalIntentRulesFor(id).preferredMode==="profile")
+        .forEach(id=>{
+          ((CLINICAL_SEARCH_RELATIONS&&CLINICAL_SEARCH_RELATIONS[id])||[]).forEach(rel=>{
+            allowed.add(rel.type+":"+rel.id);
+          });
+        });
+      all=all.filter(item=>item.directMatch||allowed.has(item.type+":"+item.id));
     }else{
-      all=all.filter(item=>item.matchSource==="intent"||item.score>=120);
+      all=all.filter(item=>item.directMatch||item.matchSource==="intent"||item.score>=120);
     }
   }
   const anestheticProfile=clinicalQueryHasAnestheticNeed(query)?clinicalDetectAnestheticProfile(query):null;
@@ -487,10 +575,13 @@ function clinicalIntentSearch(query,options){
         return {...item,score:item.score+220,badges:clinicalMergeBadges(item.badges,["Pediátrico","Prescrição"])};
       }
       if(intentIds.includes("gestante")&&item.type==="alert"&&item.id==="gestantes"){
-        return {...item,score:item.score+500,badges:clinicalMergeBadges(item.badges,["Gestante","Prescrição"])};
+        return {...item,score:item.score+1500,badges:clinicalMergeBadges(item.badges,["Gestante","Prescrição"])};
       }
       if(intentIds.includes("anticoagulado")&&item.type==="alert"&&item.id==="coagulopatas"){
         return {...item,score:item.score+300,badges:clinicalMergeBadges(item.badges,["Anticoagulado","Urgência"])};
+      }
+      if(intentIds.includes("cardiopata_hipertenso")&&item.type==="alert"&&item.id==="cardiopatas"){
+        return {...item,score:item.score+1200,badges:clinicalMergeBadges(item.badges,["Cardiopata"])};
       }
       if(intentIds.includes("sensibilidade_cervical")){
         if(item.type==="conduct"&&item.id==="dente-sensivel")return {...item,score:item.score+320};
