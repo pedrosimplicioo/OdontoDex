@@ -178,14 +178,15 @@ async function updatePremiumUI() {
   const cancelSection = document.getElementById('cancel-premium-section');
   if (!cancelSection) return;
 
-  cancelSection.style.display = window.userIsPremium === true ? 'block' : 'none';
+  cancelSection.style.display = 'none';
   if (window.userIsPremium !== true) return;
 
   setCancelButtonState({ text: 'Gerenciando acesso...', enabled: false });
 
-  try {
+    try {
     if (!currentUser) {
-      setCancelButtonState({ text: 'Cancelar assinatura', enabled: true });
+      cancelSection.style.display = 'block';
+      setCancelButtonState({ text: 'Cancelar renovação', enabled: true });
       return;
     }
 
@@ -193,6 +194,13 @@ async function updatePremiumUI() {
     const userData = userDoc.data() || {};
     const origin = inferPremiumOrigin(userData);
     const expiresText = formatCancelDate(userData.premiumExpira);
+
+    if (origin === 'pix') {
+      cancelSection.style.display = 'none';
+      return;
+    }
+
+    cancelSection.style.display = 'block';
 
     if (origin === 'assinatura') {
       if (userData.assinaturaStatus === 'cancelled') {
@@ -203,7 +211,7 @@ async function updatePremiumUI() {
       return;
     }
 
-    if (origin === 'pix' || origin === 'pagamento') {
+    if (origin === 'pagamento') {
       setCancelButtonState({ text: 'Acesso vÃ¡lido atÃ© ' + expiresText, enabled: false });
       return;
     }
@@ -216,6 +224,7 @@ async function updatePremiumUI() {
     setCancelButtonState({ text: 'Encerrar acesso Premium', enabled: true });
   } catch (e) {
     console.log('updatePremiumUI fallback', e);
-    setCancelButtonState({ text: 'Cancelar assinatura', enabled: true });
+    cancelSection.style.display = 'block';
+    setCancelButtonState({ text: 'Cancelar renovação', enabled: true });
   }
 }

@@ -180,12 +180,12 @@ async function renderSubscriptionSummary() {
     if (origin === 'assinatura' && userData.assinaturaStatus !== 'cancelled') {
       setSubscriptionCardState({
         icon: '<i class="ti ti-refresh"></i>',
-        kicker: 'Renovação ativa',
-        title: 'Premium mensal',
+        kicker: 'Assinatura mensal ativa',
+        title: 'Premium mensal no cartão',
         short,
-        text: 'Sua assinatura renova automaticamente.',
+        text: 'Sua assinatura mensal no cartão está ativa.',
         validity,
-        renewal: 'Ativa',
+        renewal: 'Renovação automática',
         action: 'cancel',
         actionText: 'Cancelar renovação',
         note: 'O cancelamento interrompe a renovação, mantendo o acesso já pago.'
@@ -199,11 +199,11 @@ async function renderSubscriptionSummary() {
         kicker: 'Renovação cancelada',
         title: 'Premium ativo até o fim do período',
         short,
-        text: 'Você mantém o acesso até a validade atual e pode reativar a renovação.',
+        text: 'Você mantém o acesso até a validade atual e pode ativar a renovação mensal novamente.',
         validity,
         renewal: 'Cancelada',
         action: 'payment',
-        actionText: 'Reativar assinatura',
+        actionText: 'Ativar renovação mensal',
         note: 'Seu acesso atual será preservado.'
       });
       return;
@@ -215,12 +215,12 @@ async function renderSubscriptionSummary() {
         kicker: 'Acesso já pago',
         title: 'Premium por pagamento avulso',
         short,
-        text: 'Você pode iniciar uma assinatura agora sem perder o período já pago.',
+        text: 'Seu acesso atual não possui renovação automática. Você pode ativar uma assinatura mensal para renovar automaticamente no cartão, sem perder o período já pago.',
         validity,
         renewal: 'Sem recorrência',
         action: 'payment',
-        actionText: 'Iniciar assinatura',
-        note: 'Seu acesso atual será preservado.'
+        actionText: 'Assinar mensalmente no cartão',
+        note: 'Seu período já pago será preservado.'
       });
       return;
     }
@@ -231,12 +231,12 @@ async function renderSubscriptionSummary() {
         kicker: 'Período de teste',
         title: 'Trial Premium',
         short,
-        text: 'Você pode assinar antes do fim do trial para manter o acesso sem interrupção.',
+        text: 'Você pode ativar uma assinatura mensal no cartão antes do fim do trial para manter o acesso sem interrupção.',
         validity,
-        renewal: 'Não renova',
+        renewal: 'Não renova automaticamente',
         action: 'payment',
-        actionText: 'Assinar Premium',
-        note: 'A assinatura entra pelo fluxo normal de pagamento do app.'
+        actionText: 'Assinar mensalmente no cartão',
+        note: 'A assinatura mensal renova automaticamente no cartão.'
       });
       return;
     }
@@ -247,12 +247,12 @@ async function renderSubscriptionSummary() {
         kicker: 'Acesso Premium',
         title: 'Premium liberado',
         short,
-        text: 'Seu acesso Premium está ativo.',
+        text: 'Seu acesso Premium está ativo. Você pode ativar uma assinatura mensal no cartão para renovação automática.',
         validity,
         renewal: 'Manual',
         action: 'payment',
-        actionText: 'Iniciar assinatura',
-        note: 'Você pode iniciar uma assinatura para manter acesso contínuo.'
+        actionText: 'Ativar assinatura mensal',
+        note: 'A assinatura mensal renova automaticamente no cartão.'
       });
       return;
     }
@@ -262,11 +262,11 @@ async function renderSubscriptionSummary() {
       kicker: 'Plano gratuito',
       title: 'Sem assinatura ativa',
       short: 'Premium disponível',
-      text: 'Assine para liberar os recursos Premium e manter acesso contínuo.',
+      text: 'Escolha Pix avulso ou assinatura mensal no cartão para liberar os recursos Premium.',
       validity: 'Sem Premium ativo',
       renewal: 'Inativa',
       action: 'payment',
-      actionText: 'Assinar Premium',
+      actionText: 'Ver opções de pagamento',
       note: 'O pagamento só libera Premium depois da confirmação segura.'
     });
   } catch (e) {
