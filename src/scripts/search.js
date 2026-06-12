@@ -624,7 +624,7 @@ function renderSearchRxBlocks(blocks){
           <div class="rx-block-label">${section}</div>
         </div>
         <div class="rx-block-body">
-          ${(block.itens||[]).map(item=>`<div class="rx-item"><span class="rx-dot">â€¢</span><span>${item}</span></div>`).join("")}
+          ${(block.itens||[]).map(item=>`<div class="rx-item"><span class="rx-dot">•</span><span>${item}</span></div>`).join("")}
         </div>
       </div>
     `;

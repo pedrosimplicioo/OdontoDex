@@ -59,15 +59,15 @@ var CLINICAL_SEARCH_INTENTS = {
   },
 
   restauracao_procedimento: {
-    label: "Restaura??o / resina",
-    badges: ["Dent?stica"],
+    label: "Restauração / resina",
+    badges: ["Dentística"],
     synonyms: [
-      "restauracao", "restaura??o", "restau", "restaurar", "fazer restauracao",
-      "fazer restaura??o", "como fazer restauracao", "como fazer restaura??o",
-      "restauracao de rotina", "restaura??o de rotina", "restauracao direta",
-      "restaura??o direta", "resina composta", "resina", "obtura??o",
-      "obturacao", "protocolo de restauracao", "protocolo de restaura??o",
-      "dentistica restauradora", "dent?stica restauradora", "classe i",
+      "restauracao", "restauração", "restau", "restaurar", "fazer restauracao",
+      "fazer restauração", "como fazer restauracao", "como fazer restauração",
+      "restauracao de rotina", "restauração de rotina", "restauracao direta",
+      "restauração direta", "resina composta", "resina", "obturação",
+      "obturacao", "protocolo de restauracao", "protocolo de restauração",
+      "dentistica restauradora", "dentística restauradora", "classe i",
       "classe 1", "classe ii", "classe 2"
     ]
   },
@@ -281,10 +281,10 @@ var CLINICAL_SEARCH_RELATIONS = {
   ],
 
   restauracao_procedimento: [
-    {type: "protocol", id: "trocar-rest", weight: 190, badges: ["Dent?stica"]},
-    {type: "protocol", id: "restauracao-carie", weight: 176, badges: ["Dent?stica"]},
-    {type: "protocol", id: "restauracao-proximal-classe-ii", weight: 156, badges: ["Dent?stica"]},
-    {type: "protocol", id: "restauracao-fratura", weight: 132, badges: ["Dent?stica"]},
+    {type: "protocol", id: "trocar-rest", weight: 190, badges: ["Dentística"]},
+    {type: "protocol", id: "restauracao-carie", weight: 176, badges: ["Dentística"]},
+    {type: "protocol", id: "restauracao-proximal-classe-ii", weight: 156, badges: ["Dentística"]},
+    {type: "protocol", id: "restauracao-fratura", weight: 132, badges: ["Dentística"]},
     {type: "protocol", id: "remocao-seletiva", weight: 104},
     {type: "protocol", id: "protecao-pulpar", weight: 92},
     {type: "protocol", id: "acabamento-proximal-restauracao", weight: 82},

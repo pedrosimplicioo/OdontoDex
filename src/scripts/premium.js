@@ -46,7 +46,7 @@ function setCancelButtonState({ text, enabled }) {
 
 function openCancelModal() {
   if (!currentUser) {
-    showToast("FaÃ§a login para cancelar a assinatura", "error");
+    showToast("Faça login para cancelar a assinatura", "error");
     return;
   }
   selectedCancelReason = null;
@@ -89,7 +89,7 @@ function selectCancelReason(btn) {
 
 async function submitCancel() {
   if (!currentUser) {
-    showToast("Erro: usuÃ¡rio nÃ£o encontrado", "error");
+    showToast("Erro: usuário não encontrado", "error");
     return;
   }
 
@@ -159,7 +159,7 @@ async function submitCancel() {
 
   } catch (e) {
     console.error('Erro cancelamento:', e);
-    // Se nÃ£o tem assinatura no MP (trial ou Pix) â€” cancela sÃ³ localmente
+    // Se não tem assinatura no MP (trial ou Pix) — cancela só localmente
     if (e.message?.includes('Nenhuma assinatura')) {
       await db.collection('users').doc(currentUser.uid).update({ premium: false });
       window.userIsPremium = false;
@@ -212,7 +212,7 @@ async function updatePremiumUI() {
     }
 
     if (origin === 'pagamento') {
-      setCancelButtonState({ text: 'Acesso vÃ¡lido atÃ© ' + expiresText, enabled: false });
+      setCancelButtonState({ text: 'Acesso válido até ' + expiresText, enabled: false });
       return;
     }
 

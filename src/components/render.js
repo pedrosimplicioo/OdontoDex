@@ -288,7 +288,7 @@ function renderQuickConduct(id){
   const body = document.getElementById("conduta-body");
   const title = document.getElementById("conduta-top-title");
   if(!body || !title || !card) return;
-  title.textContent = "Conduta r??pida";
+  title.textContent = "Conduta rápida";
   const protocolButtons = (card.protocols || []).map(proto => renderCondutaActionButton(proto, "conduta-protocol-btn")).join("");
   const changesBlock = (card.changes || []).length ? `
     <section class="conduta-smart-block alert">
@@ -299,7 +299,7 @@ function renderQuickConduct(id){
   const behindBlock = (card.behind || []).length ? `
     <section class="conduta-smart-block">
       <button class="conduta-behind-toggle" onclick="toggleCondutaBehind()">
-        <span><i class="ti ti-search"></i> ${escapeHtml(card.behindLabel || "O que costuma estar por tr??s disso?")}</span>
+        <span><i class="ti ti-search"></i> ${escapeHtml(card.behindLabel || "O que costuma estar por trás disso?")}</span>
         <i class="ti ti-chevron-down" id="conduta-behind-icon"></i>
       </button>
       <div class="conduta-behind-list" id="conduta-behind-list">
@@ -331,13 +331,13 @@ function renderQuickConduct(id){
   body.innerHTML = `
     <div class="conduta-hero">
       <div class="conduta-hero-top">
-        <div class="conduta-eyebrow">Conduta r??pida</div>
+        <div class="conduta-eyebrow">Conduta rápida</div>
         <button class="conduta-fav-btn ${isFav ? "active" : ""}" data-fav-type="conduct" data-fav-id="${escapeHtml(card.id)}" onclick="toggleTypedFavorite('conduct','${card.id}')">${isFav ? '<i class="ti ti-star-filled"></i>' : '<i class="ti ti-star"></i>'}</button>
       </div>
       <div class="conduta-title">${escapeHtml(card.title)}</div>
     </div>
     <section class="conduta-smart-block primary">
-      <div class="conduta-smart-label"><i class="ti ti-bolt"></i>${escapeHtml(card.quickLabel || "Resposta r??pida")}</div>
+      <div class="conduta-smart-label"><i class="ti ti-bolt"></i>${escapeHtml(card.quickLabel || "Resposta rápida")}</div>
       ${renderCondutaSmartText(card.quick)}
     </section>
     ${changesBlock}
