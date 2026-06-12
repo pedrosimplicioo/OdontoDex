@@ -1,79 +1,49 @@
-// ==================== BANNER PARA ESTUDANTES ====================
+// ==================== AVISO PARA ESTUDANTES ====================
 function adicionarBannerEstudante() {
   if (window._suspenderBannerEstudante) return;
   const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
   
-  // Remove banner antigo se existir
-  const bannerExistente = document.getElementById('student-banner');
-  if (bannerExistente) bannerExistente.remove();
+  const avisoExistente = document.getElementById('student-banner');
+  if (avisoExistente) return;
   
-  // Só mostra se for estudante
   if (perfil !== 'estudante') return;
   
-  // Verifica se o usuário já fechou o banner
   const bannerFechado = localStorage.getItem('studentBannerDismissed');
   if (bannerFechado === 'true') return;
-  
-  const header = document.getElementById('main-header');
-  if (!header) return;
-  
-  const banner = document.createElement('div');
-  banner.id = 'student-banner';
-  banner.style.cssText = `
-    background-color: #FFF3CD;
-    border-left: 4px solid #FFC107;
-    padding: 8px 24px 8px 12px;
-    width: 100%;
-    position: relative;
-    margin: 8px 0;
-    font-size: 11px;
-    line-height: 1.4;
-    border-radius: 4px;
-  `;
-  banner.innerHTML = `
-    <button class="student-banner-close" onclick="fecharBannerEstudante()" style="
-      position: absolute;
-      top: 4px;
-      right: 6px;
-      background: none;
-      border: none;
-      font-size: 12px;
-      cursor: pointer;
-      color: #856404;
-      padding: 2px 4px;
-      line-height: 1;
-    ">✕</button>
-    <div style="margin-bottom: 4px;">
-      <strong><i class="ti ti-alert-triangle"></i> ATENÇÃO ESTUDANTE:</strong>
-    </div>
-    <div style="margin-bottom: 6px;">
-      Os protocolos clínicos exibidos neste app refletem práticas gerais da odontologia.
-      Cada faculdade ou universidade pode adotar técnicas, materiais ou fluxos diferentes.
-    </div>
-    <div>
-      <strong><i class="ti ti-alert-triangle"></i> PORTANTO:</strong><br>
-      • Este conteúdo NÃO substitui a orientação do seu professor<br>
-      • NÃO execute procedimentos sem supervisão adequada<br>
-      • Em caso de dúvida, CONSULTE seu supervisor
-    </div>
-  `;
-  
-  // Insere o banner entre o .hdr-nome e o .hdr-pergunta
-  const brandCopy = header.querySelector('.home-brand-copy');
-  const nomeEl = header.querySelector('.hdr-nome');
-  const perguntaEl = header.querySelector('.hdr-pergunta');
-  
-  if (brandCopy && nomeEl && perguntaEl) {
-    // Insere o banner entre o nome e a pergunta
-    brandCopy.insertBefore(banner, perguntaEl);
-  } else {
-    // Fallback: adiciona no final do header
-    header.appendChild(banner);
+
+  const outroModalAberto = document.querySelector('.overlay.active:not(#student-banner)');
+  if (outroModalAberto) {
+    setTimeout(adicionarBannerEstudante, 700);
+    return;
   }
+
+  const overlay = document.createElement('div');
+  overlay.id = 'student-banner';
+  overlay.className = 'overlay active';
+  overlay.innerHTML = `
+    <div class="modal" onclick="event.stopPropagation()" style="text-align:center;max-width:390px;">
+      <div class="modal-icon" style="margin-bottom:4px;color:#F59E0B;"><i class="ti ti-alert-triangle"></i></div>
+      <h2 class="modal-title" style="font-size:20px;">Aviso para estudantes</h2>
+      <p class="modal-sub" style="margin:8px 0 16px;">Os protocolos clínicos exibidos no OdontoDex refletem práticas gerais da odontologia.</p>
+      <div style="background:rgba(245,158,11,0.12);border:1px solid rgba(245,158,11,0.28);border-radius:16px;padding:14px 16px;margin-bottom:18px;text-align:left;width:100%;">
+        <div style="font-size:13px;font-weight:800;color:#B45309;margin-bottom:8px;"><i class="ti ti-info-circle"></i> Importante</div>
+        <div style="font-size:13px;color:inherit;line-height:1.8;">
+          Cada faculdade ou universidade pode adotar técnicas, materiais ou fluxos diferentes.<br><br>
+          Este conteúdo não substitui a orientação do seu professor.<br>
+          Não execute procedimentos sem supervisão adequada.<br>
+          Em caso de dúvida, consulte seu supervisor.
+        </div>
+      </div>
+      <button class="btn-primary" onclick="fecharBannerEstudante()">
+        <i class="ti ti-check"></i> Entendi
+      </button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
 }
 
 function fecharBannerEstudante() {
   localStorage.setItem('studentBannerDismissed', 'true');
-  const banner = document.getElementById('student-banner');
-  if (banner) banner.remove();
+  const aviso = document.getElementById('student-banner');
+  if (aviso) aviso.remove();
 }
