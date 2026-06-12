@@ -12,17 +12,24 @@ function showAppScreen(){
  requestAnimationFrame(()=>{
       requestAnimationFrame(()=>{
         if(DATA && typeof renderHome === "function") renderHome();
+        const shouldShowTrialWelcome = window._trialRecemAtivado === true || localStorage.getItem("showTrialWelcomeOnce") === "1";
+        window._suspenderBannerEstudante = shouldShowTrialWelcome;
         atualizarSaudacao();
-        adicionarBannerEstudante();
+        window._suspenderBannerEstudante = false;
+        if (!shouldShowTrialWelcome) adicionarBannerEstudante();
         
         if(window._premiumExpirou) {
           window._premiumExpirou = false;
           setTimeout(() => mostrarModalExpirado(), 800);
         }
 
-        if(window._trialRecemAtivado) {
+        if(shouldShowTrialWelcome) {
           window._trialRecemAtivado = false;
-          setTimeout(() => mostrarModalTrialBoasVindas(), 1000);
+          localStorage.removeItem("showTrialWelcomeOnce");
+          setTimeout(() => {
+            mostrarModalTrialBoasVindas();
+            setTimeout(() => adicionarBannerEstudante(), 500);
+          }, 1000);
         }
 
         if(window._mensagemPendente === 'trial_manual') {
@@ -182,9 +189,15 @@ async function gwConfirmar() {
     window.userIsPremium = true;
     localStorage.setItem('userIsPremium', 'true');
     window._trialRecemAtivado = true;
+    localStorage.setItem("showTrialWelcomeOnce", "1");
     localStorage.setItem('guiaNome', primeiroNome);
     localStorage.setItem('guiaPerfil', gwPerfil);
     localStorage.setItem('guiaTratamento', gwTrat);
+    if (gwPerfil === 'estudante') {
+      localStorage.setItem('guiaTratamento', '');
+      localStorage.removeItem('studentBannerLastDate');
+      localStorage.removeItem('studentBannerDismissed');
+    }
   } catch(e) { console.log(e); }
   hideLoading();
   document.getElementById('google-welcome-overlay').style.display = 'none';
@@ -240,7 +253,9 @@ async function doRegister(){
     // Salva perfil e tratamento no localStorage
     localStorage.setItem('guiaPerfil', selectedPerfil);
     if(selectedPerfil==='dentista') localStorage.setItem('guiaTratamento', selectedTratamento);
+    if(selectedPerfil==='estudante') localStorage.setItem('guiaTratamento', '');
     localStorage.removeItem('studentBannerLastDate');
+    localStorage.removeItem('studentBannerDismissed');
     currentUser=res.user;
     const em=document.getElementById('user-email-display');if(em)em.textContent=currentUser.email;
     hideLoading();
@@ -248,6 +263,7 @@ showToast('Conta criada com sucesso!','success');
     window.userIsPremium = true;                       
 localStorage.setItem('userIsPremium', 'true');       
 window._trialRecemAtivado = true;
+localStorage.setItem("showTrialWelcomeOnce", "1");
 showAppScreen();
   }catch(e){
     hideLoading();

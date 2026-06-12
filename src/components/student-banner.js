@@ -1,5 +1,6 @@
 // ==================== BANNER PARA ESTUDANTES ====================
 function adicionarBannerEstudante() {
+  if (window._suspenderBannerEstudante) return;
   const perfil = localStorage.getItem('guiaPerfil') || 'dentista';
   
   // Remove banner antigo se existir
@@ -71,6 +72,7 @@ function adicionarBannerEstudante() {
 }
 
 function fecharBannerEstudante() {
+  localStorage.setItem('studentBannerDismissed', 'true');
   const banner = document.getElementById('student-banner');
   if (banner) banner.remove();
 }

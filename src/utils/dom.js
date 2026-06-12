@@ -30,17 +30,11 @@ function atualizarSaudacao(){
     nomeEl.textContent = 'Olá!';
   }
   
-  // Lógica para recriar o banner se o perfil mudou para estudante
-  if (perfil === 'estudante') {
-    const bannerFechado = localStorage.getItem('studentBannerDismissed');
-    if (bannerFechado === 'true') {
-      const bannerExistente = document.getElementById('student-banner');
-      if (!bannerExistente && document.getElementById('screen-app').classList.contains('active')) {
-        localStorage.removeItem('studentBannerDismissed');
-        if (typeof adicionarBannerEstudante === 'function') {
-          adicionarBannerEstudante();
-        }
-      }
+  if (perfil === 'estudante' && localStorage.getItem('studentBannerDismissed') !== 'true') {
+    const bannerExistente = document.getElementById('student-banner');
+    const appAtivo = document.getElementById('screen-app')?.classList.contains('active');
+    if (!bannerExistente && appAtivo && typeof adicionarBannerEstudante === 'function') {
+      adicionarBannerEstudante();
     }
   }
 }
