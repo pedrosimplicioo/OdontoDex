@@ -283,7 +283,6 @@ async function iniciarBrick() {
         customization: {
           paymentMethods: {
             creditCard: "all",
-            debitCard: "all",
           },
           visual: {
             style: {

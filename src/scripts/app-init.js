@@ -20,6 +20,7 @@ auth.onAuthStateChanged(async(user) => {
       if(doc.exists && userData.nome) localStorage.setItem('guiaNome', userData.nome);
       if(doc.exists && userData.perfil) localStorage.setItem('guiaPerfil', userData.perfil);
       if(doc.exists && userData.tratamento !== undefined) localStorage.setItem('guiaTratamento', userData.tratamento);
+      if(doc.exists && userData.perfil === 'estudante') localStorage.setItem('guiaTratamento', '');
       // Se usuário sem trial, dar 7 dias automaticamente
       if(doc.exists && !userData.trialAtivado) {
         const premiumExpira = new Date();
@@ -33,6 +34,7 @@ auth.onAuthStateChanged(async(user) => {
         window.userIsPremium = true;
         localStorage.setItem('userIsPremium', 'true');
         window._trialRecemAtivado = true;
+        localStorage.setItem('showTrialWelcomeOnce', '1');
       } else {
         // Usuário já tem trial — verifica se premium ainda é válido
         if(doc.exists && userData.premium === true) {
