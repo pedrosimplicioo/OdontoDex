@@ -43,7 +43,7 @@ function validateMercadoPagoSignature(req) {
   }
 
   if (!/^[a-f0-9]{64}$/i.test(signature.v1)) {
-    const error = new Error("Assinatura do webhook invÃ¡lida");
+    const error = new Error("Assinatura do webhook inválida");
     error.status = 403;
     throw error;
   }
