@@ -59,12 +59,13 @@ function adicionarBannerEstudante() {
   `;
   
   // Insere o banner entre o .hdr-nome e o .hdr-pergunta
+  const brandCopy = header.querySelector('.home-brand-copy');
   const nomeEl = header.querySelector('.hdr-nome');
   const perguntaEl = header.querySelector('.hdr-pergunta');
   
-  if (nomeEl && perguntaEl) {
+  if (brandCopy && nomeEl && perguntaEl) {
     // Insere o banner entre o nome e a pergunta
-    header.insertBefore(banner, perguntaEl);
+    brandCopy.insertBefore(banner, perguntaEl);
   } else {
     // Fallback: adiciona no final do header
     header.appendChild(banner);
