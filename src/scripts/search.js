@@ -550,6 +550,12 @@ function openSearchProtocolSheet(id,options){
   saveHistory();
   USAGE_COUNT[id]=(USAGE_COUNT[id]||0)+1;
   saveUsageCount();
+  const isFav=typeof isFavorite==="function"&&isFavorite("protocol",id);
+  const favoriteControl=`
+    <button class="search-sheet-fav-btn ${isFav?"active":""}" data-fav-type="protocol" data-fav-id="${escapeHtml(id)}" onclick="toggleTypedFavorite('protocol','${id}')" aria-label="Favoritar protocolo">
+      ${isFav?'<i class="ti ti-star-filled"></i>':'<i class="ti ti-star"></i>'}
+    </button>
+  `;
   const content=renderSearchSheetSections([
     {
       title:"Passo a passo",
@@ -571,7 +577,8 @@ function openSearchProtocolSheet(id,options){
   ]);
   openSearchBottomSheet("Protocolo",p.title,content,{
     pushCurrent:!(options&&options.resetStack),
-    resetStack:!!(options&&options.resetStack)
+    resetStack:!!(options&&options.resetStack),
+    titleActionHtml:favoriteControl
   });
 }
 
