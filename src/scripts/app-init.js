@@ -1,5 +1,7 @@
 // ==================== INICIALIZAÇÃO ====================
 document.addEventListener("DOMContentLoaded", () => {
+  // Evento Meta Pixel: PageView do app ao carregar.
+  if (typeof trackMetaPageViewOnce === "function") trackMetaPageViewOnce("app");
   initData();
   initDarkMode();
 auth.onAuthStateChanged(async(user) => {
