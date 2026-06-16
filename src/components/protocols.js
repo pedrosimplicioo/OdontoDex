@@ -70,7 +70,7 @@ function renderProtocol(id){
           <div class="proto-hdr-title">${p.title}</div>
           <div class="proto-hdr-badges">
             ${!p.free&&!window.userIsPremium?'<span class="prem-tag"><i class="ti ti-lock"></i>Premium</span>':''}
-            <button class="proto-hdr-fav ${isFav?'active':''}" id="fav-btn-proto" onclick="toggleFav('${id}')" style="margin-left:auto">${isFav?'<i class="ti ti-star-filled"></i>':'<i class="ti ti-star"></i>'}</button>
+            <button class="proto-hdr-fav ${isFav?'active':''}" id="fav-btn-proto" data-fav-type="protocol" data-fav-id="${escapeHtml(id)}" onclick="toggleTypedFavorite('protocol','${id}')" style="margin-left:auto" aria-label="Favoritar protocolo">${isFav?'<i class="ti ti-star-filled"></i>':'<i class="ti ti-star"></i>'}</button>
           </div>
         </div>
       </div>
