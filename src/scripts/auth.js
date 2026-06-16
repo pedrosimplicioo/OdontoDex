@@ -184,6 +184,7 @@ async function gwConfirmar() {
   }
   const primeiroNome = nome.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1).toLowerCase();}).join(' ');
   const displayName = gwPerfil === 'estudante' ? primeiroNome : (gwTrat ? gwTrat + ' ' + primeiroNome : primeiroNome);
+  let metaGoogleRegistrationCompleted = false;
   showLoading();
   try {
     await currentUser.updateProfile({ displayName: displayName });
@@ -219,9 +220,14 @@ async function gwConfirmar() {
       localStorage.removeItem('studentBannerLastDate');
       localStorage.removeItem('studentBannerDismissed');
     }
+    metaGoogleRegistrationCompleted = true;
   } catch(e) { console.log(e); }
   hideLoading();
   document.getElementById('google-welcome-overlay').style.display = 'none';
+  // Evento Meta Pixel: CompleteRegistration após finalizar cadastro Google.
+  if (metaGoogleRegistrationCompleted && typeof trackMetaCompleteRegistrationOnce === "function") {
+    trackMetaCompleteRegistrationOnce(currentUser?.uid, "google");
+  }
   showAppScreen();
 }
 function selectTratamento(t){
@@ -335,6 +341,10 @@ showToast('Conta criada com sucesso!','success');
 localStorage.setItem('userIsPremium', 'true');       
 window._trialRecemAtivado = true;
 localStorage.setItem("showTrialWelcomeOnce", "1");
+// Evento Meta Pixel: CompleteRegistration após cadastro por email/senha concluído.
+if (typeof trackMetaCompleteRegistrationOnce === "function") {
+  trackMetaCompleteRegistrationOnce(currentUser?.uid, "email");
+}
 showAppScreen();
   }catch(e){
     hideLoading();

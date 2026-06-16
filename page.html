@@ -1247,7 +1247,7 @@
         <h2 class="section-title reveal">Para dentistas que querem uma referência rápida durante o atendimento.</h2>
         <div class="person-grid">
           <article class="person-card reveal"><strong>Dentistas clínicos</strong><p>Para quem atende muita coisa diferente e precisa alternar rápido entre decisões.</p></article>
-          <article class="person-card reveal"><strong>Recém-formados</strong><p>Para ganhar segurança sem fingir certeza quando uma dúvida aparece.</p></article>
+          <article class="person-card reveal"><strong>Recém-formados</strong><p>Para ganhar segurança quando surgir uma dúvida no atendimento.</p></article>
           <article class="person-card reveal"><strong>Estudantes em fase clínica</strong><p>Para organizar o raciocínio, sempre respeitando professores e supervisores.</p></article>
           <article class="person-card reveal"><strong>Especialistas</strong><p>Para revisar condutas gerais que podem aparecer fora da rotina da especialidade.</p></article>
         </div>
@@ -1258,7 +1258,7 @@
       <div class="container trial">
         <div>
           <p class="section-kicker reveal">Teste Premium por 7 dias</p>
-          <h2 class="section-title reveal">Teste essa segurança por 7 dias, sem cartão.</h2>
+          <h2 class="section-title reveal">Teste o Premium por 7 dias, sem cartão.</h2>
           <p class="section-sub reveal">Ao criar sua conta, você recebe 7 dias de acesso Premium para usar o OdontoDex no contexto real da rotina clínica. Depois, se não quiser assinar, continua com a versão gratuita.</p>
           <ul class="check-list reveal">
             <li><i class="ti ti-circle-check"></i>Condutas rápidas</li>
@@ -1385,6 +1385,7 @@
 
   <script>
     const APP_URL = "https://www.odontodex.com.br";
+    const META_PIXEL_ID = "5474838429194052";
     const firebaseConfig = {
       apiKey: "AIzaSyDud_6RSVNCiPHUGjdDXLZgcN8YydJwYXs",
       authDomain: "guia-odonto-a24ed.firebaseapp.com",
@@ -1393,6 +1394,43 @@
       messagingSenderId: "238746682290",
       appId: "1:238746682290:web:1541bfc31c720a9a16e9cd"
     };
+
+    // ==================== META PIXEL ====================
+    // Instala o Meta Pixel na landing sem alterar layout ou eventos internos.
+    (function initLandingMetaPixel() {
+      if (window.__odontodexMetaPixelInitialized) return;
+      window.__odontodexMetaPixelInitialized = true;
+      (function(f, b, e, v, n, t, s) {
+        if (f.fbq) return;
+        n = f.fbq = function() {
+          n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments);
+        };
+        if (!f._fbq) f._fbq = n;
+        n.push = n;
+        n.loaded = true;
+        n.version = "2.0";
+        n.queue = [];
+        t = b.createElement(e);
+        t.async = true;
+        t.src = v;
+        s = b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t, s);
+      })(window, document, "script", "https://connect.facebook.net/en_US/fbevents.js");
+
+      if (window.fbq) window.fbq("init", META_PIXEL_ID);
+    })();
+
+    function trackLandingMetaPixelEvent(eventName, eventData) {
+      if (!window.fbq) return;
+      window.fbq("track", eventName, eventData || {});
+    }
+
+    function trackLandingMetaPageViewOnce() {
+      if (window.__odontodexLandingMetaPageViewSent) return;
+      window.__odontodexLandingMetaPageViewSent = true;
+      // Evento Meta Pixel: PageView da landing.
+      trackLandingMetaPixelEvent("PageView", { surface: "landing" });
+    }
 
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
@@ -1452,6 +1490,7 @@
       pageTitle: document.title,
       referrer: document.referrer
     });
+    trackLandingMetaPageViewOnce();
 
     document.querySelectorAll("a[href='" + APP_URL + "']").forEach(link => {
       link.addEventListener("click", () => {
@@ -1477,6 +1516,17 @@
 
       trackEvent(eventName, payload);
       if (legacyEventName) trackEvent(legacyEventName, { ...payload, aliasOf: eventName });
+      if (target.href === APP_URL && (
+        eventName === "click_cta_hero" ||
+        eventName === "click_comecar_teste_gratis" ||
+        eventName === "click_cta_final"
+      )) {
+        // Evento Meta Pixel: Lead ao clicar em CTA principal da landing.
+        trackLandingMetaPixelEvent("Lead", {
+          content_name: "OdontoDex",
+          cta: eventName
+        });
+      }
     });
 
     let maxScrollPercent = 0;
