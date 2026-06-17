@@ -78,6 +78,9 @@ assertContains("src/scripts/premium.js", "Cancelar renova", "assinatura ativa pr
 assertContains("src/scripts/premium.js", "Renova", "assinatura cancelada precisa mostrar status sem nova acao");
 assertContains("api/activate-trial.js", "emailVerified", "trial so pode ser liberado apos email verificado no Firebase Auth");
 assertContains("api/activate-trial.js", "premiumOrigem: \"trial\"", "trial verificado precisa registrar premiumOrigem");
+assertContains("api/email-code.js", "verifyFirebaseToken(req)", "envio e validacao de codigo precisam exigir usuario autenticado");
+assertContains("api/email-code.js", "RESEND_API_KEY", "envio de codigo precisa usar chave Resend no backend");
+assertContains("api/email-code.js", "updateUser(uid, { emailVerified: true })", "codigo validado precisa marcar email verificado pelo Admin SDK");
 assertContains("api/create-subscription.js", "premiumOrigem: \"assinatura\"", "assinatura precisa registrar premiumOrigem");
 assertContains("api/process-payment.js", "premiumOrigem: \"pagamento\"", "pagamento direto precisa registrar premiumOrigem");
 assertContains("api/create-pix.js", "premiumOrigem: \"pix\"", "Pix pendente precisa registrar premiumOrigem");

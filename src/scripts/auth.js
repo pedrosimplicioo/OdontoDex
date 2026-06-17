@@ -1,9 +1,4 @@
 // ==================== LOGIN ====================
-const EMAIL_VERIFICATION_RETURN_URL = "https://www.odontodex.com.br/email-verificado";
-const EMAIL_VERIFICATION_ACTION_SETTINGS = {
-  url: EMAIL_VERIFICATION_RETURN_URL,
-  handleCodeInApp: false
-};
 let resendVerificationAvailableAt = 0;
 let resendVerificationTimer = null;
 let emailVerificationAutoCheckTimer = null;
@@ -95,13 +90,43 @@ function showEmailVerificationScreen(email, message, type){
     if(feedback){feedback.textContent="";feedback.className="verify-feedback";}
   }
   updateVerificationResendButton();
-  startEmailVerificationAutoCheck();
+  const codeInput=document.getElementById("verify-code-input");
+  if(codeInput) setTimeout(()=>codeInput.focus(),120);
 }
 
 async function sendVerificationEmailForUser(user){
-  if(!user) throw new Error("Usuário não autenticado.");
-  try { firebase.auth().languageCode = "pt-BR"; } catch(e) {}
-  await user.sendEmailVerification(EMAIL_VERIFICATION_ACTION_SETTINGS);
+  if(!user) throw new Error("Usuario nao autenticado.");
+  const idToken=await user.getIdToken(true);
+  const response=await fetch("/api/email-code", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer " + idToken
+    },
+    body:JSON.stringify({action:"send"})
+  });
+  const data=await response.json().catch(()=>({}));
+  if(!response.ok){
+    const error=new Error(data.error || "Nao foi possivel enviar o codigo.");
+    error.code=data.status || "email-code/send-failed";
+    error.seconds=data.seconds;
+    throw error;
+  }
+  return data;
+}
+
+function getEmailVerificationErrorMessage(error){
+  const code=error?.code || "";
+  const messages={
+    "auth/unauthorized-continue-uri":"O Firebase recusou o link de retorno. Adicione www.odontodex.com.br nos dominios autorizados do Firebase Auth.",
+    "auth/invalid-continue-uri":"O link de retorno do email de verificacao esta invalido.",
+    "auth/missing-continue-uri":"O link de retorno do email de verificacao nao foi informado.",
+    "auth/too-many-requests":"Muitos envios em pouco tempo. Aguarde alguns minutos e tente reenviar.",
+    "auth/user-token-expired":"Sua sessao expirou. Entre novamente e reenvie o email.",
+    "auth/network-request-failed":"Falha de conexao. Verifique a internet e tente reenviar.",
+    "cooldown":"Aguarde a contagem terminar para reenviar o codigo."
+  };
+  return messages[code] || error?.message || "Nao foi possivel enviar o codigo agora. Confira o endereco e tente novamente.";
 }
 
 // Email verification: keeps the resend button blocked with a visible countdown.
@@ -173,6 +198,11 @@ function startEmailVerificationAutoCheck(){
   },5000);
 }
 
+function formatVerificationCodeInput(input){
+  if(!input)return;
+  input.value=String(input.value || "").replace(/\D/g,"").slice(0,6);
+}
+
 async function resendVerificationEmail(){
   const now=Date.now();
   if(now < resendVerificationAvailableAt){
@@ -188,11 +218,12 @@ async function resendVerificationEmail(){
   }
   showLoading();
   try{
-    await sendVerificationEmailForUser(auth.currentUser);
-    startVerificationResendCooldown(60000);
-    showVerificationFeedback("Enviamos um novo email de verificação. Verifique também a caixa de spam.", "success");
+    const data=await sendVerificationEmailForUser(auth.currentUser);
+    startVerificationResendCooldown((data.resendSeconds || 60) * 1000);
+    showVerificationFeedback("Enviamos um novo codigo para seu email. Verifique tambem a caixa de spam.", "success");
   }catch(e){
-    showVerificationFeedback("Não foi possível reenviar agora. Tente novamente em instantes.", "error");
+    if(e.code === "cooldown" && e.seconds) startVerificationResendCooldown(e.seconds * 1000);
+    showVerificationFeedback(getEmailVerificationErrorMessage(e), e.code === "cooldown" ? "info" : "error");
   }finally{
     hideLoading();
   }
@@ -209,7 +240,7 @@ async function activateTrialAfterEmailVerified(options){
   }
   await user.reload();
   if(!auth.currentUser.emailVerified){
-    showEmailVerificationScreen(auth.currentUser.email, "Seu email ainda não foi verificado. Abra o link enviado para seu email e tente novamente.", "error");
+    showEmailVerificationScreen(auth.currentUser.email, "Seu email ainda nao foi verificado. Digite o codigo enviado para seu email.", "error");
     return {ok:false, reason:"not_verified"};
   }
   const idToken=await auth.currentUser.getIdToken(true);
@@ -244,8 +275,35 @@ async function activateTrialAfterEmailVerified(options){
 }
 
 async function checkEmailVerificationAndActivate(){
+  const code=String(document.getElementById("verify-code-input")?.value || "").replace(/\D/g,"");
+  if(!/^\d{6}$/.test(code)){
+    showVerificationFeedback("Digite o codigo de 6 digitos enviado para seu email.", "error");
+    return;
+  }
+  if(!auth.currentUser){
+    showLogin();
+    const err=document.getElementById("login-error");
+    if(err){err.textContent="Entre na sua conta para confirmar o codigo.";err.style.display="block";}
+    return;
+  }
   showLoading();
   try{
+    const idToken=await auth.currentUser.getIdToken(true);
+    const verifyResponse=await fetch("/api/email-code", {
+      method:"POST",
+      headers:{
+        "Content-Type":"application/json",
+        "Authorization":"Bearer " + idToken
+      },
+      body:JSON.stringify({action:"verify", code})
+    });
+    const verifyData=await verifyResponse.json().catch(()=>({}));
+    if(!verifyResponse.ok){
+      hideLoading();
+      showVerificationFeedback(verifyData.error || "Codigo invalido. Confira e tente novamente.", "error");
+      return;
+    }
+    await auth.currentUser.reload();
     const result=await activateTrialAfterEmailVerified({showSuccess:true});
     if(result.ok && result.reason !== "not_verified"){
       stopEmailVerificationAutoCheck();
@@ -337,6 +395,14 @@ async function doLogin(){
     hideLoading();
     if(!currentUser.emailVerified){
       showEmailVerificationScreen(currentUser.email);
+      try {
+        await sendVerificationEmailForUser(currentUser);
+        startVerificationResendCooldown(60000);
+        showVerificationFeedback("Enviamos um codigo para seu email.", "success");
+      } catch(e) {
+        if(e.code === "cooldown" && e.seconds) startVerificationResendCooldown(e.seconds * 1000);
+        showVerificationFeedback(getEmailVerificationErrorMessage(e), e.code === "cooldown" ? "info" : "error");
+      }
       return;
     }
     showToast("Login realizado!","success");
@@ -554,26 +620,36 @@ async function doRegister(){
     localStorage.removeItem('studentBannerDismissed');
     currentUser=res.user;
     const em=document.getElementById('user-email-display');if(em)em.textContent=currentUser.email;
-    await sendVerificationEmailForUser(currentUser);
-    startVerificationResendCooldown(60000);
+    let verificationMessage="Enviamos um codigo para seu email.";
+    let verificationType="success";
+    try {
+      const codeData=await sendVerificationEmailForUser(currentUser);
+      startVerificationResendCooldown((codeData.resendSeconds || 60) * 1000);
+    } catch(sendError) {
+      verificationMessage=getEmailVerificationErrorMessage(sendError);
+      verificationType="error";
+    }
     hideLoading();
-    showToast('Conta criada. Verifique seu email para liberar o Premium.','success');
+    showToast('Conta criada. Enviamos um codigo para liberar o Premium.','success');
     window.userIsPremium = false;
     localStorage.setItem('userIsPremium', 'false');
 // Evento Meta Pixel: CompleteRegistration após cadastro por email/senha concluído.
 if (typeof trackMetaCompleteRegistrationOnce === "function") {
   trackMetaCompleteRegistrationOnce(currentUser?.uid, "email");
 }
-showEmailVerificationScreen(currentUser.email);
+showEmailVerificationScreen(currentUser.email, verificationMessage, verificationType);
   }catch(e){
     hideLoading();
     if(err){
       const msgs={
         "auth/email-already-in-use":"Este e-mail já possui uma conta. Tente entrar ou recuperar sua senha.",
         "auth/invalid-email":"Digite um e-mail válido.",
-        "auth/weak-password":"Use uma senha mais forte."
+        "auth/weak-password":"Use uma senha mais forte.",
+        "auth/unauthorized-continue-uri":"Conta criada, mas o Firebase recusou o link de verificação. Adicione www.odontodex.com.br nos domínios autorizados do Firebase Auth.",
+        "auth/invalid-continue-uri":"Conta criada, mas o link de verificação está inválido.",
+        "auth/too-many-requests":"Conta criada, mas houve muitos envios de email em pouco tempo. Aguarde alguns minutos e tente reenviar."
       };
-      err.textContent=msgs[e.code]||"Não foi possível criar sua conta agora. Tente novamente.";
+      err.textContent=msgs[e.code]||getEmailVerificationErrorMessage(e);
       err.style.display="block";
     }
   }
