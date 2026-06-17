@@ -29,6 +29,7 @@ let contentEditorType = "protocol";
 let contentEditorId = "";
 let contentEditorSearch = "";
 let contentEditorProtocolAction = "review";
+let contentEditorDraftPayload = null;
 
 const ADMIN_EMAILS = ["pedrosimplicio.sousa@gmail.com"];
 
@@ -552,7 +553,7 @@ function renderizarSecaoAtual() {
     case 'dashboard': area.innerHTML = renderDashboard(); break;
     case 'metricas': area.innerHTML = renderMetricasProduto(); break;
     case 'usuarios': area.innerHTML = renderUsuarios(); break;
-    case 'conteudo': area.innerHTML = renderConteudoClinico(); setTimeout(() => { adminInitContentEditorInteractions(); adminUpdateContentPreview(); }, 0); break;
+    case 'conteudo': area.innerHTML = renderConteudoClinico(); setTimeout(() => { adminInitContentEditorInteractions(); adminUpdateInlineEditor(); }, 0); break;
     case 'parceiros': area.innerHTML = renderParceiros(); renderizarSecaoAtual.parceirosCarregado = false; carregarParceiros(); break;
     case 'rankings': area.innerHTML = renderRankings(); break;
     case 'landing': area.innerHTML = renderLandingPage(); setTimeout(() => renderLandingCharts(), 100); break;
@@ -741,18 +742,29 @@ function adminClone(value) {
 }
 
 function adminProtocolLocation(protocolId) {
+  const route = adminProtocolRouteInfo(protocolId);
+  return route ? `${route.categoryLabel} > ${route.situationLabel}` : "Sem categoria localizada";
+}
+
+function adminProtocolRouteInfo(protocolId) {
   const { data } = adminClinicalSource();
-  if (!data) return "-";
+  if (!data) return null;
   for (const [situationId, procedures] of Object.entries(data.procedures || {})) {
     if (!Array.isArray(procedures) || !procedures.some(p => p.id === protocolId)) continue;
     for (const [categoryId, situations] of Object.entries(data.situations || {})) {
       const situation = (situations || []).find(s => s.id === situationId);
       if (!situation) continue;
       const category = (data.categories || []).find(c => c.id === categoryId);
-      return `${category?.label || categoryId} > ${situation.label}`;
+      return {
+        categoryId,
+        categoryLabel: category?.label || categoryId,
+        situationId,
+        situationLabel: situation.label,
+        procedure: procedures.find(p => p.id === protocolId)
+      };
     }
   }
-  return "Sem categoria localizada";
+  return null;
 }
 
 
@@ -772,6 +784,20 @@ function adminProtocolRouteStatus(protocolId) {
 }
 function adminContentItems(type) {
   const { data, cards } = adminClinicalSource();
+  if (type === "category") {
+    return (data?.categories || []).map(category => {
+      const situations = data?.situations?.[category.id] || [];
+      const protocolCount = situations.reduce((sum, situation) => {
+        return sum + ((data?.procedures?.[situation.id] || []).length);
+      }, 0);
+      return {
+        id: category.id,
+        title: category.label || category.id,
+        subtitle: "Categoria",
+        meta: `${situations.length} situação(ões) · ${protocolCount} protocolo(s)`
+      };
+    });
+  }
   if (type === "card") {
     return Object.entries(cards || {}).map(([id, card]) => ({
       id,
@@ -793,6 +819,18 @@ function adminContentItems(type) {
 }
 
 function adminContentTemplate(type) {
+  if (type === "category") {
+    return {
+      id: "nova-categoria",
+      category: {
+        id: "nova-categoria",
+        label: "Nova categoria",
+        icon: "ti ti-dental"
+      },
+      situations: [],
+      procedures: {}
+    };
+  }
   if (type === "card") {
     return {
       id: "novo-card",
@@ -828,6 +866,15 @@ function adminContentTemplate(type) {
 function adminContentEditorValue(type, id) {
   const { data, cards } = adminClinicalSource();
   if (!id || id === "__new__") return adminContentTemplate(type);
+  if (type === "category") {
+    const category = (data?.categories || []).find(item => item.id === id);
+    const situations = adminClone(data?.situations?.[id] || []);
+    const procedures = {};
+    situations.forEach(situation => {
+      procedures[situation.id] = adminClone(data?.procedures?.[situation.id] || []);
+    });
+    return category ? { id, category: adminClone(category), situations, procedures } : adminContentTemplate("category");
+  }
   if (type === "card") {
     const card = cards?.[id];
     return card ? { id, card: adminClone(card) } : adminContentTemplate("card");
@@ -836,13 +883,16 @@ function adminContentEditorValue(type, id) {
   const cleanedProtocol = adminClone(protocol || {});
   delete cleanedProtocol.time;
   delete cleanedProtocol.level;
+  const route = adminProtocolRouteInfo(id);
   return protocol ? {
     id,
     location: adminProtocolLocation(id),
+    categoryId: route?.categoryId || "",
+    situationId: route?.situationId || "",
     routeStatus: adminProtocolRouteStatus(id),
     decision: adminProtocolRouteStatus(id) === "orphan" ? contentEditorProtocolAction : "active",
-    procedureLabel: protocol.title || id,
-    procedureFree: protocol.free === true,
+    procedureLabel: route?.procedure?.label || protocol.title || id,
+    procedureFree: route?.procedure?.free ?? protocol.free === true,
     protocol: cleanedProtocol
   } : adminContentTemplate("protocol");
 }
@@ -862,7 +912,16 @@ function adminValidateContentObject(payload, type) {
   if (!id) errors.push("Informe um id.");
   if (!/^[a-z0-9_-]+$/.test(id)) warnings.push("Prefira ids em minúsculas, sem acento, usando hífen.");
 
-  if (type === "card") {
+  if (type === "category") {
+    const category = payload?.category || {};
+    if (!String(category.label || "").trim()) errors.push("Categoria: informe o nome exibido.");
+    if (!String(category.icon || "").trim()) warnings.push("Categoria sem ícone. Use uma classe Tabler, por exemplo ti ti-dental.");
+    if (!Array.isArray(payload?.situations)) errors.push("Categoria: situations deve ser uma lista.");
+    (payload?.situations || []).forEach((situation, index) => {
+      if (!situation.id || !situation.label) errors.push(`Situação #${index + 1} precisa ter id e label.`);
+    });
+    if (!errors.length && !(payload?.situations || []).length) warnings.push("Categoria sem situações. Ela apareceria vazia no app.");
+  } else if (type === "card") {
     const card = payload?.card || {};
     ["title", "intent", "quick"].forEach(field => {
       if (!String(card[field] || "").trim()) errors.push(`Card: campo ${field} é obrigatório.`);
@@ -899,6 +958,20 @@ function adminValidateContentObject(payload, type) {
 function adminGeneratedContentCode(payload, type) {
   if (!payload) return "";
   const id = String(payload.id || "").trim();
+  if (type === "category") {
+    const category = adminClone(payload.category || {});
+    category.id = id;
+    const situations = (payload.situations || []).map(item => ({ id: item.id, label: item.label }));
+    return [
+      "// Categoria: adicionar/atualizar em INITIAL_DATA.categories:",
+      JSON.stringify(category, null, 2),
+      "",
+      `// Situações: adicionar/atualizar em INITIAL_DATA.situations["${id}"]:`,
+      JSON.stringify(situations, null, 2),
+      "",
+      "// Depois relacione protocolos em INITIAL_DATA.procedures[ID_DA_SITUACAO]."
+    ].join("\n");
+  }
   if (type === "card") {
     const card = adminClone(payload.card || {});
     card.id = id;
@@ -918,7 +991,7 @@ function adminGeneratedContentCode(payload, type) {
     decisionNotes[decision] || decisionNotes.review,
     payload.routeStatus === "orphan" ? "// Atenção: protocolo sem caminho visual no app neste momento." : "// Protocolo com caminho no app.",
     "",
-    `// Em INITIAL_DATA.procedures[ID_DA_SITUACAO], adicionar:`,
+    `// Em INITIAL_DATA.procedures["${payload.situationId || "ID_DA_SITUACAO"}"], adicionar/atualizar:`,
     JSON.stringify({ id, label: payload.procedureLabel || payload.protocol?.title || id, free: payload.procedureFree !== false }, null, 2),
     "",
     `// Em INITIAL_DATA.protocols, adicionar/atualizar:`,
@@ -972,6 +1045,7 @@ function renderConteudoClinico() {
   }
   const protocolsCount = Object.keys(data.protocols || {}).length;
   const cardsCount = Object.keys(cards || {}).length;
+  const categoriesCount = (data.categories || []).length;
   const orphanProtocolsCount = adminContentItems("protocol").filter(item => item.routeStatus === "orphan").length;
   const items = adminContentItems(contentEditorType)
     .filter(item => {
@@ -981,13 +1055,15 @@ function renderConteudoClinico() {
     })
     .sort((a, b) => a.title.localeCompare(b.title));
   if (!contentEditorId && items[0]) contentEditorId = items[0].id;
+  const selectedPayload = contentEditorDraftPayload || adminContentEditorValue(contentEditorType, contentEditorId || "__new__");
   return `
     <div class="content-header">
       <h1>Conteúdo Clínico</h1>
-      <p>Visualize, edite rascunhos, valide relações e gere blocos para implementação.</p>
+      <p>Controle protocolos, cards, categorias e veja a aparência no celular em tempo real.</p>
     </div>
     <div class="content-note">
-      Este editor não publica no app e não altera o Firestore. Ele serve para criar rascunhos revisáveis antes da implementação.
+      Este painel ainda trabalha como rascunho seguro: ele não publica no app e não altera o Firestore sozinho.
+      Você edita, visualiza no celular e copia o bloco gerado para implementação.
       ${orphanProtocolsCount ? `<strong>${orphanProtocolsCount} protocolo(s) sem caminho no app foram sinalizados.</strong>` : ""}
     </div>
     <div class="content-editor-shell">
@@ -995,49 +1071,389 @@ function renderConteudoClinico() {
         <div class="content-editor-tabs">
           <button type="button" class="${contentEditorType === "protocol" ? "active" : ""}" data-content-action="switch" data-content-type="protocol">Protocolos <span>${protocolsCount}</span></button>
           <button type="button" class="${contentEditorType === "card" ? "active" : ""}" data-content-action="switch" data-content-type="card">Cards <span>${cardsCount}</span></button>
+          <button type="button" class="${contentEditorType === "category" ? "active" : ""}" data-content-action="switch" data-content-type="category">Categorias <span>${categoriesCount}</span></button>
         </div>
         <input class="content-search-input" value="${adminEscapeHtml(contentEditorSearch)}" data-content-action="search" placeholder="Buscar por nome ou id...">
-        <button type="button" class="content-new-btn" data-content-action="new">Criar novo rascunho</button>
-        <div class="content-item-list">
-          ${items.map(item => `
-            <button type="button" class="content-item ${item.id === contentEditorId ? "active" : ""} ${item.routeStatus === "orphan" ? "orphan" : ""}" data-content-action="open" data-content-type="${adminEscapeHtml(contentEditorType)}" data-content-id="${adminEscapeHtml(item.id)}">
-              <strong>${adminEscapeHtml(item.title)}${item.routeStatus === "orphan" ? '<b class="content-orphan-badge">Sem caminho</b>' : ""}</strong>
-              <small>${adminEscapeHtml(item.id)}</small>
-              <span>${adminEscapeHtml(item.subtitle)}</span>
-              <em>${adminEscapeHtml(item.meta)}</em>
-            </button>
-          `).join("") || '<div class="content-preview-empty">Nenhum item encontrado.</div>'}
-        </div>
+        <button type="button" class="content-new-btn" data-content-action="new">Criar novo ${contentEditorType === "protocol" ? "protocolo" : contentEditorType === "card" ? "card" : "categoria"}</button>
+        <div class="content-item-list">${adminRenderContentList(items)}</div>
       </aside>
-      <section class="content-editor-main content-editor-empty">
-        <div class="content-editor-kicker">Editor visual</div>
-        <h2>Abra um item para visualizar e editar como no app.</h2>
-        <p>
-          Clique em um protocolo ou card na lista. Ele abre em um modal com prévia estilo mobile,
-          campos editáveis, seleção de protocolos em “Como resolver” e seleção de cards em “Problemas relacionados”.
-        </p>
-        <div class="content-editor-empty-actions">
-          <button type="button" data-content-action="new">Criar novo rascunho</button>
-        </div>
-        <div class="content-editor-empty-note">
-          ${orphanProtocolsCount ? `${orphanProtocolsCount} protocolo(s) existem no arquivo, mas ainda não aparecem em nenhuma rota do app. Eles estão marcados como “Sem caminho”.` : "Todos os protocolos encontrados possuem caminho no app."}
-        </div>
-      </section>
+      ${adminRenderInlineContentWorkspace(selectedPayload, contentEditorType)}
     </div>
   `;
 }
 
+function adminRenderContentList(items) {
+  if (contentEditorType === "protocol" && !contentEditorSearch.trim()) return adminRenderProtocolTree();
+  return items.map(item => adminRenderContentItemButton(item, contentEditorType)).join("") || '<div class="content-preview-empty">Nenhum item encontrado.</div>';
+}
+
+function adminRenderContentItemButton(item, type) {
+  return `
+    <button type="button" class="content-item ${item.id === contentEditorId ? "active" : ""} ${item.routeStatus === "orphan" ? "orphan" : ""}" data-content-action="open" data-content-type="${adminEscapeHtml(type)}" data-content-id="${adminEscapeHtml(item.id)}">
+      <strong>${adminEscapeHtml(item.title)}${item.routeStatus === "orphan" ? '<b class="content-orphan-badge">Sem caminho</b>' : ""}</strong>
+      <small>${adminEscapeHtml(item.id)}</small>
+      <span>${adminEscapeHtml(item.subtitle)}</span>
+      <em>${adminEscapeHtml(item.meta)}</em>
+    </button>
+  `;
+}
+
+function adminRenderProtocolTree() {
+  const { data } = adminClinicalSource();
+  if (!data) return '<div class="content-preview-empty">Dados clínicos não carregados.</div>';
+  const selectedId = contentEditorId;
+  const categories = (data.categories || []).map(category => {
+    const situations = (data.situations?.[category.id] || []).map(situation => {
+      const procedures = (data.procedures?.[situation.id] || [])
+        .filter(procedure => data.protocols?.[procedure.id])
+        .map(procedure => {
+          const protocol = data.protocols[procedure.id];
+          return {
+            id: procedure.id,
+            title: procedure.label || protocol.title || procedure.id,
+            subtitle: situation.label,
+            meta: `${(procedure.free ?? protocol.free) ? "Free" : "Premium"} · ${(protocol.steps || []).length} passo(s)`,
+            routeStatus: "active"
+          };
+        });
+      if (!procedures.length) return "";
+      return `
+        <div class="content-tree-situation">
+          <div class="content-tree-situation-title">${adminEscapeHtml(situation.label)} <span>${procedures.length}</span></div>
+          <div class="content-tree-protocols">${procedures.map(item => adminRenderContentItemButton(item, "protocol")).join("")}</div>
+        </div>
+      `;
+    }).filter(Boolean);
+    if (!situations.length) return "";
+    const isOpen = situations.join("").includes(`data-content-id="${adminEscapeHtml(selectedId)}"`);
+    return `
+      <details class="content-tree-category" ${isOpen ? "open" : ""}>
+        <summary><span>${adminEscapeHtml(category.label || category.id)}</span><b>${situations.length}</b></summary>
+        ${situations.join("")}
+      </details>
+    `;
+  }).filter(Boolean);
+  const orphanProtocols = adminContentItems("protocol").filter(item => item.routeStatus === "orphan");
+  const orphanHtml = orphanProtocols.length ? `
+    <details class="content-tree-category orphan" ${orphanProtocols.some(item => item.id === selectedId) ? "open" : ""}>
+      <summary><span>Sem caminho no app</span><b>${orphanProtocols.length}</b></summary>
+      <div class="content-tree-protocols">${orphanProtocols.map(item => adminRenderContentItemButton(item, "protocol")).join("")}</div>
+    </details>
+  ` : "";
+  return categories.join("") + orphanHtml;
+}
+
+function adminRenderInlineContentWorkspace(payload, type) {
+  const title = type === "card" ? "Editar card" : type === "category" ? "Editar categoria" : "Editar protocolo";
+  const preview = type === "card"
+    ? adminRenderCardAppPreview(payload?.card || {})
+    : type === "category"
+      ? adminRenderCategoryAppPreview(payload || {})
+      : adminRenderProtocolAppPreview(payload || {});
+  return `
+    <section class="content-editor-main live-editor">
+      <div class="content-live-form-panel">
+        <div class="content-editor-toolbar">
+          <div>
+            <div class="content-editor-title">${title}</div>
+            <div class="content-editor-sub">As mudanças aparecem no celular ao lado enquanto você digita.</div>
+          </div>
+          <div class="content-editor-actions">
+            <button type="button" data-content-action="save-draft-inline">Salvar rascunho</button>
+            <button type="button" data-content-action="validate-inline">Validar</button>
+            <button type="button" data-content-action="copy-inline">Copiar bloco</button>
+          </div>
+        </div>
+        <form id="content-inline-form" class="content-inline-form" data-content-type="${adminEscapeHtml(type)}">
+          <label>Id<input id="inline-id" value="${adminEscapeHtml(payload?.id || "")}"></label>
+          ${type === "card" ? adminRenderInlineCardForm(payload?.card || {}) : type === "category" ? adminRenderInlineCategoryForm(payload || {}) : adminRenderInlineProtocolForm(payload || {})}
+        </form>
+        <div class="content-modal-validation" id="content-inline-validation"></div>
+        <details class="content-advanced-code">
+          <summary>Avançado: bloco de implementação</summary>
+          <pre id="content-inline-code"></pre>
+        </details>
+      </div>
+      <div class="content-live-phone-panel">
+        <div class="content-phone-frame">
+          <div class="content-phone-speaker"></div>
+          <div class="content-phone-preview light" id="content-inline-phone-preview">${preview}</div>
+        </div>
+      </div>
+    </section>
+  `;
+}
+
+function adminRenderInlineProtocolForm(payload) {
+  const protocol = payload.protocol || {};
+  const route = {
+    categoryId: payload.categoryId || "",
+    situationId: payload.situationId || ""
+  };
+  return `
+    <label>Título<input id="inline-protocol-title" value="${adminEscapeHtml(protocol.title || "")}"></label>
+    <div class="content-modal-row two">
+      <label>Plano<select id="inline-protocol-free"><option value="true" ${protocol.free ? "selected" : ""}>Free</option><option value="false" ${!protocol.free ? "selected" : ""}>Premium</option></select></label>
+      <label>Nome na lista<input id="inline-procedure-label" value="${adminEscapeHtml(payload.procedureLabel || protocol.title || "")}"></label>
+    </div>
+    <div class="content-modal-row two">
+      <label>Categoria<select id="inline-protocol-category">${adminRenderCategoryOptions(route.categoryId)}</select></label>
+      <label>Situação<select id="inline-protocol-situation">${adminRenderSituationOptions(route.categoryId, route.situationId)}</select></label>
+    </div>
+    ${adminRenderListEditor("steps", "Passo a passo", protocol.steps || [], "Descreva o próximo passo clínico")}
+    ${adminRenderListEditor("errors", "Erros que ferram", protocol.errors || [], "Descreva um erro comum")}
+    ${adminRenderPairEditor("decisions", "Decisão rápida", protocol.decisions || [], "Se acontecer...", "Então faça...")}
+  `;
+}
+
+function adminRenderListEditor(field, title, items, placeholder) {
+  const normalized = (items && items.length ? items : [""]);
+  return `
+    <div class="content-repeat-group">
+      <div class="content-repeat-head">
+        <span>${adminEscapeHtml(title)}</span>
+        <button type="button" data-content-action="add-list-item" data-list-field="${adminEscapeHtml(field)}">+ Adicionar</button>
+      </div>
+      <div class="content-repeat-list" data-list="${adminEscapeHtml(field)}">
+        ${normalized.map(value => adminRenderListRow(field, value, placeholder)).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function adminRenderListRow(field, value, placeholder) {
+  return `
+    <div class="content-repeat-row">
+      <input data-list-field="${adminEscapeHtml(field)}" value="${adminEscapeHtml(value || "")}" placeholder="${adminEscapeHtml(placeholder || "")}">
+      <button type="button" data-content-action="remove-repeat-item" aria-label="Remover">×</button>
+    </div>
+  `;
+}
+
+function adminRenderPairEditor(field, title, items, leftPlaceholder, rightPlaceholder) {
+  const normalized = (items && items.length ? items : [{ if: "", then: "" }]);
+  return `
+    <div class="content-repeat-group">
+      <div class="content-repeat-head">
+        <span>${adminEscapeHtml(title)}</span>
+        <button type="button" data-content-action="add-pair-item" data-pair-field="${adminEscapeHtml(field)}">+ Adicionar</button>
+      </div>
+      <div class="content-repeat-list" data-pair="${adminEscapeHtml(field)}">
+        ${normalized.map(item => adminRenderPairRow(field, item, leftPlaceholder, rightPlaceholder)).join("")}
+      </div>
+    </div>
+  `;
+}
+
+function adminRenderPairRow(field, item, leftPlaceholder, rightPlaceholder) {
+  return `
+    <div class="content-repeat-row pair">
+      <input data-pair-field="${adminEscapeHtml(field)}" data-pair-side="if" value="${adminEscapeHtml(item?.if || "")}" placeholder="${adminEscapeHtml(leftPlaceholder || "")}">
+      <input data-pair-field="${adminEscapeHtml(field)}" data-pair-side="then" value="${adminEscapeHtml(item?.then || "")}" placeholder="${adminEscapeHtml(rightPlaceholder || "")}">
+      <button type="button" data-content-action="remove-repeat-item" aria-label="Remover">×</button>
+    </div>
+  `;
+}
+
+function adminRenderInlineCardForm(card) {
+  return `
+    <label>Título<input id="inline-card-title" value="${adminEscapeHtml(card.title || "")}"></label>
+    <label>Intenção clínica<textarea id="inline-card-intent">${adminEscapeHtml(card.intent || "")}</textarea></label>
+    <label>Sinônimos de busca <small>um por linha</small><textarea id="inline-card-synonyms">${adminEscapeHtml(adminTextareaList(card.synonyms))}</textarea></label>
+    <label>Resposta rápida<textarea id="inline-card-quick">${adminEscapeHtml(card.quick || "")}</textarea></label>
+    <label>Quando isso muda? <small>um tópico por linha</small><textarea id="inline-card-changes">${adminEscapeHtml(adminTextareaList(card.changes))}</textarea></label>
+    <label>O que costuma estar por trás disso? <small>um tópico por linha</small><textarea id="inline-card-behind">${adminEscapeHtml(adminTextareaList(card.behind))}</textarea></label>
+    <label>Como resolver <small>escolha protocolos existentes</small><select id="inline-card-protocols" multiple>${adminRenderProtocolSelect(card.protocols || [])}</select></label>
+    <label>Problemas relacionados <small>escolha cards existentes</small><select id="inline-card-related" multiple>${adminRenderCardSelect(card.related || [])}</select></label>
+  `;
+}
+
+function adminRenderInlineCategoryForm(payload) {
+  const category = payload.category || {};
+  const situationsText = (payload.situations || []).map(item => `${item.id || ""} | ${item.label || ""}`).join("\n");
+  return `
+    <label>Nome exibido<input id="inline-category-label" value="${adminEscapeHtml(category.label || "")}"></label>
+    <label>Ícone <small>classe Tabler, exemplo: ti ti-dental</small><input id="inline-category-icon" value="${adminEscapeHtml(category.icon || "")}"></label>
+    <label>Situações <small>formato: id | nome exibido</small><textarea id="inline-category-situations">${adminEscapeHtml(situationsText)}</textarea></label>
+  `;
+}
+
+function adminRenderCategoryOptions(selectedId) {
+  const { data } = adminClinicalSource();
+  return [`<option value="">Escolher categoria</option>`].concat((data?.categories || []).map(category => (
+    `<option value="${adminEscapeHtml(category.id)}" ${category.id === selectedId ? "selected" : ""}>${adminEscapeHtml(category.label || category.id)}</option>`
+  ))).join("");
+}
+
+function adminRenderSituationOptions(categoryId, selectedId) {
+  const { data } = adminClinicalSource();
+  const situations = data?.situations?.[categoryId] || [];
+  return [`<option value="">Escolher situação</option>`].concat(situations.map(situation => (
+    `<option value="${adminEscapeHtml(situation.id)}" ${situation.id === selectedId ? "selected" : ""}>${adminEscapeHtml(situation.label || situation.id)}</option>`
+  ))).join("");
+}
+
+function adminInlinePayloadFromForm() {
+  const form = document.getElementById("content-inline-form");
+  if (!form) return null;
+  const type = form.dataset.contentType;
+  const id = document.getElementById("inline-id").value.trim();
+  if (type === "category") {
+    return {
+      id,
+      category: {
+        id,
+        label: document.getElementById("inline-category-label").value.trim(),
+        icon: document.getElementById("inline-category-icon").value.trim()
+      },
+      situations: adminPairsFromTextarea(document.getElementById("inline-category-situations").value, "id", "label")
+    };
+  }
+  if (type === "card") {
+    return {
+      id,
+      card: {
+        id,
+        title: document.getElementById("inline-card-title").value.trim(),
+        intent: document.getElementById("inline-card-intent").value.trim(),
+        synonyms: adminListFromTextarea(document.getElementById("inline-card-synonyms").value),
+        quick: document.getElementById("inline-card-quick").value.trim(),
+        changes: adminListFromTextarea(document.getElementById("inline-card-changes").value),
+        behind: adminListFromTextarea(document.getElementById("inline-card-behind").value),
+        protocols: adminSelectedOptions("inline-card-protocols"),
+        related: adminSelectedOptions("inline-card-related")
+      }
+    };
+  }
+  const isFree = document.getElementById("inline-protocol-free").value === "true";
+  const categoryId = document.getElementById("inline-protocol-category").value;
+  const situationId = document.getElementById("inline-protocol-situation").value;
+  return {
+    id,
+    categoryId,
+    situationId,
+    location: adminInlineLocationLabel(categoryId, situationId),
+    routeStatus: situationId ? "active" : "orphan",
+    decision: situationId ? "active" : "review",
+    procedureLabel: document.getElementById("inline-procedure-label").value.trim(),
+    procedureFree: isFree,
+    protocol: {
+      title: document.getElementById("inline-protocol-title").value.trim(),
+      free: isFree,
+      steps: adminInlineListValues("steps"),
+      errors: adminInlineListValues("errors"),
+      decisions: adminInlinePairValues("decisions"),
+      crises: []
+    }
+  };
+}
+
+function adminInlineListValues(field) {
+  return Array.from(document.querySelectorAll(`#content-inline-form [data-list-field="${field}"]`))
+    .map(input => input.value.trim())
+    .filter(Boolean);
+}
+
+function adminInlinePairValues(field) {
+  const rows = Array.from(document.querySelectorAll(`#content-inline-form [data-pair="${field}"] .content-repeat-row`));
+  return rows.map(row => ({
+    if: row.querySelector('[data-pair-side="if"]')?.value.trim() || "",
+    then: row.querySelector('[data-pair-side="then"]')?.value.trim() || ""
+  })).filter(item => item.if || item.then);
+}
+
+function adminInlineLocationLabel(categoryId, situationId) {
+  const { data } = adminClinicalSource();
+  const category = (data?.categories || []).find(item => item.id === categoryId);
+  const situation = (data?.situations?.[categoryId] || []).find(item => item.id === situationId);
+  if (!categoryId && !situationId) return "Sem categoria definida";
+  return `${category?.label || categoryId || "Categoria"} > ${situation?.label || situationId || "Situação"}`;
+}
+
+function adminRenderCategoryAppPreview(payload) {
+  const category = payload.category || {};
+  const situations = payload.situations || [];
+  return `
+    <div class="app-preview-kind">Categoria</div>
+    <h2>${adminEscapeHtml(category.label || "Nova categoria")}</h2>
+    <div class="app-preview-meta"><span>${adminEscapeHtml(category.icon || "sem ícone")}</span><span>${situations.length} situação(ões)</span></div>
+    <div class="app-preview-section primary"><strong>Como aparece na home</strong><p>${adminEscapeHtml(category.label || "Nome da categoria")}</p></div>
+    <div class="app-preview-section"><strong>Situações</strong>${adminPreviewLinks(situations)}</div>
+  `;
+}
+
+function adminRefreshInlineSituationOptions() {
+  const category = document.getElementById("inline-protocol-category");
+  const situation = document.getElementById("inline-protocol-situation");
+  if (!category || !situation) return;
+  const current = situation.value;
+  situation.innerHTML = adminRenderSituationOptions(category.value, current);
+}
+
+function adminUpdateInlineEditor() {
+  adminRefreshInlineSituationOptions();
+  const preview = document.getElementById("content-inline-phone-preview");
+  const validation = document.getElementById("content-inline-validation");
+  const code = document.getElementById("content-inline-code");
+  const form = document.getElementById("content-inline-form");
+  if (!preview || !validation || !code || !form) return;
+  const type = form.dataset.contentType;
+  const payload = adminInlinePayloadFromForm();
+  contentEditorDraftPayload = payload;
+  const result = adminValidateContentObject(payload, type);
+  preview.innerHTML = type === "card" ? adminRenderCardAppPreview(payload.card || {}) : type === "category" ? adminRenderCategoryAppPreview(payload) : adminRenderProtocolAppPreview(payload);
+  validation.innerHTML = result.errors.map(error => `<div class="content-validation-error">${adminEscapeHtml(error)}</div>`).join("") || '<div class="content-validation-ok">Rascunho válido.</div>';
+  validation.innerHTML += result.warnings.map(warning => `<div class="content-validation-warning">${adminEscapeHtml(warning)}</div>`).join("");
+  code.textContent = adminGeneratedContentCode(payload, type);
+}
+
+async function adminCopyInlineGeneratedContent() {
+  adminUpdateInlineEditor();
+  const code = document.getElementById("content-inline-code")?.textContent || "";
+  if (!code.trim()) return mostrarToastAdmin("Nada para copiar", "warning");
+  try {
+    await navigator.clipboard.writeText(code);
+    mostrarToastAdmin("Bloco copiado para implementação", "success");
+  } catch (error) {
+    mostrarToastAdmin("Não foi possível copiar automaticamente", "error");
+  }
+}
+
+function adminSaveInlineDraft() {
+  adminUpdateInlineEditor();
+  const form = document.getElementById("content-inline-form");
+  if (!form) return;
+  const payload = adminInlinePayloadFromForm();
+  const type = form.dataset.contentType;
+  const key = "admin_content_drafts";
+  let drafts = [];
+  try {
+    drafts = JSON.parse(localStorage.getItem(key) || "[]");
+  } catch (error) {
+    drafts = [];
+  }
+  const id = `${type}:${payload.id || "sem-id"}`;
+  const draft = { id, type, payload, updatedAt: new Date().toISOString() };
+  const index = drafts.findIndex(item => item.id === id);
+  if (index >= 0) drafts[index] = draft;
+  else drafts.unshift(draft);
+  localStorage.setItem(key, JSON.stringify(drafts.slice(0, 50)));
+  mostrarToastAdmin("Rascunho salvo neste navegador", "success");
+}
+
 function adminSwitchContentType(type) {
-  contentEditorType = type === "card" ? "card" : "protocol";
+  contentEditorType = type === "card" ? "card" : type === "category" ? "category" : "protocol";
   contentEditorId = "";
   contentEditorSearch = "";
+  contentEditorDraftPayload = null;
   renderizarSecaoAtual();
 }
 
 function adminOpenContentItem(type, id) {
-  contentEditorType = type === "card" ? "card" : "protocol";
+  contentEditorType = type === "card" ? "card" : type === "category" ? "category" : "protocol";
   contentEditorId = id;
-  adminOpenContentModal(adminContentEditorValue(contentEditorType, contentEditorId), contentEditorType);
+  contentEditorDraftPayload = null;
+  renderizarSecaoAtual();
 }
 
 function adminSearchContent(value) {
@@ -1048,7 +1464,8 @@ function adminSearchContent(value) {
 
 function adminNewContentDraft() {
   contentEditorId = "__new__";
-  adminOpenContentModal(adminContentEditorValue(contentEditorType, contentEditorId), contentEditorType);
+  contentEditorDraftPayload = adminContentEditorValue(contentEditorType, contentEditorId);
+  renderizarSecaoAtual();
 }
 
 function adminUpdateContentPreview() {
@@ -1295,14 +1712,63 @@ function adminRenderCardAppPreview(card) {
   `;
 }
 
-function adminRenderProtocolAppPreview(protocol) {
+function adminRenderProtocolAppPreview(input) {
+  const payload = input?.protocol ? input : null;
+  const protocol = payload ? payload.protocol : (input || {});
+  const location = payload?.location || "Categoria > Situação";
+  const procedureLabel = payload?.procedureLabel || protocol.title || "Nome na lista";
+  const isFree = protocol.free === true;
   return `
-    <div class="app-preview-kind">${protocol.free ? "Free" : "Premium"}</div>
-    <h2>${adminEscapeHtml(protocol.title || "Novo protocolo")}</h2>
-    <div class="app-preview-section"><strong>Passo a passo</strong>${adminPreviewNumbered(protocol.steps)}</div>
-    <div class="app-preview-section alert"><strong>Erros que ferram</strong>${adminPreviewList(protocol.errors)}</div>
-    <div class="app-preview-section"><strong>Decisão rápida</strong>${adminPreviewPairs(protocol.decisions, "if", "then")}</div>
+    <div class="admin-app-preview">
+      <div class="admin-app-topbar">
+        <span class="admin-app-back">←</span>
+        <div>
+          <small>${adminEscapeHtml(location)}</small>
+          <h2>${adminEscapeHtml(protocol.title || "Novo protocolo")}</h2>
+        </div>
+        <span class="admin-app-star">☆</span>
+      </div>
+      <div class="admin-app-body">
+        <div class="admin-app-list-context">
+          <span>Como aparece na lista</span>
+          <button type="button">${adminEscapeHtml(procedureLabel)}</button>
+        </div>
+        <div class="admin-app-status ${isFree ? "free" : "premium"}">
+          <i class="ti ${isFree ? "ti-lock-open" : "ti-crown"}"></i>
+          ${isFree ? "Conteúdo liberado no plano grátis" : "Conteúdo bloqueado para usuários Free"}
+        </div>
+        ${!isFree ? `<div class="admin-app-premium-lock"><strong>Preview do bloqueio Premium</strong><p>No app real, usuários sem Premium verão o convite para desbloquear antes de abrir este protocolo.</p></div>` : ""}
+        <div class="admin-clinical-note"><i class="ti ti-clipboard-heart"></i><span>Este protocolo é um guia de apoio clínico. Adapte conforme a condição do paciente. A responsabilidade pela decisão clínica é exclusivamente do profissional habilitado.</span></div>
+        <section class="admin-app-section">
+          <div class="admin-app-section-title"><i class="ti ti-checklist"></i> Passo a passo</div>
+          ${adminPreviewProtocolSteps(protocol.steps)}
+        </section>
+        <section class="admin-app-section danger">
+          <div class="admin-app-section-title"><i class="ti ti-alert-triangle"></i> Erros que ferram</div>
+          ${adminPreviewProtocolList(protocol.errors)}
+        </section>
+        <section class="admin-app-section">
+          <div class="admin-app-section-title"><i class="ti ti-arrows-split"></i> Decisão rápida</div>
+          ${adminPreviewProtocolDecisions(protocol.decisions)}
+        </section>
+      </div>
+    </div>
   `;
+}
+
+function adminPreviewProtocolSteps(items) {
+  const steps = items && items.length ? items : ["-"];
+  return `<div class="admin-step-list">${steps.map((item, index) => `<div class="admin-step-row"><span>${index + 1}</span><p>${adminEscapeHtml(item)}</p></div>`).join("")}</div>`;
+}
+
+function adminPreviewProtocolList(items) {
+  const rows = items && items.length ? items : ["-"];
+  return `<div class="admin-warning-list">${rows.map(item => `<div><i class="ti ti-alert-circle"></i><p>${adminEscapeHtml(item)}</p></div>`).join("")}</div>`;
+}
+
+function adminPreviewProtocolDecisions(items) {
+  const rows = items && items.length ? items : [{ if: "-", then: "-" }];
+  return `<div class="admin-decision-list">${rows.map(item => `<div><b>${adminEscapeHtml(item.if || "-")}</b><p>${adminEscapeHtml(item.then || "-")}</p></div>`).join("")}</div>`;
 }
 
 function adminPreviewList(items) {
@@ -1370,20 +1836,61 @@ function adminInitContentEditorInteractions() {
     if (action === "new") adminNewContentDraft();
     if (action === "validate") adminUpdateContentPreview();
     if (action === "copy") adminCopyGeneratedContent();
+    if (action === "validate-inline") adminUpdateInlineEditor();
+    if (action === "copy-inline") adminCopyInlineGeneratedContent();
+    if (action === "save-draft-inline") adminSaveInlineDraft();
+    if (action === "add-list-item") adminAddInlineListItem(target.dataset.listField);
+    if (action === "add-pair-item") adminAddInlinePairItem(target.dataset.pairField);
+    if (action === "remove-repeat-item") adminRemoveInlineRepeatItem(target);
   });
   area.addEventListener("input", event => {
     const target = event.target.closest("[data-content-action='search']");
-    if (!target) return;
-    contentEditorSearch = target.value;
-    contentEditorId = "";
-    renderizarSecaoAtual();
+    if (target) {
+      contentEditorSearch = target.value;
+      contentEditorId = "";
+      contentEditorDraftPayload = null;
+      renderizarSecaoAtual();
+      return;
+    }
+    if (event.target.closest("#content-inline-form")) adminUpdateInlineEditor();
   });
   area.addEventListener("change", event => {
     const target = event.target.closest("[data-content-action='decision']");
-    if (!target) return;
-    contentEditorProtocolAction = target.value;
-    adminUpdateContentPreview();
+    if (target) {
+      contentEditorProtocolAction = target.value;
+      adminUpdateContentPreview();
+      return;
+    }
+    if (event.target.closest("#content-inline-form")) adminUpdateInlineEditor();
   });
+}
+
+function adminAddInlineListItem(field) {
+  const list = document.querySelector(`[data-list="${field}"]`);
+  if (!list) return;
+  const placeholders = { steps: "Descreva o próximo passo clínico", errors: "Descreva um erro comum" };
+  list.insertAdjacentHTML("beforeend", adminRenderListRow(field, "", placeholders[field] || ""));
+  adminUpdateInlineEditor();
+}
+
+function adminAddInlinePairItem(field) {
+  const list = document.querySelector(`[data-pair="${field}"]`);
+  if (!list) return;
+  list.insertAdjacentHTML("beforeend", adminRenderPairRow(field, { if: "", then: "" }, "Se acontecer...", "Então faça..."));
+  adminUpdateInlineEditor();
+}
+
+function adminRemoveInlineRepeatItem(button) {
+  const row = button.closest(".content-repeat-row");
+  const group = button.closest(".content-repeat-group");
+  if (!row || !group) return;
+  const rows = group.querySelectorAll(".content-repeat-row");
+  if (rows.length === 1) {
+    row.querySelectorAll("input").forEach(input => { input.value = ""; });
+  } else {
+    row.remove();
+  }
+  adminUpdateInlineEditor();
 }
 
 function renderMetricasProduto() {
@@ -1710,10 +2217,10 @@ async function acaoPremium(tipo) {
       body.dias = parseInt(document.getElementById('dias-trial').value) || 7;
     }
 
-    const res = await fetch('https://www.odontodex.com.br/api/set-premium', {
+    const res = await fetch('https://www.odontodex.com.br/api/admin-action', {
       method: 'POST',
       headers: await adminAuthHeaders(),
-      body: JSON.stringify(body)
+      body: JSON.stringify({ action: 'set-premium', ...body })
     });
     const data = await res.json();
 
@@ -1905,10 +2412,10 @@ function renderParceiros() {
 async function marcarRepasse(codigo) {
   const { mesAtual } = cachedParceiros;
   try {
-    const res = await fetch('https://www.odontodex.com.br/api/set-repasse', {
+    const res = await fetch('https://www.odontodex.com.br/api/admin-action', {
       method: 'POST',
       headers: await adminAuthHeaders(),
-      body: JSON.stringify({ cupom: codigo, mes: mesAtual, status: 'pago' })
+      body: JSON.stringify({ action: 'set-repasse', cupom: codigo, mes: mesAtual, status: 'pago' })
     });
     const data = await res.json();
     if (data.ok) {
@@ -1939,10 +2446,10 @@ async function salvarEdicaoCupom(codigo) {
   feedback.style.color = '#64748B';
   feedback.textContent = 'Salvando...';
   try {
-    const res = await fetch('https://www.odontodex.com.br/api/update-cupom', {
+    const res = await fetch('https://www.odontodex.com.br/api/admin-action', {
       method: 'POST',
       headers: await adminAuthHeaders(),
-      body: JSON.stringify({ codigo, nome, email, pixKey, valorRepasse })
+      body: JSON.stringify({ action: 'update-cupom', codigo, nome, email, pixKey, valorRepasse })
     });
     const data = await res.json();
     if (data.ok) {
@@ -1961,10 +2468,10 @@ async function salvarEdicaoCupom(codigo) {
 
 async function toggleCupom(codigo, novoAtivo) {
   try {
-    const res = await fetch('https://www.odontodex.com.br/api/update-cupom', {
+    const res = await fetch('https://www.odontodex.com.br/api/admin-action', {
       method: 'POST',
       headers: await adminAuthHeaders(),
-      body: JSON.stringify({ codigo, ativo: novoAtivo })
+      body: JSON.stringify({ action: 'update-cupom', codigo, ativo: novoAtivo })
     });
     const data = await res.json();
     if (data.ok) await carregarParceiros();
@@ -1994,10 +2501,10 @@ async function criarCupom() {
   feedback.textContent = 'Criando...';
 
   try {
-    const res = await fetch('https://www.odontodex.com.br/api/create-cupom', {
+    const res = await fetch('https://www.odontodex.com.br/api/admin-action', {
       method: 'POST',
       headers: await adminAuthHeaders(),
-      body: JSON.stringify({ codigo, nome, email, pixKey, valorRepasse })
+      body: JSON.stringify({ action: 'create-cupom', codigo, nome, email, pixKey, valorRepasse })
     });
     const data = await res.json();
     if (data.ok) {

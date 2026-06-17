@@ -34,12 +34,7 @@ npm.cmd run test:security:payments
 
 Endpoints cobertos:
 
-- `/api/set-premium`
-- `/api/set-test-user`
-- `/api/expire-premium`
-- `/api/create-cupom`
-- `/api/update-cupom`
-- `/api/set-repasse`
+- `/api/admin-action`
 
 ## Pagamentos iniciados pelo usuario
 

@@ -29,12 +29,7 @@ function assertNotContains(file, needle, message) {
 }
 
 const adminEndpoints = [
-  "api/set-premium.js",
-  "api/set-test-user.js",
-  "api/expire-premium.js",
-  "api/create-cupom.js",
-  "api/update-cupom.js",
-  "api/set-repasse.js",
+  "api/admin-action.js",
 ];
 
 const userPaymentEndpoints = [
@@ -81,8 +76,8 @@ assertNotContains("src/styles/app.css", "#cancel-premium-section{display:none!im
 assertContains("src/scripts/premium.js", "Acesso", "Pix/pagamento avulso precisa virar informacao de validade");
 assertContains("src/scripts/premium.js", "Cancelar renova", "assinatura ativa precisa mostrar cancelamento de renovacao");
 assertContains("src/scripts/premium.js", "Renova", "assinatura cancelada precisa mostrar status sem nova acao");
-assertContains("src/scripts/app-init.js", "premiumOrigem: 'trial'", "trial automatico precisa registrar premiumOrigem");
-assertContains("src/scripts/auth.js", "premiumOrigem: 'trial'", "cadastro precisa registrar premiumOrigem trial");
+assertContains("api/activate-trial.js", "emailVerified", "trial so pode ser liberado apos email verificado no Firebase Auth");
+assertContains("api/activate-trial.js", "premiumOrigem: \"trial\"", "trial verificado precisa registrar premiumOrigem");
 assertContains("api/create-subscription.js", "premiumOrigem: \"assinatura\"", "assinatura precisa registrar premiumOrigem");
 assertContains("api/process-payment.js", "premiumOrigem: \"pagamento\"", "pagamento direto precisa registrar premiumOrigem");
 assertContains("api/create-pix.js", "premiumOrigem: \"pix\"", "Pix pendente precisa registrar premiumOrigem");
@@ -94,7 +89,7 @@ assertContains("api/create-pix.js", "status === \"approved\"", "checagem Pix so 
 assertContains("api/create-pix.js", "pix_check_events", "checagem Pix precisa ser idempotente");
 assertContains("api/create-pix.js", "premiumOrigem: \"pix\"", "checagem Pix aprovada precisa marcar origem Pix");
 assertContains("api/webhook.js", "premiumOrigem = pixDoc.exists ? \"pix\" : \"pagamento\"", "webhook precisa diferenciar Pix de pagamento avulso");
-assertContains("api/set-premium.js", "premiumOrigem: \"manual\"", "liberacao manual precisa registrar premiumOrigem");
+assertContains("api/admin-action.js", "premiumOrigem: \"manual\"", "liberacao manual precisa registrar premiumOrigem");
 
 assertContains("api/create-preference.js", "https://www.odontodex.com.br", "checkout precisa usar dominio oficial");
 assertNotContains("api/create-preference.js", "odontodex.vercel.app", "checkout nao pode usar URL antiga de app");

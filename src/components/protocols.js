@@ -56,25 +56,17 @@ function renderProtocol(id){
   const isFav=isFavorite("protocol", id);
   const body=document.getElementById("protocol-body");
   if(!body)return;
-  // Monta breadcrumb da categoria e situação
-  const catData = DATA.categories.find(c=>c.id===selCat);
-  const sitData = selCat && DATA.situations[selCat] ? DATA.situations[selCat].find(s=>s.id===selSit) : null;
-  const breadcrumb = [catData?catData.label:'', sitData?sitData.label:''].filter(Boolean).join(' › ');
+  const titleEl=document.getElementById("protocol-top-title");
+  if(titleEl) titleEl.textContent=p.title;
+  const favBtn=document.getElementById("fav-btn-proto");
+  if(favBtn){
+    favBtn.dataset.favId=id;
+    favBtn.onclick=()=>toggleTypedFavorite("protocol", id);
+    favBtn.className=`rx-fav-btn top-action-btn ${isFav?'active':''}`;
+    favBtn.innerHTML=isFav?'<i class="ti ti-star-filled"></i>':'<i class="ti ti-star"></i>';
+  }
 
   body.innerHTML=`
-    <div class="proto-hdr-new">
-      <div class="proto-hdr-top">
-        <button class="proto-hdr-back" onclick="goBackToLastScreen()">←</button>
-        <div class="proto-hdr-info">
-          ${breadcrumb?`<div class="proto-hdr-cat">${breadcrumb}</div>`:''}
-          <div class="proto-hdr-title">${p.title}</div>
-          <div class="proto-hdr-badges">
-            ${!p.free&&!window.userIsPremium?'<span class="prem-tag"><i class="ti ti-lock"></i>Premium</span>':''}
-            <button class="proto-hdr-fav ${isFav?'active':''}" id="fav-btn-proto" data-fav-type="protocol" data-fav-id="${escapeHtml(id)}" onclick="toggleTypedFavorite('protocol','${id}')" style="margin-left:auto" aria-label="Favoritar protocolo">${isFav?'<i class="ti ti-star-filled"></i>':'<i class="ti ti-star"></i>'}</button>
-          </div>
-        </div>
-      </div>
-    </div>
     <div class="clinical-note"><span class="protocol-inline-icon"><i class="ti ti-clipboard-heart"></i></span><span>Este protocolo é um guia de apoio clínico. Adapte conforme a condição do paciente. A responsabilidade pela decisão clínica é exclusivamente do profissional habilitado.</span></div>
     ${id==='extracao-simples'?`
     <div class="fw-widget">
@@ -159,7 +151,7 @@ function toggleFav(id){
   if(btn){
     const nowFav = isFavorite("protocol", id);
     btn.innerHTML = nowFav ? '<i class="ti ti-star-filled"></i>' : '<i class="ti ti-star"></i>';
-    btn.className = nowFav ? 'proto-hdr-fav active' : 'proto-hdr-fav';
+    btn.className = nowFav ? 'rx-fav-btn top-action-btn active' : 'rx-fav-btn top-action-btn';
   }
 }
 
