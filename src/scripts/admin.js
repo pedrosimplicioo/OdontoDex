@@ -2217,10 +2217,10 @@ async function acaoPremium(tipo) {
       body.dias = parseInt(document.getElementById('dias-trial').value) || 7;
     }
 
-    const res = await fetch('https://www.odontodex.com.br/api/set-premium', {
+    const res = await fetch('https://www.odontodex.com.br/api/admin-action', {
       method: 'POST',
       headers: await adminAuthHeaders(),
-      body: JSON.stringify(body)
+      body: JSON.stringify({ action: 'set-premium', ...body })
     });
     const data = await res.json();
 
@@ -2412,10 +2412,10 @@ function renderParceiros() {
 async function marcarRepasse(codigo) {
   const { mesAtual } = cachedParceiros;
   try {
-    const res = await fetch('https://www.odontodex.com.br/api/set-repasse', {
+    const res = await fetch('https://www.odontodex.com.br/api/admin-action', {
       method: 'POST',
       headers: await adminAuthHeaders(),
-      body: JSON.stringify({ cupom: codigo, mes: mesAtual, status: 'pago' })
+      body: JSON.stringify({ action: 'set-repasse', cupom: codigo, mes: mesAtual, status: 'pago' })
     });
     const data = await res.json();
     if (data.ok) {
@@ -2446,10 +2446,10 @@ async function salvarEdicaoCupom(codigo) {
   feedback.style.color = '#64748B';
   feedback.textContent = 'Salvando...';
   try {
-    const res = await fetch('https://www.odontodex.com.br/api/update-cupom', {
+    const res = await fetch('https://www.odontodex.com.br/api/admin-action', {
       method: 'POST',
       headers: await adminAuthHeaders(),
-      body: JSON.stringify({ codigo, nome, email, pixKey, valorRepasse })
+      body: JSON.stringify({ action: 'update-cupom', codigo, nome, email, pixKey, valorRepasse })
     });
     const data = await res.json();
     if (data.ok) {
@@ -2468,10 +2468,10 @@ async function salvarEdicaoCupom(codigo) {
 
 async function toggleCupom(codigo, novoAtivo) {
   try {
-    const res = await fetch('https://www.odontodex.com.br/api/update-cupom', {
+    const res = await fetch('https://www.odontodex.com.br/api/admin-action', {
       method: 'POST',
       headers: await adminAuthHeaders(),
-      body: JSON.stringify({ codigo, ativo: novoAtivo })
+      body: JSON.stringify({ action: 'update-cupom', codigo, ativo: novoAtivo })
     });
     const data = await res.json();
     if (data.ok) await carregarParceiros();
@@ -2501,10 +2501,10 @@ async function criarCupom() {
   feedback.textContent = 'Criando...';
 
   try {
-    const res = await fetch('https://www.odontodex.com.br/api/create-cupom', {
+    const res = await fetch('https://www.odontodex.com.br/api/admin-action', {
       method: 'POST',
       headers: await adminAuthHeaders(),
-      body: JSON.stringify({ codigo, nome, email, pixKey, valorRepasse })
+      body: JSON.stringify({ action: 'create-cupom', codigo, nome, email, pixKey, valorRepasse })
     });
     const data = await res.json();
     if (data.ok) {
