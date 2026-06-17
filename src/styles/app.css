@@ -818,6 +818,9 @@ body.dark .login-screen{background:#000;}
 .verify-code-wrap{margin:0 0 12px;}
 .verify-code-input{width:100%;height:56px;border:1.5px solid #D8B4FE;border-radius:16px;background:#fff;color:#0F172A;font-size:26px;font-weight:900;letter-spacing:8px;text-align:center;outline:none;font-family:inherit;}
 .verify-code-input:focus{border-color:#7C3FA0;box-shadow:0 0 0 4px rgba(124,63,160,.12);}
+.verify-code-input.has-error{border-color:#FCA5A5;box-shadow:0 0 0 4px rgba(239,68,68,.10);}
+.verify-code-feedback{display:none;margin-top:7px;color:#B91C1C;font-size:12px;font-weight:800;line-height:1.35;text-align:center;}
+.verify-code-feedback.error{display:block;}
 .verify-feedback{display:none;border-radius:12px;padding:10px 12px;font-size:12px;font-weight:700;line-height:1.4;margin-bottom:12px;text-align:center;}
 .verify-feedback.success{display:block;background:#DCFCE7;color:#166534;border:1px solid #BBF7D0;}
 .verify-feedback.error{display:block;background:#FEF2F2;color:#991B1B;border:1px solid #FECACA;}

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v5-email-code';
+const CACHE_NAME = 'odontodex-v7-code-copy-fix';
 
 const ARQUIVOS = [
   '/',

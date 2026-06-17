@@ -74,6 +74,15 @@ function showVerificationFeedback(message, type){
   el.className="verify-feedback " + (type || "info");
 }
 
+function showVerificationCodeFeedback(message){
+  const el=document.getElementById("verify-code-feedback");
+  const input=document.getElementById("verify-code-input");
+  if(!el)return;
+  el.textContent=message || "";
+  el.className=message ? "verify-code-feedback error" : "verify-code-feedback";
+  if(input) input.classList.toggle("has-error", !!message);
+}
+
 function showEmailVerificationScreen(email, message, type){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById("screen-login").classList.add("active");
@@ -89,6 +98,7 @@ function showEmailVerificationScreen(email, message, type){
     const feedback=document.getElementById("verify-feedback");
     if(feedback){feedback.textContent="";feedback.className="verify-feedback";}
   }
+  showVerificationCodeFeedback("");
   updateVerificationResendButton();
   const codeInput=document.getElementById("verify-code-input");
   if(codeInput) setTimeout(()=>codeInput.focus(),120);
@@ -107,7 +117,7 @@ async function sendVerificationEmailForUser(user){
   });
   const data=await response.json().catch(()=>({}));
   if(!response.ok){
-    const error=new Error(data.error || "Nao foi possivel enviar o codigo.");
+    const error=new Error(data.error || "Não foi possível enviar o código.");
     error.code=data.status || "email-code/send-failed";
     error.seconds=data.seconds;
     throw error;
@@ -119,14 +129,14 @@ function getEmailVerificationErrorMessage(error){
   const code=error?.code || "";
   const messages={
     "auth/unauthorized-continue-uri":"O Firebase recusou o link de retorno. Adicione www.odontodex.com.br nos dominios autorizados do Firebase Auth.",
-    "auth/invalid-continue-uri":"O link de retorno do email de verificacao esta invalido.",
-    "auth/missing-continue-uri":"O link de retorno do email de verificacao nao foi informado.",
+    "auth/invalid-continue-uri":"O link de retorno do email de verificação está inválido.",
+    "auth/missing-continue-uri":"O link de retorno do email de verificação não foi informado.",
     "auth/too-many-requests":"Muitos envios em pouco tempo. Aguarde alguns minutos e tente reenviar.",
     "auth/user-token-expired":"Sua sessao expirou. Entre novamente e reenvie o email.",
     "auth/network-request-failed":"Falha de conexao. Verifique a internet e tente reenviar.",
-    "cooldown":"Aguarde a contagem terminar para reenviar o codigo."
+    "cooldown":"Aguarde a contagem terminar para reenviar o código."
   };
-  return messages[code] || error?.message || "Nao foi possivel enviar o codigo agora. Confira o endereco e tente novamente.";
+  return messages[code] || error?.message || "Não foi possível enviar o código agora. Confira o endereço e tente novamente.";
 }
 
 // Email verification: keeps the resend button blocked with a visible countdown.
@@ -201,6 +211,7 @@ function startEmailVerificationAutoCheck(){
 function formatVerificationCodeInput(input){
   if(!input)return;
   input.value=String(input.value || "").replace(/\D/g,"").slice(0,6);
+  showVerificationCodeFeedback("");
 }
 
 async function resendVerificationEmail(){
@@ -220,7 +231,7 @@ async function resendVerificationEmail(){
   try{
     const data=await sendVerificationEmailForUser(auth.currentUser);
     startVerificationResendCooldown((data.resendSeconds || 60) * 1000);
-    showVerificationFeedback("Enviamos um novo codigo para seu email. Verifique tambem a caixa de spam.", "success");
+    showVerificationFeedback("Enviamos um novo código para seu email. Verifique também a caixa de spam.", "success");
   }catch(e){
     if(e.code === "cooldown" && e.seconds) startVerificationResendCooldown(e.seconds * 1000);
     showVerificationFeedback(getEmailVerificationErrorMessage(e), e.code === "cooldown" ? "info" : "error");
@@ -240,7 +251,7 @@ async function activateTrialAfterEmailVerified(options){
   }
   await user.reload();
   if(!auth.currentUser.emailVerified){
-    showEmailVerificationScreen(auth.currentUser.email, "Seu email ainda nao foi verificado. Digite o codigo enviado para seu email.", "error");
+    showEmailVerificationScreen(auth.currentUser.email, "Seu email ainda não foi verificado. Digite o código enviado para seu email.", "error");
     return {ok:false, reason:"not_verified"};
   }
   const idToken=await auth.currentUser.getIdToken(true);
@@ -277,13 +288,14 @@ async function activateTrialAfterEmailVerified(options){
 async function checkEmailVerificationAndActivate(){
   const code=String(document.getElementById("verify-code-input")?.value || "").replace(/\D/g,"");
   if(!/^\d{6}$/.test(code)){
-    showVerificationFeedback("Digite o codigo de 6 digitos enviado para seu email.", "error");
+    showVerificationCodeFeedback("Digite o código de 6 dígitos enviado para seu email.");
     return;
   }
+  showVerificationCodeFeedback("");
   if(!auth.currentUser){
     showLogin();
     const err=document.getElementById("login-error");
-    if(err){err.textContent="Entre na sua conta para confirmar o codigo.";err.style.display="block";}
+    if(err){err.textContent="Entre na sua conta para confirmar o código.";err.style.display="block";}
     return;
   }
   showLoading();
@@ -300,7 +312,7 @@ async function checkEmailVerificationAndActivate(){
     const verifyData=await verifyResponse.json().catch(()=>({}));
     if(!verifyResponse.ok){
       hideLoading();
-      showVerificationFeedback(verifyData.error || "Codigo invalido. Confira e tente novamente.", "error");
+      showVerificationCodeFeedback(verifyData.error || "Código inválido. Confira e tente novamente.");
       return;
     }
     await auth.currentUser.reload();
@@ -398,7 +410,7 @@ async function doLogin(){
       try {
         await sendVerificationEmailForUser(currentUser);
         startVerificationResendCooldown(60000);
-        showVerificationFeedback("Enviamos um codigo para seu email.", "success");
+        showVerificationFeedback("Enviamos um código para seu email.", "success");
       } catch(e) {
         if(e.code === "cooldown" && e.seconds) startVerificationResendCooldown(e.seconds * 1000);
         showVerificationFeedback(getEmailVerificationErrorMessage(e), e.code === "cooldown" ? "info" : "error");
@@ -418,7 +430,7 @@ async function doLogin(){
 }
 
 // Variáveis de seleção do cadastro
-let selectedTratamento = '';
+let selectedTratamento = 'Dr.';
 let selectedPerfil = 'dentista';
 // ── MODAL BOAS-VINDAS GOOGLE ──────────────────────────────────────────────
 let gwPerfil = '';
@@ -522,6 +534,7 @@ function selectTratamento(t){
   document.getElementById('btn-dr').className='select-btn'+(t==='Dr.'?' selected':'');
   document.getElementById('btn-dra').className='select-btn'+(t==='Dra.'?' selected':'');
   document.getElementById('btn-semtitulo').className='select-btn'+(t===''?' selected':'');
+  validarCadastro();
 }
 function selectPerfil(p){
   selectedPerfil=p;
@@ -529,6 +542,10 @@ function selectPerfil(p){
   document.getElementById('btn-estudante').className='select-btn'+(p==='estudante'?' selected':'');
   document.getElementById('bloco-tratamento').style.display=p==='dentista'?'block':'none';
   if(p==='estudante') selectedTratamento='';
+  if(p==='dentista' && selectedTratamento === '') selectedTratamento='Dr.';
+  document.getElementById('btn-dr').className='select-btn'+(selectedTratamento==='Dr.'?' selected':'');
+  document.getElementById('btn-dra').className='select-btn'+(selectedTratamento==='Dra.'?' selected':'');
+  document.getElementById('btn-semtitulo').className='select-btn'+(selectedTratamento===''?' selected':'');
   validarCadastro();
 }
 
@@ -588,7 +605,7 @@ async function doRegister(){
     const res=await auth.createUserWithEmailAndPassword(email,pwd);
     // Salva nome com tratamento no displayName
     const primeiroNome=name.split(' ')[0];
-    const displayName=(selectedPerfil==='estudante')?primeiroNome:selectedTratamento+' '+primeiroNome;
+    const displayName=(selectedPerfil==='estudante' || !selectedTratamento)?primeiroNome:selectedTratamento+' '+primeiroNome;
     await res.user.updateProfile({displayName});
     // Salva perfil no Firestore
     try{
@@ -620,7 +637,7 @@ async function doRegister(){
     localStorage.removeItem('studentBannerDismissed');
     currentUser=res.user;
     const em=document.getElementById('user-email-display');if(em)em.textContent=currentUser.email;
-    let verificationMessage="Enviamos um codigo para seu email.";
+    let verificationMessage="Enviamos um código para seu email.";
     let verificationType="success";
     try {
       const codeData=await sendVerificationEmailForUser(currentUser);
@@ -630,7 +647,7 @@ async function doRegister(){
       verificationType="error";
     }
     hideLoading();
-    showToast('Conta criada. Enviamos um codigo para liberar o Premium.','success');
+    showToast('Conta criada. Enviamos um código para liberar o Premium.','success');
     window.userIsPremium = false;
     localStorage.setItem('userIsPremium', 'false');
 // Evento Meta Pixel: CompleteRegistration após cadastro por email/senha concluído.

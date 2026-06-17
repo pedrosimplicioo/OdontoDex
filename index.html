@@ -80,7 +80,7 @@
             <button type="button" class="select-btn" id="btn-estudante" onclick="selectPerfil('estudante')"><i class="ti ti-book"></i> Estudante</button>
           </div>
         </div>
-        <div id="bloco-tratamento" style="margin-bottom:16px;display:none">
+        <div id="bloco-tratamento" style="margin-bottom:16px;display:block">
           <span class="select-group-label">Como quer ser chamado?</span>
           <div class="select-group">
             <button type="button" class="select-btn selected" id="btn-dr" onclick="selectTratamento('Dr.')"><i class="ti ti-user-star"></i> Dr.</button>
@@ -106,15 +106,16 @@
       </div>
       <div id="email-verification-form" style="display:none">
         <div class="modal-icon-purple" style="margin:0 auto 12px;"><i class="ti ti-mail-check"></i></div>
-        <h2 class="verify-title">Digite o codigo enviado para seu email</h2>
-        <p class="verify-text">Enviamos um codigo de 6 digitos para <strong id="verify-email-display">seu email</strong>. Digite o codigo abaixo para liberar seus 7 dias de Premium gratis.</p>
+        <h2 class="verify-title">Digite o código enviado para seu email</h2>
+        <p class="verify-text">Enviamos um código de 6 dígitos para <strong id="verify-email-display">seu email</strong>. Digite o código abaixo para liberar seus 7 dias de Premium grátis.</p>
         <div class="verify-code-wrap">
           <input id="verify-code-input" class="verify-code-input" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" oninput="formatVerificationCodeInput(this)" onkeydown="if(event.key==='Enter')checkEmailVerificationAndActivate()">
+          <div id="verify-code-feedback" class="verify-code-feedback"></div>
         </div>
-        <p class="verify-helper">Nao encontrou? Verifique a caixa de spam ou promocoes.</p>
-        <p class="verify-note">O codigo expira em 10 minutos. Se necessario, reenvie apos a contagem terminar.</p>
+        <p class="verify-helper">Não encontrou? Verifique a caixa de spam ou promoções.</p>
+        <p class="verify-note">O código expira em 10 minutos. Se necessário, reenvie após a contagem terminar.</p>
         <div id="verify-feedback" class="verify-feedback"></div>
-        <button class="btn btn-primary" onclick="checkEmailVerificationAndActivate()" style="margin-bottom:10px">Confirmar codigo</button>
+        <button class="btn btn-primary" onclick="checkEmailVerificationAndActivate()" style="margin-bottom:10px">Confirmar código</button>
         <button class="btn btn-secondary" id="resend-verification-btn" onclick="resendVerificationEmail()" style="margin-bottom:10px">Reenviar email</button>
         <button class="btn btn-text" onclick="logoutForAnotherEmail()">Sair e usar outro email</button>
       </div>
@@ -815,9 +816,9 @@
 <script src="src/scripts/search.js" defer></script>
 <script src="src/components/pulpite.js" defer></script>
 <script src="src/components/crisis.js" defer></script>
-<script src="src/scripts/auth.js?v=20260617-email-code" defer></script>
-<script src="src/scripts/pwa.js?v=20260617-email-code" defer></script>
-<script src="src/scripts/app-init.js?v=20260617-email-code" defer></script>
+<script src="src/scripts/auth.js?v=20260617-code-copy-fix" defer></script>
+<script src="src/scripts/pwa.js?v=20260617-code-copy-fix" defer></script>
+<script src="src/scripts/app-init.js?v=20260617-code-copy-fix" defer></script>
 <script src="src/scripts/premium.js" defer></script>
 <script src="src/components/student-banner.js" defer></script>
 <script src="src/scripts/payments.js" defer></script>
