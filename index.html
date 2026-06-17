@@ -104,6 +104,17 @@
         <button class="btn btn-primary" onclick="doReset()" style="margin-bottom:12px">Enviar email</button>
         <button class="btn btn-text" onclick="showLogin()">Voltar para login</button>
       </div>
+      <div id="email-verification-form" style="display:none">
+        <div class="modal-icon-purple" style="margin:0 auto 12px;"><i class="ti ti-mail-check"></i></div>
+        <h2 class="verify-title">Verifique seu email para liberar o Premium</h2>
+        <p class="verify-text">Enviamos um link de confirmação para <strong id="verify-email-display">seu email</strong>. Clique no link recebido e volte para o OdontoDex para liberar seus 7 dias de Premium grátis.</p>
+        <p class="verify-helper">Não encontrou? Verifique a caixa de spam ou promoções.</p>
+        <p class="verify-note">O email pode aparecer com o texto "Verify your email". Basta abrir e clicar no link de confirmação.</p>
+        <div id="verify-feedback" class="verify-feedback"></div>
+        <button class="btn btn-primary" onclick="checkEmailVerificationAndActivate()" style="margin-bottom:10px">Já verifiquei meu email</button>
+        <button class="btn btn-secondary" id="resend-verification-btn" onclick="resendVerificationEmail()" style="margin-bottom:10px">Reenviar email</button>
+        <button class="btn btn-text" onclick="logoutForAnotherEmail()">Sair e usar outro email</button>
+      </div>
     </div>
   </div>
 </div>
@@ -152,20 +163,27 @@
 <!-- iOS INSTALL INSTRUCTIONS MODAL -->
 <div id="ios-install-overlay">
   <div class="ios-install-modal">
-  <div class="modal-icon" style="text-align:center;margin-bottom:10px;color:#7C3FA0;"><i class="ti ti-device-mobile"></i></div>
-    <div class="ios-install-title">Adicionar à Tela Inicial</div>
-    <div class="ios-install-sub">Siga os passos abaixo no Safari</div>
-    <div class="ios-step">
-      <div class="ios-step-num">1</div>
-      <div class="ios-step-txt">Toque no ícone <span class="ios-step-em">Compartilhar</span> (□↑) na barra inferior do Safari</div>
+    <div class="ios-install-head">
+      <div class="ios-install-icon"><i class="ti ti-device-mobile-plus"></i></div>
+      <div>
+        <div class="ios-install-title">Instalar como app</div>
+        <div class="ios-install-sub">Adicione o OdontoDex à tela inicial para abrir como aplicativo no iPhone.</div>
+      </div>
     </div>
-    <div class="ios-step">
-      <div class="ios-step-num">2</div>
-      <div class="ios-step-txt">Role a lista e toque em <span class="ios-step-em">"Adicionar à Tela Inicial"</span></div>
-    </div>
-    <div class="ios-step">
-      <div class="ios-step-num">3</div>
-      <div class="ios-step-txt">Toque em <span class="ios-step-em">Adicionar</span> no canto superior direito</div>
+    <div class="ios-install-panel">
+      <div class="ios-install-panel-title"><i class="ti ti-brand-safari"></i> No Safari</div>
+      <div class="ios-step">
+        <i class="ti ti-share"></i>
+        <div class="ios-step-txt">Toque em Compartilhar na barra inferior.</div>
+      </div>
+      <div class="ios-step">
+        <i class="ti ti-plus"></i>
+        <div class="ios-step-txt">Escolha "Adicionar à Tela Inicial".</div>
+      </div>
+      <div class="ios-step">
+        <i class="ti ti-check"></i>
+        <div class="ios-step-txt">Confirme em Adicionar.</div>
+      </div>
     </div>
     <button class="ios-close-btn" id="ios-close-btn">Entendido</button>
   </div>
@@ -255,19 +273,19 @@
     <span class="home-prescricoes-title">Prescrições</span>
   </div>
   <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;">
-    <div class="home-prescricoes-item" onclick="event.stopPropagation();abrirPrescricao('abscesso-periodontal')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+    <div class="home-prescricoes-item" onclick="event.stopPropagation();abrirPrescricao('abscesso-periodontal')">
       <span class="home-mini-icon home-icon-purple"><i class="ti ti-virus"></i></span>
       <span class="home-prescricoes-label">Abscesso periodontal</span>
     </div>
-    <div class="home-prescricoes-item" onclick="event.stopPropagation();abrirPrescricao('abscesso-periapical')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+    <div class="home-prescricoes-item" onclick="event.stopPropagation();abrirPrescricao('abscesso-periapical')">
       <span class="home-mini-icon home-icon-purple"><i class="ti ti-microscope"></i></span>
       <span class="home-prescricoes-label">Abscesso periapical</span>
     </div>
-    <div class="home-prescricoes-item" onclick="event.stopPropagation();abrirPrescricao('alveolite')" style="background:#F8FAFC;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+    <div class="home-prescricoes-item" onclick="event.stopPropagation();abrirPrescricao('alveolite')">
       <span class="home-mini-icon home-icon-purple"><i class="ti ti-dental-broken"></i></span>
       <span class="home-prescricoes-label">Alveolite</span>
     </div>
-    <div class="home-prescricoes-item home-prescricoes-more" onclick="event.stopPropagation();goScreen('prescricoes')" style="background:#F5EEFB;border-radius:14px;padding:10px 12px;display:flex;align-items:center;gap:8px;cursor:pointer;">
+    <div class="home-prescricoes-item home-prescricoes-more" onclick="event.stopPropagation();goScreen('prescricoes')">
       <span class="home-mini-icon home-icon-purple"><i class="ti ti-plus"></i></span>
       <span class="home-prescricoes-label">situações</span>
     </div>
@@ -292,7 +310,10 @@
 
 <!-- SEARCH -->
 <div class="screen" id="screen-search">
-  <div class="hdr"><div style="display:flex;align-items:center;gap:8px"><button class="back-btn" onclick="goBackToLastScreen()">←</button><input class="search-input-real" id="search-input" placeholder="pino, extração, abscesso..." oninput="doSearch(this.value)"></div></div>
+  <div class="top-bar search-top-bar">
+    <button class="back-btn" onclick="goBackToLastScreen()">←</button>
+    <input class="search-input-real" id="search-input" placeholder="pino, extração, abscesso..." oninput="doSearch(this.value)">
+  </div>
   <div class="body" id="search-results"><p class="empty-msg">Digite pelo menos 2 letras</p></div>
 </div>
 
@@ -301,7 +322,7 @@
   <div class="top-bar">
     <button class="back-btn" onclick="goBackToLastScreen()">←</button>
     <span class="top-title"><i class="ti ti-star"></i> Favoritos</span>
-    <div style="width:48px"></div>
+    <div class="top-action-slot"></div>
   </div>
   <div class="body" id="favs-list"></div>
 </div>
@@ -310,7 +331,7 @@
   <div class="top-bar">
     <button class="back-btn" onclick="goBackToLastScreen()">←</button>
     <span class="top-title" id="clinical-tool-title">Ferramenta clínica</span>
-    <div style="width:48px"></div>
+    <div class="top-action-slot"></div>
   </div>
   <div class="body" id="clinical-tool-body"></div>
 </div>
@@ -319,7 +340,7 @@
   <div class="top-bar top-bar-with-tabs">
     <button class="back-btn" onclick="goBackToLastScreen()">←</button>
     <span class="top-title"><i class="ti ti-pill"></i> Prescrições</span>
-    <div style="width:36px"></div>
+    <div class="top-action-slot"></div>
   </div>
   <!-- ABAS -->
   <div class="sticky-tabs" style="display:flex;border-bottom:1px solid #E2E8F0;background:#fff;" id="prescricoes-tabs">
@@ -335,7 +356,7 @@
   <div class="top-bar" id="prescricao-detalhe-topbar">
     <button class="back-btn" onclick="goBackToLastScreen()">←</button>
     <span class="top-title" id="prescricao-detalhe-titulo"></span>
-    <button class="rx-fav-btn" id="fav-btn-prescricao" data-fav-type="prescription" data-fav-id="" onclick="toggleTypedFavorite('prescription', prescricaoAtualId)" aria-label="Favoritar prescrição"><i class="ti ti-star"></i></button>
+    <button class="rx-fav-btn top-action-btn" id="fav-btn-prescricao" data-fav-type="prescription" data-fav-id="" onclick="toggleTypedFavorite('prescription', prescricaoAtualId)" aria-label="Favoritar prescrição"><i class="ti ti-star"></i></button>
   </div>
   <div class="body" id="prescricao-detalhe-body"></div>
 </div>
@@ -344,7 +365,7 @@
   <div class="top-bar">
     <button class="back-btn" onclick="goBackToLastScreen()">←</button>
     <span class="top-title">Configurações</span>
-    <div style="width:36px"></div>
+    <div class="top-action-slot"></div>
   </div>
   <div class="body" id="settings-body">
     <div class="cfg-profile-card">
@@ -463,18 +484,18 @@
 
 <!-- SITUATIONS -->
 <div class="screen" id="screen-situations">
-  <div class="top-bar"><button class="back-btn" onclick="goBackToLastScreen()">←</button><span class="top-title" id="sit-title"></span><div style="width:36px"></div></div>
+  <div class="top-bar"><button class="back-btn" onclick="goBackToLastScreen()">←</button><span class="top-title" id="sit-title"></span><div class="top-action-slot"></div></div>
   <div class="body"><div class="section-label">QUAL É A SITUAÇÃO?</div><div id="situations-list"></div></div>
 </div>
 
 <!-- PROCEDURES -->
 <div class="screen" id="screen-procedures">
-  <div class="top-bar"><button class="back-btn" onclick="goBackToLastScreen()">←</button><span class="top-title">O que fazer?</span><div style="width:36px"></div></div>
+  <div class="top-bar"><button class="back-btn" onclick="goBackToLastScreen()">←</button><span class="top-title">O que fazer?</span><div class="top-action-slot"></div></div>
   <div class="body">
-    <div class="search-bar-proc" style="background:#F1F5F9; border-radius:20px; padding:10px 16px; margin-bottom:12px; display:flex; align-items:center; gap:8px; border:1px solid #E2E8F0;">
+    <div class="search-bar-proc">
       <span class="search-icon-inline"><i class="ti ti-search"></i></span>
-      <input type="text" id="proc-search-input" placeholder="Filtrar procedimento..." style="flex:1; border:none; outline:none; background:transparent; font-size:14px;" oninput="filterProceduresList(this.value)">
-      <button id="proc-search-clear" onclick="clearProcSearch()" style="background:none; border:none; font-size:16px; cursor:pointer; display:none;">✕</button>
+      <input type="text" id="proc-search-input" placeholder="Filtrar procedimento..." oninput="filterProceduresList(this.value)">
+      <button id="proc-search-clear" onclick="clearProcSearch()">✕</button>
     </div>
     <div class="section-label">ESCOLHA O PROCEDIMENTO</div>
     <div id="procedures-list"></div>
@@ -483,12 +504,17 @@
 
 <!-- CONDUTA RÁPIDA -->
 <div class="screen" id="screen-conduta">
-  <div class="top-bar"><button class="back-btn" onclick="goBackToLastScreen()">←</button><span class="top-title" id="conduta-top-title">Conduta rápida</span><div style="width:36px"></div></div>
+  <div class="top-bar"><button class="back-btn" onclick="goBackToLastScreen()">←</button><span class="top-title" id="conduta-top-title">Conduta rápida</span><div class="top-action-slot"></div></div>
   <div class="body" id="conduta-body"></div>
 </div>
 
 <!-- PROTOCOL -->
 <div class="screen" id="screen-protocol">
+  <div class="top-bar" id="protocol-topbar">
+    <button class="back-btn" onclick="goBackToLastScreen()">←</button>
+    <span class="top-title" id="protocol-top-title">Protocolo</span>
+    <button class="rx-fav-btn top-action-btn" id="fav-btn-proto" data-fav-type="protocol" data-fav-id="" onclick="" aria-label="Favoritar protocolo"><i class="ti ti-star"></i></button>
+  </div>
   <div class="body" id="protocol-body" onscroll="checkScrollTop()"><div class="spacer"></div></div>
 </div>
 
@@ -693,12 +719,10 @@
 </div>
 <!-- PAYMENT SCREEN -->
 <div class="screen" id="screen-payment">
-  <div class="payment-screen-hdr">
+  <div class="top-bar payment-top-bar">
     <button class="back-btn" onclick="goBackToLastScreen()">←</button>
-    <div>
-      <div style="font-size:17px;font-weight:800;color:#0F172A" class="top-title">Acesso Premium</div>
-      <div style="font-size:11px;color:#94A3B8;margin-top:1px">Escolha a forma de pagamento</div>
-    </div>
+    <span class="top-title">Acesso Premium</span>
+    <div class="top-action-slot"></div>
   </div>
   <div class="payment-screen-body">
     <div class="payment-summary-card">

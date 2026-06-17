@@ -843,6 +843,77 @@
       box-shadow: var(--shadow);
     }
 
+    .premium-price-box {
+      margin-top: 18px;
+      padding: 18px;
+      border-radius: var(--radius);
+      border: 1px solid rgba(55,214,179,0.34);
+      background: linear-gradient(180deg, rgba(55,214,179,0.14), rgba(139,78,216,0.12));
+      box-shadow: 0 20px 50px rgba(0,0,0,0.22);
+    }
+
+    .price-label {
+      margin-bottom: 8px;
+      color: #a5ffe9;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .price-offer {
+      margin: 0 0 10px;
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 950;
+      line-height: 1.25;
+    }
+
+    .price-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px 12px;
+      align-items: baseline;
+    }
+
+    .price-prefix {
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .price-current {
+      color: var(--text);
+      font-size: 38px;
+      font-weight: 950;
+      line-height: 1;
+    }
+
+    .price-old {
+      color: rgba(255,255,255,0.58);
+      font-size: 14px;
+      font-weight: 800;
+      text-decoration: line-through;
+    }
+
+    .price-old-line {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      font-weight: 750;
+    }
+
+    .price-note,
+    .plan-price-note {
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .price-note {
+      margin: 10px 0 0;
+    }
+
     .check-list {
       display: grid;
       gap: 10px;
@@ -892,6 +963,10 @@
     .plan-head h3 {
       margin: 0;
       font-size: 20px;
+    }
+
+    .plan-price-note {
+      margin: 0 0 14px;
     }
 
     .pill {
@@ -1181,7 +1256,7 @@
           </div>
           <div class="cta-note reveal">
             <i class="ti ti-circle-check"></i>
-            <span>7 dias Premium grátis. Sem cartão. Depois, continue no plano grátis.</span>
+            <span>7 dias Premium grátis. Sem cartão. Depois, plano promocional por R$ 9,90/mês.</span>
           </div>
           <div class="proof-strip reveal" aria-label="Resumo do OdontoDex">
             <div class="proof-item"><strong>7 dias Premium grátis</strong><span>Conheça os recursos premium logo após criar sua conta.</span></div>
@@ -1272,6 +1347,16 @@
         <aside class="trial-box reveal">
           <span class="pill"><i class="ti ti-sparkles"></i> 7 dias Premium</span>
           <p style="margin:18px 0 0;color:var(--muted);line-height:1.65;font-size:15px;">Se você não quiser assinar, sua conta continua ativa na versão gratuita, com acesso limitado aos conteúdos liberados.</p>
+          <div class="premium-price-box">
+            <div class="price-label">Preço promocional de lançamento</div>
+            <p class="price-offer">7 dias grátis para testar tudo.</p>
+            <div class="price-row">
+              <span class="price-prefix">Depois, apenas</span>
+              <span class="price-current">R$ 9,90/mês</span>
+            </div>
+            <p class="price-old-line">Valor normal: <span class="price-old">R$ 19,90/mês</span></p>
+            <p class="price-note">O teste não gera cobrança automática.</p>
+          </div>
           <a class="btn btn-primary" style="width:100%;margin-top:22px;" href="https://www.odontodex.com.br" data-track="click_comecar_teste_gratis" data-track-legacy="click_assinar_premium">
             <i class="ti ti-arrow-right"></i>
             Começar 7 dias de Premium grátis
@@ -1295,7 +1380,8 @@
             </ul>
           </article>
           <article class="plan-card featured reveal">
-            <div class="plan-head"><h3>Premium</h3><span class="pill">Acesso completo</span></div>
+            <div class="plan-head"><h3>Premium</h3><span class="pill">R$ 9,90/mês</span></div>
+            <p class="plan-price-note">7 dias grátis para testar tudo. Depois, continue por apenas R$ 9,90/mês no preço promocional de lançamento. Valor normal: R$ 19,90/mês.</p>
             <ul class="check-list">
               <li><i class="ti ti-circle-check"></i>Condutas rápidas completas</li>
               <li><i class="ti ti-circle-check"></i>Protocolos completos</li>

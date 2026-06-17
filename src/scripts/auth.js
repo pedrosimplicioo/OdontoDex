@@ -1,4 +1,14 @@
 // ==================== LOGIN ====================
+const EMAIL_VERIFICATION_RETURN_URL = "https://www.odontodex.com.br/email-verificado";
+const EMAIL_VERIFICATION_ACTION_SETTINGS = {
+  url: EMAIL_VERIFICATION_RETURN_URL,
+  handleCodeInApp: false
+};
+let resendVerificationAvailableAt = 0;
+let resendVerificationTimer = null;
+let emailVerificationAutoCheckTimer = null;
+let emailVerificationAutoCheckBusy = false;
+
 function showLoginScreen(){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById("screen-login").classList.add("active");
@@ -40,20 +50,221 @@ function showAppScreen(){
     });
 }
 function showLogin(){
+  stopEmailVerificationAutoCheck();
   document.getElementById("login-form").style.display="block";
   document.getElementById("register-form").style.display="none";
   document.getElementById("reset-form").style.display="none";
+  const vf=document.getElementById("email-verification-form");if(vf)vf.style.display="none";
 }
 function showRegister(){
+  stopEmailVerificationAutoCheck();
   document.getElementById("login-form").style.display="none";
   document.getElementById("register-form").style.display="block";
   document.getElementById("reset-form").style.display="none";
+  const vf=document.getElementById("email-verification-form");if(vf)vf.style.display="none";
   validarCadastro();
 }
 function showReset(){
+  stopEmailVerificationAutoCheck();
   document.getElementById("login-form").style.display="none";
   document.getElementById("register-form").style.display="none";
   document.getElementById("reset-form").style.display="block";
+  const vf=document.getElementById("email-verification-form");if(vf)vf.style.display="none";
+}
+
+function showVerificationFeedback(message, type){
+  const el=document.getElementById("verify-feedback");
+  if(!el)return;
+  el.textContent=message || "";
+  el.className="verify-feedback " + (type || "info");
+}
+
+function showEmailVerificationScreen(email, message, type){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById("screen-login").classList.add("active");
+  document.getElementById("login-form").style.display="none";
+  document.getElementById("register-form").style.display="none";
+  document.getElementById("reset-form").style.display="none";
+  const vf=document.getElementById("email-verification-form");
+  if(vf)vf.style.display="block";
+  const emailEl=document.getElementById("verify-email-display");
+  if(emailEl)emailEl.textContent=email || currentUser?.email || "seu email";
+  if(message) showVerificationFeedback(message, type || "info");
+  else {
+    const feedback=document.getElementById("verify-feedback");
+    if(feedback){feedback.textContent="";feedback.className="verify-feedback";}
+  }
+  updateVerificationResendButton();
+  startEmailVerificationAutoCheck();
+}
+
+async function sendVerificationEmailForUser(user){
+  if(!user) throw new Error("Usuário não autenticado.");
+  try { firebase.auth().languageCode = "pt-BR"; } catch(e) {}
+  await user.sendEmailVerification(EMAIL_VERIFICATION_ACTION_SETTINGS);
+}
+
+// Email verification: keeps the resend button blocked with a visible countdown.
+function updateVerificationResendButton(){
+  const btn=document.getElementById("resend-verification-btn");
+  if(!btn)return;
+  const seconds=Math.ceil((resendVerificationAvailableAt-Date.now())/1000);
+  if(seconds > 0){
+    btn.disabled=true;
+    btn.setAttribute("disabled","disabled");
+    btn.setAttribute("aria-disabled","true");
+    btn.classList.add("is-counting");
+    btn.textContent="Reenviar em " + seconds + "s";
+  }else{
+    btn.disabled=false;
+    btn.removeAttribute("disabled");
+    btn.setAttribute("aria-disabled","false");
+    btn.classList.remove("is-counting");
+    btn.textContent="Reenviar email";
+  }
+}
+
+function startVerificationResendCooldown(durationMs){
+  resendVerificationAvailableAt=Date.now()+(durationMs || 60000);
+  updateVerificationResendButton();
+  if(resendVerificationTimer) clearInterval(resendVerificationTimer);
+  resendVerificationTimer=setInterval(()=>{
+    updateVerificationResendButton();
+    if(Date.now() >= resendVerificationAvailableAt){
+      clearInterval(resendVerificationTimer);
+      resendVerificationTimer=null;
+      updateVerificationResendButton();
+    }
+  },1000);
+}
+
+function stopEmailVerificationAutoCheck(){
+  if(emailVerificationAutoCheckTimer){
+    clearInterval(emailVerificationAutoCheckTimer);
+    emailVerificationAutoCheckTimer=null;
+  }
+  emailVerificationAutoCheckBusy=false;
+}
+
+// Email verification: auto-detects a verified email while this screen is open.
+function startEmailVerificationAutoCheck(){
+  if(emailVerificationAutoCheckTimer) return;
+  emailVerificationAutoCheckTimer=setInterval(async ()=>{
+    const form=document.getElementById("email-verification-form");
+    if(!auth.currentUser || !form || form.style.display === "none") return;
+    if(emailVerificationAutoCheckBusy) return;
+    emailVerificationAutoCheckBusy=true;
+    try{
+      await auth.currentUser.reload();
+      if(auth.currentUser.emailVerified){
+        stopEmailVerificationAutoCheck();
+        showLoading();
+        const result=await activateTrialAfterEmailVerified({showSuccess:true});
+        hideLoading();
+        if(result.ok){
+          await loadAuthenticatedUserAndShowApp(auth.currentUser, {skipTrialActivation:true});
+        }
+      }
+    }catch(e){
+      hideLoading();
+    }finally{
+      emailVerificationAutoCheckBusy=false;
+    }
+  },5000);
+}
+
+async function resendVerificationEmail(){
+  const now=Date.now();
+  if(now < resendVerificationAvailableAt){
+    const seconds=Math.ceil((resendVerificationAvailableAt-now)/1000);
+    showVerificationFeedback("Aguarde " + seconds + "s para reenviar o email.", "info");
+    return;
+  }
+  if(!auth.currentUser){
+    showLogin();
+    const err=document.getElementById("login-error");
+    if(err){err.textContent="Entre na sua conta para reenviar o email de verificação.";err.style.display="block";}
+    return;
+  }
+  showLoading();
+  try{
+    await sendVerificationEmailForUser(auth.currentUser);
+    startVerificationResendCooldown(60000);
+    showVerificationFeedback("Enviamos um novo email de verificação. Verifique também a caixa de spam.", "success");
+  }catch(e){
+    showVerificationFeedback("Não foi possível reenviar agora. Tente novamente em instantes.", "error");
+  }finally{
+    hideLoading();
+  }
+}
+
+async function activateTrialAfterEmailVerified(options){
+  const showSuccess=options?.showSuccess !== false;
+  const user=auth.currentUser;
+  if(!user){
+    showLogin();
+    const err=document.getElementById("login-error");
+    if(err){err.textContent="Email verificado. Entre na sua conta para liberar o Premium.";err.style.display="block";}
+    return {ok:false, reason:"not_logged_in"};
+  }
+  await user.reload();
+  if(!auth.currentUser.emailVerified){
+    showEmailVerificationScreen(auth.currentUser.email, "Seu email ainda não foi verificado. Abra o link enviado para seu email e tente novamente.", "error");
+    return {ok:false, reason:"not_verified"};
+  }
+  const idToken=await auth.currentUser.getIdToken(true);
+  const response=await fetch("/api/activate-trial", {
+    method:"POST",
+    headers:{
+      "Content-Type":"application/json",
+      "Authorization":"Bearer " + idToken
+    }
+  });
+  const data=await response.json().catch(()=>({}));
+  if(response.ok && data.status === "activated"){
+    window.userIsPremium=true;
+    localStorage.setItem("userIsPremium","true");
+    window._trialRecemAtivado=true;
+    localStorage.setItem("showTrialWelcomeOnce","1");
+    if(showSuccess) showToast("Email verificado. Seus 7 dias de Premium foram liberados.","success");
+    return {ok:true, status:data.status};
+  }
+  if(response.ok && data.status === "paid_active"){
+    window.userIsPremium=true;
+    localStorage.setItem("userIsPremium","true");
+    return {ok:true, status:data.status};
+  }
+  if(response.ok && (data.status === "user_trial_used" || data.status === "email_trial_used")){
+    window.userIsPremium=false;
+    localStorage.setItem("userIsPremium","false");
+    showToast("Este email já utilizou o teste Premium. Sua conta continuará na versão gratuita.","error");
+    return {ok:true, status:data.status};
+  }
+  throw new Error(data.error || "Não foi possível liberar o trial.");
+}
+
+async function checkEmailVerificationAndActivate(){
+  showLoading();
+  try{
+    const result=await activateTrialAfterEmailVerified({showSuccess:true});
+    if(result.ok && result.reason !== "not_verified"){
+      stopEmailVerificationAutoCheck();
+      hideLoading();
+      await loadAuthenticatedUserAndShowApp(auth.currentUser, {skipTrialActivation:true});
+      return;
+    }
+    hideLoading();
+  }catch(e){
+    hideLoading();
+    showVerificationFeedback("Não foi possível confirmar agora. Verifique sua conexão e tente novamente.", "error");
+  }
+}
+
+async function logoutForAnotherEmail(){
+  await auth.signOut();
+  currentUser=null;
+  localStorage.removeItem("userIsPremium");
+  showLoginScreen();
 }
 async function doLoginGoogle(){
   const provider = new firebase.auth.GoogleAuthProvider();
@@ -88,7 +299,10 @@ async function doLoginGoogle(){
       gwValidarBotao();
       document.getElementById('google-welcome-overlay').style.display = 'flex';
     } else {
-      showAppScreen();
+      if(res.user.emailVerified && docGoogle.data().trialAtivado !== true) {
+        try { await activateTrialAfterEmailVerified({showSuccess:true}); } catch(e) { console.log(e); }
+      }
+      await loadAuthenticatedUserAndShowApp(res.user);
     }
   } catch(e) {
     hideLoading();
@@ -115,13 +329,18 @@ async function doLogin(){
   try{
     const res=await auth.signInWithEmailAndPassword(email,pwd);
     currentUser=res.user;
+    await currentUser.reload();
     const em=document.getElementById("user-email-display");if(em)em.textContent=currentUser.email;
     const periodoEl=document.getElementById("hdr-periodo");
     if(periodoEl)periodoEl.textContent="Disponivel agora";
     atualizarSaudacao();
     hideLoading();
+    if(!currentUser.emailVerified){
+      showEmailVerificationScreen(currentUser.email);
+      return;
+    }
     showToast("Login realizado!","success");
-    showAppScreen();
+    await loadAuthenticatedUserAndShowApp(currentUser);
   }catch(e){
     hideLoading();
     if(err){
@@ -188,30 +407,27 @@ async function gwConfirmar() {
   showLoading();
   try {
     await currentUser.updateProfile({ displayName: displayName });
-    const premiumExpira = new Date();
-    premiumExpira.setDate(premiumExpira.getDate() + 7);
     await db.collection('users').doc(currentUser.uid).set({
       nome: primeiroNome,
       perfil: gwPerfil,
       tratamento: gwTrat,
       email: currentUser.email,
+      emailNormalizado: String(currentUser.email || '').trim().toLowerCase(),
       criadoEm: new Date().toISOString(),
       dataPrimeiroAcesso: firebase.firestore.FieldValue.serverTimestamp(),
       acessosPorDia: {},
-      premium: true,
-      premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira),
-      premiumOrigem: 'trial',
-      trialAtivado: true,
+      premium: false,
+      premiumOrigem: 'free',
+      trialAtivado: false,
+      emailVerificado: currentUser.emailVerified === true,
       termosAceitos: true,
       termosAceitosEm: firebase.firestore.FieldValue.serverTimestamp(),
       termosVersao: '1.0',
       privacidadeVersao: '1.1',
       origemCadastro: 'google'
     });
-    window.userIsPremium = true;
-    localStorage.setItem('userIsPremium', 'true');
-    window._trialRecemAtivado = true;
-    localStorage.setItem("showTrialWelcomeOnce", "1");
+    window.userIsPremium = false;
+    localStorage.setItem('userIsPremium', 'false');
     localStorage.setItem('guiaNome', primeiroNome);
     localStorage.setItem('guiaPerfil', gwPerfil);
     localStorage.setItem('guiaTratamento', gwTrat);
@@ -228,7 +444,12 @@ async function gwConfirmar() {
   if (metaGoogleRegistrationCompleted && typeof trackMetaCompleteRegistrationOnce === "function") {
     trackMetaCompleteRegistrationOnce(currentUser?.uid, "google");
   }
-  showAppScreen();
+  try {
+    if (currentUser?.emailVerified) await activateTrialAfterEmailVerified({showSuccess:true});
+  } catch(e) {
+    showToast("Não foi possível liberar o trial agora. Tente novamente mais tarde.", "error");
+  }
+  await loadAuthenticatedUserAndShowApp(currentUser);
 }
 function selectTratamento(t){
   selectedTratamento=t;
@@ -305,21 +526,19 @@ async function doRegister(){
     await res.user.updateProfile({displayName});
     // Salva perfil no Firestore
     try{
-      const premiumExpira = new Date();
-      premiumExpira.setDate(premiumExpira.getDate() + 7);
-
       await db.collection('users').doc(res.user.uid).set({
         nome:name,
         tratamento:selectedTratamento,
         perfil:selectedPerfil,
         email:email,
+        emailNormalizado:String(email || '').trim().toLowerCase(),
         criadoEm:new Date().toISOString(),
         dataPrimeiroAcesso: firebase.firestore.FieldValue.serverTimestamp(),
         acessosPorDia: {},
-        premium: true,
-        premiumExpira: firebase.firestore.Timestamp.fromDate(premiumExpira),
-        premiumOrigem: 'trial',
-        trialAtivado: true,
+        premium: false,
+        premiumOrigem: 'free',
+        trialAtivado: false,
+        emailVerificado: false,
         termosAceitos: true,
         termosAceitosEm: firebase.firestore.FieldValue.serverTimestamp(),
         termosVersao: '1.0',
@@ -335,17 +554,17 @@ async function doRegister(){
     localStorage.removeItem('studentBannerDismissed');
     currentUser=res.user;
     const em=document.getElementById('user-email-display');if(em)em.textContent=currentUser.email;
+    await sendVerificationEmailForUser(currentUser);
+    startVerificationResendCooldown(60000);
     hideLoading();
-showToast('Conta criada com sucesso!','success');
-    window.userIsPremium = true;                       
-localStorage.setItem('userIsPremium', 'true');       
-window._trialRecemAtivado = true;
-localStorage.setItem("showTrialWelcomeOnce", "1");
+    showToast('Conta criada. Verifique seu email para liberar o Premium.','success');
+    window.userIsPremium = false;
+    localStorage.setItem('userIsPremium', 'false');
 // Evento Meta Pixel: CompleteRegistration após cadastro por email/senha concluído.
 if (typeof trackMetaCompleteRegistrationOnce === "function") {
   trackMetaCompleteRegistrationOnce(currentUser?.uid, "email");
 }
-showAppScreen();
+showEmailVerificationScreen(currentUser.email);
   }catch(e){
     hideLoading();
     if(err){

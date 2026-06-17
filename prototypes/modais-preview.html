@@ -1,0 +1,1124 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OdontoDex - Preview de Modais</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+  <style>
+    :root {
+      --bg: #eef3f8;
+      --panel: #ffffff;
+      --ink: #0f172a;
+      --muted: #64748b;
+      --soft: #f8fafc;
+      --line: #e2e8f0;
+      --purple: #7c3fa0;
+      --purple-soft: #f5eefb;
+      --amber: #f59e0b;
+      --amber-soft: #fff7ed;
+      --red: #dc2626;
+      --red-soft: #fef2f2;
+      --green: #16a34a;
+      --green-soft: #f0fdf4;
+      --radius: 18px;
+      --shadow: 0 18px 42px rgba(15, 23, 42, .12);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.45;
+    }
+
+    .page {
+      max-width: 1240px;
+      margin: 0 auto;
+      padding: 28px 18px 52px;
+    }
+
+    .intro {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 18px;
+      align-items: end;
+      margin-bottom: 18px;
+    }
+
+    h1 {
+      margin: 0 0 6px;
+      font-size: clamp(26px, 4vw, 42px);
+      line-height: 1.05;
+      letter-spacing: 0;
+    }
+
+    .intro p {
+      margin: 0;
+      color: var(--muted);
+      max-width: 760px;
+      font-size: 15px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      min-height: 32px;
+      padding: 6px 12px;
+      border: 1px solid rgba(124, 63, 160, .18);
+      border-radius: 999px;
+      background: var(--purple-soft);
+      color: var(--purple);
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 10px 0 14px;
+      background: linear-gradient(180deg, var(--bg) 0%, rgba(238, 243, 248, .9) 78%, rgba(238, 243, 248, 0) 100%);
+      scrollbar-width: none;
+    }
+
+    .nav::-webkit-scrollbar { display: none; }
+    .nav a {
+      flex: 0 0 auto;
+      text-decoration: none;
+      color: var(--muted);
+      background: rgba(255,255,255,.72);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .modal-case {
+      margin-top: 18px;
+      padding: 18px;
+      border: 1px solid rgba(148, 163, 184, .32);
+      border-radius: 24px;
+      background: rgba(255,255,255,.62);
+      box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
+    }
+
+    .case-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .case-head h2 {
+      margin: 0 0 4px;
+      font-size: 20px;
+      letter-spacing: 0;
+    }
+
+    .case-head p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .compare {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 16px;
+    }
+
+    .column-title {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+
+    .phone {
+      max-width: 430px;
+      min-height: 560px;
+      margin: 0 auto;
+      border-radius: 32px;
+      background: #f1f5f9;
+      border: 1px solid rgba(148, 163, 184, .55);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+    }
+
+    .backdrop {
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      background:
+        linear-gradient(rgba(15, 23, 42, .44), rgba(15, 23, 42, .44)),
+        radial-gradient(circle at 50% 0%, rgba(124, 63, 160, .18), transparent 54%),
+        #eef3f8;
+    }
+
+    .old-modal,
+    .new-modal {
+      width: 100%;
+      background: var(--panel);
+      border-radius: 28px 28px 0 0;
+      padding: 24px 20px 28px;
+      max-height: 520px;
+      overflow: auto;
+    }
+
+    .old-modal {
+      text-align: center;
+    }
+
+    .new-modal {
+      display: grid;
+      gap: 14px;
+      border-top: 1px solid rgba(226, 232, 240, .9);
+    }
+
+    .ios-guide-backdrop {
+      align-items: center;
+      justify-content: center;
+      padding: 14px;
+      background: #9aa3af;
+    }
+
+    .ios-guide-modal {
+      width: 100%;
+      max-height: none;
+      overflow: visible;
+      border: 1px solid rgba(203, 213, 225, .95);
+      border-radius: 28px;
+      padding: 24px 20px 28px;
+      box-shadow: 0 18px 44px rgba(15, 23, 42, .14);
+    }
+
+    .ios-guide-modal .modal-top {
+      align-items: center;
+    }
+
+    .ios-guide-modal .new-icon {
+      flex: 0 0 auto;
+      width: 52px;
+      height: 52px;
+      border-radius: 18px;
+    }
+
+    .ios-guide-panel {
+      padding: 16px;
+      border-radius: 18px;
+      background: #f8fafc;
+    }
+
+    .ios-guide-steps {
+      gap: 10px;
+    }
+
+    .ios-guide-steps li {
+      align-items: center;
+    }
+
+    .ios-guide-steps i {
+      width: 14px;
+      text-align: center;
+      margin-top: 0;
+      font-size: 13px;
+    }
+
+    .ios-guide-modal .btn {
+      min-height: 46px;
+      border-radius: 18px;
+    }
+
+    .old-icon,
+    .new-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+
+    .old-icon {
+      color: var(--purple);
+      background: var(--purple-soft);
+    }
+
+    .new-icon {
+      margin: 0;
+      color: var(--purple);
+      background: var(--purple-soft);
+      border: 1px solid rgba(124, 63, 160, .15);
+    }
+
+    .modal-top {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 20px;
+      line-height: 1.18;
+      font-weight: 900;
+      letter-spacing: 0;
+    }
+
+    .old-title {
+      margin: 0 0 6px;
+      font-size: 20px;
+      line-height: 1.2;
+      font-weight: 800;
+    }
+
+    .modal-sub,
+    .old-sub {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+
+    .old-sub {
+      margin-bottom: 16px;
+      text-align: center;
+    }
+
+    .panel {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--soft);
+      padding: 14px;
+      text-align: left;
+    }
+
+    .panel.purple {
+      background: var(--purple-soft);
+      border-color: #eadcf3;
+    }
+
+    .panel.green {
+      background: var(--green-soft);
+      border-color: #bbf7d0;
+    }
+
+    .panel.amber {
+      background: var(--amber-soft);
+      border-color: #fed7aa;
+    }
+
+    .panel.red {
+      background: var(--red-soft);
+      border-color: #fecaca;
+    }
+
+    .panel-title {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-bottom: 8px;
+      font-size: 12px;
+      font-weight: 900;
+      color: var(--purple);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+    }
+
+    .list {
+      display: grid;
+      gap: 8px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .list li {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      color: #1e293b;
+      font-size: 13px;
+    }
+
+    .list i { color: var(--purple); margin-top: 2px; }
+
+    .actions {
+      display: grid;
+      gap: 8px;
+      margin-top: 2px;
+    }
+
+    .action-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 20px;
+      padding: 13px 14px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 850;
+      cursor: default;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      text-align: center;
+    }
+
+    .btn.primary {
+      color: #fff;
+      background: var(--purple);
+    }
+
+    .btn.green {
+      color: #fff;
+      background: #00a876;
+    }
+
+    .btn.danger {
+      color: #fff;
+      background: var(--red);
+    }
+
+    .btn.secondary {
+      color: var(--muted);
+      background: #f1f5f9;
+      border: 1px solid var(--line);
+    }
+
+    .btn.ghost {
+      color: #94a3b8;
+      background: transparent;
+      padding: 8px;
+    }
+
+    .field {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 13px 14px;
+      font: inherit;
+      font-size: 14px;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    .segmented {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+    }
+
+    .segmented.three {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .segmented button {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 10px 8px;
+      background: #fff;
+      color: var(--muted);
+      font: inherit;
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .segmented button.active {
+      border-color: var(--purple);
+      background: var(--purple-soft);
+      color: var(--purple);
+    }
+
+    .premium-old {
+      background: #0f0a1a;
+      color: #fff;
+      padding: 0;
+    }
+
+    .premium-old .hero {
+      padding: 22px 20px 28px;
+      text-align: center;
+      background: linear-gradient(160deg, #1a0533 0%, #3d1260 50%, #6b2fa0 100%);
+    }
+
+    .premium-old .old-title,
+    .premium-old .old-sub { color: #fff; }
+
+    .premium-old .old-sub { opacity: .65; }
+
+    .premium-old-body {
+      padding: 16px 20px 26px;
+    }
+
+    .premium-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin: 10px 0 16px;
+    }
+
+    .premium-mini {
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 16px;
+      background: rgba(255,255,255,.05);
+      padding: 12px 8px;
+      text-align: center;
+      font-size: 11px;
+      color: rgba(255,255,255,.75);
+    }
+
+    .price {
+      display: flex;
+      align-items: baseline;
+      justify-content: center;
+      gap: 4px;
+      margin: 6px 0;
+      color: var(--ink);
+    }
+
+    .price strong {
+      font-size: 38px;
+      line-height: 1;
+      letter-spacing: 0;
+    }
+
+    .qr {
+      width: 176px;
+      height: 176px;
+      margin: 0 auto 12px;
+      border-radius: 18px;
+      border: 2px solid var(--line);
+      background:
+        linear-gradient(90deg, #111 10px, transparent 10px) 18px 18px/38px 38px,
+        linear-gradient(#111 10px, transparent 10px) 18px 18px/38px 38px,
+        #fff;
+    }
+
+    .code-box {
+      padding: 11px 12px;
+      border-radius: 14px;
+      background: #f1f5f9;
+      color: var(--muted);
+      font-size: 11px;
+      word-break: break-all;
+    }
+
+    .reason-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .reason {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 12px;
+      color: #334155;
+      background: #fff;
+      font: inherit;
+      font-size: 13px;
+      font-weight: 750;
+      text-align: left;
+    }
+
+    .note {
+      margin: 10px 0 0;
+      color: #94a3b8;
+      font-size: 12px;
+      text-align: center;
+    }
+
+    @media (max-width: 900px) {
+      .intro { grid-template-columns: 1fr; }
+      .compare { grid-template-columns: 1fr; }
+      .phone { max-width: 430px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="intro">
+      <div>
+        <h1>Preview de padronização dos modais</h1>
+        <p>Esta página é só uma vitrine estática. Ela não altera login, Firebase, trial, pagamentos, Pix, assinatura ou qualquer fluxo do OdontoDex.</p>
+      </div>
+      <span class="badge"><i class="ti ti-layout-cards"></i> Atual x Padronizado</span>
+    </section>
+
+    <nav class="nav" aria-label="Lista de modais">
+      <a href="#google">Google</a>
+      <a href="#trial">Boas-vindas</a>
+      <a href="#premium">Premium</a>
+      <a href="#expirado">Expirado</a>
+      <a href="#pix">Pix</a>
+      <a href="#cancelamento">Cancelamento</a>
+      <a href="#estudante">Estudante</a>
+      <a href="#crise">S.O.S.</a>
+      <a href="#edicao">Edição</a>
+      <a href="#ios">Instalação iOS</a>
+      <a href="#browser">Navegador interno</a>
+    </nav>
+
+    <section class="modal-case" id="google">
+      <div class="case-head">
+        <div>
+          <h2>Cadastro Google</h2>
+          <p>Modal que coleta nome, perfil, tratamento e aceite dos termos após o login com Google.</p>
+        </div>
+        <span class="badge">Formulário</span>
+      </div>
+      <div class="compare">
+        <div>
+          <p class="column-title">Como está</p>
+          <div class="phone"><div class="backdrop"><div class="old-modal">
+            <div class="old-icon"><i class="ti ti-dental"></i></div>
+            <p class="old-title">Bem-vindo ao OdontoDex!</p>
+            <p class="old-sub">Confirme suas informações para personalizar o app</p>
+            <input class="field" placeholder="Como quer ser chamado?">
+            <div style="height:12px"></div>
+            <div class="segmented"><button class="active">Dentista formado</button><button>Estudante</button></div>
+            <div style="height:12px"></div>
+            <div class="segmented three"><button>Dr.</button><button class="active">Dra.</button><button>Sem título</button></div>
+            <p class="note">Li e concordo com os Termos de Uso e a Política de Privacidade.</p>
+            <div class="actions"><button class="btn primary">Continuar</button></div>
+          </div></div></div>
+        </div>
+        <div>
+          <p class="column-title">Como vai ficar</p>
+          <div class="phone"><div class="backdrop"><div class="new-modal">
+            <div class="modal-top">
+              <div class="new-icon"><i class="ti ti-dental"></i></div>
+              <div>
+                <h3 class="modal-title">Vamos personalizar seu OdontoDex</h3>
+                <p class="modal-sub">Confirme como você quer aparecer no app e aceite os termos para concluir.</p>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-title"><i class="ti ti-user"></i> Dados do perfil</div>
+              <input class="field" placeholder="Como quer ser chamado?">
+              <div style="height:10px"></div>
+              <div class="segmented"><button class="active">Dentista</button><button>Estudante</button></div>
+              <div style="height:10px"></div>
+              <div class="segmented three"><button>Dr.</button><button class="active">Dra.</button><button>Sem título</button></div>
+            </div>
+            <div class="actions"><button class="btn primary"><i class="ti ti-check"></i> Concluir cadastro</button></div>
+            <p class="note">Termos e privacidade continuam obrigatórios antes de concluir.</p>
+          </div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="modal-case" id="trial">
+      <div class="case-head">
+        <div>
+          <h2>Boas-vindas e trial</h2>
+          <p>Modal exibido após o cadastro ou liberação manual do Premium.</p>
+        </div>
+        <span class="badge">Onboarding</span>
+      </div>
+      <div class="compare">
+        <div>
+          <p class="column-title">Como está</p>
+          <div class="phone"><div class="backdrop"><div class="old-modal">
+            <div class="old-icon"><i class="ti ti-confetti"></i></div>
+            <h3 class="old-title">Bem-vindo ao OdontoDex!</h3>
+            <p class="old-sub">Você ganhou 7 dias de acesso completo a todos os protocolos, prescrições e ferramentas do app.</p>
+            <div class="panel purple">
+              <div class="panel-title"><i class="ti ti-circle-check"></i> O que você tem acesso agora</div>
+              <ul class="list">
+                <li><i class="ti ti-lock-open"></i>Todos os protocolos clínicos</li>
+                <li><i class="ti ti-lock-open"></i>Prescrições completas</li>
+                <li><i class="ti ti-lock-open"></i>S.O.S. clínico completo</li>
+              </ul>
+            </div>
+            <button class="btn primary">Começar a usar</button>
+          </div></div></div>
+        </div>
+        <div>
+          <p class="column-title">Como vai ficar</p>
+          <div class="phone"><div class="backdrop"><div class="new-modal">
+            <div class="modal-top">
+              <div class="new-icon"><i class="ti ti-sparkles"></i></div>
+              <div>
+                <h3 class="modal-title">Seu Premium começou</h3>
+                <p class="modal-sub">Você tem 7 dias para testar os recursos completos na rotina clínica.</p>
+              </div>
+            </div>
+            <div class="panel green">
+              <div class="panel-title" style="color:var(--green)"><i class="ti ti-circle-check"></i> Liberado agora</div>
+              <ul class="list">
+                <li><i class="ti ti-check"></i>Protocolos, prescrições, S.O.S. e pacientes especiais.</li>
+                <li><i class="ti ti-check"></i>Depois do teste, sua conta continua no plano gratuito.</li>
+              </ul>
+            </div>
+            <div class="actions"><button class="btn primary"><i class="ti ti-arrow-right"></i> Começar a usar</button></div>
+          </div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="modal-case" id="premium">
+      <div class="case-head">
+        <div>
+          <h2>Upgrade Premium</h2>
+          <p>Modal aberto quando o usuário tenta acessar conteúdo bloqueado.</p>
+        </div>
+        <span class="badge">Conversão</span>
+      </div>
+      <div class="compare">
+        <div>
+          <p class="column-title">Como está</p>
+          <div class="phone"><div class="backdrop"><div class="old-modal premium-old">
+            <div class="hero">
+              <div class="old-icon" style="background:rgba(255,255,255,.12);color:#fcd34d"><i class="ti ti-lock"></i></div>
+              <h3 class="old-title">Atenda com mais<br>segurança e velocidade</h3>
+              <p class="old-sub">+50 protocolos clínicos prontos para usar.</p>
+            </div>
+            <div class="premium-old-body">
+              <div class="premium-grid">
+                <div class="premium-mini">Prótese</div>
+                <div class="premium-mini">Endodontia</div>
+                <div class="premium-mini">Cirurgia</div>
+              </div>
+              <div class="panel" style="background:rgba(251,191,36,.1);border-color:rgba(251,191,36,.35);color:white;text-align:center">
+                <div style="color:#fcd34d;font-size:11px;font-weight:900">PREMIUM</div>
+                <div style="font-size:40px;font-weight:900">R$ 9,90</div>
+                <div style="font-size:12px;opacity:.55">por mês</div>
+              </div>
+              <div class="actions"><button class="btn primary">Desbloquear Premium</button><button class="btn ghost">Continuar com versão gratuita</button></div>
+            </div>
+          </div></div></div>
+        </div>
+        <div>
+          <p class="column-title">Como vai ficar</p>
+          <div class="phone"><div class="backdrop"><div class="new-modal">
+            <div class="modal-top">
+              <div class="new-icon"><i class="ti ti-crown"></i></div>
+              <div>
+                <h3 class="modal-title">Desbloqueie o Premium</h3>
+                <p class="modal-sub">Conteúdos completos para consultar quando o atendimento sair da rotina.</p>
+              </div>
+            </div>
+            <div class="panel purple">
+              <div class="panel-title"><i class="ti ti-lock-open"></i> Inclui</div>
+              <ul class="list">
+                <li><i class="ti ti-check"></i>Protocolos completos, prescrições e S.O.S. clínico.</li>
+                <li><i class="ti ti-check"></i>Pacientes especiais e atualizações do app.</li>
+              </ul>
+            </div>
+            <div class="panel">
+              <div class="panel-title"><i class="ti ti-tag"></i> Preço promocional</div>
+              <div class="price"><span>Após o teste</span><strong>R$ 9,90</strong><span>/mês</span></div>
+              <p class="note">Valor normal: R$ 19,90/mês.</p>
+            </div>
+            <div class="actions"><button class="btn primary"><i class="ti ti-arrow-right"></i> Assinar Premium</button><button class="btn ghost">Agora não</button></div>
+          </div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="modal-case" id="expirado">
+      <div class="case-head">
+        <div>
+          <h2>Premium expirado</h2>
+          <p>Modal que aparece quando o usuário perdeu acesso Premium.</p>
+        </div>
+        <span class="badge">Retenção</span>
+      </div>
+      <div class="compare">
+        <div>
+          <p class="column-title">Como está</p>
+          <div class="phone"><div class="backdrop"><div class="old-modal">
+            <div class="old-icon" style="background:var(--red-soft);color:var(--red)"><i class="ti ti-alert-triangle"></i></div>
+            <h3 class="old-title">Seu acesso Premium expirou</h3>
+            <p class="old-sub">Você perdeu o acesso a mais de 50 protocolos clínicos, S.O.S. completo e prescrições.</p>
+            <div class="panel purple">
+              <div class="panel-title">O que você perde sem o Premium</div>
+              <ul class="list">
+                <li><i class="ti ti-lock"></i>Prótese, Endodontia, Cirurgia e Periodontia.</li>
+                <li><i class="ti ti-lock"></i>S.O.S. clínico completo.</li>
+              </ul>
+            </div>
+            <button class="btn primary">Renovar por R$9,90/mês</button>
+            <button class="btn ghost">Continuar sem Premium</button>
+          </div></div></div>
+        </div>
+        <div>
+          <p class="column-title">Como vai ficar</p>
+          <div class="phone"><div class="backdrop"><div class="new-modal">
+            <div class="modal-top">
+              <div class="new-icon" style="background:var(--red-soft);color:var(--red)"><i class="ti ti-clock-exclamation"></i></div>
+              <div>
+                <h3 class="modal-title">Seu Premium terminou</h3>
+                <p class="modal-sub">Sua conta continua ativa no plano gratuito. Para recuperar acesso completo, renove quando quiser.</p>
+              </div>
+            </div>
+            <div class="panel red">
+              <div class="panel-title" style="color:var(--red)"><i class="ti ti-lock"></i> Bloqueado no gratuito</div>
+              <ul class="list">
+                <li><i class="ti ti-lock"></i>Protocolos completos, prescrições avançadas e S.O.S. completo.</li>
+              </ul>
+            </div>
+            <div class="actions"><button class="btn primary">Renovar por R$ 9,90/mês</button><button class="btn secondary">Continuar no gratuito</button></div>
+          </div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="modal-case" id="pix">
+      <div class="case-head">
+        <div>
+          <h2>Pix avulso</h2>
+          <p>Modal do QR Code Pix e acompanhamento de pagamento.</p>
+        </div>
+        <span class="badge">Pagamento</span>
+      </div>
+      <div class="compare">
+        <div>
+          <p class="column-title">Como está</p>
+          <div class="phone"><div class="backdrop"><div class="old-modal">
+            <div class="old-icon" style="background:#dcfce7;color:#00a876"><i class="ti ti-device-mobile"></i></div>
+            <h3 class="old-title">Pix avulso</h3>
+            <p class="old-sub">Escaneie o QR Code ou copie o código</p>
+            <div class="qr"></div>
+            <div class="code-box">00020126580014BR.GOV.BCB.PIX0136odontodex...</div>
+            <div style="height:12px"></div>
+            <button class="btn green">Copiar código Pix</button>
+            <button class="btn ghost">Fechar</button>
+          </div></div></div>
+        </div>
+        <div>
+          <p class="column-title">Como vai ficar</p>
+          <div class="phone"><div class="backdrop"><div class="new-modal">
+            <div class="modal-top">
+              <div class="new-icon" style="background:#dcfce7;color:#00a876"><i class="ti ti-qrcode"></i></div>
+              <div>
+                <h3 class="modal-title">Pague com Pix</h3>
+                <p class="modal-sub">Acesso Premium por 30 dias, sem renovação automática.</p>
+              </div>
+            </div>
+            <div class="qr"></div>
+            <div class="panel green">
+              <div class="panel-title" style="color:var(--green)"><i class="ti ti-loader-2"></i> Aguardando confirmação</div>
+              <p class="modal-sub" style="text-align:left">Depois do pagamento, o acesso é atualizado automaticamente.</p>
+            </div>
+            <div class="code-box">00020126580014BR.GOV.BCB.PIX0136odontodex...</div>
+            <div class="actions"><button class="btn green"><i class="ti ti-copy"></i> Copiar código Pix</button><button class="btn secondary">Fechar</button></div>
+          </div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="modal-case" id="cancelamento">
+      <div class="case-head">
+        <div>
+          <h2>Cancelamento Premium</h2>
+          <p>Fluxo em etapas para cancelar renovação.</p>
+        </div>
+        <span class="badge">Assinatura</span>
+      </div>
+      <div class="compare">
+        <div>
+          <p class="column-title">Como está</p>
+          <div class="phone"><div class="backdrop"><div class="old-modal">
+            <div class="old-icon"><i class="ti ti-crown"></i></div>
+            <h3 class="old-title">Cancelar renovação?</h3>
+            <p class="old-sub">Você vai perder acesso a:</p>
+            <div class="panel purple">
+              <ul class="list">
+                <li><i class="ti ti-checklist"></i>Todos os protocolos clínicos completos</li>
+                <li><i class="ti ti-pill"></i>Prescrições e pacientes especiais</li>
+                <li><i class="ti ti-first-aid-kit"></i>S.O.S. clínico completo</li>
+              </ul>
+            </div>
+            <button class="btn danger">Continuar cancelamento</button>
+            <button class="btn secondary">Manter Premium</button>
+          </div></div></div>
+        </div>
+        <div>
+          <p class="column-title">Como vai ficar</p>
+          <div class="phone"><div class="backdrop"><div class="new-modal">
+            <div class="modal-top">
+              <div class="new-icon" style="background:var(--amber-soft);color:var(--amber)"><i class="ti ti-alert-circle"></i></div>
+              <div>
+                <h3 class="modal-title">Cancelar renovação?</h3>
+                <p class="modal-sub">Seu acesso continua até o fim do período já pago. Depois, volta para o gratuito.</p>
+              </div>
+            </div>
+            <div class="panel amber">
+              <div class="panel-title" style="color:var(--amber)"><i class="ti ti-info-circle"></i> Você perde depois do vencimento</div>
+              <ul class="list">
+                <li><i class="ti ti-lock"></i>Protocolos completos, prescrições, pacientes especiais e S.O.S. completo.</li>
+              </ul>
+            </div>
+            <div class="reason-list">
+              <button class="reason"><i class="ti ti-cash"></i> Preço alto</button>
+              <button class="reason"><i class="ti ti-calendar"></i> Não uso com frequência</button>
+              <button class="reason"><i class="ti ti-message"></i> Outro motivo</button>
+            </div>
+            <div class="actions"><button class="btn danger">Confirmar cancelamento</button><button class="btn secondary">Manter Premium</button></div>
+          </div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="modal-case" id="estudante">
+      <div class="case-head">
+        <div>
+          <h2>Aviso para estudantes</h2>
+          <p>Alerta exibido quando o perfil do usuário é estudante.</p>
+        </div>
+        <span class="badge">Segurança</span>
+      </div>
+      <div class="compare">
+        <div>
+          <p class="column-title">Como está</p>
+          <div class="phone"><div class="backdrop"><div class="old-modal">
+            <div class="old-icon" style="background:var(--amber-soft);color:var(--amber)"><i class="ti ti-alert-triangle"></i></div>
+            <h3 class="old-title">Aviso para estudantes</h3>
+            <p class="old-sub">Os protocolos clínicos exibidos no OdontoDex refletem práticas gerais da odontologia.</p>
+            <div class="panel amber">
+              <div class="panel-title" style="color:var(--amber)">Importante</div>
+              <p class="modal-sub" style="text-align:left">Este conteúdo não substitui a orientação do seu professor. Não execute procedimentos sem supervisão adequada.</p>
+            </div>
+            <button class="btn primary">Entendi</button>
+          </div></div></div>
+        </div>
+        <div>
+          <p class="column-title">Como vai ficar</p>
+          <div class="phone"><div class="backdrop"><div class="new-modal">
+            <div class="modal-top">
+              <div class="new-icon" style="background:var(--amber-soft);color:var(--amber)"><i class="ti ti-school"></i></div>
+              <div>
+                <h3 class="modal-title">Use com supervisão</h3>
+                <p class="modal-sub">O OdontoDex ajuda a organizar o raciocínio, mas a conduta prática deve seguir a orientação da sua instituição.</p>
+              </div>
+            </div>
+            <div class="panel amber">
+              <div class="panel-title" style="color:var(--amber)"><i class="ti ti-alert-triangle"></i> Importante</div>
+              <ul class="list">
+                <li><i class="ti ti-point"></i>Não substitui professor, supervisor ou protocolo da faculdade.</li>
+                <li><i class="ti ti-point"></i>Em dúvida, confirme antes de executar.</li>
+              </ul>
+            </div>
+            <div class="actions"><button class="btn primary">Entendi</button></div>
+          </div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="modal-case" id="crise">
+      <div class="case-head">
+        <div>
+          <h2>S.O.S. / Deu errado</h2>
+          <p>Modal interno com opções de intercorrência clínica.</p>
+        </div>
+        <span class="badge">Clínico</span>
+      </div>
+      <div class="compare">
+        <div>
+          <p class="column-title">Como está</p>
+          <div class="phone"><div class="backdrop"><div class="old-modal">
+            <div class="old-icon" style="background:var(--red-soft);color:var(--red)"><i class="ti ti-bolt"></i></div>
+            <h3 class="old-title" style="color:var(--red)">DEU ERRADO?</h3>
+            <p class="old-sub">Toque no problema para ver a solução</p>
+            <div class="reason-list">
+              <button class="reason"><i class="ti ti-bed"></i> Paciente desmaiou</button>
+              <button class="reason"><i class="ti ti-droplet"></i> Sangramento</button>
+              <button class="reason"><i class="ti ti-heartbeat"></i> Dor no peito</button>
+            </div>
+            <button class="btn ghost">Fechar</button>
+          </div></div></div>
+        </div>
+        <div>
+          <p class="column-title">Como vai ficar</p>
+          <div class="phone"><div class="backdrop"><div class="new-modal">
+            <div class="modal-top">
+              <div class="new-icon" style="background:var(--red-soft);color:var(--red)"><i class="ti ti-first-aid-kit"></i></div>
+              <div>
+                <h3 class="modal-title">S.O.S. clínico</h3>
+                <p class="modal-sub">Escolha a intercorrência para abrir a conduta correspondente.</p>
+              </div>
+            </div>
+            <div class="reason-list">
+              <button class="reason"><i class="ti ti-bed"></i> Desmaio</button>
+              <button class="reason"><i class="ti ti-droplet"></i> Sangramento</button>
+              <button class="reason"><i class="ti ti-heartbeat"></i> Dor no peito / infarto</button>
+            </div>
+            <div class="actions"><button class="btn secondary">Fechar</button></div>
+          </div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="modal-case" id="edicao">
+      <div class="case-head">
+        <div>
+          <h2>Editar nome e tratamento</h2>
+          <p>Modais pequenos de configuração de perfil.</p>
+        </div>
+        <span class="badge">Configuração</span>
+      </div>
+      <div class="compare">
+        <div>
+          <p class="column-title">Como está</p>
+          <div class="phone"><div class="backdrop"><div class="old-modal">
+            <div class="old-icon"><i class="ti ti-user-edit"></i></div>
+            <h3 class="old-title">Editar nome</h3>
+            <input class="field" placeholder="Seu nome completo">
+            <div style="height:12px"></div>
+            <div class="action-row"><button class="btn secondary">Cancelar</button><button class="btn primary">Salvar</button></div>
+            <div style="height:22px"></div>
+            <div class="old-icon"><i class="ti ti-id-badge"></i></div>
+            <h3 class="old-title">Tratamento</h3>
+            <div class="segmented three"><button>Dr.</button><button class="active">Dra.</button><button>Sem título</button></div>
+          </div></div></div>
+        </div>
+        <div>
+          <p class="column-title">Como vai ficar</p>
+          <div class="phone"><div class="backdrop"><div class="new-modal">
+            <div class="modal-top">
+              <div class="new-icon"><i class="ti ti-user-cog"></i></div>
+              <div>
+                <h3 class="modal-title">Editar perfil</h3>
+                <p class="modal-sub">Ajuste como seu nome aparece na home do app.</p>
+              </div>
+            </div>
+            <div class="panel">
+              <div class="panel-title"><i class="ti ti-user"></i> Nome</div>
+              <input class="field" placeholder="Seu nome completo">
+            </div>
+            <div class="panel">
+              <div class="panel-title"><i class="ti ti-id-badge"></i> Tratamento</div>
+              <div class="segmented three"><button>Dr.</button><button class="active">Dra.</button><button>Sem título</button></div>
+            </div>
+            <div class="action-row"><button class="btn secondary">Cancelar</button><button class="btn primary">Salvar</button></div>
+          </div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="modal-case" id="ios">
+      <div class="case-head">
+        <div>
+          <h2>Instalação no iPhone</h2>
+          <p>Modal que orienta o usuário a adicionar o OdontoDex à tela inicial pelo Safari.</p>
+        </div>
+        <span class="badge">PWA</span>
+      </div>
+      <div class="compare">
+        <div>
+          <p class="column-title">Como está</p>
+          <div class="phone"><div class="backdrop"><div class="old-modal">
+            <div class="old-icon"><i class="ti ti-device-mobile"></i></div>
+            <h3 class="old-title">Adicionar à Tela Inicial</h3>
+            <p class="old-sub">Siga os passos abaixo no Safari</p>
+            <div class="reason-list">
+              <button class="reason"><span class="step-num">1</span> Toque em Compartilhar</button>
+              <button class="reason"><span class="step-num">2</span> Toque em "Adicionar à Tela Inicial"</button>
+              <button class="reason"><span class="step-num">3</span> Toque em Adicionar</button>
+            </div>
+            <button class="btn primary">Entendido</button>
+          </div></div></div>
+        </div>
+        <div>
+          <p class="column-title">Como vai ficar</p>
+          <div class="phone"><div class="backdrop ios-guide-backdrop"><div class="new-modal ios-guide-modal">
+            <div class="modal-top">
+              <div class="new-icon"><i class="ti ti-device-mobile-plus"></i></div>
+              <div>
+                <h3 class="modal-title">Instalar como app</h3>
+                <p class="modal-sub">Adicione o OdontoDex à tela inicial para abrir como aplicativo no iPhone.</p>
+              </div>
+            </div>
+            <div class="panel ios-guide-panel">
+              <div class="panel-title"><i class="ti ti-brand-safari"></i> No Safari</div>
+              <ul class="list ios-guide-steps">
+                <li><i class="ti ti-share"></i>Toque em Compartilhar na barra inferior.</li>
+                <li><i class="ti ti-plus"></i>Escolha "Adicionar à Tela Inicial".</li>
+                <li><i class="ti ti-check"></i>Confirme em Adicionar.</li>
+              </ul>
+            </div>
+            <div class="actions"><button class="btn primary">Entendido</button></div>
+          </div></div></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="modal-case" id="browser">
+      <div class="case-head">
+        <div>
+          <h2>Aviso de navegador interno</h2>
+          <p>Tela exibida quando o usuário abre o app dentro de navegador de rede social.</p>
+        </div>
+        <span class="badge">Acesso</span>
+      </div>
+      <div class="compare">
+        <div>
+          <p class="column-title">Como está</p>
+          <div class="phone"><div class="backdrop" style="background:#0f172a"><div class="old-modal" style="background:#111827;color:#f8fafc;border-color:#1f2937">
+            <div class="old-icon"><i class="ti ti-confetti"></i></div>
+            <h3 class="old-title" style="color:#f8fafc">Quase lá!</h3>
+            <p class="old-sub" style="color:#94a3b8">Abra o OdontoDex no navegador do celular para continuar.</p>
+            <div class="panel" style="background:#1e293b;border-color:#334155">
+              <div class="panel-title" style="color:#94a3b8">SIGA ESTES PASSOS</div>
+              <ul class="list" style="color:#cbd5e1">
+                <li><i class="ti ti-dots"></i>Abra o menu do navegador interno.</li>
+                <li><i class="ti ti-external-link"></i>Escolha abrir no navegador.</li>
+              </ul>
+            </div>
+            <button class="btn primary">Copiar link do OdontoDex</button>
+          </div></div></div>
+        </div>
+        <div>
+          <p class="column-title">Como vai ficar</p>
+          <div class="phone"><div class="backdrop" style="background:#0f172a"><div class="new-modal" style="background:#111827;color:#f8fafc;border-color:#1f2937">
+            <div class="modal-top">
+              <div class="new-icon"><i class="ti ti-external-link"></i></div>
+              <div>
+                <h3 class="modal-title" style="color:#f8fafc">Abra no navegador</h3>
+                <p class="modal-sub" style="color:#94a3b8">Para instalar e usar melhor o OdontoDex, continue pelo Safari ou Chrome.</p>
+              </div>
+            </div>
+            <div class="panel" style="background:#1e293b;border-color:#334155">
+              <div class="panel-title" style="color:#cbd5e1"><i class="ti ti-list-check"></i> Passos rápidos</div>
+              <ul class="list" style="color:#cbd5e1">
+                <li><i class="ti ti-dots"></i>Toque no menu do navegador interno.</li>
+                <li><i class="ti ti-browser"></i>Selecione abrir no Safari ou Chrome.</li>
+                <li><i class="ti ti-clipboard"></i>Se precisar, copie o link abaixo.</li>
+              </ul>
+            </div>
+            <div class="actions"><button class="btn primary">Copiar link</button></div>
+          </div></div></div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

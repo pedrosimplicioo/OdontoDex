@@ -4,6 +4,9 @@ let deferredPrompt = null;
 function isIOS(){
   return /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
 }
+function isIOSSafari(){
+  return isIOS() && /^((?!chrome|android|crios|fxios).)*safari/i.test(navigator.userAgent);
+}
 function isInStandaloneMode(){
   return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
 }
@@ -35,8 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
     navigator.serviceWorker.register('sw.js').catch(()=>{});
   }
 
-  // iOS: show modal automatically if not standalone and not dismissed
-  if(isIOS() && !isInStandaloneMode() && !pwaAlreadyDismissed()){
+  // iOS Safari: show install instructions only in Safari, when not standalone and not dismissed.
+  if(isIOSSafari() && !isInStandaloneMode() && !pwaAlreadyDismissed()){
     setTimeout(()=>{
       document.getElementById('ios-install-overlay').classList.add('show');
     }, 1500);

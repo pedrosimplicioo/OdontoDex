@@ -104,6 +104,7 @@ module.exports = {
   admin: firebaseAdmin,
   db,
   setCors,
+  verifyFirebaseToken,
   requireAdmin,
   requireSameUser,
   sendAuthError,
