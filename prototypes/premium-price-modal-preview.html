@@ -1,0 +1,216 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OdontoDex - Preview Modal Premium</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+  <style>
+    :root{
+      --bg:#eef3f8;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --panel:#fff;
+      --purple:#7c3fa0;
+      --purple-deep:#1a0533;
+      --gold:#fbbf24;
+      --gold-soft:#fff7ed;
+      --line:#e2e8f0;
+      --shadow:0 20px 54px rgba(15,23,42,.15);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+      padding:26px 18px 44px;
+    }
+    .page{max-width:1120px;margin:0 auto}
+    .head{display:flex;align-items:end;justify-content:space-between;gap:16px;margin-bottom:18px}
+    h1{margin:0 0 6px;font-size:34px;line-height:1.05;letter-spacing:0}
+    .head p{margin:0;color:var(--muted);font-size:15px;line-height:1.5;max-width:720px}
+    .badge{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(124,63,160,.22);background:#f5eefb;color:var(--purple);border-radius:999px;padding:8px 12px;font-size:12px;font-weight:850;white-space:nowrap}
+    .compare{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:18px;align-items:start}
+    .case-title{margin:0 0 10px;color:#475569;font-size:12px;font-weight:900;letter-spacing:.08em;text-transform:uppercase}
+    .phone{height:760px;max-width:430px;margin:0 auto;border-radius:34px;background:#0b0614;border:1px solid rgba(148,163,184,.5);box-shadow:var(--shadow);overflow:hidden;display:flex;align-items:flex-end}
+    .modal{width:100%;max-height:100%;overflow:auto;scrollbar-width:none;background:#0f0a1a;border-radius:28px 28px 0 0;color:#fff}
+    .modal::-webkit-scrollbar{display:none}
+
+    .current-hero{background:linear-gradient(160deg,#1a0533 0%,#3d1260 45%,#6b2fa0 100%);padding:20px 20px 28px;text-align:center;position:relative;overflow:hidden}
+    .close{position:absolute;top:14px;right:14px;width:30px;height:30px;border-radius:50%;border:0;background:rgba(255,255,255,.1);color:rgba(255,255,255,.65);display:grid;place-items:center}
+    .badge-top{display:inline-block;background:rgba(251,191,36,.2);border:1px solid rgba(251,191,36,.4);color:#fcd34d;font-size:10px;font-weight:800;letter-spacing:2px;padding:4px 12px;border-radius:30px;margin-bottom:14px}
+    .crown{font-size:52px;color:#fcd34d;margin-bottom:12px}
+    .hero-title{font-size:24px;font-weight:900;line-height:1.25;margin-bottom:8px}
+    .hero-sub{font-size:13px;color:rgba(255,255,255,.6);line-height:1.5}
+    .section-label{font-size:10px;font-weight:800;color:rgba(255,255,255,.3);letter-spacing:2px;padding:18px 20px 10px}
+    .locked-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:0 20px}
+    .locked-card{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:12px 10px;text-align:center}
+    .locked-card .ti{font-size:22px;color:#b07fd4;margin-bottom:6px}
+    .locked-name{font-size:11px;font-weight:750;color:rgba(255,255,255,.82);line-height:1.28}
+    .locked-count{font-size:10px;color:rgba(255,255,255,.35);margin-top:3px}
+    .benefits{padding:0 20px}
+    .benefit{display:flex;gap:14px;padding:14px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+    .benefit .ti{width:34px;height:34px;border-radius:10px;background:rgba(124,63,160,.25);color:#b07fd4;display:grid;place-items:center;font-size:22px;flex:0 0 auto}
+    .benefit-title{font-size:14px;font-weight:750}
+    .benefit-sub{font-size:12px;color:rgba(255,255,255,.45);line-height:1.45;margin-top:3px}
+    .old-price{padding:18px 20px 0}
+    .old-price-inner{background:linear-gradient(135deg,rgba(251,191,36,.12),rgba(251,191,36,.06));border:1.5px solid rgba(251,191,36,.3);border-radius:20px;padding:18px 20px;text-align:center}
+    .old-price-tag{font-size:10px;font-weight:850;color:#fcd34d;letter-spacing:2px;margin-bottom:10px}
+    .old-price-row{display:flex;align-items:center;justify-content:center;gap:12px}
+    .old-price-main{display:flex;align-items:baseline;color:#fff;line-height:1}
+    .old-num{font-size:52px;font-weight:950;letter-spacing:-3px}
+    .old-cents{font-size:24px;font-weight:850}
+    .old-period{font-size:13px;color:rgba(255,255,255,.5);font-weight:650}
+    .old-day{background:rgba(251,191,36,.2);color:#fcd34d;font-size:11px;font-weight:850;padding:3px 8px;border-radius:20px;margin-top:2px}
+    .cta-wrap{padding:16px 20px 32px;display:flex;flex-direction:column;gap:8px}
+    .cta{width:100%;border:0;border-radius:20px;background:linear-gradient(135deg,#8b2fc9,#6b1fa0);color:#fff;padding:17px 20px;font-size:16px;font-weight:850;box-shadow:0 6px 24px rgba(107,31,160,.5)}
+    .fine{text-align:center;font-size:11px;color:rgba(255,255,255,.3)}
+    .skip{border:0;background:transparent;color:rgba(255,255,255,.28);font-size:13px;font-weight:650}
+
+    .new-modal{background:#10081b}
+    .new-hero{padding:18px 20px 16px;background:radial-gradient(circle at 50% -20%,rgba(251,191,36,.20),transparent 42%),linear-gradient(160deg,#160322 0%,#3b0e57 58%,#5c2388 100%);position:relative;text-align:center}
+    .promo-chip{display:inline-flex;align-items:center;gap:6px;background:rgba(251,191,36,.16);border:1px solid rgba(251,191,36,.42);color:#fde68a;border-radius:999px;padding:7px 12px;font-size:11px;font-weight:900;letter-spacing:.06em;text-transform:uppercase;margin-bottom:12px}
+    .new-title{font-size:22px;font-weight:950;line-height:1.18;margin:0 0 7px}
+    .new-sub{margin:0;color:rgba(255,255,255,.68);font-size:13px;line-height:1.45}
+    .price-spotlight{padding:14px 16px 12px}
+    .price-card{position:relative;background:linear-gradient(180deg,#fff8e8 0%,#fff 100%);border:2px solid #fbbf24;border-radius:24px;color:#111827;padding:18px 16px 16px;box-shadow:0 18px 38px rgba(251,191,36,.18)}
+    .price-ribbon{position:absolute;top:-12px;left:50%;transform:translateX(-50%);background:#dc2626;color:#fff;border-radius:999px;padding:6px 12px;font-size:11px;font-weight:950;white-space:nowrap;box-shadow:0 8px 18px rgba(220,38,38,.24)}
+    .real-price{text-align:center;color:#64748b;font-size:13px;font-weight:750;margin-top:4px}
+    .real-price s{color:#991b1b;text-decoration-thickness:2px}
+    .promo-price{display:flex;justify-content:center;align-items:baseline;line-height:.95;margin:8px 0 4px;color:#111827}
+    .promo-price .currency{font-size:24px;font-weight:950;margin-right:2px}
+    .promo-price .amount{font-size:76px;font-weight:1000;letter-spacing:-5px}
+    .promo-price .cents{font-size:27px;font-weight:950}
+    .promo-period{text-align:center;color:#334155;font-size:13px;font-weight:850;margin-bottom:10px}
+    .saving-row{display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+    .saving-pill{background:#fef3c7;color:#92400e;border:1px solid #fcd34d;border-radius:999px;padding:6px 10px;font-size:11px;font-weight:900}
+    .trial-note{margin:12px 0 0;text-align:center;color:#64748b;font-size:12px;line-height:1.35}
+    .trial-note strong{color:#111827}
+    .new-benefit-strip{padding:0 16px 10px;display:grid;gap:8px}
+    .new-row{display:flex;gap:10px;align-items:flex-start;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:11px 12px}
+    .new-row .ti{color:#fbbf24;font-size:18px;flex:0 0 auto;margin-top:1px}
+    .new-row strong{display:block;font-size:13px;line-height:1.25}
+    .new-row span{display:block;margin-top:2px;color:rgba(255,255,255,.52);font-size:12px;line-height:1.35}
+    .new-mini-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;padding:0 16px 10px}
+    .new-mini{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.08);border-radius:15px;padding:10px;text-align:left}
+    .new-mini .ti{color:#b07fd4;font-size:18px;margin-bottom:5px}
+    .new-mini-title{font-size:12px;font-weight:850}
+    .new-mini-sub{font-size:10px;color:rgba(255,255,255,.42);margin-top:2px}
+    .new-cta-wrap{padding:8px 16px 24px;display:grid;gap:9px}
+    .new-cta{border:0;border-radius:20px;background:linear-gradient(135deg,#fbbf24,#f59e0b);color:#2d1600;padding:17px 16px;font-size:16px;font-weight:1000;box-shadow:0 12px 28px rgba(245,158,11,.25)}
+    .new-fine{text-align:center;color:rgba(255,255,255,.45);font-size:11px;line-height:1.35}
+    .new-skip{border:0;background:transparent;color:rgba(255,255,255,.32);font-size:13px;font-weight:750}
+
+    @media(max-width:920px){
+      .head{display:block}
+      .badge{margin-top:14px}
+      .compare{grid-template-columns:1fr}
+      .phone{height:720px}
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="head">
+      <div>
+        <h1>Modal Premium</h1>
+        <p>Comparação entre o modal atual e uma proposta com preço promocional em primeiro plano, deixando claro que R$ 9,90 é oferta promocional e R$ 19,90 é o valor real.</p>
+      </div>
+      <div class="badge"><i class="ti ti-tag"></i> Foco em preço e conversão</div>
+    </header>
+
+    <section class="compare">
+      <div>
+        <p class="case-title">Como está hoje</p>
+        <div class="phone">
+          <div class="modal">
+            <div class="current-hero">
+              <button class="close"><i class="ti ti-x"></i></button>
+              <div class="badge-top">MODO PREMIUM</div>
+              <div class="crown"><i class="ti ti-lock"></i></div>
+              <div class="hero-title">Atenda com mais<br>segurança e velocidade</div>
+              <div class="hero-sub">+50 protocolos clínicos prontos para usar.<br>Decisão certa na hora certa.</div>
+            </div>
+            <div class="section-label">O QUE VOCÊ ESTÁ PERDENDO</div>
+            <div class="locked-grid">
+              <div class="locked-card"><i class="ti ti-crown"></i><div class="locked-name">Prótese completa</div><div class="locked-count">20 protocolos</div></div>
+              <div class="locked-card"><i class="ti ti-microscope"></i><div class="locked-name">Endodontia</div><div class="locked-count">Diagnóstico guiado</div></div>
+              <div class="locked-card"><i class="ti ti-first-aid-kit"></i><div class="locked-name">S.O.S. completo</div><div class="locked-count">Emergências</div></div>
+            </div>
+            <div class="section-label">POR QUE VALE CADA CENTAVO</div>
+            <div class="benefits">
+              <div class="benefit"><i class="ti ti-bolt"></i><div><div class="benefit-title">Decisão em segundos</div><div class="benefit-sub">O protocolo certo na sua mão.</div></div></div>
+              <div class="benefit"><i class="ti ti-alert-triangle"></i><div><div class="benefit-title">Modo Pânico incluído</div><div class="benefit-sub">O app te guia na emergência.</div></div></div>
+              <div class="benefit"><i class="ti ti-wifi-off"></i><div><div class="benefit-title">Funciona offline</div><div class="benefit-sub">Disponível mesmo sem internet.</div></div></div>
+            </div>
+            <div class="old-price">
+              <div class="old-price-inner">
+                <div class="old-price-tag">ACESSO TOTAL</div>
+                <div class="old-price-row">
+                  <div class="old-price-main">R$<span class="old-num">9</span><span class="old-cents">,90</span></div>
+                  <div>
+                    <div class="old-period">por mês</div>
+                    <div class="old-day">- R$0,50/dia</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="cta-wrap">
+              <button class="cta">Ver opções de pagamento</button>
+              <div class="fine">Pix avulso ou assinatura mensal no cartão</div>
+              <button class="skip">Continuar com versão gratuita</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div>
+        <p class="case-title">Como pode ficar</p>
+        <div class="phone">
+          <div class="modal new-modal">
+            <div class="new-hero">
+              <button class="close"><i class="ti ti-x"></i></button>
+              <div class="promo-chip"><i class="ti ti-discount-2"></i> Oferta promocional</div>
+              <h2 class="new-title">Continue com acesso Premium</h2>
+              <p class="new-sub">Mantenha condutas, protocolos, prescrições e S.O.S. clínico disponíveis durante o atendimento.</p>
+            </div>
+
+            <div class="price-spotlight">
+              <div class="price-card">
+                <div class="price-ribbon">50% OFF por tempo limitado</div>
+                <div class="real-price">Valor real: <s>R$ 19,90/mês</s></div>
+                <div class="promo-price"><span class="currency">R$</span><span class="amount">9</span><span class="cents">,90</span></div>
+                <div class="promo-period">por mês no preço promocional</div>
+                <div class="saving-row">
+                  <span class="saving-pill">Economize R$ 10/mês</span>
+                  <span class="saving-pill">R$ 0,33 por dia</span>
+                </div>
+                <p class="trial-note"><strong>Assinatura mensal recorrente.</strong><br>Valor promocional de R$ 9,90/mês por tempo limitado.</p>
+              </div>
+            </div>
+
+            <div class="new-benefit-strip">
+              <div class="new-row"><i class="ti ti-shield-check"></i><div><strong>Mais segurança quando surgir dúvida</strong><span>Revise a conduta antes de decidir na cadeira.</span></div></div>
+              <div class="new-row"><i class="ti ti-clock-bolt"></i><div><strong>Resposta rápida no meio do atendimento</strong><span>Sem depender de busca solta no Google.</span></div></div>
+            </div>
+
+            <div class="new-mini-grid">
+              <div class="new-mini"><i class="ti ti-bolt"></i><div class="new-mini-title">Condutas rápidas</div><div class="new-mini-sub">Casos do dia a dia</div></div>
+              <div class="new-mini"><i class="ti ti-clipboard-heart"></i><div class="new-mini-title">Protocolos</div><div class="new-mini-sub">Passo a passo clínico</div></div>
+              <div class="new-mini"><i class="ti ti-pill"></i><div class="new-mini-title">Prescrições</div><div class="new-mini-sub">Apoio organizado</div></div>
+              <div class="new-mini"><i class="ti ti-first-aid-kit"></i><div class="new-mini-title">S.O.S. clínico</div><div class="new-mini-sub">Emergências</div></div>
+            </div>
+
+            <div class="new-cta-wrap">
+              <button class="new-cta">Assinar Premium por R$ 9,90</button>
+              <div class="new-fine">Pagamento seguro por Pix ou cartão. Assinatura mensal recorrente no valor promocional.</div>
+              <button class="new-skip">Continuar com versão gratuita</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

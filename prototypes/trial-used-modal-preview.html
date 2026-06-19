@@ -1,0 +1,453 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OdontoDex - Modal Trial Já Utilizado</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+  <style>
+    :root{
+      --bg:#eef3f8;
+      --phone:#f1f5f9;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#e2e8f0;
+      --purple:#7c3fa0;
+      --purple-soft:#f5eefb;
+      --amber:#f59e0b;
+      --amber-soft:#fff7ed;
+      --green:#16a34a;
+      --green-soft:#ecfdf5;
+      --shadow:0 18px 44px rgba(15,23,42,.16);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:22px;
+    }
+
+    .stage{
+      width:min(100%,980px);
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 420px;
+      gap:28px;
+      align-items:center;
+    }
+
+    .notes h1{
+      margin:0 0 10px;
+      font-size:36px;
+      line-height:1.05;
+      letter-spacing:0;
+    }
+
+    .notes p{
+      margin:0 0 18px;
+      max-width:520px;
+      color:var(--muted);
+      font-size:15px;
+      line-height:1.55;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+
+    .control-btn{
+      border:1px solid rgba(124,63,160,.22);
+      background:#fff;
+      color:var(--purple);
+      border-radius:999px;
+      padding:10px 14px;
+      font-size:13px;
+      font-weight:850;
+      cursor:pointer;
+    }
+
+    .control-btn.active{
+      background:var(--purple);
+      color:#fff;
+    }
+
+    .phone{
+      width:100%;
+      max-width:420px;
+      height:720px;
+      margin:0 auto;
+      border-radius:34px;
+      border:1px solid rgba(148,163,184,.58);
+      background:var(--phone);
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      position:relative;
+    }
+
+    .app-bg{
+      position:absolute;
+      inset:0;
+      padding:22px 18px;
+      overflow:hidden;
+    }
+
+    .home-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:24px;
+      padding:20px 18px;
+      box-shadow:0 12px 28px rgba(15,23,42,.08);
+    }
+
+    .status{
+      display:flex;
+      align-items:center;
+      gap:7px;
+      color:var(--green);
+      font-size:12px;
+      font-weight:750;
+      margin-bottom:18px;
+    }
+
+    .dot{
+      width:7px;
+      height:7px;
+      border-radius:50%;
+      background:var(--green);
+    }
+
+    .hello{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      margin-bottom:14px;
+    }
+
+    .avatar{
+      width:48px;
+      height:48px;
+      border-radius:18px;
+      border:1px solid var(--line);
+      background:var(--purple-soft);
+      color:var(--purple);
+      display:grid;
+      place-items:center;
+      font-size:26px;
+    }
+
+    .hello h2{
+      margin:0;
+      font-size:21px;
+      line-height:1.1;
+    }
+
+    .hello p{
+      margin:4px 0 0;
+      color:var(--muted);
+      font-size:13px;
+    }
+
+    .search{
+      height:54px;
+      border:1px solid #d7e2ef;
+      border-radius:20px;
+      background:#f8fafc;
+      color:#94a3b8;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:0 16px;
+      font-size:14px;
+      margin-bottom:22px;
+    }
+
+    .section-title{
+      margin:16px 0 10px;
+      color:#94a3b8;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+
+    .mini-grid{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+    }
+
+    .mini-card{
+      min-height:72px;
+      border:1px solid var(--line);
+      border-radius:16px;
+      background:#fff;
+      padding:10px;
+      font-size:11px;
+      font-weight:850;
+      line-height:1.15;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);
+    }
+
+    .mini-card .ti{
+      color:var(--purple);
+      background:var(--purple-soft);
+      border-radius:50%;
+      padding:5px;
+      margin-bottom:6px;
+      display:inline-block;
+    }
+
+    .overlay{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      background:rgba(15,23,42,.56);
+      padding:18px 14px;
+    }
+
+    .modal{
+      width:100%;
+      border-radius:28px;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.96);
+      box-shadow:0 24px 54px rgba(15,23,42,.26);
+      padding:22px 18px 18px;
+    }
+
+    .modal-head{
+      display:flex;
+      align-items:flex-start;
+      gap:14px;
+      margin-bottom:14px;
+    }
+
+    .modal-icon{
+      width:54px;
+      height:54px;
+      border-radius:19px;
+      background:var(--amber-soft);
+      border:1px solid rgba(245,158,11,.26);
+      color:#b45309;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      font-size:29px;
+    }
+
+    .modal h2{
+      margin:0 0 5px;
+      font-size:20px;
+      line-height:1.12;
+      letter-spacing:0;
+    }
+
+    .modal .lead{
+      margin:0;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+
+    .info-box{
+      border:1px solid rgba(124,63,160,.16);
+      background:#faf7fd;
+      border-radius:18px;
+      padding:14px;
+      margin:14px 0;
+    }
+
+    .info-row{
+      display:flex;
+      gap:9px;
+      align-items:flex-start;
+      color:#334155;
+      font-size:13px;
+      line-height:1.42;
+      font-weight:650;
+    }
+
+    .info-row + .info-row{
+      margin-top:9px;
+    }
+
+    .info-dot{
+      width:6px;
+      height:6px;
+      border-radius:50%;
+      background:var(--purple);
+      flex:0 0 auto;
+      margin-top:7px;
+      opacity:.62;
+    }
+
+    .actions{
+      display:grid;
+      gap:10px;
+      margin-top:14px;
+    }
+
+    .primary,
+    .secondary{
+      width:100%;
+      min-height:50px;
+      border-radius:999px;
+      border:0;
+      font-family:inherit;
+      font-size:15px;
+      font-weight:900;
+      cursor:pointer;
+    }
+
+    .primary{
+      background:var(--purple);
+      color:#fff;
+      box-shadow:0 10px 22px rgba(124,63,160,.22);
+    }
+
+    .secondary{
+      min-height:38px;
+      background:transparent;
+      color:#64748b;
+      border:0;
+      box-shadow:none;
+      font-size:13px;
+      font-weight:850;
+    }
+
+    .small-note{
+      margin:11px 0 0;
+      color:#94a3b8;
+      font-size:11px;
+      text-align:center;
+      line-height:1.35;
+    }
+
+    @media (max-width:820px){
+      body{align-items:flex-start}
+      .stage{grid-template-columns:1fr}
+      .notes h1{font-size:28px}
+      .phone{height:680px}
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <section class="notes">
+      <h1>Modal de trial já utilizado</h1>
+      <p>Prévia isolada para validar tom, hierarquia e próximos passos antes de aplicar no app principal. A ideia é explicar sem parecer erro técnico.</p>
+      <div class="controls">
+        <button class="control-btn active" type="button" data-mode="trial">Trial já utilizado</button>
+        <button class="control-btn" type="button" data-mode="free">Conta gratuita</button>
+      </div>
+    </section>
+
+    <section class="phone" aria-label="Simulação do app">
+      <div class="app-bg">
+        <div class="home-card">
+          <div class="status"><span class="dot"></span> Disponível agora</div>
+          <div class="hello">
+            <div class="avatar"><i class="ti ti-dental"></i></div>
+            <div>
+              <h2>Olá, Dr. Pedro!</h2>
+              <p>O que aconteceu?</p>
+            </div>
+          </div>
+          <div class="search"><i class="ti ti-search"></i> Ex.: coroa caiu</div>
+        </div>
+        <div class="section-title">Favoritos</div>
+        <div class="mini-grid">
+          <div class="mini-card"><i class="ti ti-bolt"></i><br>Fio dental não passa</div>
+          <div class="mini-card"><i class="ti ti-bolt"></i><br>Restauração ficou alta</div>
+          <div class="mini-card"><i class="ti ti-bolt"></i><br>Dente não anestesia</div>
+        </div>
+        <div class="section-title">Explorar por área</div>
+        <div class="mini-grid">
+          <div class="mini-card"><i class="ti ti-dental"></i><br>Dentística</div>
+          <div class="mini-card"><i class="ti ti-crown"></i><br>Prótese</div>
+          <div class="mini-card"><i class="ti ti-microscope"></i><br>Endodontia</div>
+        </div>
+      </div>
+
+      <div class="overlay">
+        <article class="modal" id="modal">
+          <div class="modal-head">
+            <div class="modal-icon" id="modal-icon"><i class="ti ti-clock-exclamation"></i></div>
+            <div>
+              <h2 id="modal-title">Teste grátis já utilizado</h2>
+              <p class="lead" id="modal-lead">Este email já usou os 7 dias de Premium grátis. Sua conta continua ativa no plano gratuito.</p>
+            </div>
+          </div>
+
+          <div class="info-box" id="modal-info">
+            <div class="info-row"><span class="info-dot"></span><span>Você ainda pode acessar todos os conteúdos liberados do plano grátis.</span></div>
+            <div class="info-row"><span class="info-dot"></span><span>Para continuar com condutas completas, protocolos, prescrições e S.O.S. clínico, assine o Premium.</span></div>
+          </div>
+
+          <div class="actions">
+            <button class="primary" type="button" id="primary-action">Ativar o Premium</button>
+            <button class="secondary" type="button" id="secondary-action">Continuar no plano grátis</button>
+          </div>
+          <p class="small-note">Nenhuma cobrança é feita automaticamente nesta etapa.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    const modes = {
+      trial: {
+        icon: "ti ti-clock-exclamation",
+        title: "Teste grátis já utilizado",
+        lead: "Este email já usou os 7 dias de Premium grátis. Sua conta continua ativa no plano gratuito.",
+        rows: [
+          ["Você ainda pode acessar todos os conteúdos liberados do plano grátis."],
+          ["Para continuar com condutas completas, protocolos, prescrições e S.O.S. clínico, assine o Premium."]
+        ],
+        primary: "Ativar o Premium",
+        secondary: "Continuar no plano grátis"
+      },
+      free: {
+        icon: "ti ti-user-check",
+        title: "Conta gratuita ativada",
+        lead: "Seu email foi confirmado. Como este email já usou o teste Premium, você entrou no plano gratuito.",
+        rows: [
+          ["Você pode testar a busca e acessar os conteúdos liberados."],
+          ["Os conteúdos Premium continuam disponíveis na assinatura."]
+        ],
+        primary: "Ativar o Premium",
+        secondary: "Entrar no app"
+      }
+    };
+
+    function setMode(mode){
+      const data = modes[mode];
+      document.getElementById("modal-icon").innerHTML = `<i class="${data.icon}"></i>`;
+      document.getElementById("modal-title").textContent = data.title;
+      document.getElementById("modal-lead").textContent = data.lead;
+      document.getElementById("primary-action").textContent = data.primary;
+      document.getElementById("secondary-action").textContent = data.secondary;
+      document.getElementById("modal-info").innerHTML = data.rows.map(([text]) => (
+        `<div class="info-row"><span class="info-dot"></span><span>${text}</span></div>`
+      )).join("");
+      document.querySelectorAll(".control-btn").forEach(btn => {
+        btn.classList.toggle("active", btn.dataset.mode === mode);
+      });
+    }
+
+    document.querySelectorAll(".control-btn").forEach(btn => {
+      btn.addEventListener("click", () => setMode(btn.dataset.mode));
+    });
+  </script>
+</body>
+</html>

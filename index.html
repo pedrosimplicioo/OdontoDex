@@ -15,7 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<link rel="stylesheet" href="src/styles/app.css">
+<link rel="stylesheet" href="src/styles/app.css?v=20260618-soft-motion">
 </head>
 <body>
 <!-- AVISO IN-APP BROWSER -->
@@ -80,7 +80,7 @@
             <button type="button" class="select-btn" id="btn-estudante" onclick="selectPerfil('estudante')"><i class="ti ti-book"></i> Estudante</button>
           </div>
         </div>
-        <div id="bloco-tratamento" style="margin-bottom:16px;display:none">
+        <div id="bloco-tratamento" style="margin-bottom:16px;display:block">
           <span class="select-group-label">Como quer ser chamado?</span>
           <div class="select-group">
             <button type="button" class="select-btn selected" id="btn-dr" onclick="selectTratamento('Dr.')"><i class="ti ti-user-star"></i> Dr.</button>
@@ -106,19 +106,39 @@
       </div>
       <div id="email-verification-form" style="display:none">
         <div class="modal-icon-purple" style="margin:0 auto 12px;"><i class="ti ti-mail-check"></i></div>
-        <h2 class="verify-title">Digite o codigo enviado para seu email</h2>
-        <p class="verify-text">Enviamos um codigo de 6 digitos para <strong id="verify-email-display">seu email</strong>. Digite o codigo abaixo para liberar seus 7 dias de Premium gratis.</p>
+        <h2 class="verify-title">Digite o código enviado para seu email</h2>
+        <p class="verify-text">Enviamos um código de 6 dígitos para <strong id="verify-email-display">seu email</strong>. Digite o código abaixo para liberar seus 7 dias de Premium grátis.</p>
         <div class="verify-code-wrap">
           <input id="verify-code-input" class="verify-code-input" inputmode="numeric" maxlength="6" autocomplete="one-time-code" placeholder="000000" oninput="formatVerificationCodeInput(this)" onkeydown="if(event.key==='Enter')checkEmailVerificationAndActivate()">
+          <div id="verify-code-feedback" class="verify-code-feedback"></div>
         </div>
-        <p class="verify-helper">Nao encontrou? Verifique a caixa de spam ou promocoes.</p>
-        <p class="verify-note">O codigo expira em 10 minutos. Se necessario, reenvie apos a contagem terminar.</p>
+        <p class="verify-helper">Não encontrou? Verifique a caixa de spam ou promoções.</p>
+        <p class="verify-note">O código expira em 10 minutos. Se necessário, reenvie após a contagem terminar.</p>
         <div id="verify-feedback" class="verify-feedback"></div>
-        <button class="btn btn-primary" onclick="checkEmailVerificationAndActivate()" style="margin-bottom:10px">Confirmar codigo</button>
+        <button class="btn btn-primary" onclick="checkEmailVerificationAndActivate()" style="margin-bottom:10px">Confirmar código</button>
         <button class="btn btn-secondary" id="resend-verification-btn" onclick="resendVerificationEmail()" style="margin-bottom:10px">Reenviar email</button>
         <button class="btn btn-text" onclick="logoutForAnotherEmail()">Sair e usar outro email</button>
       </div>
     </div>
+  </div>
+</div>
+<!-- TRIAL JÁ UTILIZADO MODAL -->
+<div class="overlay trial-used-overlay" id="trial-used-overlay">
+  <div class="trial-used-modal" onclick="event.stopPropagation()">
+    <div class="trial-used-head">
+      <div class="trial-used-icon"><i class="ti ti-clock-exclamation"></i></div>
+      <div>
+        <h2>Teste grátis já utilizado</h2>
+        <p>Este email já usou os 7 dias de Premium grátis. Sua conta continua ativa no plano gratuito.</p>
+      </div>
+    </div>
+    <div class="trial-used-info">
+      <div class="trial-used-row"><span class="trial-used-dot"></span><span>Você ainda pode acessar todos os conteúdos liberados do plano grátis.</span></div>
+      <div class="trial-used-row"><span class="trial-used-dot"></span><span>Para continuar com condutas completas, protocolos, prescrições e S.O.S. clínico, assine o Premium.</span></div>
+    </div>
+    <button class="trial-used-primary" onclick="activatePremiumFromTrialUsed()">Ativar o Premium</button>
+    <button class="trial-used-secondary" onclick="closeTrialUsedModal()">Continuar no plano grátis</button>
+    <p class="trial-used-note">Nenhuma cobrança é feita automaticamente nesta etapa.</p>
   </div>
 </div>
 <!-- MODAL BOAS-VINDAS GOOGLE -->
@@ -528,14 +548,27 @@
 
     <!-- Hero -->
     <div class="prem-hero">
-      <div class="prem-hero-orb prem-orb1"></div>
-      <div class="prem-hero-orb prem-orb2"></div>
-      <div class="prem-hero-orb prem-orb3"></div>
       <button class="prem-close" onclick="hideOverlay('premium-overlay')">✕</button>
-      <div class="prem-badge-top">MODO PREMIUM</div>
-      <div class="prem-crown"><i class="ti ti-lock"></i></div>
-      <div class="prem-hero-title">Atenda com mais<br>segurança e velocidade</div>
-      <div class="prem-hero-sub">+50 protocolos clínicos prontos para usar.<br>Decisão certa na hora certa.</div>
+      <div class="prem-badge-top"><i class="ti ti-discount-2"></i> OFERTA PROMOCIONAL</div>
+      <div class="prem-hero-title">Continue com acesso Premium</div>
+      <div class="prem-hero-sub">Mantenha condutas, protocolos, prescrições e S.O.S. clínico disponíveis durante o atendimento.</div>
+    </div>
+
+    <!-- Preço -->
+    <div class="prem-price-wrap">
+      <div class="prem-price-inner">
+        <div class="prem-price-ribbon">50% OFF por tempo limitado</div>
+        <div class="prem-price-real">Valor real: <s>R$ 19,90/mês</s></div>
+        <div class="prem-price-row">
+          <div class="prem-price-main">R$<span class="prem-price-num">9</span><span class="prem-price-cents">,90</span></div>
+        </div>
+        <div class="prem-price-period">por mês no preço promocional</div>
+        <div class="prem-saving-row">
+          <span>Economize R$ 10/mês</span>
+          <span>R$ 0,33 por dia</span>
+        </div>
+        <div class="prem-price-note"><strong>Assinatura mensal recorrente.</strong><br>Valor promocional de R$ 9,90/mês por tempo limitado.</div>
+      </div>
     </div>
 
     <!-- O que está bloqueado -->
@@ -611,27 +644,13 @@
       </div>
     </div>
 
-    <!-- Preço -->
-    <div class="prem-price-wrap">
-      <div class="prem-price-inner">
-        <div class="prem-price-tag">ACESSO TOTAL</div>
-        <div class="prem-price-row">
-          <div class="prem-price-main">R$<span class="prem-price-num">9</span><span class="prem-price-cents">,90</span></div>
-          <div class="prem-price-aside">
-            <div class="prem-price-period">por mês</div>
-            <div class="prem-price-day">- R$0,50/dia</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- CTA -->
     <div class="prem-cta-wrap">
       <button class="prem-cta-btn" onclick="abrirTelaPayment()">
-         <span>Ver opções de pagamento</span>
+         <span>Assinar Premium por R$ 9,90</span>
          <span class="prem-cta-arrow">→</span>
        </button>
-      <div class="prem-cta-fine">Pix avulso ou assinatura mensal no cartão</div>
+      <div class="prem-cta-fine">Pagamento seguro. Assinatura mensal recorrente no cartão; Pix disponível como acesso avulso.</div>
       <button class="prem-skip-btn" onclick="hideOverlay('premium-overlay')">Continuar com versão gratuita</button>
     </div>
 
@@ -815,9 +834,9 @@
 <script src="src/scripts/search.js" defer></script>
 <script src="src/components/pulpite.js" defer></script>
 <script src="src/components/crisis.js" defer></script>
-<script src="src/scripts/auth.js?v=20260617-email-code" defer></script>
-<script src="src/scripts/pwa.js?v=20260617-email-code" defer></script>
-<script src="src/scripts/app-init.js?v=20260617-email-code" defer></script>
+<script src="src/scripts/auth.js?v=20260618-soft-motion" defer></script>
+<script src="src/scripts/pwa.js?v=20260618-premium-price-modal" defer></script>
+<script src="src/scripts/app-init.js?v=20260618-premium-price-modal" defer></script>
 <script src="src/scripts/premium.js" defer></script>
 <script src="src/components/student-banner.js" defer></script>
 <script src="src/scripts/payments.js" defer></script>

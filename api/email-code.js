@@ -40,16 +40,16 @@ async function sendWithResend({ to, code }) {
     body: JSON.stringify({
       from,
       to,
-      subject: "Seu codigo de verificacao do OdontoDex",
+      subject: "Seu código de verificação do OdontoDex",
       html: `
         <div style="font-family:Arial,sans-serif;line-height:1.5;color:#111827">
-          <h1 style="font-size:22px;margin:0 0 12px">Codigo de verificacao OdontoDex</h1>
-          <p style="font-size:15px;margin:0 0 16px">Digite este codigo no app para liberar seus 7 dias de Premium gratis:</p>
+          <h1 style="font-size:22px;margin:0 0 12px">Código de verificação OdontoDex</h1>
+          <p style="font-size:15px;margin:0 0 16px">Digite este código no app para liberar seus 7 dias de Premium grátis:</p>
           <div style="font-size:32px;font-weight:800;letter-spacing:6px;background:#F5EEFB;color:#7C3FA0;border-radius:14px;padding:18px 20px;text-align:center">${code}</div>
-          <p style="font-size:13px;color:#64748B;margin:16px 0 0">Este codigo expira em 10 minutos. Se voce nao solicitou este acesso, ignore este email.</p>
+          <p style="font-size:13px;color:#64748B;margin:16px 0 0">Este código expira em 10 minutos. Se você não solicitou este acesso, ignore este email.</p>
         </div>
       `,
-      text: `Seu codigo de verificacao do OdontoDex e ${code}. Ele expira em 10 minutos.`,
+      text: `Seu código de verificação do OdontoDex é ${code}. Ele expira em 10 minutos.`,
     }),
   });
 
@@ -97,7 +97,7 @@ async function handleVerifyCode(req, res, decodedToken) {
   const uid = decodedToken.uid;
   const submittedCode = String(req.body?.code || "").replace(/\D/g, "");
   if (!/^\d{6}$/.test(submittedCode)) {
-    return res.status(400).json({ ok: false, status: "invalid_code", error: "Digite o codigo de 6 digitos." });
+    return res.status(400).json({ ok: false, status: "invalid_code", error: "Digite o código de 6 dígitos." });
   }
 
   const authUser = await admin.auth().getUser(uid);
@@ -108,16 +108,16 @@ async function handleVerifyCode(req, res, decodedToken) {
   const codeRef = db.collection("emailVerificationCodes").doc(uid);
   const codeDoc = await codeRef.get();
   if (!codeDoc.exists) {
-    return res.status(404).json({ ok: false, status: "code_missing", error: "Solicite um novo codigo." });
+    return res.status(404).json({ ok: false, status: "code_missing", error: "Solicite um novo código." });
   }
 
   const data = codeDoc.data() || {};
   const expiresAt = data.expiresAt?.toDate?.();
   if (!expiresAt || expiresAt <= new Date()) {
-    return res.status(410).json({ ok: false, status: "expired", error: "Codigo expirado. Solicite um novo codigo." });
+    return res.status(410).json({ ok: false, status: "expired", error: "Código expirado. Solicite um novo código." });
   }
   if ((data.attempts || 0) >= MAX_ATTEMPTS) {
-    return res.status(429).json({ ok: false, status: "too_many_attempts", error: "Muitas tentativas. Solicite um novo codigo." });
+    return res.status(429).json({ ok: false, status: "too_many_attempts", error: "Muitas tentativas. Solicite um novo código." });
   }
 
   const matches = data.email === email && data.codeHash === codeHash(uid, email, submittedCode);
@@ -158,6 +158,6 @@ module.exports = async (req, res) => {
     return res.status(400).json({ ok: false, error: "Acao invalida" });
   } catch (e) {
     console.error("email-code error", e);
-    return res.status(e.statusCode || 500).json({ ok: false, error: e.message || "Erro ao processar codigo" });
+    return res.status(e.statusCode || 500).json({ ok: false, error: e.message || "Erro ao processar código" });
   }
 };

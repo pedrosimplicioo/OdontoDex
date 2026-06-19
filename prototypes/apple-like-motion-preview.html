@@ -1,0 +1,589 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>OdontoDex - Simulação de Movimentos Premium</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+  <style>
+    :root{
+      --bg:#edf3f8;
+      --phone:#eef4fa;
+      --card:#ffffff;
+      --ink:#0f172a;
+      --muted:#64748b;
+      --line:#dbe6f0;
+      --purple:#7c3fa0;
+      --purple-soft:#f5eefb;
+      --green:#16a34a;
+      --shadow:0 22px 58px rgba(15,23,42,.16);
+      --ease:cubic-bezier(.22,1,.36,1);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      background:var(--bg);
+      color:var(--ink);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+    .stage{
+      width:min(100%,1120px);
+      display:grid;
+      grid-template-columns:minmax(0,1fr) 420px;
+      gap:30px;
+      align-items:center;
+    }
+    .copy h1{
+      margin:0 0 10px;
+      font-size:38px;
+      line-height:1.04;
+      letter-spacing:0;
+    }
+    .copy p{
+      margin:0 0 18px;
+      color:var(--muted);
+      max-width:590px;
+      font-size:15px;
+      line-height:1.6;
+    }
+    .motion-list{
+      display:grid;
+      gap:10px;
+      max-width:570px;
+    }
+    .motion-item{
+      display:flex;
+      gap:11px;
+      align-items:flex-start;
+      background:rgba(255,255,255,.7);
+      border:1px solid rgba(219,230,240,.9);
+      border-radius:18px;
+      padding:13px 14px;
+      box-shadow:0 8px 22px rgba(15,23,42,.05);
+    }
+    .motion-item .ti{
+      color:var(--purple);
+      background:var(--purple-soft);
+      border-radius:12px;
+      padding:7px;
+      font-size:18px;
+      flex:0 0 auto;
+    }
+    .motion-item strong{
+      display:block;
+      font-size:13px;
+      margin-bottom:2px;
+    }
+    .motion-item span{
+      display:block;
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.45;
+    }
+    .controls{
+      display:flex;
+      flex-wrap:wrap;
+      gap:9px;
+      margin-top:18px;
+    }
+    .demo-btn{
+      border:1px solid rgba(124,63,160,.22);
+      background:#fff;
+      color:var(--purple);
+      border-radius:999px;
+      padding:10px 13px;
+      font-size:13px;
+      font-weight:850;
+      cursor:pointer;
+      transition:transform 160ms var(--ease), background 160ms var(--ease), color 160ms var(--ease);
+    }
+    .demo-btn:active{transform:scale(.96)}
+    .demo-btn.primary{
+      background:var(--purple);
+      color:#fff;
+    }
+    .phone{
+      width:100%;
+      max-width:420px;
+      height:760px;
+      border-radius:34px;
+      background:var(--phone);
+      border:1px solid rgba(148,163,184,.55);
+      box-shadow:var(--shadow);
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
+    }
+    .app{
+      position:absolute;
+      inset:0;
+      background:linear-gradient(#f8fbff 0,#edf3f8 32%);
+      overflow:hidden;
+    }
+    .screen{
+      position:absolute;
+      inset:0;
+      padding:0 18px 24px;
+      overflow:auto;
+      opacity:0;
+      transform:translateX(28px);
+      pointer-events:none;
+      transition:opacity 300ms var(--ease), transform 360ms var(--ease), filter 300ms var(--ease);
+      scrollbar-width:none;
+      will-change:transform,opacity;
+    }
+    .screen::-webkit-scrollbar{display:none}
+    .screen.active{
+      opacity:1;
+      transform:translateX(0);
+      pointer-events:auto;
+    }
+    .screen.exit-left{
+      opacity:.35;
+      transform:translateX(-20px);
+      filter:blur(.2px);
+    }
+    .hero{
+      margin:0 -18px 18px;
+      padding:24px 18px 24px;
+      background:rgba(255,255,255,.86);
+      border-bottom:1px solid rgba(219,230,240,.85);
+      border-radius:0 0 26px 26px;
+      box-shadow:0 10px 28px rgba(15,23,42,.07);
+    }
+    .top-row{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:18px;
+    }
+    .status{
+      display:flex;
+      align-items:center;
+      gap:7px;
+      color:#64748b;
+      font-size:12px;
+      font-weight:700;
+    }
+    .status-dot{
+      width:7px;
+      height:7px;
+      background:var(--green);
+      border-radius:50%;
+      box-shadow:0 0 0 4px rgba(22,163,74,.12);
+    }
+    .gear{
+      width:38px;
+      height:38px;
+      border:0;
+      border-radius:50%;
+      background:#f1f5f9;
+      color:var(--purple);
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      transition:transform 180ms var(--ease), background 180ms var(--ease);
+    }
+    .gear:active{transform:scale(.92);background:#e8edf5}
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:12px;
+      margin-bottom:15px;
+    }
+    .avatar{
+      width:52px;
+      height:52px;
+      border-radius:19px;
+      background:var(--purple-soft);
+      border:1px solid rgba(124,63,160,.15);
+      color:var(--purple);
+      display:grid;
+      place-items:center;
+      font-size:28px;
+    }
+    .brand h2{
+      margin:0;
+      font-size:22px;
+      line-height:1.08;
+      letter-spacing:0;
+    }
+    .brand p{
+      margin:5px 0 0;
+      color:#475569;
+      font-size:14px;
+    }
+    .search{
+      height:56px;
+      border:1px solid #d7e2ef;
+      background:#f8fafc;
+      border-radius:20px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:0 15px;
+      color:#94a3b8;
+      cursor:text;
+      transition:border-color 180ms var(--ease), box-shadow 220ms var(--ease), transform 180ms var(--ease);
+    }
+    .search.focus{
+      border-color:#b07fd4;
+      box-shadow:0 0 0 4px rgba(124,63,160,.10);
+      transform:translateY(-1px);
+    }
+    .search input{
+      border:0;
+      outline:0;
+      background:transparent;
+      width:100%;
+      font:inherit;
+      color:var(--ink);
+    }
+    .dropdown{
+      margin-top:8px;
+      display:grid;
+      gap:8px;
+      overflow:hidden;
+      max-height:0;
+      opacity:0;
+      transform:translateY(-6px);
+      transition:max-height 380ms var(--ease), opacity 260ms var(--ease), transform 320ms var(--ease);
+    }
+    .dropdown.show{
+      max-height:190px;
+      opacity:1;
+      transform:translateY(0);
+    }
+    .result{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:16px;
+      padding:12px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+      box-shadow:0 8px 18px rgba(15,23,42,.05);
+      animation:resultIn 360ms var(--ease) both;
+    }
+    .result:nth-child(2){animation-delay:55ms}
+    .result:nth-child(3){animation-delay:105ms}
+    @keyframes resultIn{from{opacity:0;transform:translateY(9px)}to{opacity:1;transform:translateY(0)}}
+    .result .ti{
+      color:var(--purple);
+      background:var(--purple-soft);
+      border-radius:12px;
+      padding:7px;
+      font-size:18px;
+    }
+    .result strong{display:block;font-size:13px}
+    .result span{display:block;color:#64748b;font-size:12px;margin-top:1px}
+    .section-label{
+      margin:16px 0 10px;
+      color:#94a3b8;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(3,1fr);
+      gap:10px;
+    }
+    .card{
+      min-height:78px;
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:18px;
+      padding:11px 10px;
+      box-shadow:0 7px 16px rgba(15,23,42,.05);
+      cursor:pointer;
+      transform:translateZ(0);
+      transition:transform 180ms var(--ease), box-shadow 180ms var(--ease), background 180ms var(--ease);
+    }
+    .card:active{
+      transform:scale(.965);
+      box-shadow:0 3px 10px rgba(15,23,42,.04);
+      background:#fbfdff;
+    }
+    .card .ti{
+      color:var(--purple);
+      background:var(--purple-soft);
+      border-radius:50%;
+      padding:6px;
+      font-size:19px;
+      margin-bottom:8px;
+    }
+    .card strong{
+      display:block;
+      font-size:11px;
+      line-height:1.15;
+    }
+    .list-card{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:18px;
+      padding:15px 14px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      box-shadow:0 7px 16px rgba(15,23,42,.05);
+      cursor:pointer;
+      transition:transform 180ms var(--ease);
+    }
+    .list-card:active{transform:scale(.975)}
+    .topbar{
+      margin:0 -18px 14px;
+      height:78px;
+      padding:0 18px;
+      background:rgba(255,255,255,.9);
+      border-bottom:1px solid rgba(219,230,240,.9);
+      border-radius:0 0 24px 24px;
+      display:flex;
+      align-items:center;
+      gap:14px;
+      box-shadow:0 8px 22px rgba(15,23,42,.06);
+    }
+    .back{
+      width:40px;
+      height:40px;
+      border:0;
+      background:transparent;
+      color:var(--purple);
+      font-size:22px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      cursor:pointer;
+      transition:transform 180ms var(--ease), background 180ms var(--ease);
+    }
+    .back:active{transform:scale(.9);background:#f5eefb}
+    .topbar h3{
+      margin:0;
+      flex:1;
+      text-align:center;
+      font-size:16px;
+    }
+    .protocol-card{
+      border:1px solid var(--line);
+      background:#fff;
+      border-radius:20px;
+      padding:17px 16px;
+      box-shadow:0 8px 20px rgba(15,23,42,.06);
+      opacity:0;
+      transform:translateY(12px);
+      animation:stackIn 420ms var(--ease) forwards;
+    }
+    .protocol-card:nth-child(3){animation-delay:80ms}
+    .protocol-card:nth-child(4){animation-delay:150ms}
+    @keyframes stackIn{to{opacity:1;transform:translateY(0)}}
+    .protocol-card h4{margin:0 0 9px;font-size:14px}
+    .protocol-card p{margin:0;color:#475569;font-size:13px;line-height:1.55}
+    .overlay{
+      position:absolute;
+      inset:0;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+      padding:14px;
+      background:rgba(15,23,42,.08);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity 260ms var(--ease), backdrop-filter 260ms var(--ease), background 260ms var(--ease);
+      backdrop-filter:blur(0);
+    }
+    .overlay.show{
+      opacity:1;
+      pointer-events:auto;
+      background:rgba(15,23,42,.42);
+      backdrop-filter:blur(12px);
+    }
+    .sheet{
+      width:100%;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.94);
+      border-radius:28px;
+      padding:22px 18px 18px;
+      box-shadow:0 24px 54px rgba(15,23,42,.24);
+      transform:translateY(34px) scale(.97);
+      opacity:0;
+      transition:transform 420ms var(--ease), opacity 260ms var(--ease);
+    }
+    .overlay.show .sheet{
+      transform:translateY(0) scale(1);
+      opacity:1;
+    }
+    .sheet-head{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      margin-bottom:14px;
+    }
+    .sheet-icon{
+      width:52px;
+      height:52px;
+      border-radius:18px;
+      display:grid;
+      place-items:center;
+      background:var(--purple-soft);
+      color:var(--purple);
+      font-size:28px;
+      flex:0 0 auto;
+    }
+    .sheet h3{
+      margin:0 0 5px;
+      font-size:20px;
+      line-height:1.12;
+    }
+    .sheet p{
+      margin:0;
+      color:#64748b;
+      font-size:13px;
+      line-height:1.45;
+    }
+    .sheet button{
+      width:100%;
+      min-height:50px;
+      border:0;
+      border-radius:999px;
+      background:var(--purple);
+      color:#fff;
+      font:inherit;
+      font-weight:900;
+      margin-top:16px;
+      cursor:pointer;
+      transition:transform 180ms var(--ease);
+    }
+    .sheet button:active{transform:scale(.97)}
+    @media(max-width:880px){
+      body{align-items:flex-start}
+      .stage{grid-template-columns:1fr}
+      .copy h1{font-size:29px}
+      .phone{height:720px}
+    }
+    @media(prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important}
+    }
+  </style>
+</head>
+<body>
+  <main class="stage">
+    <section class="copy">
+      <h1>Movimentos suaves, sensação de app nativo</h1>
+      <p>Essa simulação mostra como o OdontoDex pode ficar mais premium sem virar “animado demais”: transições curtas, blur no fundo, cards com resposta ao toque e conteúdo entrando em camadas.</p>
+      <div class="motion-list">
+        <div class="motion-item"><i class="ti ti-layers-intersect"></i><div><strong>Troca de tela com direção</strong><span>A tela antiga sai levemente para a esquerda e a nova entra pela direita, como navegação nativa.</span></div></div>
+        <div class="motion-item"><i class="ti ti-blur"></i><div><strong>Modal com blur e sheet</strong><span>O fundo escurece e desfoca de leve; o modal sobe com elasticidade discreta.</span></div></div>
+        <div class="motion-item"><i class="ti ti-hand-click"></i><div><strong>Toque com resposta física</strong><span>Cards e botões reduzem levemente no toque, dando sensação de controle e acabamento.</span></div></div>
+        <div class="motion-item"><i class="ti ti-search"></i><div><strong>Busca aparecendo em camadas</strong><span>Resultados entram com pequeno atraso entre eles, deixando a interface mais viva e organizada.</span></div></div>
+      </div>
+      <div class="controls">
+        <button class="demo-btn primary" onclick="demoModal()">Abrir modal</button>
+        <button class="demo-btn" onclick="goProtocol()">Trocar tela</button>
+        <button class="demo-btn" onclick="demoSearch()">Simular busca</button>
+        <button class="demo-btn" onclick="resetDemo()">Resetar</button>
+      </div>
+    </section>
+    <section class="phone" aria-label="Simulação OdontoDex">
+      <div class="app">
+        <div class="screen active" id="home-screen">
+          <div class="hero">
+            <div class="top-row">
+              <div class="status"><span class="status-dot"></span>Disponível agora</div>
+              <button class="gear" onclick="demoModal()"><i class="ti ti-settings"></i></button>
+            </div>
+            <div class="brand">
+              <div class="avatar"><i class="ti ti-dental"></i></div>
+              <div><h2>Olá, Dra. Marcela!</h2><p>O que aconteceu?</p></div>
+            </div>
+            <div class="search" id="search-box" onclick="demoSearch()">
+              <i class="ti ti-search"></i>
+              <input id="search-input" placeholder="Ex.: coroa caiu" readonly>
+            </div>
+            <div class="dropdown" id="dropdown">
+              <div class="result"><i class="ti ti-bolt"></i><div><strong>Coroa caiu</strong><span>Conduta rápida</span></div></div>
+              <div class="result"><i class="ti ti-clipboard-heart"></i><div><strong>Cimentação provisória</strong><span>Protocolo clínico</span></div></div>
+              <div class="result"><i class="ti ti-pill"></i><div><strong>Analgésico pós-operatório</strong><span>Prescrição</span></div></div>
+            </div>
+          </div>
+          <div class="section-label">Favoritos</div>
+          <div class="cards">
+            <div class="card" onclick="goProtocol()"><i class="ti ti-bolt"></i><strong>Fio dental não passa</strong></div>
+            <div class="card" onclick="goProtocol()"><i class="ti ti-bolt"></i><strong>Restauração ficou alta</strong></div>
+            <div class="card" onclick="goProtocol()"><i class="ti ti-bolt"></i><strong>Dente não anestesia</strong></div>
+          </div>
+          <div class="section-label">Explorar por área</div>
+          <div class="cards">
+            <div class="card"><i class="ti ti-dental"></i><strong>Dentística</strong></div>
+            <div class="card"><i class="ti ti-crown"></i><strong>Prótese</strong></div>
+            <div class="card"><i class="ti ti-first-aid-kit"></i><strong>S.O.S.</strong></div>
+          </div>
+          <div class="section-label">Sugestão</div>
+          <div class="list-card" onclick="demoModal()"><strong>Ver status do Premium</strong><i class="ti ti-chevron-right"></i></div>
+        </div>
+
+        <div class="screen" id="protocol-screen">
+          <div class="topbar">
+            <button class="back" onclick="goHome()"><i class="ti ti-arrow-left"></i></button>
+            <h3>O que fazer?</h3>
+            <div style="width:40px"></div>
+          </div>
+          <div class="protocol-card"><h4>Pino de Fibra + Núcleo em Resina</h4><p>Remover guta, provar o pino passivamente e lavar com NaOCl + EDTA antes da cimentação.</p></div>
+          <div class="protocol-card"><h4>Passo a passo</h4><p>Cada bloco entra em sequência, dando sensação de carregamento suave e leitura mais organizada.</p></div>
+          <div class="protocol-card"><h4>Decisão clínica</h4><p>Movimento não é enfeite: ele ajuda a orientar o olho e reduz a sensação de troca brusca.</p></div>
+        </div>
+      </div>
+      <div class="overlay" id="modal-overlay" onclick="closeModal()">
+        <div class="sheet" onclick="event.stopPropagation()">
+          <div class="sheet-head">
+            <div class="sheet-icon"><i class="ti ti-sparkles"></i></div>
+            <div><h3>Experiência mais fluida</h3><p>O modal sobe suavemente, o fundo desfoca e o botão responde ao toque. Parece mais app e menos página web.</p></div>
+          </div>
+          <button onclick="closeModal()">Entendido</button>
+        </div>
+      </div>
+    </section>
+  </main>
+  <script>
+    const home = document.getElementById("home-screen");
+    const protocol = document.getElementById("protocol-screen");
+    const overlay = document.getElementById("modal-overlay");
+    const dropdown = document.getElementById("dropdown");
+    const searchBox = document.getElementById("search-box");
+    const searchInput = document.getElementById("search-input");
+
+    function goProtocol(){
+      dropdown.classList.remove("show");
+      searchBox.classList.remove("focus");
+      home.classList.add("exit-left");
+      home.classList.remove("active");
+      protocol.classList.add("active");
+    }
+    function goHome(){
+      protocol.classList.remove("active");
+      home.classList.remove("exit-left");
+      home.classList.add("active");
+    }
+    function demoModal(){ overlay.classList.add("show"); }
+    function closeModal(){ overlay.classList.remove("show"); }
+    function demoSearch(){
+      goHome();
+      searchBox.classList.add("focus");
+      searchInput.value = "coroa caiu";
+      dropdown.classList.add("show");
+    }
+    function resetDemo(){
+      closeModal();
+      goHome();
+      dropdown.classList.remove("show");
+      searchBox.classList.remove("focus");
+      searchInput.value = "";
+    }
+  </script>
+</body>
+</html>
