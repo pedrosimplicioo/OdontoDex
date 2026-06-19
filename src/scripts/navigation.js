@@ -34,6 +34,58 @@ function _activateScreen(id) {
   if(tab) tab.classList.add("active");
 }
 
+function markHomeNavigationMotion() {
+  document.body.classList.add("home-nav-forward");
+  clearTimeout(window.__homeNavMotionTimer);
+  window.__homeNavMotionTimer = setTimeout(() => {
+    document.body.classList.remove("home-nav-forward");
+  }, 520);
+}
+
+const HOME_PRESS_TARGET_SELECTOR = [
+  ".gear-btn",
+  ".home-favorite-chip",
+  ".home-favorite-empty",
+  ".cat-horizontal",
+  ".quick-btn",
+  ".home-tool-card",
+  ".home-prescricoes-card",
+  ".home-prescricoes-item",
+  ".quick-conduct-card"
+].join(",");
+
+function getHomePressTarget(event) {
+  const home = document.getElementById("screen-app");
+  if(!home || !home.classList.contains("active")) return null;
+  const target = event.target?.closest?.(HOME_PRESS_TARGET_SELECTOR);
+  return target && home.contains(target) ? target : null;
+}
+
+function releaseHomePressTarget(target) {
+  if(!target) return;
+  setTimeout(() => target.classList.remove("home-pressing"), 120);
+}
+
+document.addEventListener("pointerdown", event => {
+  const target = getHomePressTarget(event);
+  if(!target) return;
+  target.classList.add("home-pressing");
+}, {passive:true});
+
+["pointerup", "pointercancel", "pointerleave"].forEach(type => {
+  document.addEventListener(type, event => {
+    releaseHomePressTarget(getHomePressTarget(event));
+  }, {passive:true});
+});
+
+document.addEventListener("click", event => {
+  const target = getHomePressTarget(event);
+  if(!target) return;
+  target.classList.add("home-pressing");
+  releaseHomePressTarget(target);
+  markHomeNavigationMotion();
+}, true);
+
 function _renderScreen(id) {
   if(id === "home")        {
     if(!document.getElementById("categories-scroll")) { setTimeout(()=>_renderScreen("home"),80); return; }
@@ -62,6 +114,7 @@ function goScreen(id) {
   // "screen-app" é a home — normaliza para "home" antes de empilhar
   const rawCurrent = document.querySelector(".screen.active")?.id?.replace("screen-","");
   const current = (rawCurrent === "app") ? "home" : rawCurrent;
+  if(current === "home" && id !== "home") markHomeNavigationMotion();
   if(current && current !== id && current !== "login") {
     navigationHistory.push(current);
   }
