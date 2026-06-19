@@ -1124,6 +1124,96 @@ body.dark .payment-security-txt {
 }
 .cancel-reason-btn .ti{font-size:17px;line-height:1;vertical-align:-3px;margin-right:6px;color:inherit;}
 
+/* Home motion: pressao sutil no botao e entrada lateral tipo app nativo. */
+body.home-nav-forward .screen.active{
+  animation:homePushEnter 430ms var(--motion-ease-out) both;
+}
+@keyframes homePushEnter{
+  from{opacity:0;transform:translate3d(28px,0,0);}
+  to{opacity:1;transform:translate3d(0,0,0);}
+}
+
+.gear-btn,
+.home-favorite-chip,
+.home-favorite-empty,
+.cat-horizontal,
+.quick-btn,
+.home-tool-card,
+.home-prescricoes-card,
+.home-prescricoes-item,
+.quick-conduct-card{
+  transform-origin:center;
+  transition:transform 150ms var(--motion-ease-press),box-shadow 260ms var(--motion-ease-out),border-color 160ms ease,background-color 160ms ease,opacity 160ms ease;
+}
+
+.gear-btn.home-pressing,
+.gear-btn:active,
+.home-favorite-chip.home-pressing,
+.home-favorite-chip:active,
+.home-favorite-empty.home-pressing,
+.home-favorite-empty:active,
+.cat-horizontal.home-pressing,
+.cat-horizontal:active,
+.quick-btn.home-pressing,
+.quick-btn:active,
+.home-tool-card.home-pressing,
+.home-tool-card:active,
+.home-prescricoes-card.home-pressing,
+.home-prescricoes-card:active,
+.home-prescricoes-item.home-pressing,
+.home-prescricoes-item:active,
+.quick-conduct-card.home-pressing,
+.quick-conduct-card:active{
+  transform:translateY(1px) scale(.965);
+  border-color:rgba(124,63,160,0.30);
+  box-shadow:0 1px 3px rgba(15,23,42,0.06),inset 0 2px 7px rgba(15,23,42,0.08),inset 0 0 0 1px rgba(124,63,160,0.07);
+}
+
+.gear-btn .ti,
+.home-favorite-icon,
+.cat-horizontal-icon,
+.quick-btn-icon,
+.home-mini-icon,
+.home-title-icon,
+.quick-conduct-icon{
+  transition:transform 190ms var(--motion-ease-press),background-color 190ms ease,color 190ms ease,box-shadow 190ms var(--motion-ease-out);
+}
+
+.gear-btn.home-pressing .ti,
+.gear-btn:active .ti,
+.home-favorite-chip.home-pressing .home-favorite-icon,
+.home-favorite-chip:active .home-favorite-icon,
+.cat-horizontal.home-pressing .cat-horizontal-icon,
+.cat-horizontal:active .cat-horizontal-icon,
+.quick-btn.home-pressing .quick-btn-icon,
+.quick-btn:active .quick-btn-icon,
+.home-tool-card.home-pressing .home-mini-icon,
+.home-tool-card:active .home-mini-icon,
+.home-prescricoes-card.home-pressing .home-title-icon,
+.home-prescricoes-card:active .home-title-icon,
+.home-prescricoes-item.home-pressing .home-mini-icon,
+.home-prescricoes-item:active .home-mini-icon,
+.quick-conduct-card.home-pressing .quick-conduct-icon,
+.quick-conduct-card:active .quick-conduct-icon{
+  transform:scale(.86) translateY(1px);
+  background:#7C3FA0;
+  color:#fff;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,0.14),0 4px 10px rgba(124,63,160,0.18);
+}
+
+.quick-btn.home-pressing .quick-btn-icon,
+.quick-btn:active .quick-btn-icon{
+  background:#991B1B;
+  color:#fff;
+  box-shadow:inset 0 2px 6px rgba(0,0,0,0.14),0 4px 10px rgba(153,27,27,0.16);
+}
+
+@media (prefers-reduced-motion: reduce){
+  body.home-nav-forward .screen.active{
+    animation:none!important;
+  }
+}
+
 /* Movimento suave do app: microinterações e entradas discretas, sem alterar layout ou fluxo. */
 .quick-card,
 .stats-card,
