@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v11-home-motion';
+const CACHE_NAME = 'odontodex-v19-press-feedback';
 
 const ARQUIVOS = [
   '/',
