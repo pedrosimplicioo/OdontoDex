@@ -34,12 +34,24 @@ function _activateScreen(id) {
   if(tab) tab.classList.add("active");
 }
 
-function markHomeNavigationMotion() {
-  document.body.classList.add("home-nav-forward");
-  clearTimeout(window.__homeNavMotionTimer);
-  window.__homeNavMotionTimer = setTimeout(() => {
-    document.body.classList.remove("home-nav-forward");
+function markForwardNavigationMotion() {
+  document.body.classList.remove("nav-back");
+  clearTimeout(window.__backNavMotionTimer);
+  document.body.classList.add("nav-forward");
+  clearTimeout(window.__forwardNavMotionTimer);
+  window.__forwardNavMotionTimer = setTimeout(() => {
+    document.body.classList.remove("nav-forward");
   }, 520);
+}
+
+function markBackNavigationMotion() {
+  document.body.classList.remove("nav-forward");
+  clearTimeout(window.__forwardNavMotionTimer);
+  document.body.classList.add("nav-back");
+  clearTimeout(window.__backNavMotionTimer);
+  window.__backNavMotionTimer = setTimeout(() => {
+    document.body.classList.remove("nav-back");
+  }, 440);
 }
 
 const HOME_PRESS_TARGET_SELECTOR = [
@@ -83,7 +95,6 @@ document.addEventListener("click", event => {
   if(!target) return;
   target.classList.add("home-pressing");
   releaseHomePressTarget(target);
-  markHomeNavigationMotion();
 }, true);
 
 function _renderScreen(id) {
@@ -114,7 +125,7 @@ function goScreen(id) {
   // "screen-app" é a home — normaliza para "home" antes de empilhar
   const rawCurrent = document.querySelector(".screen.active")?.id?.replace("screen-","");
   const current = (rawCurrent === "app") ? "home" : rawCurrent;
-  if(current === "home" && id !== "home") markHomeNavigationMotion();
+  if(current && current !== id && current !== "login") markForwardNavigationMotion();
   if(current && current !== id && current !== "login") {
     navigationHistory.push(current);
   }
@@ -129,10 +140,12 @@ function goBackToLastScreen() {
     const last = navigationHistory.pop();
     // "home" e "app" são a mesma tela
     const target = (last === "app") ? "home" : last;
+    markBackNavigationMotion();
     _activateScreen(target);
     _renderScreen(target);
     scheduleScreenTop(target);
   } else {
+    markBackNavigationMotion();
     _activateScreen("home");
     _renderScreen("home");
     scheduleScreenTop("home");

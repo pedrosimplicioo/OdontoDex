@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OdontoDex - Simulação de modais</title>
+  <style>
+    :root{
+      --bg:#EEF3F8;
+      --text:#0F172A;
+      --muted:#64748B;
+      --line:#DDE7F2;
+      --card:#FFFFFF;
+      --purple:#7C3FA0;
+      --purple-soft:#F5EEFB;
+      --amber:#F59E0B;
+      --red:#DC2626;
+      --green:#16A34A;
+      --ease:cubic-bezier(.2,.8,.2,1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+    body{
+      min-height:100vh;
+      background:var(--bg);
+      color:var(--text);
+      font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+      display:flex;
+      justify-content:center;
+    }
+    .app{
+      width:100%;
+      max-width:430px;
+      min-height:100vh;
+      background:var(--bg);
+      position:relative;
+      overflow:hidden;
+      box-shadow:0 0 0 1px rgba(15,23,42,.08);
+    }
+    .hero{
+      background:radial-gradient(circle at 50% -30%,rgba(124,63,160,.10),transparent 60%),#fff;
+      padding:34px 20px 24px;
+      border-radius:0 0 28px 28px;
+      box-shadow:0 18px 38px rgba(15,23,42,.11);
+    }
+    .kicker{
+      color:#94A3B8;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+      margin-bottom:10px;
+    }
+    h1{
+      font-size:26px;
+      line-height:1.08;
+      letter-spacing:0;
+      margin-bottom:8px;
+    }
+    .hero p{
+      color:var(--muted);
+      font-size:14px;
+      line-height:1.48;
+      max-width:340px;
+    }
+    .body{
+      padding:18px 16px 28px;
+      display:flex;
+      flex-direction:column;
+      gap:12px;
+    }
+    .preview-card{
+      background:#fff;
+      border:1px solid var(--line);
+      border-radius:20px;
+      padding:14px;
+      display:grid;
+      grid-template-columns:44px 1fr;
+      gap:12px;
+      align-items:center;
+      box-shadow:0 10px 24px rgba(15,23,42,.07);
+      cursor:pointer;
+      transition:transform 170ms var(--ease),box-shadow 170ms var(--ease),background 170ms var(--ease);
+    }
+    .preview-card:active{
+      transform:translateY(1px) scale(.985);
+      box-shadow:0 5px 12px rgba(15,23,42,.08);
+      background:#FBFCFE;
+    }
+    .preview-icon{
+      width:44px;
+      height:44px;
+      border-radius:16px;
+      display:grid;
+      place-items:center;
+      font-size:22px;
+      font-weight:900;
+    }
+    .preview-icon.purple{background:var(--purple-soft);color:var(--purple);}
+    .preview-icon.amber{background:#FFF7ED;color:#B45309;}
+    .preview-icon.red{background:#FEF2F2;color:var(--red);}
+    .preview-icon.green{background:#ECFDF5;color:var(--green);}
+    .preview-copy h2{
+      font-size:15px;
+      line-height:1.2;
+      margin-bottom:3px;
+    }
+    .preview-copy p{
+      color:var(--muted);
+      font-size:12px;
+      line-height:1.36;
+    }
+    .stage-label{
+      color:#94A3B8;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      margin:10px 2px 0;
+    }
+    .overlay{
+      position:fixed;
+      inset:0;
+      display:flex;
+      justify-content:center;
+      padding:18px 14px;
+      background:rgba(15,23,42,0);
+      opacity:0;
+      visibility:hidden;
+      pointer-events:none;
+      transition:opacity 260ms var(--ease),background 260ms var(--ease),backdrop-filter 260ms var(--ease),visibility 260ms var(--ease);
+      z-index:20;
+      backdrop-filter:blur(0);
+    }
+    .overlay.show{
+      opacity:1;
+      visibility:visible;
+      pointer-events:auto;
+      background:rgba(15,23,42,.50);
+      backdrop-filter:blur(7px);
+    }
+    .overlay.center{align-items:center;}
+    .overlay.bottom{align-items:flex-end;padding-bottom:0;}
+    .modal{
+      width:100%;
+      max-width:430px;
+      background:#fff;
+      border:1px solid rgba(226,232,240,.96);
+      box-shadow:0 24px 58px rgba(15,23,42,.24);
+      will-change:transform,opacity;
+    }
+    .modal.center-card{
+      border-radius:28px;
+      padding:22px 18px 18px;
+      opacity:0;
+      transform:translate3d(0,10px,0) scale(.985);
+      transition:opacity 300ms var(--ease),transform 300ms var(--ease);
+    }
+    .overlay.show .modal.center-card{
+      opacity:1;
+      transform:translate3d(0,0,0) scale(1);
+    }
+    .modal.bottom-card{
+      border-radius:28px 28px 0 0;
+      padding:24px 20px 28px;
+      opacity:1;
+      transform:translate3d(0,26px,0);
+      transition:transform 340ms var(--ease);
+    }
+    .overlay.show .modal.bottom-card{transform:translate3d(0,0,0);}
+    .modal.premium{
+      background:#10081B;
+      color:#fff;
+      border:0;
+      overflow:hidden;
+      padding:0 0 24px;
+    }
+    .prem-hero{
+      background:radial-gradient(circle at 50% -25%,rgba(251,191,36,.22),transparent 45%),linear-gradient(160deg,#160322 0%,#3B0E57 58%,#5C2388 100%);
+      padding:24px 20px 20px;
+      text-align:center;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      border-radius:999px;
+      padding:7px 11px;
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      background:rgba(251,191,36,.18);
+      color:#FDE68A;
+      margin-bottom:12px;
+    }
+    .price{
+      display:flex;
+      justify-content:center;
+      align-items:flex-end;
+      gap:8px;
+      margin:10px 0 6px;
+    }
+    .price strong{font-size:46px;line-height:.9;}
+    .price span{color:#D8B4FE;font-size:13px;font-weight:800;margin-bottom:4px;}
+    .old-price{
+      color:rgba(255,255,255,.58);
+      font-size:13px;
+      text-decoration:line-through;
+      margin-bottom:14px;
+      text-align:center;
+    }
+    .prem-body{padding:18px 20px 0;}
+    .feature{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      color:rgba(255,255,255,.84);
+      font-size:13px;
+      line-height:1.38;
+      margin-bottom:10px;
+    }
+    .check{color:#FBBF24;font-weight:900;}
+    .head-row{
+      display:flex;
+      gap:14px;
+      align-items:flex-start;
+      margin-bottom:14px;
+    }
+    .modal-icon{
+      width:54px;
+      height:54px;
+      border-radius:19px;
+      display:grid;
+      place-items:center;
+      flex:0 0 auto;
+      font-size:27px;
+      font-weight:900;
+    }
+    .modal-icon.amber{background:#FFF7ED;border:1px solid rgba(245,158,11,.28);color:#B45309;}
+    .modal-icon.purple{background:var(--purple-soft);border:1px solid rgba(124,63,160,.16);color:var(--purple);}
+    .modal-icon.red{background:#FEF2F2;border:1px solid rgba(220,38,38,.16);color:var(--red);}
+    .modal h3{
+      font-size:20px;
+      line-height:1.13;
+      margin-bottom:5px;
+      letter-spacing:0;
+    }
+    .modal p{
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.45;
+    }
+    .info-box{
+      border:1px solid rgba(124,63,160,.16);
+      background:#FAF7FD;
+      border-radius:18px;
+      padding:14px;
+      margin:14px 0;
+      color:#334155;
+      font-size:13px;
+      line-height:1.42;
+      font-weight:700;
+    }
+    .code-input{
+      width:100%;
+      height:56px;
+      border:1.5px solid #D8B4FE;
+      border-radius:16px;
+      background:#fff;
+      color:#0F172A;
+      font-size:26px;
+      font-weight:900;
+      letter-spacing:8px;
+      text-align:center;
+      margin:14px 0 8px;
+    }
+    .ios-panel{
+      background:#F8FAFC;
+      border:1px solid #E2E8F0;
+      border-radius:18px;
+      padding:16px;
+      margin:16px 0;
+      color:#334155;
+      font-size:13px;
+      line-height:1.7;
+    }
+    .ios-panel b{
+      color:var(--purple);
+      display:block;
+      text-transform:uppercase;
+      letter-spacing:.05em;
+      font-size:12px;
+      margin-bottom:6px;
+    }
+    .actions{
+      display:flex;
+      flex-direction:column;
+      gap:10px;
+      margin-top:14px;
+    }
+    button{
+      border:0;
+      border-radius:999px;
+      min-height:48px;
+      font-family:inherit;
+      font-size:14px;
+      font-weight:900;
+      cursor:pointer;
+    }
+    .primary{background:var(--purple);color:#fff;box-shadow:0 10px 22px rgba(124,63,160,.22);}
+    .danger{background:#FEF2F2;color:#991B1B;}
+    .ghost{background:transparent;color:#64748B;min-height:38px;}
+    .premium .primary{background:#FBBF24;color:#2E1065;}
+    .micro-note{
+      color:#94A3B8;
+      font-size:11px;
+      text-align:center;
+      line-height:1.35;
+      margin-top:8px;
+    }
+    @media (prefers-reduced-motion:reduce){
+      *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;}
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <section class="hero">
+      <div class="kicker">Simulação de movimento</div>
+      <h1>Entrada dos modais do OdontoDex</h1>
+      <p>Toque em cada opção para ver a animação proposta. Esta página é só uma simulação e não altera o app principal.</p>
+    </section>
+
+    <section class="body">
+      <div class="stage-label">Comerciais</div>
+      <article class="preview-card" data-open="premium">
+        <div class="preview-icon purple">R$</div>
+        <div class="preview-copy">
+          <h2>Premium</h2>
+          <p>Entra de baixo, com presença comercial e sem salto.</p>
+        </div>
+      </article>
+
+      <article class="preview-card" data-open="trial">
+        <div class="preview-icon amber">!</div>
+        <div class="preview-copy">
+          <h2>Trial já utilizado</h2>
+          <p>Central, calmo e claro, para aviso importante.</p>
+        </div>
+      </article>
+
+      <div class="stage-label">Conta e acesso</div>
+      <article class="preview-card" data-open="code">
+        <div class="preview-icon purple">#</div>
+        <div class="preview-copy">
+          <h2>Código de email</h2>
+          <p>Central e estável, sem parecer bloqueio agressivo.</p>
+        </div>
+      </article>
+
+      <article class="preview-card" data-open="ios">
+        <div class="preview-icon purple">+</div>
+        <div class="preview-copy">
+          <h2>Instalação iOS</h2>
+          <p>Central, instrutivo, com entrada curta e limpa.</p>
+        </div>
+      </article>
+
+      <div class="stage-label">Confirmações</div>
+      <article class="preview-card" data-open="cancel">
+        <div class="preview-icon red">×</div>
+        <div class="preview-copy">
+          <h2>Cancelamento</h2>
+          <p>Entra de baixo porque é uma decisão do usuário.</p>
+        </div>
+      </article>
+
+      <article class="preview-card" data-open="pix">
+        <div class="preview-icon green">✓</div>
+        <div class="preview-copy">
+          <h2>Pix / aviso simples</h2>
+          <p>Modal padrão inferior, curto e sem dramatizar.</p>
+        </div>
+      </article>
+    </section>
+  </main>
+
+  <div class="overlay bottom" id="premium">
+    <section class="modal bottom-card premium">
+      <div class="prem-hero">
+        <div class="badge">Preço promocional</div>
+        <h3>Assine o Premium</h3>
+        <div class="price"><strong>R$9,90</strong><span>/mês</span></div>
+        <div class="old-price">Valor real: R$19,90/mês</div>
+        <button class="primary" data-close>Assinar Premium</button>
+      </div>
+      <div class="prem-body">
+        <div class="feature"><span class="check">✓</span><span>Condutas rápidas, protocolos, prescrições e S.O.S. clínico completos.</span></div>
+        <div class="feature"><span class="check">✓</span><span>Uma referência rápida para decidir com mais segurança no atendimento.</span></div>
+      </div>
+    </section>
+  </div>
+
+  <div class="overlay center" id="trial">
+    <section class="modal center-card">
+      <div class="head-row">
+        <div class="modal-icon amber">!</div>
+        <div>
+          <h3>Teste grátis já utilizado</h3>
+          <p>Este email já usou os 7 dias de Premium grátis. Sua conta continua ativa no plano gratuito.</p>
+        </div>
+      </div>
+      <div class="info-box">Você ainda pode acessar todos os conteúdos liberados do plano grátis. Para continuar com condutas completas, assine o Premium.</div>
+      <div class="actions">
+        <button class="primary" data-close>Ativar o Premium</button>
+        <button class="ghost" data-close>Continuar no plano grátis</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="overlay center" id="code">
+    <section class="modal center-card">
+      <div class="head-row">
+        <div class="modal-icon purple">#</div>
+        <div>
+          <h3>Digite o código</h3>
+          <p>Enviamos um código de 6 dígitos para confirmar seu email sem sair do app.</p>
+        </div>
+      </div>
+      <input class="code-input" value="123456" readonly>
+      <p class="micro-note">Erros aparecem logo abaixo do campo, sem fechar o modal.</p>
+      <div class="actions">
+        <button class="primary" data-close>Verificar email</button>
+        <button class="ghost" data-close>Reenviar em 60s</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="overlay center" id="ios">
+    <section class="modal center-card">
+      <div class="head-row">
+        <div class="modal-icon purple">+</div>
+        <div>
+          <h3>Instalar como app</h3>
+          <p>Adicione o OdontoDex à tela inicial para abrir como aplicativo no iPhone.</p>
+        </div>
+      </div>
+      <div class="ios-panel">
+        <b>No Safari</b>
+        Toque em Compartilhar na barra inferior.<br>
+        Escolha "Adicionar à Tela Inicial".<br>
+        Confirme em Adicionar.
+      </div>
+      <button class="primary" data-close>Entendido</button>
+    </section>
+  </div>
+
+  <div class="overlay bottom" id="cancel">
+    <section class="modal bottom-card">
+      <div class="head-row">
+        <div class="modal-icon red">×</div>
+        <div>
+          <h3>Cancelar renovação?</h3>
+          <p>Você mantém o acesso Premium até o fim do período já pago.</p>
+        </div>
+      </div>
+      <div class="info-box">Depois disso, sua conta volta automaticamente ao plano gratuito.</div>
+      <div class="actions">
+        <button class="danger" data-close>Cancelar renovação</button>
+        <button class="ghost" data-close>Manter Premium</button>
+      </div>
+    </section>
+  </div>
+
+  <div class="overlay bottom" id="pix">
+    <section class="modal bottom-card">
+      <div class="head-row">
+        <div class="modal-icon purple">✓</div>
+        <div>
+          <h3>Pix gerado</h3>
+          <p>Use este padrão para avisos simples, status de Pix e mensagens rápidas do app.</p>
+        </div>
+      </div>
+      <div class="info-box">O movimento é curto, vindo de baixo, sem chamar mais atenção do que o conteúdo precisa.</div>
+      <button class="primary" data-close>Fechar</button>
+    </section>
+  </div>
+
+  <script>
+    const overlays = [...document.querySelectorAll(".overlay")];
+    function openModal(id){
+      overlays.forEach(overlay => overlay.classList.remove("show"));
+      const overlay = document.getElementById(id);
+      if(!overlay) return;
+      requestAnimationFrame(() => overlay.classList.add("show"));
+    }
+    function closeModal(overlay){
+      overlay.classList.remove("show");
+    }
+    document.querySelectorAll("[data-open]").forEach(card => {
+      card.addEventListener("click", () => openModal(card.dataset.open));
+    });
+    overlays.forEach(overlay => {
+      overlay.addEventListener("click", event => {
+        if(event.target === overlay) closeModal(overlay);
+      });
+    });
+    document.querySelectorAll("[data-close]").forEach(button => {
+      button.addEventListener("click", event => closeModal(event.target.closest(".overlay")));
+    });
+  </script>
+</body>
+</html>
