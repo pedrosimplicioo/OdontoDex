@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v7-code-copy-fix';
+const CACHE_NAME = 'odontodex-v10-soft-motion';
 
 const ARQUIVOS = [
   '/',

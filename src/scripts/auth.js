@@ -41,6 +41,13 @@ function showAppScreen(){
           window._mensagemPendente = null;
           setTimeout(() => mostrarModalTrialManual(), 1000);
         }
+
+        const shouldShowTrialUsed = window._trialJaUtilizado === true || localStorage.getItem("showTrialUsedModalOnce") === "1";
+        if(shouldShowTrialUsed) {
+          window._trialJaUtilizado = false;
+          localStorage.removeItem("showTrialUsedModalOnce");
+          setTimeout(() => showTrialUsedModal(), 900);
+        }
       });
     });
 }
@@ -279,7 +286,8 @@ async function activateTrialAfterEmailVerified(options){
   if(response.ok && (data.status === "user_trial_used" || data.status === "email_trial_used")){
     window.userIsPremium=false;
     localStorage.setItem("userIsPremium","false");
-    showToast("Este email já utilizou o teste Premium. Sua conta continuará na versão gratuita.","error");
+    window._trialJaUtilizado=true;
+    localStorage.setItem("showTrialUsedModalOnce","1");
     return {ok:true, status:data.status};
   }
   throw new Error(data.error || "Não foi possível liberar o trial.");
@@ -336,6 +344,27 @@ async function logoutForAnotherEmail(){
   localStorage.removeItem("userIsPremium");
   showLoginScreen();
 }
+
+function showTrialUsedModal(){
+  const overlay=document.getElementById("trial-used-overlay");
+  if(!overlay)return;
+  overlay.classList.add("active");
+}
+
+function closeTrialUsedModal(){
+  const overlay=document.getElementById("trial-used-overlay");
+  if(overlay) overlay.classList.remove("active");
+}
+
+function activatePremiumFromTrialUsed(){
+  closeTrialUsedModal();
+  if(typeof showOverlay === "function") showOverlay("premium-overlay");
+  else {
+    const premium=document.getElementById("premium-overlay");
+    if(premium) premium.classList.add("active");
+  }
+}
+
 async function doLoginGoogle(){
   const provider = new firebase.auth.GoogleAuthProvider();
   const err=document.getElementById("login-error");
@@ -367,7 +396,11 @@ async function doLoginGoogle(){
       document.getElementById('gw-btn-estudante').className = 'select-btn';
       document.getElementById('gw-bloco-trat').style.display = 'none';
       gwValidarBotao();
-      document.getElementById('google-welcome-overlay').style.display = 'flex';
+      const googleWelcomeOverlay = document.getElementById('google-welcome-overlay');
+      if (googleWelcomeOverlay) {
+        googleWelcomeOverlay.style.display = 'flex';
+        requestAnimationFrame(() => googleWelcomeOverlay.classList.add('active'));
+      }
     } else {
       if(res.user.emailVerified && docGoogle.data().trialAtivado !== true) {
         try { await activateTrialAfterEmailVerified({showSuccess:true}); } catch(e) { console.log(e); }
@@ -517,7 +550,11 @@ async function gwConfirmar() {
     metaGoogleRegistrationCompleted = true;
   } catch(e) { console.log(e); }
   hideLoading();
-  document.getElementById('google-welcome-overlay').style.display = 'none';
+  const googleWelcomeOverlay = document.getElementById('google-welcome-overlay');
+  if (googleWelcomeOverlay) {
+    googleWelcomeOverlay.classList.remove('active');
+    setTimeout(() => { googleWelcomeOverlay.style.display = 'none'; }, 260);
+  }
   // Evento Meta Pixel: CompleteRegistration após finalizar cadastro Google.
   if (metaGoogleRegistrationCompleted && typeof trackMetaCompleteRegistrationOnce === "function") {
     trackMetaCompleteRegistrationOnce(currentUser?.uid, "google");

@@ -15,7 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<link rel="stylesheet" href="src/styles/app.css">
+<link rel="stylesheet" href="src/styles/app.css?v=20260618-soft-motion">
 </head>
 <body>
 <!-- AVISO IN-APP BROWSER -->
@@ -120,6 +120,25 @@
         <button class="btn btn-text" onclick="logoutForAnotherEmail()">Sair e usar outro email</button>
       </div>
     </div>
+  </div>
+</div>
+<!-- TRIAL JÁ UTILIZADO MODAL -->
+<div class="overlay trial-used-overlay" id="trial-used-overlay">
+  <div class="trial-used-modal" onclick="event.stopPropagation()">
+    <div class="trial-used-head">
+      <div class="trial-used-icon"><i class="ti ti-clock-exclamation"></i></div>
+      <div>
+        <h2>Teste grátis já utilizado</h2>
+        <p>Este email já usou os 7 dias de Premium grátis. Sua conta continua ativa no plano gratuito.</p>
+      </div>
+    </div>
+    <div class="trial-used-info">
+      <div class="trial-used-row"><span class="trial-used-dot"></span><span>Você ainda pode acessar todos os conteúdos liberados do plano grátis.</span></div>
+      <div class="trial-used-row"><span class="trial-used-dot"></span><span>Para continuar com condutas completas, protocolos, prescrições e S.O.S. clínico, assine o Premium.</span></div>
+    </div>
+    <button class="trial-used-primary" onclick="activatePremiumFromTrialUsed()">Ativar o Premium</button>
+    <button class="trial-used-secondary" onclick="closeTrialUsedModal()">Continuar no plano grátis</button>
+    <p class="trial-used-note">Nenhuma cobrança é feita automaticamente nesta etapa.</p>
   </div>
 </div>
 <!-- MODAL BOAS-VINDAS GOOGLE -->
@@ -529,14 +548,27 @@
 
     <!-- Hero -->
     <div class="prem-hero">
-      <div class="prem-hero-orb prem-orb1"></div>
-      <div class="prem-hero-orb prem-orb2"></div>
-      <div class="prem-hero-orb prem-orb3"></div>
       <button class="prem-close" onclick="hideOverlay('premium-overlay')">✕</button>
-      <div class="prem-badge-top">MODO PREMIUM</div>
-      <div class="prem-crown"><i class="ti ti-lock"></i></div>
-      <div class="prem-hero-title">Atenda com mais<br>segurança e velocidade</div>
-      <div class="prem-hero-sub">+50 protocolos clínicos prontos para usar.<br>Decisão certa na hora certa.</div>
+      <div class="prem-badge-top"><i class="ti ti-discount-2"></i> OFERTA PROMOCIONAL</div>
+      <div class="prem-hero-title">Continue com acesso Premium</div>
+      <div class="prem-hero-sub">Mantenha condutas, protocolos, prescrições e S.O.S. clínico disponíveis durante o atendimento.</div>
+    </div>
+
+    <!-- Preço -->
+    <div class="prem-price-wrap">
+      <div class="prem-price-inner">
+        <div class="prem-price-ribbon">50% OFF por tempo limitado</div>
+        <div class="prem-price-real">Valor real: <s>R$ 19,90/mês</s></div>
+        <div class="prem-price-row">
+          <div class="prem-price-main">R$<span class="prem-price-num">9</span><span class="prem-price-cents">,90</span></div>
+        </div>
+        <div class="prem-price-period">por mês no preço promocional</div>
+        <div class="prem-saving-row">
+          <span>Economize R$ 10/mês</span>
+          <span>R$ 0,33 por dia</span>
+        </div>
+        <div class="prem-price-note"><strong>Assinatura mensal recorrente.</strong><br>Valor promocional de R$ 9,90/mês por tempo limitado.</div>
+      </div>
     </div>
 
     <!-- O que está bloqueado -->
@@ -612,27 +644,13 @@
       </div>
     </div>
 
-    <!-- Preço -->
-    <div class="prem-price-wrap">
-      <div class="prem-price-inner">
-        <div class="prem-price-tag">ACESSO TOTAL</div>
-        <div class="prem-price-row">
-          <div class="prem-price-main">R$<span class="prem-price-num">9</span><span class="prem-price-cents">,90</span></div>
-          <div class="prem-price-aside">
-            <div class="prem-price-period">por mês</div>
-            <div class="prem-price-day">- R$0,50/dia</div>
-          </div>
-        </div>
-      </div>
-    </div>
-
     <!-- CTA -->
     <div class="prem-cta-wrap">
       <button class="prem-cta-btn" onclick="abrirTelaPayment()">
-         <span>Ver opções de pagamento</span>
+         <span>Assinar Premium por R$ 9,90</span>
          <span class="prem-cta-arrow">→</span>
        </button>
-      <div class="prem-cta-fine">Pix avulso ou assinatura mensal no cartão</div>
+      <div class="prem-cta-fine">Pagamento seguro. Assinatura mensal recorrente no cartão; Pix disponível como acesso avulso.</div>
       <button class="prem-skip-btn" onclick="hideOverlay('premium-overlay')">Continuar com versão gratuita</button>
     </div>
 
@@ -816,9 +834,9 @@
 <script src="src/scripts/search.js" defer></script>
 <script src="src/components/pulpite.js" defer></script>
 <script src="src/components/crisis.js" defer></script>
-<script src="src/scripts/auth.js?v=20260617-code-copy-fix" defer></script>
-<script src="src/scripts/pwa.js?v=20260617-code-copy-fix" defer></script>
-<script src="src/scripts/app-init.js?v=20260617-code-copy-fix" defer></script>
+<script src="src/scripts/auth.js?v=20260618-soft-motion" defer></script>
+<script src="src/scripts/pwa.js?v=20260618-premium-price-modal" defer></script>
+<script src="src/scripts/app-init.js?v=20260618-premium-price-modal" defer></script>
 <script src="src/scripts/premium.js" defer></script>
 <script src="src/components/student-banner.js" defer></script>
 <script src="src/scripts/payments.js" defer></script>
