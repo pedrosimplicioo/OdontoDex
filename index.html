@@ -15,7 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<link rel="stylesheet" href="src/styles/app.css?v=20260619-press-feedback">
+<link rel="stylesheet" href="src/styles/app.css?v=20260620-search-sheet-drag">
 </head>
 <body>
 <!-- AVISO IN-APP BROWSER -->
@@ -322,7 +322,7 @@
 <div class="search-sheet-layer" id="search-sheet-layer" aria-hidden="true">
   <div class="search-sheet-backdrop" onclick="closeSearchBottomSheet()"></div>
   <article class="search-bottom-sheet" id="search-bottom-sheet" aria-label="Detalhe da busca">
-    <div class="search-sheet-handle" aria-hidden="true"></div>
+    <div class="search-sheet-handle" id="search-sheet-handle" role="button" tabindex="0" aria-label="Arrastar para fechar"></div>
     <button class="search-sheet-back" id="search-sheet-back" type="button" onclick="goBackSearchBottomSheet()" aria-label="Voltar"><i class="ti ti-arrow-left"></i></button>
     <button class="search-sheet-close" type="button" onclick="closeSearchBottomSheet()" aria-label="Fechar">✕</button>
     <div class="search-sheet-kind" id="search-sheet-kind"></div>
@@ -823,16 +823,16 @@
 <script src="src/scripts/meta-pixel.js" defer></script>
 <script src="src/scripts/analytics.js" defer></script>
 <script src="src/utils/storage.js" defer></script>
-<script src="src/utils/dom.js" defer></script>
+<script src="src/utils/dom.js?v=20260620-widget-collapse-smooth" defer></script>
 <script src="src/scripts/navigation.js?v=20260619-internal-screen-motion" defer></script>
-<script src="src/components/widgets.js" defer></script>
+<script src="src/components/widgets.js?v=20260620-widget-collapse-match" defer></script>
 <script src="src/components/render.js" defer></script>
 <script src="src/scripts/usage-analytics.js" defer></script>
 <script src="src/components/protocols.js" defer></script>
 <script src="src/data/search-intents.js" defer></script>
 <script src="src/scripts/clinical-intent-engine.js" defer></script>
-<script src="src/scripts/search.js" defer></script>
-<script src="src/components/pulpite.js" defer></script>
+<script src="src/scripts/search.js?v=20260620-search-sheet-drag" defer></script>
+<script src="src/components/pulpite.js?v=20260619-clinical-expand" defer></script>
 <script src="src/components/crisis.js" defer></script>
 <script src="src/scripts/auth.js?v=20260618-soft-motion" defer></script>
 <script src="src/scripts/pwa.js?v=20260618-premium-price-modal" defer></script>

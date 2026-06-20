@@ -5,7 +5,10 @@ function togglePulpiteSit(){
   const visible=content.style.display!=='none';
   content.style.display=visible?'none':'block';
   btn.textContent=visible?'Usar':'Fechar';
-  if(!visible)initPulpiteSit();
+  if(!visible){
+    if(typeof playInternalExpand === "function") playInternalExpand(content);
+    initPulpiteSit();
+  }
 }
 
 let pulpiteSitRespostas=[];
@@ -18,6 +21,7 @@ function initPulpiteSit(){
   const r=document.getElementById('pulpite-sit-resultado');
   if(q)q.style.display='block';
   if(r)r.style.display='none';
+  if(typeof playInternalExpand === "function") playInternalExpand(q);
   renderPulpiteSitPergunta();
 }
 
@@ -79,6 +83,7 @@ function mostrarResultadoPulpiteSit(){
   if(!quiz||!res||!icon||!badge||!title||!body||!cta)return;
   quiz.style.display='none';
   res.style.display='block';
+  if(typeof playInternalExpand === "function") playInternalExpand(res);
   icon.style.cssText='width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;font-weight:800;flex-shrink:0;background:'+c.iconBg+';color:'+c.iconColor+';';
   icon.innerHTML='<i class="ti '+c.icon+'"></i>';
   badge.style.cssText='font-size:11px;font-weight:700;padding:3px 10px;border-radius:30px;display:inline-block;margin-bottom:5px;background:'+c.badgeBg+';color:'+c.badgeColor+';';
@@ -101,7 +106,10 @@ function togglePulpiteWidget(){
   const visible = content.style.display !== 'none';
   content.style.display = visible ? 'none' : 'block';
   btn.textContent = visible ? 'Usar' : 'Fechar';
-  if(!visible) initPulpiteQuiz();
+  if(!visible) {
+    if(typeof playInternalExpand === "function") playInternalExpand(content);
+    initPulpiteQuiz();
+  }
 }
 
 const PULPITE_PERGUNTAS = [
@@ -121,6 +129,7 @@ function initPulpiteQuiz(){
   const r = document.getElementById('pulpite-resultado');
   if(q) q.style.display='block';
   if(r) r.style.display='none';
+  if(typeof playInternalExpand === "function") playInternalExpand(q);
   renderPulpitePergunta();
 }
 
@@ -180,6 +189,7 @@ function mostrarResultadoPulpite(){
   if(!quiz||!res||!badge||!title||!body) return;
   quiz.style.display = 'none';
   res.style.cssText = 'display:block;border-radius:var(--border-radius-md);padding:12px 14px;margin-top:8px;background:'+c.bg+';border:0.5px solid '+c.borderColor+';';
+  if(typeof playInternalExpand === "function") playInternalExpand(res);
   badge.style.cssText = 'font-size:11px;font-weight:600;margin-bottom:4px;color:'+c.color+';';
   badge.textContent = c.badge;
   title.style.cssText = 'font-size:14px;font-weight:500;margin-bottom:6px;color:'+c.color+';';

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v19-press-feedback';
+const CACHE_NAME = 'odontodex-v31-search-sheet-drag';
 
 const ARQUIVOS = [
   '/',
