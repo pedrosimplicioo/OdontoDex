@@ -367,6 +367,39 @@ async function saveEditTratamento(){
 function syncRootDarkMode(isDark){document.documentElement.classList.toggle("dark",!!isDark);}
 function toggleDarkMode(){document.body.classList.toggle("dark");const isDark=document.body.classList.contains("dark");syncRootDarkMode(isDark);const btn=document.getElementById("dark-toggle");if(btn)btn.innerHTML=isDark?'<i class="ti ti-sun"></i>':'<i class="ti ti-moon-stars"></i>';localStorage.setItem("darkMode",isDark);}
 function initDarkMode(){const btn=document.getElementById("dark-toggle");const isDark=localStorage.getItem("darkMode")==="true";document.body.classList.toggle("dark",isDark);syncRootDarkMode(isDark);if(btn)btn.innerHTML=isDark?'<i class="ti ti-sun"></i>':'<i class="ti ti-moon-stars"></i>';}
+function playInternalExpand(el){
+  if(!el) return;
+  clearTimeout(el.__internalExpandTimer);
+  el.style.removeProperty("max-height");
+  el.classList.remove("internal-expand-out");
+  el.classList.remove("internal-expand-in");
+  void el.offsetWidth;
+  el.classList.add("internal-expand-in");
+}
+function hideInternalExpand(el, onHidden){
+  if(!el) {
+    if(typeof onHidden === "function") onHidden();
+    return;
+  }
+  clearTimeout(el.__internalExpandTimer);
+  el.classList.remove("internal-expand-in");
+  el.classList.add("internal-collapsing");
+  el.style.maxHeight = el.scrollHeight + "px";
+  requestAnimationFrame(() => {
+    el.classList.add("internal-expand-out");
+    el.style.maxHeight = "0px";
+  });
+  el.__internalExpandTimer = setTimeout(() => {
+    el.classList.remove("internal-expand-out", "internal-collapsing");
+    el.style.removeProperty("max-height");
+    if(typeof onHidden === "function") onHidden();
+  }, 920);
+}
+function hideInternalShow(el){
+  if(!el) return;
+  if(!el.classList.contains("show")) return;
+  hideInternalExpand(el, () => el.classList.remove("show"));
+}
 function hideOverlay(id){const el=document.getElementById(id);if(el)el.classList.remove("active");}
 function showOverlay(id){
   const el=document.getElementById(id);

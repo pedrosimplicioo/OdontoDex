@@ -5,6 +5,7 @@ let persistedHomeSearchValue = "";
 let searchLogTimer = null;
 let homeSearchPlaceholderTimer = null;
 let homeSearchPlaceholderIndex = 0;
+let searchSheetDragState = null;
 
 const HOME_SEARCH_PLACEHOLDERS = [
   "Ex.: A coroa caiu",
@@ -61,6 +62,7 @@ function handleHomeSearchBlur(){
 document.addEventListener("DOMContentLoaded", () => {
   initHomeSearchPlaceholderRotation();
   initHomeHeaderBehavior();
+  initSearchSheetDragToClose();
   const input = document.getElementById("home-search-input");
   if(input) input.addEventListener("blur", handleHomeSearchBlur);
 });
@@ -78,6 +80,35 @@ function createHomeSearchButton(title,kind,onClick,badges){
   `;
   btn.onclick=onClick;
   return btn;
+}
+
+let homeSearchRenderTimer=null;
+let homeSearchQueuedValue="";
+
+function animateHomeSearchResults(container){
+  if(!container)return;
+  if(container.dataset.homeSearchOpened==="1")return;
+  container.dataset.homeSearchOpened="1";
+  container.classList.remove("home-search-results-animating");
+  void container.offsetWidth;
+  container.classList.add("home-search-results-animating");
+  container.querySelectorAll(".home-search-suggestion,.home-search-related-title,.home-search-group-title,.home-search-empty").forEach((item,index)=>{
+    item.style.setProperty("--home-search-item-delay",`${Math.min(index*24,120)}ms`);
+  });
+  clearTimeout(container.__homeSearchAnimationTimer);
+  container.__homeSearchAnimationTimer=setTimeout(()=>{
+    container.classList.remove("home-search-results-animating");
+  },320);
+}
+
+function closeHomeSearchResults(container){
+  if(!container)return;
+  clearTimeout(homeSearchRenderTimer);
+  clearTimeout(container.__homeSearchAnimationTimer);
+  container.style.display="none";
+  container.classList.remove("home-search-results-animating");
+  delete container.dataset.homeSearchOpened;
+  container.innerHTML="";
 }
 
 function getSearchProtocolTipText(tip){
@@ -202,6 +233,7 @@ function renderRelatedSearchSuggestions(container,query){
     const btn=createHomeSearchButton(item.title,item.kind,()=>openClinicalSearchItem(item,"home-search-input"),item.badges);
     container.appendChild(btn);
   });
+  animateHomeSearchResults(container);
 }
 
 function appendClinicalSearchGroup(container,title,items,returnInputId){
@@ -222,17 +254,21 @@ function renderClinicalSearchResults(container,result,returnInputId){
   if(result.usedIntent&&result.best.length){
     appendClinicalSearchGroup(container,"Caminho mais provável",result.best,returnInputId);
     appendClinicalSearchGroup(container,"Sugestões relacionadas",result.related,returnInputId);
+    animateHomeSearchResults(container);
     return;
   }
   if(result.hasContentGap){
     appendClinicalSearchGroup(container,"Sugestões relacionadas",result.all,returnInputId);
+    animateHomeSearchResults(container);
     return;
   }
   if(result.all.every(item=>item.matchSource==="common")){
     appendClinicalSearchGroup(container,"Sugestões relacionadas",result.all,returnInputId);
+    animateHomeSearchResults(container);
     return;
   }
   appendClinicalSearchGroup(container,"",result.all,returnInputId);
+  animateHomeSearchResults(container);
 }
 
 function openClinicalSearchItem(item,returnInputId){
@@ -245,18 +281,12 @@ function openClinicalSearchItem(item,returnInputId){
   else openSearchProtocolSheet(item.id,{resetStack:true});
 }
 
-function doHomeSearch(q){
-  const resDiv=document.getElementById("home-search-results");
-  const clearBtn=document.getElementById("home-search-clear");
-  if(!resDiv||!DATA)return;
-  persistedHomeSearchValue=q;
-  if(clearBtn)clearBtn.style.display=q.length>0?"block":"none";
+function renderHomeSearchQuery(q,resDiv){
+  if(!resDiv||!DATA||homeSearchQueuedValue!==q)return;
   if(q.length<2){
-    resDiv.style.display="none";
-    resDiv.innerHTML="";
+    closeHomeSearchResults(resDiv);
     return;
   }
-  resDiv.style.display="block";
   resDiv.innerHTML="";
   if(typeof clinicalIntentSearch==="function"){
     const clinical=clinicalIntentSearch(q,{limit:8});
@@ -289,6 +319,24 @@ function doHomeSearch(q){
     });
     resDiv.appendChild(btn);
   });
+  animateHomeSearchResults(resDiv);
+}
+
+function doHomeSearch(q){
+  const resDiv=document.getElementById("home-search-results");
+  const clearBtn=document.getElementById("home-search-clear");
+  if(!resDiv||!DATA)return;
+  persistedHomeSearchValue=q;
+  homeSearchQueuedValue=q;
+  if(clearBtn)clearBtn.style.display=q.length>0?"block":"none";
+  if(q.length<2){
+    closeHomeSearchResults(resDiv);
+    return;
+  }
+  resDiv.style.display="block";
+  clearTimeout(homeSearchRenderTimer);
+  const hasVisibleResults=resDiv.innerHTML.trim().length>0;
+  homeSearchRenderTimer=setTimeout(()=>renderHomeSearchQuery(q,resDiv),hasVisibleResults?140:0);
 }
 
 function showHomeResults(){
@@ -303,8 +351,9 @@ function clearHomeSearch(options){
   const resDiv=document.getElementById("home-search-results");
   const clearBtn=document.getElementById("home-search-clear");
   if(!shouldPreserve)persistedHomeSearchValue="";
+  if(!shouldPreserve)homeSearchQueuedValue="";
   if(inp&&!shouldPreserve)inp.value="";
-  if(resDiv)resDiv.style.display="none";
+  if(resDiv)closeHomeSearchResults(resDiv);
   if(clearBtn&&!shouldPreserve)clearBtn.style.display="none";
   if(!shouldPreserve) setHomeSearchFocusMode(false);
 }
@@ -360,6 +409,127 @@ function getCurrentSearchSheetState(){
   };
 }
 
+function resetSearchSheetDrag(sheet,backdrop){
+  if(sheet){
+    sheet.classList.remove("search-sheet-dragging","search-sheet-snap-back","search-sheet-drag-closing");
+    sheet.style.removeProperty("transform");
+    sheet.style.removeProperty("opacity");
+  }
+  if(backdrop)backdrop.style.removeProperty("opacity");
+}
+
+function finishSearchSheetDragClose(sheet,backdrop){
+  if(!sheet)return;
+  sheet.classList.remove("search-sheet-dragging","search-sheet-snap-back");
+  sheet.classList.add("search-sheet-drag-closing");
+  sheet.style.transform="translate(-50%, calc(100% + 36px))";
+  sheet.style.opacity="0";
+  if(backdrop)backdrop.style.opacity="0";
+  clearTimeout(sheet.__searchSheetDragCloseTimer);
+  sheet.__searchSheetDragCloseTimer=setTimeout(()=>{
+    resetSearchSheetDrag(sheet,backdrop);
+    closeSearchBottomSheet();
+  },240);
+}
+
+function settleSearchSheetDrag(sheet,backdrop){
+  if(!sheet)return;
+  sheet.classList.remove("search-sheet-dragging");
+  sheet.classList.add("search-sheet-snap-back");
+  sheet.style.transform="translate(-50%, 0)";
+  sheet.style.opacity="1";
+  if(backdrop)backdrop.style.opacity="1";
+  clearTimeout(sheet.__searchSheetDragSettleTimer);
+  sheet.__searchSheetDragSettleTimer=setTimeout(()=>resetSearchSheetDrag(sheet,backdrop),260);
+}
+
+function initSearchSheetDragToClose(){
+  const handle=document.getElementById("search-sheet-handle");
+  const layer=document.getElementById("search-sheet-layer");
+  const sheet=document.getElementById("search-bottom-sheet");
+  if(!handle||!layer||!sheet||handle.dataset.dragReady==="1")return;
+  handle.dataset.dragReady="1";
+  const getBackdrop=()=>layer.querySelector(".search-sheet-backdrop");
+  handle.addEventListener("keydown",(event)=>{
+    if(event.key==="Enter"||event.key===" "){
+      event.preventDefault();
+      closeSearchBottomSheet();
+    }
+  });
+  handle.addEventListener("pointerdown",(event)=>{
+    if(!layer.classList.contains("active"))return;
+    event.preventDefault();
+    clearTimeout(sheet.__searchSheetDragSettleTimer);
+    clearTimeout(sheet.__searchSheetDragCloseTimer);
+    sheet.classList.remove("search-sheet-entering","search-sheet-snap-back","search-sheet-drag-closing");
+    sheet.classList.add("search-sheet-dragging");
+    searchSheetDragState={
+      startY:event.clientY,
+      lastY:event.clientY,
+      lastTime:performance.now(),
+      velocity:0,
+      pointerId:event.pointerId
+    };
+    try{handle.setPointerCapture(event.pointerId);}catch(e){}
+  });
+  handle.addEventListener("pointermove",(event)=>{
+    if(!searchSheetDragState||searchSheetDragState.pointerId!==event.pointerId)return;
+    event.preventDefault();
+    const now=performance.now();
+    const rawDelta=event.clientY-searchSheetDragState.startY;
+    const delta=rawDelta<0?rawDelta*0.18:rawDelta;
+    const elapsed=Math.max(now-searchSheetDragState.lastTime,1);
+    searchSheetDragState.velocity=(event.clientY-searchSheetDragState.lastY)/elapsed;
+    searchSheetDragState.lastY=event.clientY;
+    searchSheetDragState.lastTime=now;
+    const backdrop=getBackdrop();
+    sheet.style.transform=`translate(-50%, ${Math.max(delta,-10)}px)`;
+    sheet.style.opacity=String(1-Math.min(Math.max(delta,0)/520,0.24));
+    if(backdrop)backdrop.style.opacity=String(1-Math.min(Math.max(delta,0)/360,0.46));
+  });
+  const finishDrag=(event)=>{
+    if(!searchSheetDragState||searchSheetDragState.pointerId!==event.pointerId)return;
+    const delta=event.clientY-searchSheetDragState.startY;
+    const shouldClose=delta>118||searchSheetDragState.velocity>0.72;
+    const backdrop=getBackdrop();
+    try{handle.releasePointerCapture(event.pointerId);}catch(e){}
+    searchSheetDragState=null;
+    if(shouldClose)finishSearchSheetDragClose(sheet,backdrop);
+    else settleSearchSheetDrag(sheet,backdrop);
+  };
+  handle.addEventListener("pointerup",finishDrag);
+  handle.addEventListener("pointercancel",finishDrag);
+}
+
+function playSearchSheetEntry(layer,sheet,kindEl,titleEl,contentEl,wasActive){
+  if(sheet&&!wasActive){
+    sheet.classList.remove("search-sheet-entering");
+    void sheet.offsetWidth;
+    sheet.classList.add("search-sheet-entering");
+    clearTimeout(sheet.__searchSheetEntryTimer);
+    sheet.__searchSheetEntryTimer=setTimeout(()=>sheet.classList.remove("search-sheet-entering"),520);
+  }
+  [kindEl,titleEl,contentEl].forEach((el,index)=>{
+    if(!el)return;
+    el.classList.remove("search-sheet-content-enter");
+    el.style.setProperty("--search-sheet-entry-delay",`${70+(index*35)}ms`);
+    void el.offsetWidth;
+    el.classList.add("search-sheet-content-enter");
+    clearTimeout(el.__searchSheetContentTimer);
+    el.__searchSheetContentTimer=setTimeout(()=>el.classList.remove("search-sheet-content-enter"),560);
+  });
+  if(contentEl){
+    Array.from(contentEl.children).forEach((child,index)=>{
+      child.classList.remove("search-sheet-block-enter");
+      child.style.setProperty("--search-sheet-entry-delay",`${130+(index*45)}ms`);
+      void child.offsetWidth;
+      child.classList.add("search-sheet-block-enter");
+      clearTimeout(child.__searchSheetBlockTimer);
+      child.__searchSheetBlockTimer=setTimeout(()=>child.classList.remove("search-sheet-block-enter"),640);
+    });
+  }
+}
+
 function openSearchBottomSheet(kind,title,contentHtml,options){
   const layer=document.getElementById("search-sheet-layer");
   const kindEl=document.getElementById("search-sheet-kind");
@@ -367,6 +537,8 @@ function openSearchBottomSheet(kind,title,contentHtml,options){
   const contentEl=document.getElementById("search-sheet-content");
   const sheet=document.getElementById("search-bottom-sheet");
   if(!layer||!kindEl||!titleEl||!contentEl)return;
+  const wasActive=layer.classList.contains("active");
+  resetSearchSheetDrag(sheet,layer.querySelector(".search-sheet-backdrop"));
   if(options&&options.pushCurrent&&layer.classList.contains("active")){
     const currentState=getCurrentSearchSheetState();
     if(currentState)searchSheetStack.push(currentState);
@@ -379,6 +551,7 @@ function openSearchBottomSheet(kind,title,contentHtml,options){
   layer.classList.add("active");
   layer.setAttribute("aria-hidden","false");
   updateSearchSheetBackButton();
+  playSearchSheetEntry(layer,sheet,kindEl,titleEl,contentEl,wasActive);
   hideHomeSearchResults();
 }
 
@@ -398,7 +571,9 @@ function goBackSearchBottomSheet(){
 
 function closeSearchBottomSheet(){
   const layer=document.getElementById("search-sheet-layer");
+  const sheet=document.getElementById("search-bottom-sheet");
   if(layer){
+    resetSearchSheetDrag(sheet,layer.querySelector(".search-sheet-backdrop"));
     layer.classList.remove("active");
     layer.setAttribute("aria-hidden","true");
   }
