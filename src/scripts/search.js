@@ -411,7 +411,7 @@ function getCurrentSearchSheetState(){
 
 function resetSearchSheetDrag(sheet,backdrop){
   if(sheet){
-    sheet.classList.remove("search-sheet-dragging","search-sheet-snap-back","search-sheet-drag-closing");
+    sheet.classList.remove("search-sheet-dragging","search-sheet-snap-back","search-sheet-drag-closing","search-sheet-closing");
     sheet.style.removeProperty("transform");
     sheet.style.removeProperty("opacity");
   }
@@ -428,7 +428,7 @@ function finishSearchSheetDragClose(sheet,backdrop){
   clearTimeout(sheet.__searchSheetDragCloseTimer);
   sheet.__searchSheetDragCloseTimer=setTimeout(()=>{
     resetSearchSheetDrag(sheet,backdrop);
-    closeSearchBottomSheet();
+    closeSearchBottomSheet({immediate:true});
   },240);
 }
 
@@ -538,6 +538,8 @@ function openSearchBottomSheet(kind,title,contentHtml,options){
   const sheet=document.getElementById("search-bottom-sheet");
   if(!layer||!kindEl||!titleEl||!contentEl)return;
   const wasActive=layer.classList.contains("active");
+  clearTimeout(sheet?.__searchSheetCloseTimer);
+  layer.classList.remove("search-sheet-closing");
   resetSearchSheetDrag(sheet,layer.querySelector(".search-sheet-backdrop"));
   if(options&&options.pushCurrent&&layer.classList.contains("active")){
     const currentState=getCurrentSearchSheetState();
@@ -569,12 +571,10 @@ function goBackSearchBottomSheet(){
   updateSearchSheetBackButton();
 }
 
-function closeSearchBottomSheet(){
-  const layer=document.getElementById("search-sheet-layer");
-  const sheet=document.getElementById("search-bottom-sheet");
+function completeSearchBottomSheetClose(layer,sheet,backdrop){
+  resetSearchSheetDrag(sheet,backdrop);
   if(layer){
-    resetSearchSheetDrag(sheet,layer.querySelector(".search-sheet-backdrop"));
-    layer.classList.remove("active");
+    layer.classList.remove("active","search-sheet-closing");
     layer.setAttribute("aria-hidden","true");
   }
   searchSheetStack=[];
@@ -585,6 +585,31 @@ function closeSearchBottomSheet(){
     if(searchSheetReturnInputId==="home-search-input"&&inp.value.length>=2)doHomeSearch(inp.value);
     if(searchSheetReturnInputId==="search-input"&&inp.value.length>=2)doSearch(inp.value);
   }
+}
+
+function closeSearchBottomSheet(options){
+  const layer=document.getElementById("search-sheet-layer");
+  const sheet=document.getElementById("search-bottom-sheet");
+  const backdrop=layer?layer.querySelector(".search-sheet-backdrop"):null;
+  if(!layer||!sheet){
+    completeSearchBottomSheetClose(layer,sheet,backdrop);
+    return;
+  }
+  clearTimeout(sheet.__searchSheetCloseTimer);
+  if(options&&options.immediate){
+    completeSearchBottomSheetClose(layer,sheet,backdrop);
+    return;
+  }
+  if(!layer.classList.contains("active")||layer.classList.contains("search-sheet-closing"))return;
+  sheet.classList.remove("search-sheet-entering","search-sheet-dragging","search-sheet-snap-back");
+  sheet.classList.add("search-sheet-closing");
+  layer.classList.add("search-sheet-closing");
+  sheet.style.transform="translate(-50%, calc(100% + 36px))";
+  sheet.style.opacity="0";
+  if(backdrop)backdrop.style.opacity="0";
+  sheet.__searchSheetCloseTimer=setTimeout(()=>{
+    completeSearchBottomSheetClose(layer,sheet,backdrop);
+  },260);
 }
 
 document.addEventListener("click",function(event){
@@ -894,7 +919,7 @@ function doSearch(q){
   if(!DATA)return;
   const res=document.getElementById("search-results");
   if(!res)return;
-  if(q.length<2){res.innerHTML='<p class="empty-msg">Digite pelo menos 2 letras</p>';return;}
+  if(q.length<2){res.innerHTML='<p class="empty-msg">Digite pelo menos 2 letras para consultar</p>';return;}
   
   // NOVO: Registrar busca (se tiver pelo menos 2 caracteres)
   if(currentUser && q && q.length >= 2) {

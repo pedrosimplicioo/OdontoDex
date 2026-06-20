@@ -33,55 +33,124 @@ async function iniciarPagamento() {
 
 // ==================== CUPOM PARCEIRO ====================
 let cupomValido = '';
-let cupomTimer = null;
 
-async function verificarCupom(valor) {
-  const row = document.getElementById('cupom-row');
-  const status = document.getElementById('cupom-status');
-  const feedback = document.getElementById('cupom-feedback');
+function normalizarCupom(valor) {
+  return String(valor || '').trim().toUpperCase();
+}
 
-  // Reset visual
-  row.style.borderColor = '#E2E8F0';
-  row.style.background = '#F8FAFC';
-  status.textContent = '';
-  feedback.style.display = 'none';
-  cupomValido = '';
+function getCupomEls() {
+  return {
+    row: document.getElementById('cupom-row'),
+    input: document.getElementById('cupom-input'),
+    status: document.getElementById('cupom-status'),
+    feedback: document.getElementById('cupom-feedback'),
+    applyBtn: document.getElementById('cupom-apply-btn'),
+    removeBtn: document.getElementById('cupom-remove-btn'),
+  };
+}
 
-  if (!valor || valor.length < 3) return;
+function setCupomEstado(tipo, mensagem = '') {
+  const { row, status, feedback } = getCupomEls();
+  if (!row || !status || !feedback) return;
 
-  // Aguarda o usuário parar de digitar
-  clearTimeout(cupomTimer);
-  cupomTimer = setTimeout(async () => {
+  row.classList.remove('is-valid', 'is-invalid', 'is-pending');
+  feedback.classList.remove('is-valid', 'is-invalid', 'is-muted');
+  status.innerHTML = '';
+
+  if (tipo) row.classList.add(`is-${tipo}`);
+  if (tipo === 'valid') status.innerHTML = '<i class="ti ti-circle-check"></i>';
+  if (tipo === 'invalid') status.innerHTML = '<i class="ti ti-circle-x"></i>';
+  if (tipo === 'pending') {
     status.innerHTML = '<div class="spinner" style="width:18px;height:18px;border-width:2px;border-color:#7C3FA0;border-top-color:transparent;"></div>';
+  }
 
-    try {
-      const doc = await db.collection('CUPONS').doc(valor.toUpperCase()).get();
-      if (doc.exists && doc.data().ativo === true) {
-        const nome = doc.data().nome;
-        cupomValido = valor.toUpperCase();
-        row.style.borderColor = '#059669';
-        row.style.background = '#F0FDF4';
-        status.innerHTML = '<i class="ti ti-circle-check"></i>';
-        feedback.style.display = 'block';
-        feedback.style.background = '#F0FDF4';
-        feedback.style.border = '1px solid #BBF7D0';
-        feedback.style.color = '#059669';
-        feedback.innerHTML = '<i class="ti ti-circle-check"></i> Indicado por <strong>' + nome + '</strong>';
-      } else {
-        row.style.borderColor = '#DC2626';
-        row.style.background = '#FEF2F2';
-        status.innerHTML = '<i class="ti ti-circle-x"></i>';
-        feedback.style.display = 'block';
-        feedback.style.background = '#FEF2F2';
-        feedback.style.border = '1px solid #FECACA';
-        feedback.style.color = '#DC2626';
-        feedback.textContent = 'Cupom inválido';
-      }
-    } catch(e) {
-      status.textContent = '';
-      feedback.style.display = 'none';
+  if (mensagem) {
+    feedback.style.display = 'block';
+    feedback.classList.add(tipo === 'valid' ? 'is-valid' : tipo === 'invalid' ? 'is-invalid' : 'is-muted');
+    feedback.innerHTML = mensagem;
+  } else {
+    feedback.style.display = 'none';
+    feedback.innerHTML = '';
+  }
+}
+
+function editarCupom(valor) {
+  const { input, applyBtn, removeBtn } = getCupomEls();
+  if (!input || !applyBtn || !removeBtn) return;
+
+  const codigo = normalizarCupom(valor);
+  if (input.value !== codigo) input.value = codigo;
+
+  cupomValido = '';
+  input.disabled = false;
+  applyBtn.style.display = 'inline-flex';
+  removeBtn.style.display = 'none';
+  applyBtn.disabled = codigo.length < 3;
+  setCupomEstado('', '');
+}
+
+async function aplicarCupom() {
+  const { input, applyBtn, removeBtn } = getCupomEls();
+  if (!input || !applyBtn || !removeBtn) return;
+
+  const codigo = normalizarCupom(input.value);
+  if (codigo.length < 3) {
+    cupomValido = '';
+    applyBtn.disabled = true;
+    setCupomEstado('invalid', 'Digite um código válido para aplicar.');
+    return;
+  }
+
+  input.value = codigo;
+  applyBtn.disabled = true;
+  setCupomEstado('pending', 'Validando código de parceiro...');
+
+  try {
+    const doc = await db.collection('CUPONS').doc(codigo).get();
+    if (doc.exists && doc.data().ativo === true) {
+      const nome = doc.data().nome || 'parceiro';
+      cupomValido = codigo;
+      input.disabled = true;
+      applyBtn.style.display = 'none';
+      removeBtn.style.display = 'inline-flex';
+      setCupomEstado('valid', '<i class="ti ti-circle-check"></i> Código aplicado: <strong>' + nome + '</strong>');
+      return;
     }
-  }, 500);
+
+    cupomValido = '';
+    input.disabled = false;
+    applyBtn.disabled = false;
+    setCupomEstado('invalid', 'Código não encontrado ou inativo.');
+  } catch (e) {
+    cupomValido = '';
+    input.disabled = false;
+    applyBtn.disabled = false;
+    setCupomEstado('invalid', 'Não foi possível validar agora. Tente novamente.');
+  }
+}
+
+function removerCupom() {
+  const { input, applyBtn, removeBtn } = getCupomEls();
+  if (!input || !applyBtn || !removeBtn) return;
+
+  cupomValido = '';
+  input.disabled = false;
+  input.value = '';
+  applyBtn.style.display = 'inline-flex';
+  applyBtn.disabled = true;
+  removeBtn.style.display = 'none';
+  setCupomEstado('', '');
+  input.focus();
+}
+
+function cupomPodeContinuar() {
+  const input = document.getElementById('cupom-input');
+  const codigoDigitado = normalizarCupom(input?.value);
+  if (!codigoDigitado || codigoDigitado === cupomValido) return true;
+
+  setCupomEstado('invalid', 'Aplique ou remova o código de parceiro antes de continuar.');
+  showToast('Aplique ou remova o código de parceiro antes de continuar.', 'error');
+  return false;
 }
 // ==================== PIX ====================
 let pixCode = '';
@@ -94,6 +163,7 @@ async function abrirPixModal() {
     showToast("Faça login primeiro", "error");
     return;
   }
+  if (!cupomPodeContinuar()) return;
 
   document.getElementById('pix-loading').style.display = 'block';
   document.getElementById('pix-content').style.display = 'none';
@@ -296,6 +366,7 @@ async function iniciarBrick() {
         callbacks: {
           onReady: () => console.log("Brick pronto"),
           onSubmit: async ({ formData }) => {
+            if (!cupomPodeContinuar()) return;
             showLoading();
             try {
              const cardToken = formData.token || formData.card_token_id || formData.card_token;

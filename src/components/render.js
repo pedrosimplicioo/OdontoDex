@@ -377,10 +377,6 @@ function renderHome(){
         btn.className="cat-horizontal" + (isPremiumCat ? " cat-locked" : "");
         btn.innerHTML=`<span class="cat-horizontal-icon">${cat.icon}</span><span class="cat-horizontal-label">${cat.label}</span>${isPremiumCat ? '<span class="cat-crown"><i class="ti ti-lock"></i></span>' : ''}`;
         btn.onclick=()=>{
-          if(isPremiumCat){
-            showUpgradeModal(cat.id);
-            return;
-          }
           selCat=cat.id;
           const st=document.getElementById("sit-title");if(st)st.textContent=cat.label;
           renderSituations();
@@ -465,7 +461,7 @@ function renderSituations(){
   }
 
   const sits=DATA.situations[selCat]||[];
-  if(sits.length===0){list.innerHTML+='<p class="empty-msg">Nenhuma situação cadastrada.</p>';return;}
+  if(sits.length===0){list.innerHTML+='<p class="empty-msg">Escolha outro caminho clínico</p>';return;}
   sits.forEach(sit=>{
     if(sit.type==="header"){
       const hdr=document.createElement("div");
@@ -476,6 +472,9 @@ function renderSituations(){
     }
     // Lógica de bloqueio por situação
     let isLocked = false;
+    if(PREMIUM_CATEGORIES.includes(selCat) && !window.userIsPremium) {
+      isLocked = true;
+    }
     if(selCat === "dentistica" && sit.id === "d6" && !window.userIsPremium) {
       isLocked = true;
     }
@@ -486,7 +485,7 @@ function renderSituations(){
     btn.className="list-btn";
     if(isLocked){
       btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="prem-tag"><i class="ti ti-lock"></i>Premium</span>`;
-      btn.onclick=()=>showUpgradeModal(null);
+      btn.onclick=()=>showUpgradeModal(selCat);
     } else {
       btn.innerHTML=`<span class="list-txt">${sit.label}</span><span class="arr">›</span>`;
       btn.onclick=()=>{selSit=sit.id;renderProcedures();goScreen("procedures");};
@@ -518,7 +517,7 @@ function renderProceduresList(procs) {
   list.innerHTML = "";
   
   if(procs.length === 0) {
-    list.innerHTML = '<p class="empty-msg">Nenhum procedimento encontrado.</p>';
+    list.innerHTML = '<p class="empty-msg">Tente outro termo</p>';
     return;
   }
   

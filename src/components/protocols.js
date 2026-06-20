@@ -152,6 +152,7 @@ function toggleFav(id){
     const nowFav = isFavorite("protocol", id);
     btn.innerHTML = nowFav ? '<i class="ti ti-star-filled"></i>' : '<i class="ti ti-star"></i>';
     btn.className = nowFav ? 'rx-fav-btn top-action-btn active' : 'rx-fav-btn top-action-btn';
+    if(nowFav) playFavoritePop(btn);
   }
 }
 
@@ -185,15 +186,25 @@ function toggleTypedFavorite(type,id){
     if(currentUser) registrarAcaoUsuario(currentUser.uid, 'favorite', { tipo:type, id });
   }
   saveFavs();
-  updateFavoriteButtons(type,id);
+  updateFavoriteButtons(type,id,{pop:!wasFav});
   if(typeof renderHomeFavorites === "function") renderHomeFavorites();
 }
 
-function updateFavoriteButtons(type,id){
+function playFavoritePop(btn){
+  if(!btn)return;
+  btn.classList.remove("favorite-pop");
+  void btn.offsetWidth;
+  btn.classList.add("favorite-pop");
+  clearTimeout(btn.__favoritePopTimer);
+  btn.__favoritePopTimer=setTimeout(()=>btn.classList.remove("favorite-pop"),560);
+}
+
+function updateFavoriteButtons(type,id,options){
   const active = isFavorite(type,id);
   document.querySelectorAll(`[data-fav-type="${type}"][data-fav-id="${id}"]`).forEach(btn => {
     btn.classList.toggle("active", active);
     btn.innerHTML = active ? '<i class="ti ti-star-filled"></i>' : '<i class="ti ti-star"></i>';
+    if(active&&options&&options.pop)playFavoritePop(btn);
   });
 }
 
@@ -219,10 +230,17 @@ function renderHomeFavorites(){
   if(!items.length){
     list.innerHTML = `
       <button class="home-favorite-empty" type="button" onclick="document.getElementById('home-search-input')?.focus()">
+        <span class="home-favorite-empty-icon"><i class="ti ti-star"></i></span>
+        <span class="home-favorite-empty-copy">
         <span class="home-favorite-empty-title">Seus atalhos clínicos aparecerão aqui</span>
         <span class="home-favorite-empty-sub">Favorite condutas, protocolos e prescrições para acessar sem procurar.</span>
+        </span>
       </button>
     `;
+    const emptyTitle = list.querySelector(".home-favorite-empty-title");
+    const emptySub = list.querySelector(".home-favorite-empty-sub");
+    if(emptyTitle) emptyTitle.textContent = "Salve seus atalhos clínicos";
+    if(emptySub) emptySub.textContent = "Toque na estrela em condutas, protocolos ou prescrições para acessar mais rápido depois.";
     return;
   }
   list.innerHTML = "";
@@ -248,7 +266,7 @@ function renderFavs(){
   if(!list)return;
   list.innerHTML="";
   const vf=FAVS.map(getFavoriteItem).filter(Boolean);
-  if(vf.length===0){list.innerHTML='<p class="empty-msg">Use ★ em condutas, protocolos ou prescrições para salvar.</p>';return;}
+  if(vf.length===0){list.innerHTML='<p class="empty-msg">Toque na estrela para salvar seus atalhos clínicos</p>';return;}
   vf.forEach(item=>{
     const btn=document.createElement("button");
     btn.className="result-card";

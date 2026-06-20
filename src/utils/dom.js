@@ -197,7 +197,7 @@ async function renderSubscriptionSummary() {
         validity,
         renewal: 'Cancelada',
         action: 'payment',
-        actionText: 'Ativar renovação mensal',
+        actionText: 'Ver opções de pagamento',
         note: 'Seu acesso atual será preservado.'
       });
       return;
@@ -209,11 +209,11 @@ async function renderSubscriptionSummary() {
         kicker: 'Acesso já pago',
         title: 'Premium por pagamento avulso',
         short,
-        text: 'Seu acesso atual não possui renovação automática. Você pode ativar uma assinatura mensal para renovar automaticamente no cartão, sem perder o período já pago.',
+        text: 'Seu acesso atual não possui renovação automática. Você pode ver as opções de pagamento para manter o Premium sem interrupção.',
         validity,
         renewal: 'Sem recorrência',
         action: 'payment',
-        actionText: 'Assinar mensalmente no cartão',
+        actionText: 'Ver opções de pagamento',
         note: 'Seu período já pago será preservado.'
       });
       return;
@@ -225,12 +225,12 @@ async function renderSubscriptionSummary() {
         kicker: 'Período de teste',
         title: 'Trial Premium',
         short,
-        text: 'Você pode ativar uma assinatura mensal no cartão antes do fim do trial para manter o acesso sem interrupção.',
+        text: 'Você pode ativar o Premium antes do fim do trial para manter o acesso sem interrupção.',
         validity,
         renewal: 'Não renova automaticamente',
         action: 'payment',
-        actionText: 'Assinar mensalmente no cartão',
-        note: 'A assinatura mensal renova automaticamente no cartão.'
+        actionText: 'Ver opções de pagamento',
+        note: 'Pix libera 30 dias sem renovação; cartão ativa assinatura mensal.'
       });
       return;
     }
@@ -241,12 +241,12 @@ async function renderSubscriptionSummary() {
         kicker: 'Acesso Premium',
         title: 'Premium liberado',
         short,
-        text: 'Seu acesso Premium está ativo. Você pode ativar uma assinatura mensal no cartão para renovação automática.',
+        text: 'Seu acesso Premium está ativo. Você pode ver as opções de pagamento para manter o acesso sem interrupção.',
         validity,
         renewal: 'Manual',
         action: 'payment',
-        actionText: 'Ativar assinatura mensal',
-        note: 'A assinatura mensal renova automaticamente no cartão.'
+        actionText: 'Ver opções de pagamento',
+        note: 'Pix libera 30 dias sem renovação; cartão ativa assinatura mensal.'
       });
       return;
     }
@@ -427,12 +427,32 @@ function hideInternalShow(el){
   if(!el.classList.contains("show")) return;
   hideInternalExpand(el, () => el.classList.remove("show"));
 }
-function hideOverlay(id){const el=document.getElementById(id);if(el)el.classList.remove("active");}
+function completeOverlayClose(el){
+  if(!el) return;
+  el.classList.remove("modal-closing","active");
+}
+function hideOverlay(id,options){
+  const el=document.getElementById(id);
+  if(!el)return;
+  clearTimeout(el.__modalCloseTimer);
+  if(options&&options.immediate){
+    completeOverlayClose(el);
+    return;
+  }
+  if(!el.classList.contains("active")){
+    completeOverlayClose(el);
+    return;
+  }
+  el.classList.add("modal-closing");
+  el.__modalCloseTimer=setTimeout(()=>completeOverlayClose(el),260);
+}
 function showOverlay(id){
   const el=document.getElementById(id);
   if(!el) return;
+  clearTimeout(el.__modalCloseTimer);
+  el.classList.remove("modal-closing");
   el.classList.add("active");
-  const scrollables=[el, ...el.querySelectorAll(".modal,.prem-modal")];
+  const scrollables=[el, ...el.querySelectorAll(".modal,.prem-modal,.trial-used-modal,.ios-install-modal")];
   scrollables.forEach(node=>{ if(node) node.scrollTop=0; });
   window.scrollTo(0,0);
 }

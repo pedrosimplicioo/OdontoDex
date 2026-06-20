@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OdontoDex - Preview modo dark</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+  <style>
+    :root{
+      --bg:#070A10;
+      --app:#0B1019;
+      --app-soft:#0F1624;
+      --surface:#141D2D;
+      --surface-2:#192336;
+      --surface-3:#202C42;
+      --border:rgba(151,163,184,.18);
+      --border-strong:rgba(151,163,184,.28);
+      --text:#F7FAFC;
+      --muted:#A9B7CA;
+      --soft:#7F8EA3;
+      --purple:#C89AF2;
+      --purple-2:#7C3FA0;
+      --amber:#FBBF24;
+      --amber-soft:rgba(251,191,36,.13);
+      --red:#F87171;
+      --red-soft:rgba(248,113,113,.12);
+      --green:#34D399;
+      --green-soft:rgba(52,211,153,.12);
+      --blue-soft:rgba(96,165,250,.12);
+      --shadow:0 16px 36px rgba(0,0,0,.28);
+      --radius:22px;
+      --control:16px;
+      --ease:cubic-bezier(.22,1,.36,1);
+    }
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      min-height:100vh;
+      background:#070A10;
+      color:var(--text);
+      font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;
+      padding:24px;
+    }
+    button{font:inherit;border:0;background:none;color:inherit;cursor:pointer;}
+    .page{
+      max-width:1180px;
+      margin:0 auto;
+      display:grid;
+      grid-template-columns:300px minmax(360px,430px) 1fr;
+      gap:22px;
+      align-items:start;
+    }
+    .brief,.notes{
+      background:#0E1421;
+      border:1px solid var(--border);
+      border-radius:22px;
+      padding:18px;
+      box-shadow:var(--shadow);
+    }
+    .brief h1{
+      font-size:22px;
+      line-height:1.12;
+      margin-bottom:10px;
+      color:#fff;
+    }
+    .brief p,.notes p{
+      font-size:13px;
+      line-height:1.55;
+      color:var(--muted);
+      margin-bottom:12px;
+    }
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      border:1px solid rgba(200,154,242,.24);
+      background:rgba(124,63,160,.16);
+      color:#E9D5FF;
+      border-radius:999px;
+      padding:7px 10px;
+      font-size:12px;
+      font-weight:800;
+      margin-bottom:12px;
+    }
+    .tabs{
+      display:flex;
+      flex-direction:column;
+      gap:8px;
+      margin-top:14px;
+    }
+    .tab{
+      width:100%;
+      border:1px solid var(--border);
+      background:#111827;
+      color:var(--muted);
+      border-radius:14px;
+      padding:11px 12px;
+      text-align:left;
+      display:flex;
+      align-items:center;
+      gap:9px;
+      font-size:13px;
+      font-weight:800;
+      transition:background .18s var(--ease),border-color .18s var(--ease),transform .18s var(--ease),color .18s var(--ease);
+    }
+    .tab.active{
+      background:rgba(124,63,160,.24);
+      border-color:rgba(200,154,242,.34);
+      color:#fff;
+      transform:translateY(-1px);
+    }
+    .phone-shell{
+      background:#030712;
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:42px;
+      padding:10px;
+      box-shadow:0 30px 70px rgba(0,0,0,.42);
+      position:sticky;
+      top:22px;
+    }
+    .phone{
+      height:760px;
+      overflow:hidden;
+      border-radius:34px;
+      background:var(--app);
+      border:1px solid rgba(255,255,255,.06);
+      position:relative;
+    }
+    .screen{
+      position:absolute;
+      inset:0;
+      background:var(--app);
+      display:none;
+      overflow:auto;
+      scrollbar-width:none;
+    }
+    .screen::-webkit-scrollbar{display:none;}
+    .screen.active{display:block;animation:screenIn .38s var(--ease) both;}
+    @keyframes screenIn{from{opacity:0;transform:translate3d(0,12px,0);}to{opacity:1;transform:translate3d(0,0,0);}}
+    .status{
+      height:12px;
+      background:#030712;
+    }
+    .hdr{
+      position:sticky;
+      top:0;
+      z-index:3;
+      background:linear-gradient(180deg,#171024 0%,#131C2C 100%);
+      border-bottom:1px solid rgba(200,154,242,.12);
+      border-radius:0 0 28px 28px;
+      padding:18px 18px 24px;
+      box-shadow:0 18px 42px rgba(0,0,0,.28);
+    }
+    .topline{display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;}
+    .available{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);}
+    .dot{width:7px;height:7px;border-radius:50%;background:var(--green);box-shadow:0 0 0 5px rgba(52,211,153,.08);}
+    .gear,.round-btn{
+      width:34px;height:34px;border-radius:50%;
+      display:grid;place-items:center;
+      background:rgba(255,255,255,.06);
+      border:1px solid rgba(255,255,255,.08);
+      color:#D8B4FE;
+    }
+    .brand{display:flex;align-items:center;gap:12px;margin-bottom:14px;}
+    .logo{
+      width:46px;height:46px;border-radius:16px;
+      display:grid;place-items:center;
+      background:rgba(255,255,255,.07);
+      border:1px solid rgba(200,154,242,.18);
+      color:#E9D5FF;
+      font-size:25px;
+    }
+    .hello{font-size:25px;font-weight:900;line-height:1.1;color:#fff;}
+    .question{font-size:14px;color:var(--muted);margin-top:3px;}
+    .search{
+      min-height:54px;
+      border-radius:22px;
+      border:1px solid rgba(151,163,184,.28);
+      background:#202A3C;
+      display:flex;align-items:center;gap:10px;
+      padding:0 16px;
+      color:#D6E0EE;
+      box-shadow:inset 0 1px 0 rgba(255,255,255,.04);
+    }
+    .search i{color:#D8B4FE;font-size:20px;}
+    .body{padding:16px 18px 26px;}
+    .section-label{
+      font-size:11px;
+      color:#8190A6;
+      font-weight:900;
+      text-transform:uppercase;
+      margin:0 0 10px;
+    }
+    .row-scroll{display:flex;gap:10px;overflow:hidden;margin-bottom:18px;}
+    .chip-card,.area-card,.item-card,.panel,.clinical-card,.settings-card,.payment-card{
+      background:var(--surface);
+      border:1px solid var(--border);
+      box-shadow:0 10px 24px rgba(0,0,0,.16),inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    .chip-card{
+      min-width:118px;
+      border-radius:17px;
+      padding:10px;
+    }
+    .chip-card b{display:block;font-size:11px;line-height:1.15;color:#fff;}
+    .chip-card span{display:block;margin-top:4px;font-size:8px;text-transform:uppercase;font-weight:900;color:#D8B4FE;}
+    .grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:18px;}
+    .area-card{
+      min-height:86px;
+      border-radius:18px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+      font-size:11px;
+      font-weight:850;
+      color:#fff;
+      text-align:center;
+      position:relative;
+    }
+    .area-icon{
+      width:38px;height:38px;border-radius:50%;
+      display:grid;place-items:center;
+      background:rgba(124,63,160,.24);
+      color:#D8B4FE;
+      font-size:21px;
+    }
+    .area-card.amber .area-icon{background:var(--amber-soft);color:var(--amber);}
+    .lock{position:absolute;right:9px;top:8px;color:#C89AF2;font-size:14px;}
+    .panel{
+      border-radius:22px;
+      padding:14px;
+      margin-bottom:16px;
+    }
+    .panel-title{
+      display:flex;align-items:center;gap:8px;
+      font-size:12px;font-weight:900;color:#8FA0B8;
+      text-transform:uppercase;
+      margin-bottom:12px;
+    }
+    .sos-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:9px;}
+    .sos-card{
+      background:rgba(248,113,113,.10);
+      border:1px solid rgba(248,113,113,.24);
+      border-radius:15px;
+      min-height:76px;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;gap:7px;
+      color:#FCA5A5;
+      font-size:10px;
+      font-weight:850;
+    }
+    .tools-list{display:grid;grid-template-columns:1fr 1fr;gap:9px;}
+    .tool-card{
+      min-height:56px;
+      border-radius:16px;
+      background:#182236;
+      border:1px solid rgba(151,163,184,.16);
+      display:flex;align-items:center;gap:9px;padding:10px;
+    }
+    .tool-card .area-icon{width:34px;height:34px;font-size:18px;}
+    .tool-copy b{display:block;font-size:12px;color:#fff;}
+    .tool-copy span{display:block;font-size:9px;text-transform:uppercase;color:#8FA0B8;font-weight:900;margin-top:2px;}
+    .topbar{
+      height:92px;
+      padding:22px 18px 16px;
+      display:grid;
+      grid-template-columns:44px 1fr 44px;
+      align-items:center;
+      background:linear-gradient(180deg,#171024 0%,#121B2B 100%);
+      border-bottom:1px solid rgba(151,163,184,.14);
+      border-radius:0 0 26px 26px;
+      box-shadow:0 18px 42px rgba(0,0,0,.28);
+      position:sticky;top:0;z-index:2;
+    }
+    .back{justify-self:start;color:#D8B4FE;font-size:23px;}
+    .top-title{text-align:center;font-size:15px;font-weight:900;color:#fff;}
+    .subtle{font-size:12px;color:var(--soft);}
+    .sheet-overlay{position:absolute;inset:0;background:rgba(4,7,12,.52);backdrop-filter:blur(5px);}
+    .sheet{
+      position:absolute;
+      left:0;right:0;bottom:0;
+      min-height:610px;
+      background:#111A29;
+      border:1px solid rgba(151,163,184,.20);
+      border-bottom:0;
+      border-radius:30px 30px 0 0;
+      padding:12px 18px 26px;
+      box-shadow:0 -22px 48px rgba(0,0,0,.38);
+      animation:sheetIn .46s var(--ease) both;
+    }
+    @keyframes sheetIn{from{transform:translateY(80px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+    .handle{width:40px;height:4px;border-radius:999px;background:#64748B;margin:0 auto 18px;}
+    .sheet-head{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:14px;}
+    .tag{
+      display:inline-flex;
+      align-items:center;
+      border:1px solid rgba(200,154,242,.24);
+      background:rgba(124,63,160,.20);
+      color:#E9D5FF;
+      border-radius:999px;
+      padding:6px 9px;
+      font-size:11px;
+      font-weight:900;
+      margin-bottom:10px;
+    }
+    .sheet h2,.screen h2{font-size:23px;line-height:1.1;color:#fff;margin-bottom:4px;}
+    .fav{
+      width:36px;height:36px;border-radius:50%;
+      display:grid;place-items:center;
+      background:#202C42;border:1px solid var(--border-strong);color:#94A3B8;font-size:20px;
+    }
+    .clinical-card{
+      border-radius:20px;
+      padding:15px;
+      margin-bottom:11px;
+      background:#182236;
+    }
+    .clinical-card.primary{
+      background:rgba(124,63,160,.18);
+      border-color:rgba(200,154,242,.28);
+    }
+    .clinical-card.alert{
+      background:var(--amber-soft);
+      border-color:rgba(251,191,36,.26);
+    }
+    .card-label{
+      display:flex;align-items:center;gap:7px;
+      font-size:11px;
+      font-weight:900;
+      color:#D8B4FE;
+      text-transform:uppercase;
+      margin-bottom:10px;
+    }
+    .clinical-card.alert .card-label{color:#FCD34D;}
+    .clinical-card p,.clinical-card li{font-size:13px;line-height:1.55;color:#E7EDF6;}
+    .flow{display:grid;gap:8px;}
+    .flow-row{
+      display:flex;gap:9px;
+      background:#202C42;
+      border:1px solid rgba(151,163,184,.18);
+      border-radius:14px;
+      padding:10px;
+      color:#D7E0EF;
+      font-size:12px;
+      line-height:1.45;
+    }
+    .num{
+      width:22px;height:22px;border-radius:7px;
+      display:grid;place-items:center;
+      background:#D8B4FE;color:#27113E;
+      font-weight:950;font-size:12px;flex-shrink:0;
+    }
+    .tip{
+      margin:14px 18px 0;
+      padding:13px;
+      border-radius:18px;
+      background:rgba(52,211,153,.10);
+      border:1px solid rgba(52,211,153,.24);
+      color:#B8F7D9;
+      display:flex;gap:10px;
+      font-size:12px;
+      line-height:1.45;
+    }
+    .settings-card{
+      border-radius:24px;
+      padding:16px;
+      margin-bottom:14px;
+      background:#111827;
+    }
+    .profile-row{display:flex;align-items:center;gap:13px;}
+    .avatar{
+      width:52px;height:52px;border-radius:19px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,#4A1D6E,#7C3FA0);
+      color:#fff;font-weight:950;
+    }
+    .profile-row h3{font-size:17px;color:#fff;margin-bottom:2px;}
+    .badge{
+      display:inline-flex;border-radius:999px;padding:4px 8px;
+      background:#FEF3C7;color:#92400E;
+      border:1px solid #FBBF24;
+      font-size:11px;font-weight:900;margin-top:8px;
+    }
+    .setting-line{
+      display:flex;align-items:center;justify-content:space-between;
+      min-height:54px;
+      border-bottom:1px solid rgba(151,163,184,.13);
+      color:#fff;
+      font-size:14px;
+      font-weight:780;
+    }
+    .setting-line:last-child{border-bottom:0;}
+    .setting-line span{color:var(--muted);font-size:12px;font-weight:700;}
+    .payment-card{
+      border-radius:24px;
+      padding:18px;
+      margin-bottom:14px;
+      background:#111827;
+    }
+    .price{font-size:34px;font-weight:950;color:#fff;line-height:1;margin:8px 0 4px;}
+    .strike{color:#8FA0B8;text-decoration:line-through;font-size:14px;}
+    .promo{color:#FCD34D;font-size:12px;font-weight:900;text-transform:uppercase;}
+    .cta{
+      width:100%;
+      min-height:52px;
+      border-radius:999px;
+      background:#7C3FA0;
+      color:#fff;
+      font-weight:950;
+      margin-top:14px;
+      box-shadow:0 12px 24px rgba(124,63,160,.25);
+    }
+    .secure{
+      display:flex;gap:10px;align-items:flex-start;
+      padding:13px;
+      border-radius:18px;
+      background:rgba(52,211,153,.10);
+      border:1px solid rgba(52,211,153,.22);
+      color:#D7FBE8;
+      font-size:12px;
+      line-height:1.45;
+    }
+    .notes h2{
+      font-size:17px;
+      margin-bottom:12px;
+    }
+    .change-list{display:grid;gap:10px;}
+    .change{
+      border:1px solid var(--border);
+      background:#111827;
+      border-radius:16px;
+      padding:12px;
+    }
+    .change b{display:block;font-size:13px;color:#fff;margin-bottom:4px;}
+    .change span{font-size:12px;color:var(--muted);line-height:1.45;display:block;}
+    @media(max-width:980px){
+      body{padding:16px;}
+      .page{grid-template-columns:1fr;max-width:430px;}
+      .phone-shell{position:relative;top:0;}
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <aside class="brief">
+      <span class="pill"><i class="ti ti-moon-stars"></i> Preview separado</span>
+      <h1>Modo dark mais premium</h1>
+      <p>Esta simulação usa o que já funciona no OdontoDex e propõe ajustes de camadas: fundo mais profundo, cards mais destacados, textos com hierarquia e cores clínicas mais claras.</p>
+      <p>Não é o app real. É uma prévia para decidirmos antes de aplicar.</p>
+      <nav class="tabs" aria-label="Telas do preview">
+        <button class="tab active" data-screen="home"><i class="ti ti-home"></i> Home</button>
+        <button class="tab" data-screen="sheet"><i class="ti ti-search"></i> Busca e conduta</button>
+        <button class="tab" data-screen="protocol"><i class="ti ti-clipboard-heart"></i> Protocolo</button>
+        <button class="tab" data-screen="settings"><i class="ti ti-settings"></i> Configurações</button>
+        <button class="tab" data-screen="premium"><i class="ti ti-diamond"></i> Premium</button>
+      </nav>
+    </aside>
+
+    <section class="phone-shell" aria-label="Simulação do celular">
+      <div class="phone">
+        <section class="screen active" id="screen-home">
+          <div class="status"></div>
+          <header class="hdr">
+            <div class="topline">
+              <div class="available"><span class="dot"></span>Disponível agora</div>
+              <button class="gear"><i class="ti ti-settings"></i></button>
+            </div>
+            <div class="brand">
+              <div class="logo"><i class="ti ti-dental"></i></div>
+              <div>
+                <div class="hello">Olá, Dra. Marcela!</div>
+                <div class="question">O que aconteceu?</div>
+              </div>
+            </div>
+            <div class="search"><i class="ti ti-search"></i><span>Ex.: anestesia não pega</span></div>
+          </header>
+          <div class="body">
+            <div class="section-label">Favoritos</div>
+            <div class="row-scroll">
+              <div class="chip-card"><b>Fio dental não passa</b><span>Conduta rápida</span></div>
+              <div class="chip-card"><b>Restauração ficou alta</b><span>Conduta rápida</span></div>
+              <div class="chip-card"><b>Dente sensível</b><span>Conduta rápida</span></div>
+            </div>
+            <div class="section-label">Explorar por área</div>
+            <div class="grid">
+              <div class="area-card"><div class="area-icon"><i class="ti ti-dental"></i></div>Dentística</div>
+              <div class="area-card"><span class="lock"><i class="ti ti-lock"></i></span><div class="area-icon"><i class="ti ti-crown"></i></div>Prótese</div>
+              <div class="area-card"><span class="lock"><i class="ti ti-lock"></i></span><div class="area-icon"><i class="ti ti-microscope"></i></div>Endodontia</div>
+              <div class="area-card"><span class="lock"><i class="ti ti-lock"></i></span><div class="area-icon"><i class="ti ti-asterisk"></i></div>Cirurgia</div>
+            </div>
+            <section class="panel">
+              <div class="panel-title"><i class="ti ti-first-aid-kit"></i> S.O.S. clínico</div>
+              <div class="sos-grid">
+                <div class="sos-card"><i class="ti ti-bed"></i>Desmaio</div>
+                <div class="sos-card"><i class="ti ti-heart"></i>Infarto</div>
+                <div class="sos-card"><i class="ti ti-brain"></i>Epilepsia</div>
+                <div class="sos-card"><i class="ti ti-droplet"></i>Sangramento</div>
+              </div>
+            </section>
+            <section class="panel">
+              <div class="panel-title"><i class="ti ti-tools"></i> Ferramentas clínicas</div>
+              <div class="tools-list">
+                <div class="tool-card"><div class="area-icon"><i class="ti ti-pencil"></i></div><div class="tool-copy"><b>Técnica anestésica</b><span>Por dente</span></div></div>
+                <div class="tool-card"><div class="area-icon"><i class="ti ti-target"></i></div><div class="tool-copy"><b>Fórceps</b><span>Por dente</span></div></div>
+                <div class="tool-card"><div class="area-icon"><i class="ti ti-cut"></i></div><div class="tool-copy"><b>Odontosecção</b><span>Por dente</span></div></div>
+                <div class="tool-card"><div class="area-icon"><i class="ti ti-brain"></i></div><div class="tool-copy"><b>Pulpite</b><span>Assistente</span></div></div>
+              </div>
+            </section>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-sheet">
+          <div class="status"></div>
+          <header class="hdr">
+            <div class="topline">
+              <div class="available"><span class="dot"></span>Disponível agora</div>
+              <button class="gear"><i class="ti ti-settings"></i></button>
+            </div>
+            <div class="brand">
+              <div class="logo"><i class="ti ti-dental"></i></div>
+              <div>
+                <div class="hello">Olá, Dra. Marcela!</div>
+                <div class="question">O que aconteceu?</div>
+              </div>
+            </div>
+            <div class="search"><i class="ti ti-search"></i><span>fio dental não passa</span></div>
+          </header>
+          <div class="body">
+            <div class="section-label">Sugestões relacionadas</div>
+            <div class="item-card" style="border-radius:18px;padding:13px;margin-bottom:8px;"><b>Fio dental não passa</b><div class="subtle">Conduta rápida</div></div>
+            <div class="item-card" style="border-radius:18px;padding:13px;margin-bottom:8px;"><b>Ajuste de contato proximal</b><div class="subtle">Protocolo</div></div>
+          </div>
+          <div class="sheet-overlay"></div>
+          <article class="sheet">
+            <div class="handle"></div>
+            <div class="sheet-head">
+              <div>
+                <span class="tag">Conduta rápida</span>
+                <h2>Fio dental não passa</h2>
+              </div>
+              <button class="fav"><i class="ti ti-star"></i></button>
+            </div>
+            <section class="clinical-card primary">
+              <div class="card-label">Caminho provável</div>
+              <p>Quando o fio dental não passa, diferencie se é contato proximal muito justo ou alguma irregularidade que está travando, rasgando ou desfiando o fio.</p>
+            </section>
+            <section class="clinical-card">
+              <div class="card-label">O que observar</div>
+              <div class="flow">
+                <div class="flow-row"><span class="num">1</span><span>Teste com fio sem cera e observe se ele trava, rasga ou apenas exige força excessiva.</span></div>
+                <div class="flow-row"><span class="num">2</span><span>Verifique excesso de resina, margem irregular ou ponto de contato apertado.</span></div>
+                <div class="flow-row"><span class="num">3</span><span>Ajuste e faça novo teste até o fio passar com resistência fisiológica.</span></div>
+              </div>
+            </section>
+          </article>
+        </section>
+
+        <section class="screen" id="screen-protocol">
+          <div class="status"></div>
+          <header class="topbar">
+            <button class="back"><i class="ti ti-arrow-left"></i></button>
+            <div>
+              <div class="subtle" style="text-align:center;">Prótese · Dente com pouca estrutura</div>
+              <div class="top-title">Pino de Fibra + Núcleo</div>
+            </div>
+            <button class="fav"><i class="ti ti-star"></i></button>
+          </header>
+          <div class="tip"><i class="ti ti-clipboard-heart"></i><span>Este protocolo é um guia de apoio clínico. Adapte conforme a condição do paciente.</span></div>
+          <div class="body">
+            <section class="clinical-card">
+              <div class="card-label"><i class="ti ti-list-numbers"></i> Passo a passo</div>
+              <div class="flow">
+                <div class="flow-row"><span class="num">1</span><span>Remover guta e preparar o conduto preservando selamento apical adequado.</span></div>
+                <div class="flow-row"><span class="num">2</span><span>Provar o pino. Ele deve assentar passivamente, sem forçar.</span></div>
+                <div class="flow-row"><span class="num">3</span><span>Lavar, secar com cones de papel e seguir o protocolo adesivo indicado.</span></div>
+                <div class="flow-row"><span class="num">4</span><span>Cimentar, fotopolimerizar e reconstruir o núcleo com controle de isolamento.</span></div>
+              </div>
+            </section>
+            <section class="clinical-card alert">
+              <div class="card-label"><i class="ti ti-alert-triangle"></i> Atenção</div>
+              <p>Evite desgaste excessivo e não force o pino no conduto. A adaptação deve ser passiva.</p>
+            </section>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-settings">
+          <div class="status"></div>
+          <header class="topbar">
+            <button class="back"><i class="ti ti-arrow-left"></i></button>
+            <div class="top-title">Configurações</div>
+            <div></div>
+          </header>
+          <div class="body">
+            <section class="settings-card">
+              <div class="profile-row">
+                <div class="avatar">M</div>
+                <div>
+                  <h3>Dra. Marcela</h3>
+                  <div class="subtle">marcela@email.com</div>
+                  <span class="badge">Premium ativo</span>
+                </div>
+              </div>
+            </section>
+            <section class="settings-card">
+              <div class="setting-line">Editar nome <span>Marcela</span></div>
+              <div class="setting-line">Tratamento <span>Dra.</span></div>
+              <div class="setting-line">Modo escuro <span>Ativado</span></div>
+            </section>
+            <section class="settings-card">
+              <div class="setting-line">Assinatura <span>R$ 9,90/mês</span></div>
+              <div class="setting-line">Termos e privacidade <span>Ver</span></div>
+              <div class="setting-line">Sair da conta <span></span></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="screen" id="screen-premium">
+          <div class="status"></div>
+          <header class="topbar">
+            <button class="back"><i class="ti ti-arrow-left"></i></button>
+            <div class="top-title">OdontoDex Premium</div>
+            <div></div>
+          </header>
+          <div class="body">
+            <section class="payment-card">
+              <div class="promo">Preço promocional</div>
+              <div class="price">R$ 9,90</div>
+              <div class="subtle">por mês após o período de teste</div>
+              <div style="margin-top:12px;"><span class="strike">R$ 19,90</span> <span class="subtle">valor real</span></div>
+              <button class="cta">Assinar Premium</button>
+            </section>
+            <section class="clinical-card primary">
+              <div class="card-label"><i class="ti ti-diamond"></i> O que libera</div>
+              <p>Condutas completas, protocolos, prescrições, S.O.S. clínico e pacientes especiais em um só lugar.</p>
+            </section>
+            <div class="secure">
+              <i class="ti ti-shield-check"></i>
+              <span>Pagamento seguro pelo Mercado Pago. Renovação mensal, com cancelamento quando quiser.</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    </section>
+
+    <aside class="notes">
+      <h2>O que muda na proposta</h2>
+      <div class="change-list">
+        <div class="change"><b>1. Camadas mais claras</b><span>Fundo quase preto, cards em dois níveis e blocos internos um pouco mais claros. Isso evita que tudo pareça uma massa azul escura.</span></div>
+        <div class="change"><b>2. Header mais premium</b><span>O topo continua com a identidade roxa, mas com menos brilho e mais profundidade.</span></div>
+        <div class="change"><b>3. Busca mais tocável</b><span>Campo de busca levemente mais claro que o fundo, com borda visível e contraste sem parecer pesado.</span></div>
+        <div class="change"><b>4. Cores clínicas preservadas</b><span>Favoritos e ferramentas em amarelo, S.O.S. em vermelho, ações principais em roxo e avisos clínicos em âmbar.</span></div>
+        <div class="change"><b>5. Sheets e protocolos com mais leitura</b><span>Cards clínicos ganham contraste próprio para o texto não competir com o fundo.</span></div>
+      </div>
+    </aside>
+  </main>
+
+  <script>
+    const tabs = document.querySelectorAll(".tab");
+    const screens = document.querySelectorAll(".screen");
+    tabs.forEach(tab => {
+      tab.addEventListener("click", () => {
+        const id = tab.dataset.screen;
+        tabs.forEach(item => item.classList.toggle("active", item === tab));
+        screens.forEach(screen => screen.classList.toggle("active", screen.id === "screen-" + id));
+      });
+    });
+  </script>
+</body>
+</html>
