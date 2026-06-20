@@ -14,6 +14,20 @@ function pwaAlreadyDismissed(){
   return localStorage.getItem('pwaDismissed') === '1';
 }
 
+function hideIosInstallOverlay(){
+  const overlay = document.getElementById('ios-install-overlay');
+  if(!overlay) return;
+  clearTimeout(overlay.__modalCloseTimer);
+  if(!overlay.classList.contains('show')){
+    overlay.classList.remove('modal-closing');
+    return;
+  }
+  overlay.classList.add('modal-closing');
+  overlay.__modalCloseTimer = setTimeout(() => {
+    overlay.classList.remove('show','modal-closing');
+  }, 260);
+}
+
 function showPwaBanner(){
   if(isInStandaloneMode() || pwaAlreadyDismissed()) return;
   const banner = document.getElementById('pwa-banner');
@@ -41,7 +55,12 @@ document.addEventListener('DOMContentLoaded', () => {
   // iOS Safari: show install instructions only in Safari, when not standalone and not dismissed.
   if(isIOSSafari() && !isInStandaloneMode() && !pwaAlreadyDismissed()){
     setTimeout(()=>{
-      document.getElementById('ios-install-overlay').classList.add('show');
+      const overlay = document.getElementById('ios-install-overlay');
+      if(overlay){
+        clearTimeout(overlay.__modalCloseTimer);
+        overlay.classList.remove('modal-closing');
+        overlay.classList.add('show');
+      }
     }, 1500);
   }
 
@@ -64,7 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // Close iOS modal
   document.getElementById('ios-close-btn')?.addEventListener('click', () => {
-    document.getElementById('ios-install-overlay').classList.remove('show');
+    hideIosInstallOverlay();
     localStorage.setItem('pwaDismissed','1');
   });
 });

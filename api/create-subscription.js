@@ -1,5 +1,23 @@
 ﻿const { admin, db, requireSameUser, sendAuthError } = require("./_auth");
 
+function normalizarCupom(cupom) {
+  return String(cupom || "").trim().toUpperCase();
+}
+
+async function validarCupomAtivo(cupom) {
+  const codigo = normalizarCupom(cupom);
+  if (!codigo) return "";
+
+  const doc = await db.collection("CUPONS").doc(codigo).get();
+  if (!doc.exists || doc.data()?.ativo !== true) {
+    const erro = new Error("Cupom invalido ou inativo");
+    erro.statusCode = 400;
+    throw erro;
+  }
+
+  return codigo;
+}
+
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
 
@@ -14,6 +32,7 @@ module.exports = async (req, res) => {
     const { email, token, cupom } = req.body;
     const uid = decodedToken.uid;
     if (!token) return res.status(400).json({ error: "Token obrigatório" });
+    const cupomAplicado = await validarCupomAtivo(cupom);
 
     const userRef = db.collection("users").doc(uid);
     const userDoc = await userRef.get();
@@ -86,21 +105,21 @@ module.exports = async (req, res) => {
 
     await userRef.update(updates);
 
-    if (cupom) {
+    if (cupomAplicado) {
       const conversionRef = db.collection("conversoes_cupom").doc(`subscription_${assinatura.id}`);
       await db.runTransaction(async tx => {
         const conversionDoc = await tx.get(conversionRef);
         if (conversionDoc.exists) return;
 
         tx.set(conversionRef, {
-          cupom,
+          cupom: cupomAplicado,
           userId: uid,
           userEmail: email || decodedToken.email || "",
           valor: 3.00,
           assinaturaId: assinatura.id,
           timestamp: admin.firestore.FieldValue.serverTimestamp(),
         });
-        tx.update(db.collection("CUPONS").doc(cupom), {
+        tx.update(db.collection("CUPONS").doc(cupomAplicado), {
           conversoes: admin.firestore.FieldValue.increment(1),
         });
       });
@@ -114,6 +133,6 @@ module.exports = async (req, res) => {
     });
   } catch (e) {
     console.error("Erro create-subscription:", e);
-    return res.status(500).json({ error: e.message });
+    return res.status(e.statusCode || 500).json({ error: e.message });
   }
 };

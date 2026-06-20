@@ -90,6 +90,38 @@ function showVerificationCodeFeedback(message){
   if(input) input.classList.toggle("has-error", !!message);
 }
 
+function setAuthButtonProcessing(buttonOrId, label){
+  const btn=typeof buttonOrId==="string"?document.getElementById(buttonOrId):buttonOrId;
+  if(!btn || btn.classList.contains("is-processing")) return btn;
+  btn.dataset.originalHtml=btn.innerHTML;
+  btn.dataset.originalDisabled=btn.disabled ? "true" : "false";
+  btn.disabled=true;
+  btn.setAttribute("disabled","disabled");
+  btn.setAttribute("aria-busy","true");
+  btn.classList.add("is-processing");
+  document.body?.classList.add("auth-button-processing");
+  btn.innerHTML=`<span class="btn-mini-spinner" aria-hidden="true"></span><span>${label}</span>`;
+  return btn;
+}
+
+function clearAuthButtonProcessing(buttonOrId){
+  const btn=typeof buttonOrId==="string"?document.getElementById(buttonOrId):buttonOrId;
+  if(!btn || !btn.classList.contains("is-processing")) return;
+  btn.innerHTML=btn.dataset.originalHtml || btn.textContent || "";
+  btn.classList.remove("is-processing");
+  btn.removeAttribute("aria-busy");
+  if(btn.dataset.originalDisabled === "true") {
+    btn.disabled=true;
+    btn.setAttribute("disabled","disabled");
+  } else {
+    btn.disabled=false;
+    btn.removeAttribute("disabled");
+  }
+  delete btn.dataset.originalHtml;
+  delete btn.dataset.originalDisabled;
+  if(!document.querySelector(".is-processing")) document.body?.classList.remove("auth-button-processing");
+}
+
 function showEmailVerificationScreen(email, message, type){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
   document.getElementById("screen-login").classList.add("active");
@@ -234,6 +266,7 @@ async function resendVerificationEmail(){
     if(err){err.textContent="Entre na sua conta para reenviar o email de verificação.";err.style.display="block";}
     return;
   }
+  const resendBtn=setAuthButtonProcessing("resend-verification-btn","Enviando...");
   showLoading();
   try{
     const data=await sendVerificationEmailForUser(auth.currentUser);
@@ -244,6 +277,8 @@ async function resendVerificationEmail(){
     showVerificationFeedback(getEmailVerificationErrorMessage(e), e.code === "cooldown" ? "info" : "error");
   }finally{
     hideLoading();
+    clearAuthButtonProcessing(resendBtn);
+    updateVerificationResendButton();
   }
 }
 
@@ -306,6 +341,7 @@ async function checkEmailVerificationAndActivate(){
     if(err){err.textContent="Entre na sua conta para confirmar o código.";err.style.display="block";}
     return;
   }
+  const verifyBtn=setAuthButtonProcessing("verify-code-submit-btn","Verificando...");
   showLoading();
   try{
     const idToken=await auth.currentUser.getIdToken(true);
@@ -320,7 +356,8 @@ async function checkEmailVerificationAndActivate(){
     const verifyData=await verifyResponse.json().catch(()=>({}));
     if(!verifyResponse.ok){
       hideLoading();
-      showVerificationCodeFeedback(verifyData.error || "Código inválido. Confira e tente novamente.");
+      clearAuthButtonProcessing(verifyBtn);
+      showVerificationCodeFeedback("Esse código não conferiu. Confira os 6 números enviados para seu email ou peça um novo código.");
       return;
     }
     await auth.currentUser.reload();
@@ -328,12 +365,15 @@ async function checkEmailVerificationAndActivate(){
     if(result.ok && result.reason !== "not_verified"){
       stopEmailVerificationAutoCheck();
       hideLoading();
+      clearAuthButtonProcessing(verifyBtn);
       await loadAuthenticatedUserAndShowApp(auth.currentUser, {skipTrialActivation:true});
       return;
     }
     hideLoading();
+    clearAuthButtonProcessing(verifyBtn);
   }catch(e){
     hideLoading();
+    clearAuthButtonProcessing(verifyBtn);
     showVerificationFeedback("Não foi possível confirmar agora. Verifique sua conexão e tente novamente.", "error");
   }
 }
@@ -348,16 +388,25 @@ async function logoutForAnotherEmail(){
 function showTrialUsedModal(){
   const overlay=document.getElementById("trial-used-overlay");
   if(!overlay)return;
+  clearTimeout(overlay.__modalCloseTimer);
+  overlay.classList.remove("modal-closing");
   overlay.classList.add("active");
 }
 
-function closeTrialUsedModal(){
+function closeTrialUsedModal(options){
   const overlay=document.getElementById("trial-used-overlay");
-  if(overlay) overlay.classList.remove("active");
+  if(!overlay)return;
+  clearTimeout(overlay.__modalCloseTimer);
+  if(options&&options.immediate){
+    overlay.classList.remove("modal-closing","active");
+    return;
+  }
+  overlay.classList.add("modal-closing");
+  overlay.__modalCloseTimer=setTimeout(()=>overlay.classList.remove("modal-closing","active"),260);
 }
 
 function activatePremiumFromTrialUsed(){
-  closeTrialUsedModal();
+  closeTrialUsedModal({immediate:true});
   if(typeof showOverlay === "function") showOverlay("premium-overlay");
   else {
     const premium=document.getElementById("premium-overlay");
@@ -375,6 +424,7 @@ async function doLoginGoogle(){
     console.warn("Google login bloqueado em file://. Use https://www.odontodex.com.br ou localhost autorizado no Firebase.");
     return;
   }
+  const googleBtn=setAuthButtonProcessing("google-login-btn","Entrando...");
   showLoading();
   try {
     const res = await auth.signInWithPopup(provider);
@@ -409,6 +459,7 @@ async function doLoginGoogle(){
     }
   } catch(e) {
     hideLoading();
+    clearAuthButtonProcessing(googleBtn);
     console.error("Erro no login com Google:", e);
     const msgs={
       "auth/unauthorized-domain":"Este domínio não está autorizado no Firebase para login com Google.",
@@ -422,12 +473,14 @@ async function doLoginGoogle(){
     if(err){err.textContent=msg;err.style.display="block";}
     showToast(msg, "error");
   }
+  clearAuthButtonProcessing(googleBtn);
 }
 async function doLogin(){
   const email=document.getElementById("login-email")?.value?.trim();
   const pwd=document.getElementById("login-password")?.value;
   const err=document.getElementById("login-error");
   if(!email||!pwd){if(err){err.textContent="Preencha todos os campos";err.style.display="block";}return;}
+  const loginBtn=setAuthButtonProcessing("login-submit-btn","Entrando...");
   showLoading();
   try{
     const res=await auth.signInWithEmailAndPassword(email,pwd);
@@ -448,18 +501,21 @@ async function doLogin(){
         if(e.code === "cooldown" && e.seconds) startVerificationResendCooldown(e.seconds * 1000);
         showVerificationFeedback(getEmailVerificationErrorMessage(e), e.code === "cooldown" ? "info" : "error");
       }
+      clearAuthButtonProcessing(loginBtn);
       return;
     }
     showToast("Login realizado!","success");
     await loadAuthenticatedUserAndShowApp(currentUser);
   }catch(e){
     hideLoading();
+    clearAuthButtonProcessing(loginBtn);
     if(err){
       const msgs={"auth/user-not-found":"Usuário não encontrado","auth/wrong-password":"Senha incorreta","auth/invalid-email":"Email inválido","auth/too-many-requests":"Muitas tentativas. Aguarde um momento."};
       err.textContent=msgs[e.code]||"Erro ao entrar. Verifique suas credenciais.";
       err.style.display="block";
     }
   }
+  clearAuthButtonProcessing(loginBtn);
 }
 
 // Variáveis de seleção do cadastro
@@ -515,6 +571,7 @@ async function gwConfirmar() {
   const primeiroNome = nome.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1).toLowerCase();}).join(' ');
   const displayName = gwPerfil === 'estudante' ? primeiroNome : (gwTrat ? gwTrat + ' ' + primeiroNome : primeiroNome);
   let metaGoogleRegistrationCompleted = false;
+  const gwBtn=setAuthButtonProcessing("gw-btn-confirmar","Salvando...");
   showLoading();
   try {
     await currentUser.updateProfile({ displayName: displayName });
@@ -550,6 +607,8 @@ async function gwConfirmar() {
     metaGoogleRegistrationCompleted = true;
   } catch(e) { console.log(e); }
   hideLoading();
+  clearAuthButtonProcessing(gwBtn);
+  gwValidarBotao();
   const googleWelcomeOverlay = document.getElementById('google-welcome-overlay');
   if (googleWelcomeOverlay) {
     googleWelcomeOverlay.classList.remove('active');
@@ -637,6 +696,7 @@ async function doRegister(){
   if(pwd.length<6){if(err){err.textContent="Use uma senha mais forte.";err.style.display="block";}return;}
   if(pwd !== pwdConfirm){if(err){err.textContent="As senhas não coincidem.";err.style.display="block";}return;}
   if(!termosOk){if(err){err.textContent="Você precisa aceitar os Termos de Uso e a Política de Privacidade para criar sua conta.";err.style.display="block";}return;}
+  const registerBtn=setAuthButtonProcessing("register-submit-btn","Criando conta...");
   showLoading();
   try{
     const res=await auth.createUserWithEmailAndPassword(email,pwd);
@@ -684,6 +744,8 @@ async function doRegister(){
       verificationType="error";
     }
     hideLoading();
+    clearAuthButtonProcessing(registerBtn);
+    validarCadastro();
     showToast('Conta criada. Enviamos um código para liberar o Premium.','success');
     window.userIsPremium = false;
     localStorage.setItem('userIsPremium', 'false');
@@ -694,16 +756,18 @@ if (typeof trackMetaCompleteRegistrationOnce === "function") {
 showEmailVerificationScreen(currentUser.email, verificationMessage, verificationType);
   }catch(e){
     hideLoading();
+    clearAuthButtonProcessing(registerBtn);
+    validarCadastro();
     if(err){
       const msgs={
-        "auth/email-already-in-use":"Este e-mail já possui uma conta. Tente entrar ou recuperar sua senha.",
-        "auth/invalid-email":"Digite um e-mail válido.",
-        "auth/weak-password":"Use uma senha mais forte.",
+        "auth/email-already-in-use":"Esse email já tem uma conta no OdontoDex. Entre com sua senha ou use a recuperação de acesso.",
+        "auth/invalid-email":"Digite um email válido para criar sua conta.",
+        "auth/weak-password":"Escolha uma senha com pelo menos 6 caracteres.",
         "auth/unauthorized-continue-uri":"Conta criada, mas o Firebase recusou o link de verificação. Adicione www.odontodex.com.br nos domínios autorizados do Firebase Auth.",
         "auth/invalid-continue-uri":"Conta criada, mas o link de verificação está inválido.",
         "auth/too-many-requests":"Conta criada, mas houve muitos envios de email em pouco tempo. Aguarde alguns minutos e tente reenviar."
       };
-      err.textContent=msgs[e.code]||getEmailVerificationErrorMessage(e);
+      err.textContent=msgs[e.code]||"Não foi possível criar sua conta agora. Confira os dados e tente novamente.";
       err.style.display="block";
     }
   }
@@ -714,6 +778,7 @@ async function doReset(){
   const err=document.getElementById("reset-error");
   const suc=document.getElementById("reset-success");
   if(!email){if(err){err.textContent="Digite seu email";err.style.display="block";}return;}
+  const resetBtn=setAuthButtonProcessing("reset-submit-btn","Enviando...");
   try{
     await auth.sendPasswordResetEmail(email);
     if(suc){suc.textContent="Email de recuperação enviado!";suc.style.display="block";}
@@ -721,8 +786,8 @@ async function doReset(){
   }catch(e){
     if(err){err.textContent="Erro ao enviar email. Verifique o endereço.";err.style.display="block";}
   }
+  clearAuthButtonProcessing(resetBtn);
 }
-
 async function logout(){
   showLoading();
   await auth.signOut();

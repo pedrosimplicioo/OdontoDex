@@ -61,7 +61,6 @@ const HOME_PRESS_TARGET_SELECTOR = [
   ".cat-horizontal",
   ".quick-btn",
   ".home-tool-card",
-  ".home-prescricoes-card",
   ".home-prescricoes-item",
   ".quick-conduct-card"
 ].join(",");
@@ -116,7 +115,7 @@ function _renderScreen(id) {
   if(id === "search") {
     const si=document.getElementById("search-input"); if(si) si.value="";
     const res=document.getElementById("search-results");
-    if(res) res.innerHTML='<p class="empty-msg">Digite pelo menos 2 letras</p>';
+    if(res) res.innerHTML='<p class="empty-msg">Digite pelo menos 2 letras para consultar</p>';
   }
 }
 

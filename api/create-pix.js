@@ -20,6 +20,24 @@ function paymentBelongsToUser(payment, uid) {
   return metadataUid === uid || externalReference === uid;
 }
 
+function normalizarCupom(cupom) {
+  return String(cupom || "").trim().toUpperCase();
+}
+
+async function validarCupomAtivo(cupom) {
+  const codigo = normalizarCupom(cupom);
+  if (!codigo) return "";
+
+  const doc = await db.collection("CUPONS").doc(codigo).get();
+  if (!doc.exists || doc.data()?.ativo !== true) {
+    const erro = new Error("Cupom invalido ou inativo");
+    erro.statusCode = 400;
+    throw erro;
+  }
+
+  return codigo;
+}
+
 async function activatePixPremium(uid, paymentId, status) {
   const agora = new Date();
   const expira = new Date(agora);
@@ -103,6 +121,8 @@ module.exports = async (req, res) => {
       return await checkPixStatus(req, res, uid);
     }
 
+    const cupomAplicado = await validarCupomAtivo(cupom);
+
     const mpRes = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
       headers: {
@@ -135,7 +155,7 @@ module.exports = async (req, res) => {
       uid,
       email: email || decodedToken.email || "",
       premiumOrigem: "pix",
-      cupom: cupom || null,
+      cupom: cupomAplicado || null,
       criadoEm: admin.firestore.FieldValue.serverTimestamp(),
     });
 
@@ -146,6 +166,6 @@ module.exports = async (req, res) => {
     });
   } catch (e) {
     console.error("Erro create-pix:", e);
-    return res.status(500).json({ error: e.message });
+    return res.status(e.statusCode || 500).json({ error: e.message });
   }
 };

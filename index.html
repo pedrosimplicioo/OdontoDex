@@ -15,7 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<link rel="stylesheet" href="src/styles/app.css?v=20260620-search-sheet-drag">
+<link rel="stylesheet" href="src/styles/app.css?v=20260620-netflix-card-peek">
 </head>
 <body>
 <!-- AVISO IN-APP BROWSER -->
@@ -58,9 +58,9 @@
         <div class="input-group"><label class="input-label">Email</label><input type="email" id="login-email" class="input-field" placeholder="seu@email.com" onkeydown="if(event.key==='Enter')doLogin()"></div>
         <div class="input-group"><label class="input-label">Senha</label><div class="password-field-wrap"><input type="password" id="login-password" class="input-field" placeholder="••••••" onkeydown="if(event.key==='Enter')doLogin()"><button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password', this)" aria-label="Mostrar senha"><i class="ti ti-eye"></i></button></div></div>
         <div id="login-error" class="error-message"></div>
-        <button class="btn btn-primary" onclick="doLogin()" style="margin-bottom:12px">Entrar</button>
+        <button class="btn btn-primary" id="login-submit-btn" onclick="doLogin()" style="margin-bottom:12px">Entrar</button>
         <div class="divider">ou</div>
-        <button class="btn btn-secondary" onclick="doLoginGoogle()" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
+        <button class="btn btn-secondary" id="google-login-btn" onclick="doLoginGoogle()" style="display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:8px">
   <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="18">
   Entrar com Google
 </button>
@@ -101,7 +101,7 @@
         <div class="input-group"><label class="input-label">Email para recuperação</label><input type="email" id="reset-email" class="input-field" placeholder="seu@email.com"></div>
         <div id="reset-error" class="error-message"></div>
         <div id="reset-success" class="success-message"></div>
-        <button class="btn btn-primary" onclick="doReset()" style="margin-bottom:12px">Enviar email</button>
+        <button class="btn btn-primary" id="reset-submit-btn" onclick="doReset()" style="margin-bottom:12px">Enviar email</button>
         <button class="btn btn-text" onclick="showLogin()">Voltar para login</button>
       </div>
       <div id="email-verification-form" style="display:none">
@@ -115,7 +115,7 @@
         <p class="verify-helper">Não encontrou? Verifique a caixa de spam ou promoções.</p>
         <p class="verify-note">O código expira em 10 minutos. Se necessário, reenvie após a contagem terminar.</p>
         <div id="verify-feedback" class="verify-feedback"></div>
-        <button class="btn btn-primary" onclick="checkEmailVerificationAndActivate()" style="margin-bottom:10px">Confirmar código</button>
+        <button class="btn btn-primary" id="verify-code-submit-btn" onclick="checkEmailVerificationAndActivate()" style="margin-bottom:10px">Confirmar código</button>
         <button class="btn btn-secondary" id="resend-verification-btn" onclick="resendVerificationEmail()" style="margin-bottom:10px">Reenviar email</button>
         <button class="btn btn-text" onclick="logoutForAnotherEmail()">Sair e usar outro email</button>
       </div>
@@ -337,7 +337,7 @@
     <button class="back-btn" onclick="goBackToLastScreen()">←</button>
     <input class="search-input-real" id="search-input" placeholder="pino, extração, abscesso..." oninput="doSearch(this.value)">
   </div>
-  <div class="body" id="search-results"><p class="empty-msg">Digite pelo menos 2 letras</p></div>
+  <div class="body" id="search-results"><p class="empty-msg">Digite pelo menos 2 letras para consultar</p></div>
 </div>
 
 <!-- FAVORITES -->
@@ -550,7 +550,7 @@
     <div class="prem-hero">
       <button class="prem-close" onclick="hideOverlay('premium-overlay')">✕</button>
       <div class="prem-badge-top"><i class="ti ti-discount-2"></i> OFERTA PROMOCIONAL</div>
-      <div class="prem-hero-title">Continue com acesso Premium</div>
+      <div class="prem-hero-title">Desbloqueie o OdontoDex Premium</div>
       <div class="prem-hero-sub">Mantenha condutas, protocolos, prescrições e S.O.S. clínico disponíveis durante o atendimento.</div>
     </div>
 
@@ -572,7 +572,7 @@
     </div>
 
     <!-- O que está bloqueado -->
-    <div class="prem-section-label">O QUE VOCÊ ESTÁ PERDENDO</div>
+    <div class="prem-section-label">O QUE O PREMIUM LIBERA</div>
     <div class="prem-locked-grid">
       <div class="prem-locked-card">
         <div class="prem-locked-icon"><i class="ti ti-crown"></i></div>
@@ -612,34 +612,34 @@
     </div>
 
     <!-- Benefícios -->
-    <div class="prem-section-label">POR QUE VALE CADA CENTAVO</div>
+    <div class="prem-section-label">POR QUE ASSINAR</div>
     <div class="prem-benefits">
       <div class="prem-benefit">
         <div class="prem-benefit-icon"><i class="ti ti-bolt"></i></div>
         <div>
           <div class="prem-benefit-title">Decisão em segundos</div>
-          <div class="prem-benefit-sub">Sem abrir livro. Sem consultar o colega. O protocolo certo na sua mão.</div>
+          <div class="prem-benefit-sub">Consulte rapidamente sem interromper o atendimento.</div>
         </div>
       </div>
       <div class="prem-benefit">
         <div class="prem-benefit-icon"><i class="ti ti-alert-triangle"></i></div>
         <div>
-          <div class="prem-benefit-title">Modo Pânico incluído</div>
-          <div class="prem-benefit-sub">Deu errado? O app te guia passo a passo na emergência.</div>
+          <div class="prem-benefit-title">S.O.S. clínico completo</div>
+          <div class="prem-benefit-sub">Tenha um caminho organizado para intercorrências clínicas.</div>
         </div>
       </div>
       <div class="prem-benefit">
         <div class="prem-benefit-icon"><i class="ti ti-wifi-off"></i></div>
         <div>
           <div class="prem-benefit-title">Funciona offline</div>
-          <div class="prem-benefit-sub">Sem internet no consultório? Não importa. Tudo disponível.</div>
+          <div class="prem-benefit-sub">Consulte conteúdos já carregados mesmo sem depender da conexão.</div>
         </div>
       </div>
       <div class="prem-benefit">
         <div class="prem-benefit-icon"><i class="ti ti-refresh"></i></div>
         <div>
           <div class="prem-benefit-title">Atualizado mensalmente</div>
-          <div class="prem-benefit-sub">Novos protocolos todo mês. Você sempre à frente.</div>
+          <div class="prem-benefit-sub">O OdontoDex evolui com novos conteúdos clínicos.</div>
         </div>
       </div>
     </div>
@@ -748,38 +748,66 @@
   </div>
   <div class="payment-screen-body">
     <div class="payment-summary-card">
+      <div class="payment-summary-badge">Preço promocional</div>
       <div class="payment-summary-title">OdontoDex Premium</div>
       <div class="payment-summary-value">R$ 9,90</div>
-      <div class="payment-summary-desc">acesso completo aos recursos Premium</div>
+      <div class="payment-summary-real">Valor real: <s>R$ 19,90/mês</s></div>
+      <div class="payment-summary-desc">Preço promocional por tempo limitado.</div>
     </div>
     <div class="payment-security-row">
       <span class="protocol-inline-icon"><i class="ti ti-lock"></i></span>
-      <div class="payment-security-txt">Pagamento 100% seguro · Seus dados são protegidos pelo Mercado Pago · PCI DSS compliant</div>
+      <div class="payment-security-txt">Pagamento processado pelo Mercado Pago. O OdontoDex não armazena dados do seu cartão.</div>
     </div>
-    <div style="font-size:12px;color:#64748B;line-height:1.6;padding:12px 0 4px;text-align:center;">Escolha sua forma de acesso Premium. Você pode pagar 30 dias por Pix, sem renovação automática, ou ativar uma assinatura mensal no cartão.</div>
+    <div class="payment-choice-note">Escolha a forma de pagamento que faz mais sentido para você.</div>
     <div style="font-size:12px;color:#64748B;line-height:1.6;padding:0 0 4px;text-align:center;">Ao continuar, você concorda com nossos <a href="/termos" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Termos de Uso</a> e nossa <a href="/privacidade" target="_blank" style="color:#7C3FA0;font-weight:600;text-decoration:none;">Política de Privacidade</a>.</div>
     <!-- CUPOM PARCEIRO -->
-<div style="display:flex;flex-direction:column;gap:6px;margin-bottom:4px;">
-  <div style="font-size:11px;font-weight:700;color:#64748B;letter-spacing:0.5px;text-transform:uppercase;"><i class="ti ti-ticket"></i> Cupom de parceiro</div>
-  <div id="cupom-row" style="display:flex;align-items:center;gap:8px;background:#F8FAFC;border:1.5px solid #E2E8F0;border-radius:14px;padding:11px 14px;">
-    <span class="protocol-inline-icon"><i class="ti ti-tag"></i></span>
-    <input id="cupom-input" type="text" placeholder="Digite o código" maxlength="20" style="flex:1;border:none;background:transparent;font-size:14px;font-weight:600;color:#0F172A;outline:none;text-transform:uppercase;letter-spacing:1px;font-family:inherit;" oninput="verificarCupom(this.value)">
-    <span id="cupom-status" style="font-size:18px;"></span>
-  </div>
-  <div id="cupom-feedback" style="display:none;font-size:12px;font-weight:600;padding:8px 12px;border-radius:10px;"></div>
-</div>
-    <button onclick="abrirPixModal()" style="width:100%;background:#00B37E;color:#fff;border:none;border-radius:20px;padding:16px;font-size:15px;font-weight:800;cursor:pointer;font-family:inherit;display:flex;align-items:center;justify-content:center;gap:10px;margin-bottom:16px;">
-  <span class="protocol-inline-icon"><i class="ti ti-device-mobile"></i></span>
-  <span>Pix avulso — 30 dias de acesso, sem renovação automática</span>
-</button>
-<div style="text-align:center;font-size:12px;color:#94A3B8;margin-bottom:16px;">ou</div>
-    <div class="payment-card-heading">Assinatura mensal no cartão</div>
-    <div class="payment-card-sub">Renovação automática mensal. Cancele quando quiser.</div>
-    <div id="mp-brick-container">
-      <div class="loading-brick">
-        <div class="spinner" style="border-color:#7C3FA0;border-top-color:transparent;"></div>
-        <span>Carregando assinatura mensal no cartão...</span>
+    <div class="payment-coupon-card">
+      <div class="payment-coupon-label"><i class="ti ti-ticket"></i> Código de parceiro</div>
+      <div id="cupom-row" class="payment-coupon-row">
+        <span class="protocol-inline-icon"><i class="ti ti-tag"></i></span>
+        <input id="cupom-input" class="payment-coupon-input" type="text" placeholder="Digite o código" maxlength="20" oninput="editarCupom(this.value)">
+        <span id="cupom-status" class="payment-coupon-status"></span>
+        <button id="cupom-apply-btn" class="payment-coupon-apply" type="button" onclick="aplicarCupom()" disabled>Aplicar</button>
+        <button id="cupom-remove-btn" class="payment-coupon-remove" type="button" onclick="removerCupom()" style="display:none;">Remover</button>
       </div>
+      <div id="cupom-feedback" class="payment-coupon-feedback"></div>
+    </div>
+    <div class="payment-method-card payment-method-card-card">
+      <div class="payment-method-head">
+        <span class="payment-method-icon"><i class="ti ti-credit-card"></i></span>
+        <div>
+          <div class="payment-method-title">Cartão</div>
+          <div class="payment-method-sub">Assinatura mensal recorrente</div>
+        </div>
+      </div>
+      <div class="payment-method-price">R$ 9,90<span>/mês</span></div>
+      <div class="payment-method-desc">Renova automaticamente. Você pode cancelar quando quiser.</div>
+      <div id="mp-brick-container">
+        <div class="loading-brick">
+          <div class="spinner" style="border-color:#7C3FA0;border-top-color:transparent;"></div>
+          <span>Carregando assinatura mensal no cartão...</span>
+        </div>
+      </div>
+    </div>
+    <div class="payment-method-separator">ou</div>
+    <div class="payment-method-card payment-method-card-pix">
+      <div class="payment-method-head">
+        <span class="payment-method-icon payment-method-icon-pix"><i class="ti ti-device-mobile"></i></span>
+        <div>
+          <div class="payment-method-title">Pix avulso</div>
+          <div class="payment-method-sub">30 dias de acesso Premium</div>
+        </div>
+      </div>
+      <div class="payment-method-price">R$ 9,90</div>
+      <div class="payment-method-desc">Sem renovação automática. Você paga uma vez e o acesso é liberado após a confirmação.</div>
+      <button class="payment-pix-button" onclick="abrirPixModal()">
+        <i class="ti ti-qrcode"></i>
+        <span>Pagar com Pix</span>
+      </button>
+    </div>
+    <div class="payment-after-note">
+      <i class="ti ti-circle-check"></i>
+      <span>Após a confirmação, o Premium é liberado automaticamente.</span>
     </div>
   </div>
 </div>
@@ -823,23 +851,23 @@
 <script src="src/scripts/meta-pixel.js" defer></script>
 <script src="src/scripts/analytics.js" defer></script>
 <script src="src/utils/storage.js" defer></script>
-<script src="src/utils/dom.js?v=20260620-widget-collapse-smooth" defer></script>
-<script src="src/scripts/navigation.js?v=20260619-internal-screen-motion" defer></script>
+<script src="src/utils/dom.js?v=20260620-premium-journey" defer></script>
+<script src="src/scripts/navigation.js?v=20260620-guided-empty-copy" defer></script>
 <script src="src/components/widgets.js?v=20260620-widget-collapse-match" defer></script>
-<script src="src/components/render.js" defer></script>
+<script src="src/components/render.js?v=20260620-premium-category-preview" defer></script>
 <script src="src/scripts/usage-analytics.js" defer></script>
-<script src="src/components/protocols.js" defer></script>
+<script src="src/components/protocols.js?v=20260620-guided-empty-copy" defer></script>
 <script src="src/data/search-intents.js" defer></script>
 <script src="src/scripts/clinical-intent-engine.js" defer></script>
-<script src="src/scripts/search.js?v=20260620-search-sheet-drag" defer></script>
+<script src="src/scripts/search.js?v=20260620-guided-empty-copy" defer></script>
 <script src="src/components/pulpite.js?v=20260619-clinical-expand" defer></script>
 <script src="src/components/crisis.js" defer></script>
-<script src="src/scripts/auth.js?v=20260618-soft-motion" defer></script>
-<script src="src/scripts/pwa.js?v=20260618-premium-price-modal" defer></script>
+<script src="src/scripts/auth.js?v=20260620-auth-error-copy" defer></script>
+<script src="src/scripts/pwa.js?v=20260620-modal-close-motion" defer></script>
 <script src="src/scripts/app-init.js?v=20260618-premium-price-modal" defer></script>
 <script src="src/scripts/premium.js" defer></script>
 <script src="src/components/student-banner.js" defer></script>
-<script src="src/scripts/payments.js" defer></script>
+<script src="src/scripts/payments.js?v=20260620-coupon-apply-flow" defer></script>
 <script src="src/components/prescriptions.js" defer></script>
 </body>
 </html>
