@@ -67,12 +67,18 @@ document.addEventListener("DOMContentLoaded", () => {
   if(input) input.addEventListener("blur", handleHomeSearchBlur);
 });
 
-function createHomeSearchButton(title,kind,onClick,badges){
+function createHomeSearchButton(title,kind,onClick,badges,options){
   const btn=document.createElement("button");
-  btn.className="home-search-suggestion";
+  const locked=!!(options&&options.locked);
+  btn.className="home-search-suggestion"+(locked?" is-premium-locked":"");
+  if(locked)btn.setAttribute("aria-label",`${title} - Premium`);
   const badgeHtml=(badges||[]).map(b=>`<span class="home-search-context-badge">${escapeHtml(b)}</span>`).join("");
+  const lockHtml=locked?'<span class="home-search-premium-lock"><i class="ti ti-lock"></i><span>Premium</span></span>':"";
   btn.innerHTML=`
-    <span class="home-search-suggestion-title">${escapeHtml(title)}</span>
+    <span class="home-search-suggestion-head">
+      <span class="home-search-suggestion-title">${escapeHtml(title)}</span>
+      ${lockHtml}
+    </span>
     <span class="home-search-suggestion-meta">
       <span class="home-search-suggestion-kind">${escapeHtml(kind)}</span>
       ${badgeHtml?`<span class="home-search-context-badges">${badgeHtml}</span>`:""}
@@ -80,6 +86,42 @@ function createHomeSearchButton(title,kind,onClick,badges){
   `;
   btn.onclick=onClick;
   return btn;
+}
+
+function isSearchProtocolLocked(id){
+  if(typeof isProtocolLocked==="function")return isProtocolLocked(id);
+  const protocol=DATA&&DATA.protocols?DATA.protocols[id]:null;
+  return !!(protocol&&protocol.free===false&&!window.userIsPremium);
+}
+
+function isClinicalSearchItemLocked(item){
+  if(!item||window.userIsPremium)return false;
+  if(item.free===false)return true;
+  if(item.type==="conduct")return typeof isQuickConductLocked==="function"&&isQuickConductLocked(item.id);
+  if(item.type==="protocol")return isSearchProtocolLocked(item.id);
+  if(item.type==="prescription")return typeof isSearchPrescriptionLocked==="function"&&isSearchPrescriptionLocked(item.id);
+  if(item.type==="profile"||item.type==="alert")return typeof isSearchProfileLocked==="function"&&isSearchProfileLocked(item.id);
+  if(item.type==="anesthetic")return typeof isSearchAnestheticLocked==="function"&&isSearchAnestheticLocked(item.id);
+  return false;
+}
+
+function openPremiumFromSearchSuggestion(){
+  setHomeSearchFocusMode(false);
+  closeSearchBottomSheet();
+  const res=document.getElementById("home-search-results");
+  if(res)closeHomeSearchResults(res);
+  showUpgradeModal(null);
+}
+
+function createClinicalSearchButton(item,returnInputId){
+  const locked=isClinicalSearchItemLocked(item);
+  return createHomeSearchButton(
+    item.title,
+    item.kind,
+    locked?openPremiumFromSearchSuggestion:()=>openClinicalSearchItem(item,returnInputId),
+    item.badges,
+    {locked}
+  );
 }
 
 let homeSearchRenderTimer=null;
@@ -200,6 +242,7 @@ function getRelatedSearchSuggestions(query,limit){
       id:card.id,
       title:card.title,
       kind:"Conduta rápida",
+      free:typeof isQuickConductFree==="function"?isQuickConductFree(card.id):card.free,
       subtitle:card.subtitle,
       intent:card.intent,
       quick:card.quick,
@@ -212,6 +255,7 @@ function getRelatedSearchSuggestions(query,limit){
       id,
       title:p.title,
       kind:"Protocolo",
+      free:typeof isProtocolFree==="function"?isProtocolFree(id):p.free,
       steps:p.steps,
       errors:p.errors,
       tip:p.tip,
@@ -230,7 +274,7 @@ function renderRelatedSearchSuggestions(container,query){
   const suggestions=clinical&&clinical.all.length?clinical.all:getRelatedSearchSuggestions(query,5);
   container.innerHTML='<div class="home-search-related-title">Sugestões relacionadas</div>';
   suggestions.forEach(item=>{
-    const btn=createHomeSearchButton(item.title,item.kind,()=>openClinicalSearchItem(item,"home-search-input"),item.badges);
+    const btn=createClinicalSearchButton(item,"home-search-input");
     container.appendChild(btn);
   });
   animateHomeSearchResults(container);
@@ -240,7 +284,7 @@ function appendClinicalSearchGroup(container,title,items,returnInputId){
   if(!items||!items.length)return;
   if(title)container.insertAdjacentHTML("beforeend",`<div class="home-search-group-title">${escapeHtml(title)}</div>`);
   items.forEach(item=>{
-    const btn=createHomeSearchButton(item.title,item.kind,()=>openClinicalSearchItem(item,returnInputId),item.badges);
+    const btn=createClinicalSearchButton(item,returnInputId);
     container.appendChild(btn);
   });
 }
@@ -304,19 +348,23 @@ function renderHomeSearchQuery(q,resDiv){
     return;
   }
   conductFound.forEach(card=>{
-    const btn=createHomeSearchButton(card.title,"Conduta rápida",()=>{
+    const item={type:"conduct",id:card.id,title:card.title,kind:"Conduta rápida",free:card.free};
+    const locked=isClinicalSearchItemLocked(item);
+    const btn=createHomeSearchButton(card.title,"Conduta rápida",locked?openPremiumFromSearchSuggestion:()=>{
       setHomeSearchFocusMode(false);
       searchSheetReturnInputId="home-search-input";
       openSearchCondutaSheet(card.id);
-    });
+    },null,{locked});
     resDiv.appendChild(btn);
   });
   found.forEach(p=>{
-    const btn=createHomeSearchButton(p.title,"Protocolo",()=>{
+    const item={type:"protocol",id:p.id,title:p.title,kind:"Protocolo",free:p.free};
+    const locked=isClinicalSearchItemLocked(item);
+    const btn=createHomeSearchButton(p.title,"Protocolo",locked?openPremiumFromSearchSuggestion:()=>{
       setHomeSearchFocusMode(false);
       searchSheetReturnInputId="home-search-input";
       openSearchProtocolSheet(p.id);
-    });
+    },null,{locked});
     resDiv.appendChild(btn);
   });
   animateHomeSearchResults(resDiv);
@@ -676,6 +724,11 @@ function openSearchCondutaSheet(id){
     showToast("Conduta rápida não disponível","error");
     return;
   }
+  if(typeof isQuickConductLocked==="function"&&isQuickConductLocked(id)){
+    closeSearchBottomSheet();
+    showUpgradeModal(null);
+    return;
+  }
   currentCondutaId=id;
   const isFav=typeof isFavorite==="function"&&isFavorite("conduct",id);
   const favoriteControl=`
@@ -732,7 +785,7 @@ function openSearchProtocolSheet(id,options){
     showToast("Protocolo não disponível","error");
     return;
   }
-  if(!p.free&&!window.userIsPremium){
+  if(typeof isProtocolLocked==="function" ? isProtocolLocked(id) : (!p.free&&!window.userIsPremium)){
     closeSearchBottomSheet();
     showUpgradeModal(null);
     return;
@@ -954,10 +1007,12 @@ function doSearch(q){
   }
   res.innerHTML="";
   found.forEach(p=>{
-    const btn=createHomeSearchButton(p.title,"Protocolo",()=>{
+    const item={type:"protocol",id:p.id,title:p.title,kind:"Protocolo",free:p.free};
+    const locked=isClinicalSearchItemLocked(item);
+    const btn=createHomeSearchButton(p.title,"Protocolo",locked?openPremiumFromSearchSuggestion:()=>{
       searchSheetReturnInputId="search-input";
       openSearchProtocolSheet(p.id,{resetStack:true});
-    });
+    },null,{locked});
     res.appendChild(btn);
   });
 }

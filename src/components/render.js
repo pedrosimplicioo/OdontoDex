@@ -43,8 +43,9 @@ function renderQuickConductCards(){
   if(!list) return;
   list.innerHTML = "";
   Object.values(QUICK_CONDUCT_CARDS).forEach(card => {
+    const locked = typeof isQuickConductLocked === "function" && isQuickConductLocked(card.id);
     const btn = document.createElement("button");
-    btn.className = "quick-conduct-card";
+    btn.className = "quick-conduct-card" + (locked ? " locked" : "");
     btn.innerHTML = `
       <span class="quick-conduct-icon">${card.icon}</span>
       <span class="quick-conduct-copy">
@@ -52,7 +53,10 @@ function renderQuickConductCards(){
       </span>
       <span class="quick-conduct-arrow">›</span>
     `;
-    btn.onclick = () => openConduta(card.id);
+    if(locked) {
+      btn.insertAdjacentHTML("beforeend", '<span class="quick-conduct-lock"><i class="ti ti-lock"></i></span>');
+    }
+    btn.onclick = () => locked ? showUpgradeModal(null) : openConduta(card.id);
     list.appendChild(btn);
   });
 }
@@ -60,6 +64,10 @@ function renderQuickConductCards(){
 function openConduta(id){
   if(!QUICK_CONDUCT_CARDS[id]) {
     showToast("Conduta rápida não disponível", "error");
+    return;
+  }
+  if(typeof isQuickConductLocked === "function" && isQuickConductLocked(id)) {
+    showUpgradeModal(null);
     return;
   }
   currentCondutaId = id;
@@ -523,11 +531,11 @@ function renderProceduresList(procs) {
   
   procs.forEach(proc => {
     const p = DATA.protocols[proc.id];
-    const seenHtml = HISTORY.includes(proc.id) ? '<span class="seen-badge">✓ Visto</span>' : '';
+    const locked = typeof isProtocolLocked === "function" ? isProtocolLocked(proc.id) : (!proc.free && !window.userIsPremium);
     const btn = document.createElement("button");
     btn.className = "list-btn";
-   if(proc.free || window.userIsPremium) {
-  btn.innerHTML = `<span class="list-txt">${proc.label}</span>${seenHtml}<span class="arr">›</span>`;
+   if(!locked) {
+  btn.innerHTML = `<span class="list-txt">${proc.label}</span><span class="arr">›</span>`;
 } else {
   btn.innerHTML = `<span class="list-txt">${proc.label}</span><span class="prem-tag"><i class="ti ti-lock"></i>Premium</span>`;
 }
@@ -576,7 +584,7 @@ function renderSOSButtons(){
   if(!container) return;
   container.innerHTML = "";
   SOS_ITEMS.forEach(item => {
-    const locked = !item.free && !window.userIsPremium;
+    const locked = typeof isProtocolLocked === "function" ? isProtocolLocked(item.proto) : (!item.free && !window.userIsPremium);
     const btn = document.createElement("div");
     btn.className = "quick-btn" + (locked ? " sos-locked" : "");
     btn.innerHTML = `<span class="quick-btn-icon">${item.icon}</span><span class="quick-btn-label">${item.label}</span>${locked ? '<span class="sos-crown"><i class="ti ti-lock"></i></span>' : ''}`;

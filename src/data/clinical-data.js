@@ -19,6 +19,17 @@ const PREMIUM_CATEGORY_LABELS = {
 // Situações de Emergência free
 const EMERGENCY_FREE = ["em1","em2"];
 
+// Protocolos ficam Premium por padrao. Para liberar algum como amostra, adicione o ID aqui.
+const FREE_PROTOCOL_IDS = [];
+
+function isProtocolFree(id){
+  return FREE_PROTOCOL_IDS.includes(id);
+}
+
+function isProtocolLocked(id){
+  return !isProtocolFree(id) && !window.userIsPremium;
+}
+
 const INITIAL_DATA = {
   categories:[
     {id:"dentistica",label:"Dentística",icon:'<i class="ti ti-dental"></i>'},
@@ -1218,6 +1229,21 @@ const ANESTESICOS_DATA = {
     ]
   },
 };
+
+const FREE_QUICK_CONDUCT_IDS = [
+  "fio-dental-nao-passa",
+  "coroa-caiu",
+  "dente-sensivel",
+  "dente-nao-anestesia"
+];
+
+function isQuickConductFree(id){
+  return FREE_QUICK_CONDUCT_IDS.includes(id);
+}
+
+function isQuickConductLocked(id){
+  return !isQuickConductFree(id) && !window.userIsPremium;
+}
 
 const QUICK_CONDUCT_CARDS = {
   "fio-dental-nao-passa": {

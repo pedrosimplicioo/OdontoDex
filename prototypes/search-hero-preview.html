@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>OdontoDex - Busca protagonista</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
+<style>
+:root{
+  --bg:#EEF3F9;
+  --card:#FFFFFF;
+  --ink:#0F172A;
+  --muted:#64748B;
+  --soft:#94A3B8;
+  --purple:#7C3FA0;
+  --purple-soft:#F5EEFB;
+  --border:#DDE6F1;
+  --shadow:0 18px 44px rgba(15,23,42,.14);
+  --radius:24px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{
+  min-height:100vh;
+  background:linear-gradient(135deg,#F8FAFC,#E9F0F8);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color:var(--ink);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+}
+.stage{
+  width:min(100%,1320px);
+  display:grid;
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  gap:24px;
+  align-items:start;
+}
+.panel-title{
+  font-size:12px;
+  font-weight:900;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:#7C3FA0;
+  margin:0 0 10px 4px;
+}
+.phone{
+  width:100%;
+  max-width:430px;
+  min-height:720px;
+  margin:auto;
+  background:var(--bg);
+  border:1px solid rgba(148,163,184,.28);
+  border-radius:32px;
+  overflow:hidden;
+  box-shadow:0 24px 70px rgba(15,23,42,.20);
+}
+.hdr{
+  position:relative;
+  padding:22px 20px 24px;
+  border-radius:0 0 28px 28px;
+  background:radial-gradient(circle at 50% -10%,rgba(124,63,160,.11),transparent 56%),linear-gradient(180deg,#FFFFFF,#FAFBFD);
+  box-shadow:0 16px 36px rgba(15,23,42,.12);
+}
+.status{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-bottom:16px;
+  font-size:12px;
+  color:#8CA0B7;
+}
+.dot{
+  width:7px;
+  height:7px;
+  border-radius:50%;
+  background:#22C55E;
+  display:inline-block;
+  margin-right:7px;
+  box-shadow:0 0 0 5px rgba(34,197,94,.10);
+}
+.gear{
+  width:34px;
+  height:34px;
+  border-radius:50%;
+  border:0;
+  color:#7C3FA0;
+  background:#F1F5F9;
+  display:grid;
+  place-items:center;
+}
+.brand{
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:18px;
+}
+.logo{
+  width:46px;
+  height:46px;
+  border-radius:16px;
+  background:#fff;
+  border:1px solid rgba(124,63,160,.14);
+  display:grid;
+  place-items:center;
+  color:#7C3FA0;
+  font-size:25px;
+  box-shadow:0 7px 18px rgba(15,23,42,.06);
+}
+.hello{
+  font-size:24px;
+  font-weight:900;
+  letter-spacing:-.02em;
+  line-height:1.05;
+}
+.sub{
+  margin-top:4px;
+  font-size:15px;
+  color:#475569;
+}
+.search{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:11px;
+  min-height:62px;
+  border-radius:25px;
+  border:1px solid #D5E0EC;
+  background:#F3F7FB;
+  padding:0 18px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.8),0 8px 20px rgba(15,23,42,.06);
+}
+.search i{color:#7C3FA0;font-size:20px}
+.placeholder{font-size:15px;color:#64748B}
+.search.hero{
+  min-height:68px;
+  border-radius:27px;
+  background:#FFFFFF;
+  border-color:#C8D5E4;
+  box-shadow:0 13px 28px rgba(15,23,42,.11),inset 0 1px 0 rgba(255,255,255,.95);
+}
+.search-example{
+  font-size:16px;
+  color:#64748B;
+}
+.suggest-layer{
+  margin-top:12px;
+  background:#FFFFFF;
+  border:1px solid #DDE6F1;
+  border-radius:22px;
+  box-shadow:0 18px 34px rgba(15,23,42,.13);
+  overflow:hidden;
+}
+.suggest-head{
+  padding:12px 15px 8px;
+  font-size:11px;
+  font-weight:900;
+  color:#94A3B8;
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  border-bottom:1px solid #EEF2F7;
+}
+.suggestion{
+  min-height:58px;
+  padding:11px 15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  border-bottom:1px solid #EEF2F7;
+}
+.suggestion:last-child{border-bottom:0}
+.suggest-copy{min-width:0}
+.suggest-title{
+  font-size:14px;
+  font-weight:850;
+  line-height:1.2;
+}
+.suggest-kind{
+  margin-top:3px;
+  font-size:11px;
+  font-weight:850;
+  color:#7C3FA0;
+}
+.premium{
+  display:inline-flex;
+  align-items:center;
+  gap:4px;
+  border:1px solid #FBBF24;
+  background:#FFFBEB;
+  color:#92400E;
+  border-radius:999px;
+  padding:4px 8px;
+  font-size:9px;
+  font-weight:950;
+  text-transform:uppercase;
+}
+.body{
+  padding:18px 18px 28px;
+}
+.section{
+  margin-bottom:18px;
+}
+.section-label{
+  font-size:11px;
+  font-weight:900;
+  letter-spacing:.08em;
+  color:#94A3B8;
+  text-transform:uppercase;
+  margin:0 0 10px 2px;
+}
+.chips{
+  display:flex;
+  gap:10px;
+  overflow:hidden;
+}
+.chip-card{
+  flex:0 0 112px;
+  min-height:72px;
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:10px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  gap:6px;
+  box-shadow:0 8px 18px rgba(15,23,42,.05);
+}
+.chip-icon{
+  width:30px;
+  height:30px;
+  border-radius:50%;
+  background:var(--purple-soft);
+  display:grid;
+  place-items:center;
+  color:var(--purple);
+}
+.chip-label{
+  font-size:12px;
+  font-weight:800;
+}
+.sos-card{
+  background:#fff;
+  border:1px solid var(--border);
+  border-radius:22px;
+  padding:14px;
+}
+.sos-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:9px;
+}
+.sos-item{
+  min-height:82px;
+  border-radius:18px;
+  border:1px solid #FECACA;
+  background:#FEF2F2;
+  display:grid;
+  place-items:center;
+  color:#991B1B;
+  font-size:11px;
+  font-weight:850;
+  text-align:center;
+}
+.focus-dim .body{
+  opacity:.38;
+  filter:blur(2px);
+  transform:scale(.995);
+}
+.focus-dim .hdr{
+  padding-bottom:18px;
+}
+.focus-dim .brand{
+  margin-bottom:14px;
+}
+@media(max-width:1180px){
+  body{padding:12px}
+  .stage{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+  <main class="stage">
+    <section>
+      <div class="panel-title">Home atual, busca boa</div>
+      <div class="phone">
+        <header class="hdr">
+          <div class="status">
+            <span><span class="dot"></span>Disponível agora</span>
+            <button class="gear"><i class="ti ti-settings"></i></button>
+          </div>
+          <div class="brand">
+            <div class="logo"><i class="ti ti-dental"></i></div>
+            <div>
+              <div class="hello">Olá, Dr. Pedro!</div>
+              <div class="sub">O que aconteceu?</div>
+            </div>
+          </div>
+          <div class="search">
+            <i class="ti ti-search"></i>
+            <div class="placeholder">Ex.: A coroa caiu</div>
+          </div>
+        </header>
+        <div class="body">
+          <div class="section">
+            <div class="section-label">Favoritos</div>
+            <div class="chips">
+              <div class="chip-card"><span class="chip-icon"><i class="ti ti-star"></i></span><span class="chip-label">Fio dental não passa</span></div>
+              <div class="chip-card"><span class="chip-icon"><i class="ti ti-crown"></i></span><span class="chip-label">Coroa caiu</span></div>
+            </div>
+          </div>
+          <div class="section sos-card">
+            <div class="section-label">S.O.S. Clínico</div>
+            <div class="sos-grid">
+              <div class="sos-item">Desmaio</div>
+              <div class="sos-item">Infarto</div>
+              <div class="sos-item">Epilepsia</div>
+              <div class="sos-item">Sangramento</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="panel-title">Proposta fechada, mais protagonista</div>
+      <div class="phone">
+        <header class="hdr">
+          <div class="status">
+            <span><span class="dot"></span>Disponível agora</span>
+            <button class="gear"><i class="ti ti-settings"></i></button>
+          </div>
+          <div class="brand">
+            <div class="logo"><i class="ti ti-dental"></i></div>
+            <div>
+              <div class="hello">Olá, Dr. Pedro!</div>
+              <div class="sub">Digite o caso ou a dúvida clínica.</div>
+            </div>
+          </div>
+          <div class="search hero">
+            <i class="ti ti-search"></i>
+            <div class="placeholder">
+              <span class="search-example">Ex.: fio dental não passa</span>
+            </div>
+          </div>
+        </header>
+        <div class="body">
+          <div class="section">
+            <div class="section-label">Favoritos</div>
+            <div class="chips">
+              <div class="chip-card"><span class="chip-icon"><i class="ti ti-star"></i></span><span class="chip-label">Seus atalhos</span></div>
+              <div class="chip-card"><span class="chip-icon"><i class="ti ti-crown"></i></span><span class="chip-label">Casos salvos</span></div>
+            </div>
+          </div>
+          <div class="section sos-card">
+            <div class="section-label">S.O.S. Clínico</div>
+            <div class="sos-grid">
+              <div class="sos-item">Desmaio</div>
+              <div class="sos-item">Infarto</div>
+              <div class="sos-item">Epilepsia</div>
+              <div class="sos-item">Sangramento</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="panel-title">Proposta focada, ao tocar</div>
+      <div class="phone focus-dim">
+        <header class="hdr">
+          <div class="status">
+            <span><span class="dot"></span>Disponível agora</span>
+            <button class="gear"><i class="ti ti-settings"></i></button>
+          </div>
+          <div class="brand">
+            <div class="logo"><i class="ti ti-dental"></i></div>
+            <div>
+              <div class="hello">Olá, Dr. Pedro!</div>
+              <div class="sub">Digite o caso ou a dúvida clínica.</div>
+            </div>
+          </div>
+          <div class="search hero">
+            <i class="ti ti-search"></i>
+            <div class="placeholder">
+              <span class="search-example">Ex.: fio dental não passa</span>
+            </div>
+          </div>
+          <div class="suggest-layer">
+            <div class="suggest-head">Sugestões rápidas</div>
+            <div class="suggestion">
+              <div class="suggest-copy">
+                <div class="suggest-title">Fio dental não passa</div>
+                <div class="suggest-kind">Conduta rápida</div>
+              </div>
+            </div>
+            <div class="suggestion">
+              <div class="suggest-copy">
+                <div class="suggest-title">A coroa caiu</div>
+                <div class="suggest-kind">Conduta rápida</div>
+              </div>
+            </div>
+            <div class="suggestion">
+              <div class="suggest-copy">
+                <div class="suggest-title">Paciente desmaiou</div>
+                <div class="suggest-kind">S.O.S. clínico</div>
+              </div>
+              <span class="premium"><i class="ti ti-lock"></i>Premium</span>
+            </div>
+            <div class="suggestion">
+              <div class="suggest-copy">
+                <div class="suggest-title">Anestesia não pega</div>
+                <div class="suggest-kind">Conduta rápida</div>
+              </div>
+            </div>
+          </div>
+        </header>
+        <div class="body">
+          <div class="section">
+            <div class="section-label">Favoritos</div>
+            <div class="chips">
+              <div class="chip-card"><span class="chip-icon"><i class="ti ti-star"></i></span><span class="chip-label">Seus atalhos</span></div>
+              <div class="chip-card"><span class="chip-icon"><i class="ti ti-crown"></i></span><span class="chip-label">Casos salvos</span></div>
+            </div>
+          </div>
+          <div class="section sos-card">
+            <div class="section-label">S.O.S. Clínico</div>
+            <div class="sos-grid">
+              <div class="sos-item">Desmaio</div>
+              <div class="sos-item">Infarto</div>
+              <div class="sos-item">Epilepsia</div>
+              <div class="sos-item">Sangramento</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
