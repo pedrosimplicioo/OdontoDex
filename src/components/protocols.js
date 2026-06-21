@@ -7,7 +7,7 @@ function openProto(id){
   }
   
   // Se for premium e usuário NÃO for premium, bloqueia
-  if(!p.free && !window.userIsPremium){
+  if(typeof isProtocolLocked === "function" ? isProtocolLocked(id) : (!p.free && !window.userIsPremium)){
     showUpgradeModal(null);
     return;
   }

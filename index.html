@@ -15,7 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-<link rel="stylesheet" href="src/styles/app.css?v=20260620-netflix-card-peek">
+  <link rel="stylesheet" href="src/styles/app.css?v=20260620-home-search-focus">
 </head>
 <body>
 <!-- AVISO IN-APP BROWSER -->
@@ -243,12 +243,6 @@
       <div class="section-label">FAVORITOS</div>
       <div class="home-favorites-list" id="home-favorites-list"></div>
     </div>
-    <div>
-      <div class="section-label">EXPLORAR POR ÁREA</div>
-      <div class="categories-wrapper">
-        <div class="categories-scroll" id="categories-scroll"></div>
-      </div>
-    </div>
     <div class="quick-card">
       <div class="quick-title"><span class="home-title-icon home-icon-red"><i class="ti ti-first-aid-kit"></i></span><span>S.O.S. CLÍNICO</span></div>
       <div class="quick-buttons-wrap">
@@ -314,6 +308,12 @@
     </div>
   </div>
 </div>
+    <div>
+      <div class="section-label">EXPLORAR POR ÁREA</div>
+      <div class="categories-wrapper">
+        <div class="categories-scroll" id="categories-scroll"></div>
+      </div>
+    </div>
     <div class="spacer"></div>
   </div>
 </div>
@@ -846,7 +846,7 @@
   </div>
 </div>
 <!-- PASSWORD MODAL -->
-<script src="src/data/clinical-data.js" defer></script>
+<script src="src/data/clinical-data.js?v=20260620-home-hierarchy" defer></script>
 <script src="src/scripts/firebase-init.js" defer></script>
 <script src="src/scripts/meta-pixel.js" defer></script>
 <script src="src/scripts/analytics.js" defer></script>
@@ -854,12 +854,12 @@
 <script src="src/utils/dom.js?v=20260620-premium-journey" defer></script>
 <script src="src/scripts/navigation.js?v=20260620-guided-empty-copy" defer></script>
 <script src="src/components/widgets.js?v=20260620-widget-collapse-match" defer></script>
-<script src="src/components/render.js?v=20260620-premium-category-preview" defer></script>
+<script src="src/components/render.js?v=20260620-home-hierarchy" defer></script>
 <script src="src/scripts/usage-analytics.js" defer></script>
-<script src="src/components/protocols.js?v=20260620-guided-empty-copy" defer></script>
+<script src="src/components/protocols.js?v=20260620-home-hierarchy" defer></script>
 <script src="src/data/search-intents.js" defer></script>
 <script src="src/scripts/clinical-intent-engine.js" defer></script>
-<script src="src/scripts/search.js?v=20260620-guided-empty-copy" defer></script>
+<script src="src/scripts/search.js?v=20260620-home-hierarchy" defer></script>
 <script src="src/components/pulpite.js?v=20260619-clinical-expand" defer></script>
 <script src="src/components/crisis.js" defer></script>
 <script src="src/scripts/auth.js?v=20260620-auth-error-copy" defer></script>

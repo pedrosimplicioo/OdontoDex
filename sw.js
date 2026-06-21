@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v53-netflix-card-peek';
+const CACHE_NAME = 'odontodex-v60-home-search-focus';
 
 const ARQUIVOS = [
   '/',
