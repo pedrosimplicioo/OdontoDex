@@ -1,0 +1,554 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OdontoDex - Simulacao de cards</title>
+  <style>
+    :root{
+      --bg:#0B1220;
+      --panel:#101827;
+      --panel-2:#152238;
+      --card:#1B2A42;
+      --card-soft:#22324B;
+      --line:rgba(148,163,184,.22);
+      --text:#F8FAFC;
+      --muted:#B6C2D4;
+      --subtle:#8492A8;
+      --purple:#D8B4FE;
+      --purple-2:#A855F7;
+      --amber:#F59E0B;
+      --green:#34D399;
+      --radius:18px;
+      --font:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      background:radial-gradient(circle at top,#111D33 0,#0B1220 42%,#08101D 100%);
+      color:var(--text);
+      font-family:var(--font);
+      padding:18px 12px 40px;
+    }
+    .phone{
+      width:min(430px,100%);
+      margin:0 auto;
+      background:#0D1626;
+      border:1px solid rgba(148,163,184,.18);
+      border-radius:30px;
+      overflow:hidden;
+      box-shadow:0 26px 80px rgba(0,0,0,.38);
+    }
+    .top{
+      padding:16px 18px 14px;
+      background:linear-gradient(180deg,#141D31 0,#101827 100%);
+      border-bottom:1px solid rgba(148,163,184,.12);
+    }
+    .handle{width:42px;height:4px;border-radius:999px;background:#63748D;margin:0 auto 18px}
+    .pill{
+      display:inline-flex;
+      align-items:center;
+      height:25px;
+      padding:0 10px;
+      border-radius:999px;
+      background:rgba(168,85,247,.18);
+      border:1px solid rgba(216,180,254,.28);
+      color:var(--purple);
+      font-size:11px;
+      font-weight:900;
+    }
+    h1{font-size:22px;line-height:1.1;margin:12px 40px 2px 0;letter-spacing:0;font-weight:900}
+    .screen{padding:16px 14px 26px}
+    .intro{
+      margin:0 0 16px;
+      color:var(--muted);
+      font-size:13px;
+      line-height:1.5;
+    }
+    .variant{
+      background:var(--panel);
+      border:1px solid var(--line);
+      border-radius:22px;
+      padding:14px;
+      margin-bottom:16px;
+    }
+    .variant-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:12px;
+    }
+    .variant-title strong{
+      color:var(--purple);
+      font-size:11px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-weight:900;
+    }
+    .variant-title span{
+      color:var(--subtle);
+      font-size:11px;
+      font-weight:750;
+    }
+    button{
+      width:100%;
+      border:0;
+      font:inherit;
+      color:inherit;
+      cursor:pointer;
+      text-align:left;
+      -webkit-tap-highlight-color:transparent;
+    }
+    button:active{transform:translateY(1px) scale(.995)}
+
+    /* Opcao 1 */
+    .v1-list{display:flex;flex-direction:column;gap:9px}
+    .v1-card{
+      display:grid;
+      grid-template-columns:30px 1fr 26px;
+      gap:10px;
+      align-items:center;
+      min-height:78px;
+      padding:12px;
+      background:linear-gradient(180deg,#1C2B44 0,#192840 100%);
+      border:1px solid rgba(148,163,184,.22);
+      border-radius:18px;
+    }
+    .v1-icon,.v2-dot,.v3-icon,.v4-icon{
+      display:grid;
+      place-items:center;
+      border-radius:999px;
+      flex-shrink:0;
+      font-weight:900;
+    }
+    .v1-icon{width:30px;height:30px;background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.28)}
+    .v1-copy small,.v2-meta,.v3-copy small,.v4-open small{
+      display:block;
+      color:var(--purple);
+      font-size:10px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-weight:900;
+      margin-bottom:3px;
+    }
+    .v1-copy b,.v3-copy b,.v4-open b{display:block;font-size:14px;line-height:1.3;font-weight:650}
+    .v1-copy p{margin:0 0 7px;color:#D7E0EF;font-size:12px;line-height:1.38;font-weight:560}
+    .v1-arrow{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:rgba(216,180,254,.1);color:var(--purple);font-weight:900}
+
+    /* Opcao 2 */
+    .v2-flow{display:flex;flex-direction:column;gap:10px}
+    .v2-card{
+      padding:0;
+      overflow:hidden;
+      border-radius:18px;
+      background:#17253B;
+      border:1px solid rgba(148,163,184,.22);
+    }
+    .v2-if{
+      display:flex;
+      align-items:flex-start;
+      gap:9px;
+      padding:12px 12px 10px;
+      color:#E8EEF7;
+      font-size:13px;
+      line-height:1.35;
+      font-weight:580;
+    }
+    .v2-dot{width:23px;height:23px;background:rgba(245,158,11,.13);color:var(--amber);border:1px solid rgba(245,158,11,.28);font-size:13px}
+    .v2-then{
+      margin:0 10px 10px 45px;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      border-radius:14px;
+      background:rgba(216,180,254,.08);
+      border:1px solid rgba(216,180,254,.2);
+      padding:10px 11px;
+    }
+    .v2-then b{font-size:13px;line-height:1.3;font-weight:650}
+    .v2-then .arrow{color:var(--purple);font-size:18px;font-weight:900}
+
+    /* Opcao 3 */
+    .v3-stack{display:flex;flex-direction:column;gap:8px}
+    .v3-card{
+      min-height:66px;
+      display:flex;
+      align-items:center;
+      gap:11px;
+      background:#18263C;
+      border:1px solid rgba(148,163,184,.18);
+      border-radius:17px;
+      padding:11px 12px;
+    }
+    .v3-icon{width:34px;height:34px;background:rgba(245,158,11,.11);color:var(--amber)}
+    .v3-copy{min-width:0;flex:1}
+    .v3-copy p{margin:0 0 5px;color:#E8EEF7;font-size:12px;line-height:1.32;font-weight:560}
+    .v3-cta{
+      display:flex;
+      align-items:center;
+      gap:6px;
+      color:var(--purple);
+      font-size:11px;
+      font-weight:900;
+      white-space:nowrap;
+    }
+
+    /* Opcao 4 */
+    .v4-card{
+      background:linear-gradient(180deg,#1B2A42 0,#17253B 100%);
+      border:1px solid rgba(148,163,184,.22);
+      border-radius:20px;
+      padding:13px;
+      margin-bottom:10px;
+    }
+    .v4-question{display:flex;gap:10px;align-items:flex-start;margin-bottom:11px}
+    .v4-icon{width:28px;height:28px;background:rgba(245,158,11,.12);color:var(--amber);border:1px solid rgba(245,158,11,.25)}
+    .v4-question b{font-size:13px;line-height:1.38;font-weight:580}
+    .v4-open{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:13px;
+      border-radius:16px;
+      background:#101827;
+      border:1px solid rgba(216,180,254,.25);
+    }
+    .v4-open b{font-size:15px;font-weight:650}
+    .v4-badge{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:rgba(52,211,153,.12);color:var(--green);border:1px solid rgba(52,211,153,.24)}
+
+    /* Opcao 5 */
+    .v5-list{display:flex;flex-direction:column;gap:9px}
+    .v5-card{
+      position:relative;
+      min-height:104px;
+      background:linear-gradient(180deg,#1B2A42 0,#17253B 100%);
+      border:1px solid rgba(148,163,184,.2);
+      border-radius:18px;
+      padding:14px 12px 12px 15px;
+      overflow:hidden;
+    }
+    .v5-card::before{
+      content:"";
+      position:absolute;
+      left:0;
+      top:12px;
+      bottom:12px;
+      width:3px;
+      border-radius:999px;
+      background:linear-gradient(180deg,var(--amber),rgba(168,85,247,.8));
+      opacity:.9;
+    }
+    .v5-question{
+      display:flex;
+      align-items:flex-start;
+      gap:9px;
+      color:#F8FAFC;
+      font-size:14px;
+      line-height:1.34;
+      font-weight:760;
+      margin-bottom:10px;
+      padding-bottom:10px;
+      border-bottom:1px solid rgba(148,163,184,.16);
+    }
+    .v5-question span:first-child{
+      width:22px;
+      height:22px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      background:rgba(245,158,11,.12);
+      color:var(--amber);
+      border:1px solid rgba(245,158,11,.22);
+      font-size:12px;
+      font-weight:900;
+      flex-shrink:0;
+    }
+    .v5-open{
+      padding-left:31px;
+      min-width:0;
+      opacity:.86;
+      display:grid;
+      grid-template-columns:1fr 32px;
+      gap:10px;
+      align-items:center;
+    }
+    .v5-open small{
+      display:block;
+      color:var(--purple);
+      font-size:10px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      font-weight:900;
+      margin-bottom:3px;
+    }
+    .v5-open b{
+      display:block;
+      color:#DDE6F3;
+      font-size:13px;
+      line-height:1.28;
+      font-weight:560;
+    }
+    .v5-action{
+      width:32px;
+      height:32px;
+      border-radius:50%;
+      display:grid;
+      place-items:center;
+      background:rgba(216,180,254,.1);
+      color:var(--purple);
+      border:1px solid rgba(216,180,254,.22);
+      font-size:20px;
+      font-weight:700;
+    }
+    .light-preview{
+      margin-top:20px;
+      background:#EEF3F8;
+      border-top:1px solid rgba(148,163,184,.18);
+      padding:18px 14px 24px;
+    }
+    .light-preview .variant{
+      background:#FFFFFF;
+      border-color:#DCE5EF;
+      box-shadow:0 14px 34px rgba(15,23,42,.08);
+    }
+    .light-preview .variant-title strong{color:#7C3FA0}
+    .light-preview .variant-title span{color:#64748B}
+    .light-preview .v5-card{
+      background:linear-gradient(180deg,#FFFFFF 0,#F8FAFC 100%);
+      border-color:#DDE7F2;
+      box-shadow:0 8px 24px rgba(15,23,42,.055);
+    }
+    .light-preview .v5-card::before{
+      background:linear-gradient(180deg,#F59E0B,#A855F7);
+      opacity:.82;
+    }
+    .light-preview .v5-question{
+      color:#0F172A;
+      border-bottom-color:#E2E8F0;
+    }
+    .light-preview .v5-question span:first-child{
+      background:#FFF7ED;
+      color:#D97706;
+      border-color:#FED7AA;
+    }
+    .light-preview .v5-open small{
+      color:#7C3FA0;
+    }
+    .light-preview .v5-open b{
+      color:#475569;
+    }
+    .light-preview .v5-action{
+      background:#F5EEFB;
+      color:#7C3FA0;
+      border-color:#E9D5FF;
+    }
+    .light-title{
+      margin:0 0 12px;
+      color:#334155;
+      font-size:12px;
+      line-height:1.45;
+      font-weight:650;
+    }
+  </style>
+</head>
+<body>
+  <main class="phone">
+    <div class="top">
+      <div class="handle"></div>
+      <span class="pill">Conduta rápida</span>
+      <h1>A coroa caiu</h1>
+    </div>
+
+    <div class="screen">
+      <p class="intro">Simulações apenas da apresentação dos cards. O conteúdo clínico é o mesmo.</p>
+
+      <section class="variant">
+        <div class="variant-title"><strong>Opção 1 · Lista premium</strong><span>Mais limpa</span></div>
+        <div class="v1-list">
+          <button class="v1-card">
+            <span class="v1-icon">!</span>
+            <span class="v1-copy">
+              <p>Coroa íntegra, remanescente favorável e bom assentamento?</p>
+              <small>Abrir protocolo</small>
+              <b>Recimentar — Metalo-cerâmica / Metal</b>
+            </span>
+            <span class="v1-arrow">›</span>
+          </button>
+          <button class="v1-card">
+            <span class="v1-icon">!</span>
+            <span class="v1-copy">
+              <p>Coroa íntegra, remanescente favorável e bom assentamento?</p>
+              <small>Abrir protocolo</small>
+              <b>Recimentar — Porcelana / Zircônia / Disilicato</b>
+            </span>
+            <span class="v1-arrow">›</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="variant">
+        <div class="variant-title"><strong>Opção 2 · Decisão → ação</strong><span>Mais didática</span></div>
+        <div class="v2-flow">
+          <button class="v2-card">
+            <div class="v2-if"><span class="v2-dot">?</span><span>Coroa íntegra, remanescente favorável e bom assentamento?</span></div>
+            <div class="v2-then">
+              <span><span class="v2-meta">Então abra</span><b>Recimentar — Metalo-cerâmica / Metal</b></span>
+              <span class="arrow">›</span>
+            </div>
+          </button>
+          <button class="v2-card">
+            <div class="v2-if"><span class="v2-dot">?</span><span>Coroa caiu com pino/núcleo junto?</span></div>
+            <div class="v2-then">
+              <span><span class="v2-meta">Então abra</span><b>Recimentação do conjunto coroa + pino/núcleo</b></span>
+              <span class="arrow">›</span>
+            </div>
+          </button>
+        </div>
+      </section>
+
+      <section class="variant">
+        <div class="variant-title"><strong>Opção 3 · Compacta iOS</strong><span>Mais leve</span></div>
+        <div class="v3-stack">
+          <button class="v3-card">
+            <span class="v3-icon">!</span>
+            <span class="v3-copy">
+              <p>Coroa íntegra, remanescente favorável e bom assentamento?</p>
+              <small>Recimentar — Metalo-cerâmica / Metal</small>
+            </span>
+            <span class="v3-cta">Abrir ›</span>
+          </button>
+          <button class="v3-card">
+            <span class="v3-icon">!</span>
+            <span class="v3-copy">
+              <p>Coroa caiu com pino/núcleo junto?</p>
+              <small>Recimentação do conjunto coroa + pino/núcleo</small>
+            </span>
+            <span class="v3-cta">Abrir ›</span>
+          </button>
+        </div>
+      </section>
+
+      <section class="variant">
+        <div class="variant-title"><strong>Opção 4 · Card principal</strong><span>Mais destaque</span></div>
+        <button class="v4-card">
+          <div class="v4-question">
+            <span class="v4-icon">?</span>
+            <b>Coroa íntegra, remanescente favorável e bom assentamento?</b>
+          </div>
+          <div class="v4-open">
+            <span>
+              <small>Próximo protocolo</small>
+              <b>Recimentar — Metalo-cerâmica / Metal</b>
+            </span>
+            <span class="v4-badge">›</span>
+          </div>
+        </button>
+        <button class="v4-card">
+          <div class="v4-question">
+            <span class="v4-icon">?</span>
+            <b>Cárie, fratura, margem comprometida ou coroa sem adaptação?</b>
+          </div>
+          <div class="v4-open">
+            <span>
+              <small>Próximo protocolo</small>
+              <b>Planejar Nova Coroa</b>
+            </span>
+            <span class="v4-badge">›</span>
+          </div>
+        </button>
+      </section>
+
+      <section class="variant">
+        <div class="variant-title"><strong>Opção 5 · Híbrida</strong><span>Compacta + clara</span></div>
+        <div class="v5-list">
+          <button class="v5-card">
+            <span>
+              <span class="v5-question"><span>?</span><span>Coroa íntegra, remanescente favorável e bom assentamento?</span></span>
+              <span class="v5-open">
+                <span>
+                  <small>Abrir protocolo</small>
+                  <b>Recimentar — Metalo-cerâmica / Metal</b>
+                </span>
+                <span class="v5-action">›</span>
+              </span>
+            </span>
+          </button>
+          <button class="v5-card">
+            <span>
+              <span class="v5-question"><span>?</span><span>Coroa íntegra, remanescente favorável e bom assentamento?</span></span>
+              <span class="v5-open">
+                <span>
+                  <small>Abrir protocolo</small>
+                  <b>Recimentar — Porcelana / Zircônia / Disilicato</b>
+                </span>
+                <span class="v5-action">›</span>
+              </span>
+            </span>
+          </button>
+          <button class="v5-card">
+            <span>
+              <span class="v5-question"><span>?</span><span>Coroa caiu com pino/núcleo junto?</span></span>
+              <span class="v5-open">
+                <span>
+                  <small>Abrir protocolo</small>
+                  <b>Recimentação do conjunto coroa + pino/núcleo</b>
+                </span>
+                <span class="v5-action">›</span>
+              </span>
+            </span>
+          </button>
+        </div>
+      </section>
+    </div>
+
+    <div class="light-preview">
+      <p class="light-title">Mesma solução no modo claro</p>
+      <section class="variant">
+        <div class="variant-title"><strong>Opção 5 · Híbrida</strong><span>Modo claro</span></div>
+        <div class="v5-list">
+          <button class="v5-card">
+            <span>
+              <span class="v5-question"><span>?</span><span>Coroa íntegra, remanescente favorável e bom assentamento?</span></span>
+              <span class="v5-open">
+                <span>
+                  <small>Abrir protocolo</small>
+                  <b>Recimentar — Metalo-cerâmica / Metal</b>
+                </span>
+                <span class="v5-action">›</span>
+              </span>
+            </span>
+          </button>
+          <button class="v5-card">
+            <span>
+              <span class="v5-question"><span>?</span><span>Coroa íntegra, remanescente favorável e bom assentamento?</span></span>
+              <span class="v5-open">
+                <span>
+                  <small>Abrir protocolo</small>
+                  <b>Recimentar — Porcelana / Zircônia / Disilicato</b>
+                </span>
+                <span class="v5-action">›</span>
+              </span>
+            </span>
+          </button>
+          <button class="v5-card">
+            <span>
+              <span class="v5-question"><span>?</span><span>Coroa caiu com pino/núcleo junto?</span></span>
+              <span class="v5-open">
+                <span>
+                  <small>Abrir protocolo</small>
+                  <b>Recimentação do conjunto coroa + pino/núcleo</b>
+                </span>
+                <span class="v5-action">›</span>
+              </span>
+            </span>
+          </button>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

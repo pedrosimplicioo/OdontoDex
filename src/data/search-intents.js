@@ -451,6 +451,7 @@ var CLINICAL_SEARCH_RELATIONS = {
     {type: "prescription", id: "abscesso-periodontal", weight: 78, badges: ["Prescrição"]}
   ],
   anestesia: [
+    {type: "conduct", id: "dente-nao-anestesia", weight: 190, badges: ["Conduta rapida"]},
     {type: "protocol", id: "endo-urgencia", weight: 92, badges: ["Urgência"]},
     {type: "protocol", id: "pulpite-irreversivel", weight: 88, badges: ["Urgência"]}
   ],
@@ -585,6 +586,5 @@ var CLINICAL_SEARCH_COMMON = [
 
 var CLINICAL_SEARCH_CONTENT_GAPS = {
   dor_inflamacao: "Ainda não existe um card de conduta rápida específico para dor/inflamação.",
-  infeccao: "Ainda não existe um card de conduta rápida específico para infecção/abscesso.",
-  anestesia: "Ainda não existe um card de conduta rápida específico para falha de anestesia."
+  infeccao: "Ainda não existe um card de conduta rápida específico para infecção/abscesso."
 };
