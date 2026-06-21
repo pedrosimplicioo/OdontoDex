@@ -136,7 +136,7 @@ function renderCondutaActionButton(action, className){
           <span class="conduta-next-step-open-label">${escapeHtml(getCondutaActionOpenLabel(type))}</span>
           <span class="conduta-next-step-open-title">${escapeHtml(parsed.target)}</span>
         </span>
-        <i class="ti ${icon}"></i>
+        <i class="ti ti-chevron-right conduta-next-step-action"></i>
       </div>
     </button>
   `;

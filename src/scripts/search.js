@@ -280,6 +280,37 @@ function renderRelatedSearchSuggestions(container,query){
   animateHomeSearchResults(container);
 }
 
+function renderWeakClinicalSearchState(container,returnInputId){
+  const commonPaths=[
+    {label:"Dor",query:"dor"},
+    {label:"Infecção",query:"abscesso"},
+    {label:"Sangramento",query:"sangramento"},
+    {label:"Coroa / prótese",query:"coroa caiu"},
+    {label:"Prescrição",query:"prescrição"},
+    {label:"Anestesia",query:"anestesia não pega"}
+  ];
+  container.innerHTML=`
+    <div class="home-search-empty">
+      <strong>Não identifiquei um termo clínico claro</strong>
+      <span>Tente buscar pelo problema, sintoma, procedimento ou perfil do paciente.</span>
+    </div>
+    <div class="home-search-group-title">Caminhos clínicos comuns</div>
+  `;
+  commonPaths.forEach(path=>{
+    const btn=createHomeSearchButton(path.label,"Caminho clínico comum",()=>{
+      const input=document.getElementById(returnInputId||"home-search-input");
+      if(input){
+        input.value=path.query;
+        input.focus();
+      }
+      if(returnInputId==="search-input"&&typeof doSearch==="function")doSearch(path.query);
+      else doHomeSearch(path.query);
+    });
+    container.appendChild(btn);
+  });
+  animateHomeSearchResults(container);
+}
+
 function appendClinicalSearchGroup(container,title,items,returnInputId){
   if(!items||!items.length)return;
   if(title)container.insertAdjacentHTML("beforeend",`<div class="home-search-group-title">${escapeHtml(title)}</div>`);
@@ -289,29 +320,66 @@ function appendClinicalSearchGroup(container,title,items,returnInputId){
   });
 }
 
+function appendClinicalSearchTypedGroups(container,items,returnInputId,searchMode){
+  if(!items||!items.length)return;
+  const used=new Set();
+  const groupMap={
+    alert:{title:"Alertas importantes",filter:item=>item.type==="alert"},
+    conduct:{title:"Pode envolver",filter:item=>item.type==="conduct"||item.type==="anesthetic"},
+    profile:{title:"Perfil que muda a conduta",filter:item=>item.type==="profile"},
+    prescription:{title:"Prescrições relacionadas",filter:item=>item.type==="prescription"},
+    protocol:{title:"Protocolos relacionados",filter:item=>item.type==="protocol"}
+  };
+  const groupOrderByMode={
+    protocol:["protocol","conduct","profile","prescription","alert"],
+    prescription:["prescription","profile","alert","conduct","protocol"],
+    profile:["alert","profile","prescription","conduct","protocol"],
+    mixed:["alert","conduct","profile","prescription","protocol"],
+    problem:["conduct","protocol","alert","profile","prescription"]
+  };
+  const groups=(groupOrderByMode[searchMode]||groupOrderByMode.problem).map(key=>groupMap[key]);
+  groups.forEach(group=>{
+    const groupItems=items.filter(item=>!used.has(item.type+":"+item.id)&&group.filter(item));
+    groupItems.forEach(item=>used.add(item.type+":"+item.id));
+    appendClinicalSearchGroup(container,group.title,groupItems,returnInputId);
+  });
+  const remaining=items.filter(item=>!used.has(item.type+":"+item.id));
+  appendClinicalSearchGroup(container,"Sugestões relacionadas",remaining,returnInputId);
+}
+
 function renderClinicalSearchResults(container,result,returnInputId){
   container.innerHTML="";
+  if(result&&(result.confidence==="none"||result.confidence==="low"||result.fallbackOnly)){
+    renderWeakClinicalSearchState(container,returnInputId);
+    return;
+  }
   if(!result||!result.all||!result.all.length){
-    renderRelatedSearchSuggestions(container,document.getElementById(returnInputId)?.value||"");
+    renderWeakClinicalSearchState(container,returnInputId);
     return;
   }
   if(result.usedIntent&&result.best.length){
-    appendClinicalSearchGroup(container,"Caminho mais provável",result.best,returnInputId);
-    appendClinicalSearchGroup(container,"Sugestões relacionadas",result.related,returnInputId);
+    if(result.searchMode==="mixed"){
+      container.insertAdjacentHTML("beforeend",`<div class="home-search-empty"><strong>Sua busca envolve mais de um fator clínico</strong><span>Separei o problema principal, perfis do paciente e conteúdos relacionados.</span></div>`);
+    }
+    appendClinicalSearchGroup(container,"Comece por aqui",result.best,returnInputId);
+    appendClinicalSearchTypedGroups(container,result.related,returnInputId,result.searchMode);
     animateHomeSearchResults(container);
     return;
   }
+  if(result.searchMode==="mixed"||(result.matchedTerms&&result.matchedTerms.length>1)){
+    container.insertAdjacentHTML("beforeend",`<div class="home-search-empty"><strong>Sua busca envolve mais de um fator clínico</strong><span>Separei o problema principal, perfis do paciente e conteúdos relacionados.</span></div>`);
+  }
   if(result.hasContentGap){
-    appendClinicalSearchGroup(container,"Sugestões relacionadas",result.all,returnInputId);
+    appendClinicalSearchTypedGroups(container,result.all,returnInputId,result.searchMode);
     animateHomeSearchResults(container);
     return;
   }
   if(result.all.every(item=>item.matchSource==="common")){
-    appendClinicalSearchGroup(container,"Sugestões relacionadas",result.all,returnInputId);
+    renderWeakClinicalSearchState(container,returnInputId);
     animateHomeSearchResults(container);
     return;
   }
-  appendClinicalSearchGroup(container,"",result.all,returnInputId);
+  appendClinicalSearchTypedGroups(container,result.all,returnInputId,result.searchMode);
   animateHomeSearchResults(container);
 }
 
@@ -334,7 +402,7 @@ function renderHomeSearchQuery(q,resDiv){
   resDiv.innerHTML="";
   if(typeof clinicalIntentSearch==="function"){
     const clinical=clinicalIntentSearch(q,{limit:8});
-    if(clinical.all.length){
+    if(clinical.all.length||clinical.fallbackOnly||clinical.confidence==="none"||clinical.confidence==="low"){
       renderClinicalSearchResults(resDiv,clinical,"home-search-input");
       return;
     }
@@ -698,21 +766,21 @@ function renderSearchCondutaActionButton(action){
   const openLabel=typeof getCondutaActionOpenLabel==="function"?getCondutaActionOpenLabel(type):"Abrir protocolo de";
   if(type==="note"){
     return `
-      <div class="search-sheet-link-btn search-next-step-btn disabled">
+      <div class="search-sheet-link-btn search-next-step-btn conduta-next-step-btn disabled">
         <div class="conduta-next-step-rule"><i class="ti ${icon}"></i><span>${escapeHtml(parsed.condition)}</span></div>
         ${parsed.target&&parsed.target!==parsed.condition?`<div class="conduta-next-step-note">${escapeHtml(parsed.target)}</div>`:""}
       </div>
     `;
   }
   return `
-    <button class="search-sheet-link-btn search-next-step-btn ${disabled?"disabled":""}" ${disabled?"":`onclick="openSearchCondutaAction('${type}','${action.id}')"`}>
+    <button class="search-sheet-link-btn search-next-step-btn conduta-next-step-btn ${disabled?"disabled":""}" ${disabled?"":`onclick="openSearchCondutaAction('${type}','${action.id}')"`}>
       <div class="conduta-next-step-rule"><i class="ti ti-alert-circle"></i><span>${escapeHtml(parsed.condition)}</span></div>
       <div class="conduta-next-step-open">
         <span>
           <span class="conduta-next-step-open-label">${escapeHtml(openLabel)}</span>
           <span class="conduta-next-step-open-title">${escapeHtml(parsed.target)}</span>
         </span>
-        <i class="ti ${icon}"></i>
+        <i class="ti ti-chevron-right conduta-next-step-action"></i>
       </div>
     </button>
   `;
@@ -986,7 +1054,7 @@ function doSearch(q){
 
   if(typeof clinicalIntentSearch==="function"){
     const clinical=clinicalIntentSearch(q,{limit:10});
-    if(clinical.all.length){
+    if(clinical.all.length||clinical.fallbackOnly||clinical.confidence==="none"||clinical.confidence==="low"){
       renderClinicalSearchResults(res,clinical,"search-input");
       return;
     }

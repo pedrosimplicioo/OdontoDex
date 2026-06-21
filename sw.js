@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v60-home-search-focus';
+const CACHE_NAME = 'odontodex-v65-ios-install-flow';
 
 const ARQUIVOS = [
   '/',
