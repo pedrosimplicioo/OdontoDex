@@ -20,7 +20,7 @@ const PREMIUM_CATEGORY_LABELS = {
 const EMERGENCY_FREE = ["em1","em2"];
 
 // Protocolos ficam Premium por padrao. Para liberar algum como amostra, adicione o ID aqui.
-const FREE_PROTOCOL_IDS = [];
+const FREE_PROTOCOL_IDS = ["sincope-protocolo"];
 
 function isProtocolFree(id){
   return FREE_PROTOCOL_IDS.includes(id);

@@ -293,6 +293,24 @@ function copiarPixCode() {
 const MP_PUBLIC_KEY = "APP_USR-f3596f78-d857-4650-b079-3021cad9c072";
 let mpInstance = null;
 let paymentBrickController = null;
+let paymentBrickLabelObserver = null;
+
+function ocultarSeloParcelamentoBrick(container) {
+  if (!container) return;
+  const esconder = () => {
+    container.querySelectorAll("*").forEach(el => {
+      if (el.children.length > 0) return;
+      if ((el.textContent || "").trim().toLowerCase() === "parcelamento disponível") {
+        el.style.display = "none";
+      }
+    });
+  };
+
+  esconder();
+  if (paymentBrickLabelObserver) paymentBrickLabelObserver.disconnect();
+  paymentBrickLabelObserver = new MutationObserver(esconder);
+  paymentBrickLabelObserver.observe(container, { childList: true, subtree: true, characterData: true });
+}
 
 async function loadMPScript() {
   return new Promise((resolve, reject) => {
@@ -322,6 +340,10 @@ async function iniciarBrick() {
   if (paymentBrickController) {
     try { await paymentBrickController.unmount(); } catch(e) {}
     paymentBrickController = null;
+  }
+  if (paymentBrickLabelObserver) {
+    paymentBrickLabelObserver.disconnect();
+    paymentBrickLabelObserver = null;
   }
 
   const container = document.getElementById("mp-brick-container");
@@ -353,6 +375,7 @@ async function iniciarBrick() {
         customization: {
           paymentMethods: {
             creditCard: "all",
+            maxInstallments: 1,
           },
           visual: {
             style: {
@@ -364,7 +387,10 @@ async function iniciarBrick() {
           },
         },
         callbacks: {
-          onReady: () => console.log("Brick pronto"),
+          onReady: () => {
+            ocultarSeloParcelamentoBrick(container);
+            console.log("Brick pronto");
+          },
           onSubmit: async ({ formData }) => {
             if (!cupomPodeContinuar()) return;
             showLoading();
