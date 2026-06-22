@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v65-ios-install-flow';
+const CACHE_NAME = 'odontodex-v67-hide-installments-label';
 
 const ARQUIVOS = [
   '/',
