@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>OdontoDex - Busca com atalhos</title>
+  <link rel="stylesheet" href="../src/styles/app.css?v=preview">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <style>
+    body{
+      margin:0;
+      min-height:100vh;
+      background:#EAF0F7;
+      display:flex;
+      justify-content:center;
+      color:#0F172A;
+      font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    }
+    .screen{
+      display:flex;
+      width:min(430px,100%);
+      min-height:100vh;
+      background:#F1F5F9;
+      overflow:hidden;
+      border-left:1px solid rgba(148,163,184,.18);
+      border-right:1px solid rgba(148,163,184,.18);
+    }
+    .hdr.preview-expanded{
+      padding:30px 18px 19px;
+      border-radius:0 0 24px 24px;
+      box-shadow:0 16px 34px rgba(15,23,42,.13);
+    }
+    .hdr.preview-expanded .hdr-top-row{
+      margin-bottom:18px;
+    }
+    .hdr.preview-expanded .home-brand-line{
+      margin-bottom:18px;
+    }
+    .hdr.preview-expanded .search-bar{
+      min-height:70px;
+      border-radius:28px;
+      padding:18px;
+    }
+    .home-trending-searches{
+      margin-top:14px;
+      padding:0 1px;
+    }
+    .home-trending-head{
+      display:flex;
+      align-items:center;
+      margin-bottom:8px;
+    }
+    .home-trending-title{
+      font-size:10px;
+      font-weight:900;
+      letter-spacing:.10em;
+      text-transform:uppercase;
+      color:#94A3B8;
+    }
+    .home-trending-row{
+      display:flex;
+      gap:8px;
+      overflow-x:auto;
+      overflow-y:hidden;
+      padding-bottom:1px;
+      padding-right:42px;
+      scrollbar-width:none;
+      scroll-snap-type:x proximity;
+      -webkit-overflow-scrolling:touch;
+      mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 42px),transparent 100%);
+      -webkit-mask-image:linear-gradient(90deg,#000 0,#000 calc(100% - 42px),transparent 100%);
+    }
+    .home-trending-row::-webkit-scrollbar{display:none}
+    .home-trending-chip{
+      flex:0 0 auto;
+      min-height:32px;
+      border:1px solid #E2E8F0;
+      background:#FFFFFF;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      gap:7px;
+      padding:7px 10px 7px 8px;
+      color:#334155;
+      font-size:12px;
+      font-weight:760;
+      box-shadow:0 6px 14px rgba(15,23,42,.05);
+      scroll-snap-align:start;
+    }
+    .home-trending-chip .ti{
+      width:20px;
+      height:20px;
+      display:grid;
+      place-items:center;
+      border-radius:50%;
+      background:#F5EEFB;
+      color:#7C3FA0;
+      font-size:13px;
+    }
+    .preview-body-note{
+      display:none;
+    }
+  </style>
+</head>
+<body>
+  <div class="screen active" id="screen-app">
+    <div class="hdr preview-expanded" id="main-header">
+      <div class="hdr-top-row">
+        <div class="hdr-saudacao"><span class="hdr-dot"></span><span>Disponível agora</span></div>
+        <div style="display:flex;gap:6px;align-items:center">
+          <button class="gear-btn" title="Configurações"><i class="ti ti-settings"></i></button>
+        </div>
+      </div>
+      <div class="home-brand-line">
+        <img class="home-brand-logo" src="../logo192.png" alt="OdontoDex">
+        <div class="home-brand-copy">
+          <div class="hdr-nome">Olá, Dr. Pedro!</div>
+          <div class="hdr-pergunta">O que aconteceu?</div>
+        </div>
+      </div>
+      <div class="home-search-wrap">
+        <div class="search-bar">
+          <span style="font-size:18px;color:#7C3FA0"><i class="ti ti-search"></i></span>
+          <input class="search-input-real" placeholder="Ex.: Paciente anticoagulado..." autocomplete="off">
+        </div>
+        <div class="home-trending-searches">
+          <div class="home-trending-head">
+            <span class="home-trending-title">Pesquisas em alta</span>
+          </div>
+          <div class="home-trending-row">
+            <button class="home-trending-chip"><i class="ti ti-crown"></i>Coroa caiu</button>
+            <button class="home-trending-chip"><i class="ti ti-dental"></i>Dente sensível</button>
+            <button class="home-trending-chip"><i class="ti ti-baby-carriage"></i>Gestante</button>
+            <button class="home-trending-chip"><i class="ti ti-droplet"></i>Sangramento</button>
+            <button class="home-trending-chip"><i class="ti ti-needle"></i>Anestesia não pega</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="body" id="home-body">
+      <div class="home-favorites-block">
+        <div class="section-label">FAVORITOS</div>
+        <div class="home-favorites-list">
+          <div class="home-favorite-empty">
+            <span class="home-favorite-empty-icon"><i class="ti ti-star"></i></span>
+            <span class="home-favorite-empty-copy">
+              <strong>Seus atalhos clínicos aparecerão aqui</strong>
+              <span>Favorite condutas, protocolos e prescrições para acessar sem procurar.</span>
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-card">
+        <div class="quick-title"><span class="home-title-icon home-icon-red"><i class="ti ti-first-aid-kit"></i></span><span>S.O.S. CLÍNICO</span></div>
+        <div class="quick-buttons-wrap">
+          <div class="quick-buttons">
+            <button class="quick-btn"><span class="quick-btn-icon"><i class="ti ti-bed"></i></span><span class="quick-btn-label">Desmaio</span></button>
+            <button class="quick-btn sos-locked"><span class="quick-btn-icon"><i class="ti ti-heartbeat"></i></span><span class="quick-btn-label">Infarto</span><span class="sos-crown"><i class="ti ti-lock"></i></span></button>
+            <button class="quick-btn sos-locked"><span class="quick-btn-icon"><i class="ti ti-brain"></i></span><span class="quick-btn-label">Epilepsia</span><span class="sos-crown"><i class="ti ti-lock"></i></span></button>
+            <button class="quick-btn sos-locked"><span class="quick-btn-icon"><i class="ti ti-droplet"></i></span><span class="quick-btn-label">Sangramento</span><span class="sos-crown"><i class="ti ti-lock"></i></span></button>
+          </div>
+        </div>
+      </div>
+
+      <div class="quick-card home-tools-card">
+        <div class="quick-title"><span class="home-title-icon home-icon-amber"><i class="ti ti-tools"></i></span><span>FERRAMENTAS CLÍNICAS</span></div>
+        <div class="home-tools-grid">
+          <button class="home-tool-card"><span class="home-mini-icon home-icon-amber"><i class="ti ti-needle"></i></span><span class="home-tool-copy"><span class="home-tool-title">Técnica anestésica</span><span class="home-tool-sub">por dente</span></span></button>
+          <button class="home-tool-card"><span class="home-mini-icon home-icon-amber"><i class="ti ti-target"></i></span><span class="home-tool-copy"><span class="home-tool-title">Fórceps</span><span class="home-tool-sub">por dente</span></span></button>
+          <button class="home-tool-card"><span class="home-mini-icon home-icon-amber"><i class="ti ti-cut"></i></span><span class="home-tool-copy"><span class="home-tool-title">Odontosecção</span><span class="home-tool-sub">por dente</span></span><span class="home-tool-lock"><i class="ti ti-lock"></i></span></button>
+          <button class="home-tool-card"><span class="home-mini-icon home-icon-amber"><i class="ti ti-brain"></i></span><span class="home-tool-copy"><span class="home-tool-title">Pulpite</span><span class="home-tool-sub">assistente</span></span></button>
+        </div>
+      </div>
+
+      <div class="quick-card home-prescricoes-card">
+        <div class="quick-title">
+          <span class="home-title-icon home-icon-purple"><i class="ti ti-pill"></i></span>
+          <span class="home-prescricoes-title">Prescrições</span>
+        </div>
+        <div class="home-prescricoes-list">
+          <div class="home-prescricoes-item"><span class="home-mini-icon home-icon-purple"><i class="ti ti-virus"></i></span><span class="home-prescricoes-label">Abscesso periodontal</span></div>
+          <div class="home-prescricoes-item"><span class="home-mini-icon home-icon-purple"><i class="ti ti-microscope"></i></span><span class="home-prescricoes-label">Abscesso periapical</span></div>
+          <div class="home-prescricoes-item"><span class="home-mini-icon home-icon-purple"><i class="ti ti-dental-broken"></i></span><span class="home-prescricoes-label">Alveolite</span></div>
+          <div class="home-prescricoes-item home-prescricoes-more"><span class="home-mini-icon home-icon-purple"><i class="ti ti-plus"></i></span><span class="home-prescricoes-label">situações</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

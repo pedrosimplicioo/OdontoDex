@@ -6,6 +6,23 @@ let searchLogTimer = null;
 let homeSearchPlaceholderTimer = null;
 let homeSearchPlaceholderIndex = 0;
 let searchSheetDragState = null;
+let homeTrendingRecordTimer = null;
+
+const HOME_TRENDING_FALLBACK = [
+  { key: "coroa-caiu", label: "Coroa caiu", query: "coroa caiu", icon: "ti-crown" },
+  { key: "dente-sensivel", label: "Dente sensível", query: "dente sensível", icon: "ti-dental" },
+  { key: "gestante", label: "Gestante", query: "gestante", icon: "ti-baby-carriage" },
+  { key: "sangramento", label: "Sangramento", query: "sangramento", icon: "ti-droplet" },
+  { key: "anestesia-nao-pega", label: "Anestesia não pega", query: "anestesia não pega", icon: "ti-needle" },
+];
+
+const HOME_TRENDING_PATTERNS = [
+  { re: /\b(coroa caiu|coroa soltou|coroa saiu|coroa)\b/, item: HOME_TRENDING_FALLBACK[0] },
+  { re: /\b(dente sensivel|sensibilidade|sensivel|gelado|frio)\b/, item: HOME_TRENDING_FALLBACK[1] },
+  { re: /\b(gestante|gravida|grávida|lactante)\b/, item: HOME_TRENDING_FALLBACK[2] },
+  { re: /\b(sangramento|sangra|sangrando|hemorragia|sangue)\b/, item: HOME_TRENDING_FALLBACK[3] },
+  { re: /\b(anestesia nao pega|anestesia não pega|nao anestesia|não anestesia)\b/, item: HOME_TRENDING_FALLBACK[4] },
+];
 
 const HOME_SEARCH_PLACEHOLDERS = [
   "Ex.: A coroa caiu",
@@ -17,6 +34,66 @@ const HOME_SEARCH_PLACEHOLDERS = [
   "Ex.: Fio dental não passa",
   "Ex.: Dor ao mastigar"
 ];
+
+function normalizarHomeTrendingTerm(value){
+  const raw = String(value || "").trim();
+  const normalized = raw.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+  if(normalized.length < 2) return null;
+  const found = HOME_TRENDING_PATTERNS.find(entry => entry.re.test(normalized));
+  return found ? found.item : null;
+}
+
+function getHomeTrendingCounts(){
+  try {
+    return JSON.parse(localStorage.getItem("odontodex_home_trending_searches") || "{}");
+  } catch(e) {
+    return {};
+  }
+}
+
+function saveHomeTrendingCounts(counts){
+  try {
+    localStorage.setItem("odontodex_home_trending_searches", JSON.stringify(counts));
+  } catch(e) {}
+}
+
+function recordHomeTrendingSearch(value){
+  const item = normalizarHomeTrendingTerm(value);
+  if(!item) return;
+  const counts = getHomeTrendingCounts();
+  counts[item.key] = (counts[item.key] || 0) + 1;
+  saveHomeTrendingCounts(counts);
+  renderHomeTrendingSearches();
+}
+
+function scheduleHomeTrendingRecord(value){
+  clearTimeout(homeTrendingRecordTimer);
+  homeTrendingRecordTimer = setTimeout(() => recordHomeTrendingSearch(value), 900);
+}
+
+function openHomeTrendingSearch(query){
+  const input = document.getElementById("home-search-input");
+  if(!input) return;
+  input.value = query;
+  persistedHomeSearchValue = query;
+  homeSearchQueuedValue = query;
+  setHomeSearchFocusMode(true);
+  input.focus();
+  doHomeSearch(query);
+  recordHomeTrendingSearch(query);
+}
+
+function renderHomeTrendingSearches(){
+  const row = document.getElementById("home-trending-row");
+  if(!row) return;
+  const counts = getHomeTrendingCounts();
+  const sorted = [...HOME_TRENDING_FALLBACK].sort((a,b) => (counts[b.key] || 0) - (counts[a.key] || 0));
+  row.innerHTML = sorted.map(item => `
+    <button class="home-trending-chip" type="button" onclick="openHomeTrendingSearch('${escapeHtml(item.query)}')">
+      <i class="ti ${escapeHtml(item.icon)}"></i>${escapeHtml(item.label)}
+    </button>
+  `).join("");
+}
 
 function updateHomeSearchPlaceholder(){
   const input = document.getElementById("home-search-input");
@@ -62,6 +139,7 @@ function handleHomeSearchBlur(){
 document.addEventListener("DOMContentLoaded", () => {
   initHomeSearchPlaceholderRotation();
   initHomeHeaderBehavior();
+  renderHomeTrendingSearches();
   initSearchSheetDragToClose();
   const input = document.getElementById("home-search-input");
   if(input) input.addEventListener("blur", handleHomeSearchBlur);
@@ -446,9 +524,11 @@ function doHomeSearch(q){
   homeSearchQueuedValue=q;
   if(clearBtn)clearBtn.style.display=q.length>0?"block":"none";
   if(q.length<2){
+    clearTimeout(homeTrendingRecordTimer);
     closeHomeSearchResults(resDiv);
     return;
   }
+  scheduleHomeTrendingRecord(q);
   resDiv.style.display="block";
   clearTimeout(homeSearchRenderTimer);
   const hasVisibleResults=resDiv.innerHTML.trim().length>0;

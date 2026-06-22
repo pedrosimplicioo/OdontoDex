@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v67-hide-installments-label';
+const CACHE_NAME = 'odontodex-v68-home-trending-searches';
 
 const ARQUIVOS = [
   '/',
