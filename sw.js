@@ -1,18 +1,52 @@
-const CACHE_NAME = 'odontodex-v78-dark-header-depth';
+const CACHE_NAME = 'odontodex-v79-offline-consulta';
 
-const ARQUIVOS = [
+const CORE_FILES = [
   '/',
   '/index.html',
   '/manifest.json',
   '/logo192.png',
-  '/logo512.png'
+  '/logo512.png',
+  '/src/styles/app.css',
+  '/src/data/clinical-data.js',
+  '/src/data/search-intents.js',
+  '/src/scripts/browser-warning.js',
+  '/src/scripts/firebase-init.js',
+  '/src/scripts/meta-pixel.js',
+  '/src/scripts/analytics.js',
+  '/src/scripts/app-init.js',
+  '/src/scripts/auth.js',
+  '/src/scripts/clinical-intent-engine.js',
+  '/src/scripts/navigation.js',
+  '/src/scripts/payments.js',
+  '/src/scripts/premium.js',
+  '/src/scripts/pwa.js',
+  '/src/scripts/search.js',
+  '/src/scripts/usage-analytics.js',
+  '/src/components/crisis.js',
+  '/src/components/prescriptions.js',
+  '/src/components/protocols.js',
+  '/src/components/pulpite.js',
+  '/src/components/render.js',
+  '/src/components/student-banner.js',
+  '/src/components/widgets.js',
+  '/src/utils/dom.js',
+  '/src/utils/storage.js'
 ];
 
-// Cacheia apenas a casca principal do app.
+const OPTIONAL_EXTERNAL_FILES = [
+  'https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js',
+  'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js',
+  'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js',
+  'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css'
+];
+
+// Cacheia a casca principal e os arquivos locais necessários para consulta offline.
 self.addEventListener('install', event => {
   event.waitUntil(
     caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(ARQUIVOS);
+      return cache.addAll(CORE_FILES).then(() =>
+        Promise.allSettled(OPTIONAL_EXTERNAL_FILES.map(url => cache.add(url)))
+      );
     })
   );
   self.skipWaiting();
@@ -35,8 +69,7 @@ function shouldBypassCache(request) {
     url.pathname.startsWith('/api/') ||
     url.hostname.includes('firebaseio.com') ||
     url.hostname.includes('googleapis.com') ||
-    url.hostname.includes('mercadopago') ||
-    url.hostname.includes('gstatic.com')
+    url.hostname.includes('mercadopago')
   );
 }
 
@@ -48,6 +81,21 @@ function shouldStoreResponse(response) {
 self.addEventListener('fetch', event => {
   if (shouldBypassCache(event.request)) return;
 
+  if (event.request.mode === 'navigate') {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          if (shouldStoreResponse(response)) {
+            const clone = response.clone();
+            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
+          }
+          return response;
+        })
+        .catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then(response => {
@@ -57,6 +105,6 @@ self.addEventListener('fetch', event => {
         }
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(() => caches.match(event.request, { ignoreSearch: true }))
   );
 });

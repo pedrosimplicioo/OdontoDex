@@ -414,9 +414,27 @@ function activatePremiumFromTrialUsed(){
   }
 }
 
+function showOfflineAuthMessage(elementId){
+  const msg="Você está offline. Para entrar, criar conta ou recuperar senha, conecte-se à internet. Se você já estava logado, o app continua disponível para consulta.";
+  const err=document.getElementById(elementId);
+  if(err){err.textContent=msg;err.style.display="block";}
+  if(typeof showToast === "function") showToast("Você está offline. Login precisa de internet.", "error");
+  return false;
+}
+
+function canUseOnlineAuth(elementId){
+  if(!navigator.onLine) return showOfflineAuthMessage(elementId);
+  if(!window.firebase || !auth?.signInWithEmailAndPassword) return showOfflineAuthMessage(elementId);
+  return true;
+}
+
 async function doLoginGoogle(){
-  const provider = new firebase.auth.GoogleAuthProvider();
   const err=document.getElementById("login-error");
+  if(!navigator.onLine || !window.firebase || !auth?.signInWithPopup) {
+    showOfflineAuthMessage("login-error");
+    return;
+  }
+  const provider = new firebase.auth.GoogleAuthProvider();
   if(location.protocol==="file:"){
     const msg="Para entrar com Google, abra o OdontoDex pelo domínio publicado ou por localhost.";
     if(err){err.textContent=msg;err.style.display="block";}
@@ -480,6 +498,7 @@ async function doLogin(){
   const pwd=document.getElementById("login-password")?.value;
   const err=document.getElementById("login-error");
   if(!email||!pwd){if(err){err.textContent="Preencha todos os campos";err.style.display="block";}return;}
+  if(!canUseOnlineAuth("login-error")) return;
   const loginBtn=setAuthButtonProcessing("login-submit-btn","Entrando...");
   showLoading();
   try{
@@ -692,6 +711,7 @@ async function doRegister(){
   const termosOk=document.getElementById("register-terms-accepted")?.checked === true;
   const err=document.getElementById("register-error");
   if(err){err.textContent='';err.style.display='none';}
+  if(!canUseOnlineAuth("register-error")) return;
   if(!name||!email||!pwd){if(err){err.textContent="Preencha todos os campos";err.style.display="block";}return;}
   if(pwd.length<6){if(err){err.textContent="Use uma senha mais forte.";err.style.display="block";}return;}
   if(pwd !== pwdConfirm){if(err){err.textContent="As senhas não coincidem.";err.style.display="block";}return;}
@@ -778,6 +798,7 @@ async function doReset(){
   const err=document.getElementById("reset-error");
   const suc=document.getElementById("reset-success");
   if(!email){if(err){err.textContent="Digite seu email";err.style.display="block";}return;}
+  if(!canUseOnlineAuth("reset-error")) return;
   const resetBtn=setAuthButtonProcessing("reset-submit-btn","Enviando...");
   try{
     await auth.sendPasswordResetEmail(email);

@@ -69,6 +69,12 @@ body.dark .pwa-title{color:#F1F5F9;}
 .pwa-btn-install:active{transform:scale(0.96);}
 .pwa-btn-dismiss{background:none;border:none;font-size:11px;color:#94A3B8;cursor:pointer;font-weight:600;text-align:center;}
 
+/* OFFLINE STATUS */
+#offline-banner{position:fixed;left:50%;bottom:calc(12px + var(--safe-bottom));transform:translate3d(-50%,18px,0) scale(.985);width:calc(100% - 28px);max-width:402px;z-index:998;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:18px;background:rgba(15,23,42,0.92);color:#fff;border:1px solid rgba(255,255,255,0.10);box-shadow:0 16px 36px rgba(15,23,42,0.22);font-size:12.5px;font-weight:700;line-height:1.35;opacity:0;visibility:hidden;pointer-events:none;transition:opacity var(--motion-med) var(--motion-ease-out),visibility var(--motion-med) var(--motion-ease-out),transform var(--motion-med) var(--motion-ease-out);backdrop-filter:blur(10px);}
+#offline-banner.show{opacity:1;visibility:visible;transform:translate3d(-50%,0,0) scale(1);}
+#offline-banner .ti{font-size:18px;color:#FBBF24;flex-shrink:0;}
+body.dark #offline-banner{background:rgba(30,41,59,0.94);border-color:rgba(148,163,184,0.24);box-shadow:0 18px 38px rgba(0,0,0,0.34);}
+
 /* iOS INSTALL INSTRUCTIONS MODAL */
 #ios-install-overlay{position:fixed;inset:0;background:rgba(15,23,42,0.50);display:flex;align-items:center;justify-content:center;z-index:1000;padding:calc(18px + var(--safe-top)) 16px calc(18px + var(--safe-bottom));opacity:0;visibility:hidden;pointer-events:none;backdrop-filter:blur(0);transition:opacity var(--motion-med) var(--motion-ease-out),visibility var(--motion-med) var(--motion-ease-out),backdrop-filter var(--motion-med) var(--motion-ease-out);}
 #ios-install-overlay.show{opacity:1;visibility:visible;pointer-events:auto;backdrop-filter:blur(7px);}
