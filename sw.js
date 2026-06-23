@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v72-search-type-gradients';
+const CACHE_NAME = 'odontodex-v74-header-icon-press';
 
 const ARQUIVOS = [
   '/',
