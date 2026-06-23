@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v74-header-icon-press';
+const CACHE_NAME = 'odontodex-v78-dark-header-depth';
 
 const ARQUIVOS = [
   '/',

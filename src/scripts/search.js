@@ -89,6 +89,8 @@ function openHomeTrendingSearch(query,event){
   homeSearchQueuedValue = query;
   setHomeSearchFocusMode(true);
   if(results){
+    clearTimeout(results.__homeSearchCloseTimer);
+    results.classList.remove("closing");
     results.style.display = "block";
     clearTimeout(homeSearchRenderTimer);
     renderHomeSearchQuery(query,results);
@@ -229,6 +231,7 @@ function animateHomeSearchResults(container){
   if(!container)return;
   if(container.dataset.homeSearchOpened==="1")return;
   container.dataset.homeSearchOpened="1";
+  container.classList.remove("closing");
   container.classList.remove("home-search-results-animating");
   void container.offsetWidth;
   container.classList.add("home-search-results-animating");
@@ -245,10 +248,21 @@ function closeHomeSearchResults(container){
   if(!container)return;
   clearTimeout(homeSearchRenderTimer);
   clearTimeout(container.__homeSearchAnimationTimer);
-  container.style.display="none";
+  clearTimeout(container.__homeSearchCloseTimer);
+  if(container.style.display==="none"){
+    container.classList.remove("closing","home-search-results-animating");
+    delete container.dataset.homeSearchOpened;
+    container.innerHTML="";
+    return;
+  }
   container.classList.remove("home-search-results-animating");
-  delete container.dataset.homeSearchOpened;
-  container.innerHTML="";
+  container.classList.add("closing");
+  container.__homeSearchCloseTimer=setTimeout(()=>{
+    container.style.display="none";
+    container.classList.remove("closing");
+    delete container.dataset.homeSearchOpened;
+    container.innerHTML="";
+  },460);
 }
 
 function getSearchProtocolTipText(tip){
@@ -549,6 +563,8 @@ function doHomeSearch(q){
     return;
   }
   scheduleHomeTrendingRecord(q);
+  clearTimeout(resDiv.__homeSearchCloseTimer);
+  resDiv.classList.remove("closing");
   resDiv.style.display="block";
   clearTimeout(homeSearchRenderTimer);
   const hasVisibleResults=resDiv.innerHTML.trim().length>0;
@@ -587,7 +603,7 @@ function restoreHomeSearch(value){
 
 function hideHomeSearchResults(){
   const resDiv=document.getElementById("home-search-results");
-  if(resDiv)resDiv.style.display="none";
+  if(resDiv)closeHomeSearchResults(resDiv);
   setHomeSearchFocusMode(false);
 }
 
