@@ -1206,6 +1206,19 @@
       .mini-grid { grid-template-columns: 1fr; }
     }
 
+    @media (max-width: 640px) {
+      .hero h1 {
+        font-size: clamp(32px, 9vw, 40px);
+        line-height: 1.04;
+      }
+
+      .hero-sub {
+        margin-top: 18px;
+        font-size: 16px;
+        line-height: 1.58;
+      }
+    }
+
     @media (prefers-reduced-motion: reduce) {
       html { scroll-behavior: auto; }
       *, *::before, *::after {
@@ -1242,8 +1255,8 @@
       <div class="container hero-grid">
         <div>
           <div class="eyebrow reveal"><i class="ti ti-stethoscope"></i> Feito por dentistas e para dentistas</div>
-          <h1 class="reveal">Condutas rápidas, protocolos e prescrições para o dia a dia do dentista.</h1>
-          <p class="hero-sub reveal">Consulte rapidamente o que fazer em situações clínicas reais: coroa caiu, dente sensível, prótese machuca, prescrição, S.O.S. clínico e pacientes especiais.</p>
+          <h1 class="reveal">Sua referência clínica rápida para decidir com mais segurança.</h1>
+          <p class="hero-sub reveal">Consulte condutas rápidas, protocolos, prescrições e S.O.S. clínico em situações reais do consultório, sem sair do fluxo do atendimento.</p>
           <div class="cta-row reveal">
             <a class="btn btn-primary" href="https://www.odontodex.com.br" data-track="click_cta_hero" data-track-legacy="click_assinar_premium">
               <i class="ti ti-sparkles"></i>
@@ -1267,7 +1280,7 @@
 
         <div class="hero-visual reveal" aria-label="Mockup do OdontoDex">
           <div class="landing-screenshot">
-            <img src="landing-home-print.png" alt="Print da home do OdontoDex com busca, favoritos, áreas clínicas e S.O.S. clínico" width="395" height="628">
+            <img src="landing-home-print.png?v=20260623-home-atual" alt="Print da home do OdontoDex com busca, pesquisas em alta, S.O.S. clínico e ferramentas clínicas" width="438" height="606">
           </div>
           <div class="screenshot-caption"><i class="ti ti-device-mobile"></i> Print real da home do OdontoDex</div>
         </div>

@@ -7,9 +7,21 @@ const firebaseConfig = {
   messagingSenderId:"822223061470",
   appId:"1:822223061470:web:8b1447dcfb37e7eeda1d4f"
 };
-firebase.initializeApp(firebaseConfig);
-const auth = firebase.auth();
-const db = firebase.firestore();
+if(window.firebase) {
+  firebase.initializeApp(firebaseConfig);
+}
+const auth = window.firebase ? firebase.auth() : {
+  currentUser: null,
+  onAuthStateChanged(callback){
+    setTimeout(() => callback(null), 0);
+    return () => {};
+  }
+};
+const db = window.firebase ? firebase.firestore() : {
+  collection(){
+    throw new Error("Firestore indisponível offline.");
+  }
+};
 
 // ==================== VARIÁVEIS GLOBAIS ====================
 let currentUser = null;

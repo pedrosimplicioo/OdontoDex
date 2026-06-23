@@ -14,6 +14,13 @@ function pwaAlreadyDismissed(){
   return localStorage.getItem('pwaDismissed') === '1';
 }
 
+function updateOfflineStatus(){
+  const offline = !navigator.onLine;
+  document.body?.classList.toggle('is-offline', offline);
+  const banner = document.getElementById('offline-banner');
+  if(banner) banner.classList.toggle('show', offline);
+}
+
 function hideIosInstallOverlay(){
   const overlay = document.getElementById('ios-install-overlay');
   if(!overlay) return;
@@ -49,8 +56,14 @@ window.addEventListener('appinstalled', () => {
 document.addEventListener('DOMContentLoaded', () => {
   // Register service worker
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
+    navigator.serviceWorker.register('sw.js').then(reg => {
+      reg.update?.();
+    }).catch(()=>{});
   }
+
+  updateOfflineStatus();
+  window.addEventListener('online', updateOfflineStatus);
+  window.addEventListener('offline', updateOfflineStatus);
 
   // iOS Safari: show install instructions only in Safari, when not standalone and not dismissed.
   if(isIOSSafari() && !isInStandaloneMode() && !pwaAlreadyDismissed()){
