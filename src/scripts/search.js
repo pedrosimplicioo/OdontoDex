@@ -7,6 +7,7 @@ let homeSearchPlaceholderTimer = null;
 let homeSearchPlaceholderIndex = 0;
 let searchSheetDragState = null;
 let homeTrendingRecordTimer = null;
+let homeTrendingOpenGuard = { query: "", time: 0 };
 
 const HOME_TRENDING_FALLBACK = [
   { key: "coroa-caiu", label: "Coroa caiu", query: "coroa caiu", icon: "ti-crown" },
@@ -71,15 +72,33 @@ function scheduleHomeTrendingRecord(value){
   homeTrendingRecordTimer = setTimeout(() => recordHomeTrendingSearch(value), 900);
 }
 
-function openHomeTrendingSearch(query){
+function openHomeTrendingSearch(query,event){
+  if(event){
+    event.preventDefault();
+    event.stopPropagation();
+  }
+  const now = Date.now();
+  if(homeTrendingOpenGuard.query === query && now - homeTrendingOpenGuard.time < 350) return;
+  homeTrendingOpenGuard = { query, time: now };
   const input = document.getElementById("home-search-input");
+  const results = document.getElementById("home-search-results");
+  if(!DATA&&typeof initData==="function")initData();
   if(!input) return;
   input.value = query;
   persistedHomeSearchValue = query;
   homeSearchQueuedValue = query;
   setHomeSearchFocusMode(true);
-  input.focus();
-  doHomeSearch(query);
+  if(results){
+    results.style.display = "block";
+    clearTimeout(homeSearchRenderTimer);
+    renderHomeSearchQuery(query,results);
+  } else {
+    doHomeSearch(query);
+  }
+  requestAnimationFrame(()=>{
+    try{input.focus({preventScroll:true});}
+    catch(e){input.focus();}
+  });
   recordHomeTrendingSearch(query);
 }
 
@@ -89,7 +108,7 @@ function renderHomeTrendingSearches(){
   const counts = getHomeTrendingCounts();
   const sorted = [...HOME_TRENDING_FALLBACK].sort((a,b) => (counts[b.key] || 0) - (counts[a.key] || 0));
   row.innerHTML = sorted.map(item => `
-    <button class="home-trending-chip" type="button" onclick="openHomeTrendingSearch('${escapeHtml(item.query)}')">
+    <button class="home-trending-chip" type="button" onpointerdown="openHomeTrendingSearch('${escapeHtml(item.query)}',event)" onclick="openHomeTrendingSearch('${escapeHtml(item.query)}',event)">
       <i class="ti ${escapeHtml(item.icon)}"></i>${escapeHtml(item.label)}
     </button>
   `).join("");
@@ -148,7 +167,8 @@ document.addEventListener("DOMContentLoaded", () => {
 function createHomeSearchButton(title,kind,onClick,badges,options){
   const btn=document.createElement("button");
   const locked=!!(options&&options.locked);
-  btn.className="home-search-suggestion"+(locked?" is-premium-locked":"");
+  const typeClass=options&&options.type?` is-${options.type}`:"";
+  btn.className="home-search-suggestion"+typeClass+(locked?" is-premium-locked":"");
   if(locked)btn.setAttribute("aria-label",`${title} - Premium`);
   const badgeHtml=(badges||[]).map(b=>`<span class="home-search-context-badge">${escapeHtml(b)}</span>`).join("");
   const lockHtml=locked?'<span class="home-search-premium-lock"><i class="ti ti-lock"></i><span>Premium</span></span>':"";
@@ -198,7 +218,7 @@ function createClinicalSearchButton(item,returnInputId){
     item.kind,
     locked?openPremiumFromSearchSuggestion:()=>openClinicalSearchItem(item,returnInputId),
     item.badges,
-    {locked}
+    {locked,type:item.type}
   );
 }
 
@@ -383,7 +403,7 @@ function renderWeakClinicalSearchState(container,returnInputId){
       }
       if(returnInputId==="search-input"&&typeof doSearch==="function")doSearch(path.query);
       else doHomeSearch(path.query);
-    });
+    },null,{type:"common"});
     container.appendChild(btn);
   });
   animateHomeSearchResults(container);
@@ -500,7 +520,7 @@ function renderHomeSearchQuery(q,resDiv){
       setHomeSearchFocusMode(false);
       searchSheetReturnInputId="home-search-input";
       openSearchCondutaSheet(card.id);
-    },null,{locked});
+    },null,{locked,type:"conduct"});
     resDiv.appendChild(btn);
   });
   found.forEach(p=>{
@@ -510,7 +530,7 @@ function renderHomeSearchQuery(q,resDiv){
       setHomeSearchFocusMode(false);
       searchSheetReturnInputId="home-search-input";
       openSearchProtocolSheet(p.id);
-    },null,{locked});
+    },null,{locked,type:"protocol"});
     resDiv.appendChild(btn);
   });
   animateHomeSearchResults(resDiv);
@@ -1160,7 +1180,7 @@ function doSearch(q){
     const btn=createHomeSearchButton(p.title,"Protocolo",locked?openPremiumFromSearchSuggestion:()=>{
       searchSheetReturnInputId="search-input";
       openSearchProtocolSheet(p.id,{resetStack:true});
-    },null,{locked});
+    },null,{locked,type:"protocol"});
     res.appendChild(btn);
   });
 }
