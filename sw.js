@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v68-home-trending-searches';
+const CACHE_NAME = 'odontodex-v72-search-type-gradients';
 
 const ARQUIVOS = [
   '/',
