@@ -94,6 +94,8 @@ async function processApprovedPayment(paymentId, payment) {
     if (eventDoc.exists) return false;
 
     const pixDoc = await tx.get(pixRef);
+    const userDoc = await tx.get(userRef);
+    const userData = userDoc.exists ? (userDoc.data() || {}) : {};
     const premiumOrigem = pixDoc.exists ? "pix" : "pagamento";
     tx.set(eventRef, {
       type: "payment",
@@ -104,13 +106,26 @@ async function processApprovedPayment(paymentId, payment) {
       processedAt: admin.firestore.FieldValue.serverTimestamp(),
     });
 
-    tx.update(userRef, {
+    tx.set(userRef, {
+      email: userData.email || payment.payer?.email || "",
+      emailNormalizado: userData.emailNormalizado || String(payment.payer?.email || "").trim().toLowerCase(),
+      nome: userData.nome || "",
+      perfil: userData.perfil || "dentista",
+      tratamento: userData.tratamento !== undefined ? userData.tratamento : "",
+      criadoEm: userData.criadoEm || new Date().toISOString(),
+      dataPrimeiroAcesso: userData.dataPrimeiroAcesso || admin.firestore.FieldValue.serverTimestamp(),
+      acessosPorDia: userData.acessosPorDia || {},
+      termosAceitos: userData.termosAceitos === true ? true : true,
+      termosAceitosEm: userData.termosAceitosEm || admin.firestore.FieldValue.serverTimestamp(),
+      termosVersao: userData.termosVersao || "1.0",
+      privacidadeVersao: userData.privacidadeVersao || "1.1",
+      origemCadastro: userData.origemCadastro || "pagamento",
       premium: true,
       premiumExpira: admin.firestore.Timestamp.fromDate(expiresAt),
       premiumAtivadoEm: admin.firestore.FieldValue.serverTimestamp(),
       premiumOrigem,
       ultimoPagamentoId: String(paymentId),
-    });
+    }, { merge: true });
 
     if (pixDoc.exists && pixDoc.data().cupom) {
       const cupom = pixDoc.data().cupom;

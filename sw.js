@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v79-offline-consulta';
+const CACHE_NAME = 'odontodex-v81-payment-merge-user';
 
 const CORE_FILES = [
   '/',

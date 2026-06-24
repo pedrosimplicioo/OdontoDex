@@ -1207,15 +1207,60 @@
     }
 
     @media (max-width: 640px) {
+      .hero {
+        padding-top: 92px;
+        text-align: center;
+        align-items: flex-start;
+      }
+
+      .hero-grid {
+        justify-items: center;
+      }
+
+      .hero-grid > div:first-child {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .eyebrow {
+        margin-left: auto;
+        margin-right: auto;
+        justify-content: center;
+      }
+
       .hero h1 {
-        font-size: clamp(32px, 9vw, 40px);
-        line-height: 1.04;
+        max-width: 390px;
+        font-size: clamp(30px, 8vw, 36px);
+        line-height: 1.08;
       }
 
       .hero-sub {
+        max-width: 390px;
         margin-top: 18px;
         font-size: 16px;
         line-height: 1.58;
+      }
+
+      .cta-row {
+        width: 100%;
+        max-width: 390px;
+        align-items: stretch;
+      }
+
+      .cta-note {
+        max-width: 390px;
+        justify-content: center;
+        text-align: center;
+      }
+
+      .proof-strip {
+        width: 100%;
+        max-width: 390px;
+      }
+
+      .proof-item {
+        text-align: center;
       }
     }
 

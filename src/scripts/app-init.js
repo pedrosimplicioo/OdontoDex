@@ -59,6 +59,11 @@ async function loadAuthenticatedUserAndShowApp(user, options = {}) {
     let doc = await db.collection("users").doc(user.uid).get();
     let userData = doc.exists ? (doc.data() || {}) : {};
 
+    if(typeof isGoogleAuthUser === "function" && isGoogleAuthUser(user) && (!doc.exists || !userData.perfil)) {
+      showGoogleProfileCompletion(user);
+      return;
+    }
+
     if(doc.exists && userData.nome) localStorage.setItem('guiaNome', userData.nome);
     if(doc.exists && userData.perfil) localStorage.setItem('guiaPerfil', userData.perfil);
     if(doc.exists && userData.tratamento !== undefined) localStorage.setItem('guiaTratamento', userData.tratamento);
