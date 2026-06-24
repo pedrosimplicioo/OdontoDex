@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v81-payment-merge-user';
+const CACHE_NAME = 'odontodex-v82-firestore-profile-lock';
 
 const CORE_FILES = [
   '/',
