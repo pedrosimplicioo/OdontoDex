@@ -284,6 +284,7 @@ async function resendVerificationEmail(){
 
 async function activateTrialAfterEmailVerified(options){
   const showSuccess=options?.showSuccess !== false;
+  const profileFallback=options?.profileFallback || null;
   const user=auth.currentUser;
   if(!user){
     showLogin();
@@ -302,7 +303,8 @@ async function activateTrialAfterEmailVerified(options){
     headers:{
       "Content-Type":"application/json",
       "Authorization":"Bearer " + idToken
-    }
+    },
+    body: JSON.stringify(profileFallback ? { profileFallback } : {})
   });
   const data=await response.json().catch(()=>({}));
   if(response.ok && data.status === "activated"){
@@ -614,30 +616,54 @@ async function gwConfirmar() {
   }
   const primeiroNome = nome.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1).toLowerCase();}).join(' ');
   const displayName = gwPerfil === 'estudante' ? primeiroNome : (gwTrat ? gwTrat + ' ' + primeiroNome : primeiroNome);
+  const googleProfileFallback = {
+    nome: primeiroNome,
+    perfil: gwPerfil,
+    tratamento: gwTrat,
+    origemCadastro: "google",
+    termosAceitos: true
+  };
   let metaGoogleRegistrationCompleted = false;
   const gwBtn=setAuthButtonProcessing("gw-btn-confirmar","Salvando...");
   showLoading();
   try {
     await currentUser.updateProfile({ displayName: displayName });
-    await db.collection('users').doc(currentUser.uid).set({
-      nome: primeiroNome,
-      perfil: gwPerfil,
-      tratamento: gwTrat,
-      email: currentUser.email,
-      emailNormalizado: String(currentUser.email || '').trim().toLowerCase(),
-      criadoEm: new Date().toISOString(),
-      dataPrimeiroAcesso: firebase.firestore.FieldValue.serverTimestamp(),
-      acessosPorDia: {},
-      premium: false,
-      premiumOrigem: 'free',
-      trialAtivado: false,
-      emailVerificado: false,
-      termosAceitos: true,
-      termosAceitosEm: firebase.firestore.FieldValue.serverTimestamp(),
-      termosVersao: '1.0',
-      privacidadeVersao: '1.1',
-      origemCadastro: 'google'
-    });
+    const userRef = db.collection('users').doc(currentUser.uid);
+    const existingProfile = await userRef.get();
+    if(existingProfile.exists) {
+      await userRef.update({
+        nome: primeiroNome,
+        perfil: gwPerfil,
+        tratamento: gwTrat,
+        email: currentUser.email,
+        ultimoAcesso: firebase.firestore.FieldValue.serverTimestamp()
+      });
+    } else {
+      await userRef.set({
+        nome: primeiroNome,
+        perfil: gwPerfil,
+        tratamento: gwTrat,
+        email: currentUser.email,
+        emailNormalizado: String(currentUser.email || '').trim().toLowerCase(),
+        criadoEm: new Date().toISOString(),
+        dataPrimeiroAcesso: firebase.firestore.FieldValue.serverTimestamp(),
+        ultimoAcesso: firebase.firestore.FieldValue.serverTimestamp(),
+        acessosPorDia: {},
+        premium: false,
+        premiumOrigem: 'free',
+        trialAtivado: false,
+        emailVerificado: false,
+        termosAceitos: true,
+        termosAceitosEm: firebase.firestore.FieldValue.serverTimestamp(),
+        termosVersao: '1.0',
+        privacidadeVersao: '1.1',
+        origemCadastro: 'google'
+      });
+    }
+    const savedProfile = await userRef.get();
+    if(!savedProfile.exists || !savedProfile.data()?.perfil) {
+      throw new Error("Perfil Google nao confirmado no Firestore");
+    }
     window.userIsPremium = false;
     localStorage.setItem('userIsPremium', 'false');
     localStorage.setItem('guiaNome', primeiroNome);
@@ -674,8 +700,14 @@ async function gwConfirmar() {
     trackMetaCompleteRegistrationOnce(currentUser?.uid, "google");
   }
   try {
-    if (currentUser?.emailVerified) await activateTrialAfterEmailVerified({showSuccess:true});
+    if (currentUser?.emailVerified) {
+      await activateTrialAfterEmailVerified({
+        showSuccess:true,
+        profileFallback: googleProfileFallback
+      });
+    }
   } catch(e) {
+    console.error("Erro ao liberar trial apos cadastro Google:", e);
     showToast("Não foi possível liberar o trial agora. Tente novamente mais tarde.", "error");
   }
   await loadAuthenticatedUserAndShowApp(currentUser);
@@ -770,6 +802,7 @@ async function doRegister(){
         emailNormalizado:String(email || '').trim().toLowerCase(),
         criadoEm:new Date().toISOString(),
         dataPrimeiroAcesso: firebase.firestore.FieldValue.serverTimestamp(),
+        ultimoAcesso: firebase.firestore.FieldValue.serverTimestamp(),
         acessosPorDia: {},
         premium: false,
         premiumOrigem: 'free',
@@ -781,7 +814,11 @@ async function doRegister(){
         privacidadeVersao: '1.1',
         origemCadastro: 'email'
       });
-    }catch(e){console.log('Firestore indisponível',e);}
+    }catch(e){
+      console.error('Erro ao salvar cadastro no Firestore', e);
+      try { await res.user.delete(); } catch(deleteError) { console.error('Nao foi possivel remover usuario sem perfil', deleteError); }
+      throw new Error('profile_save_failed');
+    }
     // Salva perfil e tratamento no localStorage
     localStorage.setItem('guiaPerfil', selectedPerfil);
     if(selectedPerfil==='dentista') localStorage.setItem('guiaTratamento', selectedTratamento);
@@ -821,9 +858,10 @@ showEmailVerificationScreen(currentUser.email, verificationMessage, verification
         "auth/weak-password":"Escolha uma senha com pelo menos 6 caracteres.",
         "auth/unauthorized-continue-uri":"Conta criada, mas o Firebase recusou o link de verificação. Adicione www.odontodex.com.br nos domínios autorizados do Firebase Auth.",
         "auth/invalid-continue-uri":"Conta criada, mas o link de verificação está inválido.",
-        "auth/too-many-requests":"Conta criada, mas houve muitos envios de email em pouco tempo. Aguarde alguns minutos e tente reenviar."
+        "auth/too-many-requests":"Conta criada, mas houve muitos envios de email em pouco tempo. Aguarde alguns minutos e tente reenviar.",
+        "profile_save_failed":"Não foi possível salvar seu perfil no OdontoDex agora. Verifique a conexão e tente novamente."
       };
-      err.textContent=msgs[e.code]||"Não foi possível criar sua conta agora. Confira os dados e tente novamente.";
+      err.textContent=msgs[e.code || e.message]||"Não foi possível criar sua conta agora. Confira os dados e tente novamente.";
       err.style.display="block";
     }
   }
