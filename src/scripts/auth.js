@@ -284,7 +284,6 @@ async function resendVerificationEmail(){
 
 async function activateTrialAfterEmailVerified(options){
   const showSuccess=options?.showSuccess !== false;
-  const profileFallback=options?.profileFallback || null;
   const user=auth.currentUser;
   if(!user){
     showLogin();
@@ -303,8 +302,7 @@ async function activateTrialAfterEmailVerified(options){
     headers:{
       "Content-Type":"application/json",
       "Authorization":"Bearer " + idToken
-    },
-    body: JSON.stringify(profileFallback ? { profileFallback } : {})
+    }
   });
   const data=await response.json().catch(()=>({}));
   if(response.ok && data.status === "activated"){
@@ -616,13 +614,6 @@ async function gwConfirmar() {
   }
   const primeiroNome = nome.split(' ').map(function(p){return p.charAt(0).toUpperCase()+p.slice(1).toLowerCase();}).join(' ');
   const displayName = gwPerfil === 'estudante' ? primeiroNome : (gwTrat ? gwTrat + ' ' + primeiroNome : primeiroNome);
-  const googleProfileFallback = {
-    nome: primeiroNome,
-    perfil: gwPerfil,
-    tratamento: gwTrat,
-    origemCadastro: "google",
-    termosAceitos: true
-  };
   let metaGoogleRegistrationCompleted = false;
   const gwBtn=setAuthButtonProcessing("gw-btn-confirmar","Salvando...");
   showLoading();
@@ -700,12 +691,7 @@ async function gwConfirmar() {
     trackMetaCompleteRegistrationOnce(currentUser?.uid, "google");
   }
   try {
-    if (currentUser?.emailVerified) {
-      await activateTrialAfterEmailVerified({
-        showSuccess:true,
-        profileFallback: googleProfileFallback
-      });
-    }
+    if (currentUser?.emailVerified) await activateTrialAfterEmailVerified({showSuccess:true});
   } catch(e) {
     console.error("Erro ao liberar trial apos cadastro Google:", e);
     showToast("Não foi possível liberar o trial agora. Tente novamente mais tarde.", "error");
