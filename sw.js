@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v82-firestore-profile-lock';
+const CACHE_NAME = 'odontodex-v84-firestore-direct-profile';
 
 const CORE_FILES = [
   '/',
