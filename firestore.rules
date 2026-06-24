@@ -1,0 +1,194 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isAdmin() {
+      return request.auth != null 
+        && request.auth.token.email == "pedrosimplicio.sousa@gmail.com";
+    }
+
+    match /users/{userId} {
+      function isOwner() {
+        return request.auth != null && request.auth.uid == userId;
+      }
+
+      function protectedUserFields() {
+        return [
+          'premium',
+          'premiumExpira',
+          'premiumOrigem',
+          'trialAtivado',
+          'assinaturaId',
+          'assinaturaStatus',
+          'proximaCobranca',
+          'ultimoPagamentoId',
+          'premiumAtivadoEm',
+          'renovacaoCanceladaEm',
+          'canceladoEm',
+          'dataCancelamento'
+        ];
+      }
+
+      function allowedUserCreateFields() {
+        return [
+          'email',
+          'nome',
+          'perfil',
+          'tratamento',
+          'criadoEm',
+          'dataPrimeiroAcesso',
+          'ultimoAcesso',
+          'acessosPorDia',
+
+          // Trial inicial controlado
+          'premium',
+          'premiumExpira',
+          'premiumOrigem',
+          'trialAtivado',
+          'premiumAtivadoEm',
+
+          // Aceite legal no cadastro
+          'termosAceitos',
+          'termosAceitosEm',
+          'termosVersao',
+          'privacidadeVersao',
+          'origemCadastro'
+        ];
+      }
+
+      function allowedUserUpdateFields() {
+        return [
+          'email',
+          'nome',
+          'perfil',
+          'tratamento',
+          'ultimoAcesso',
+          'dataPrimeiroAcesso',
+          'acessosPorDia',
+          'mensagemPendente'
+        ];
+      }
+
+      function hasField(field) {
+        return request.resource.data.keys().hasAny([field]);
+      }
+
+      function oldHasField(field) {
+        return resource.data.keys().hasAny([field]);
+      }
+
+      function isValidTermsAcceptance() {
+        return request.resource.data.termosAceitos == true
+          && request.resource.data.termosAceitosEm is timestamp
+          && request.resource.data.termosVersao == '1.0'
+          && request.resource.data.privacidadeVersao == '1.1'
+          && (
+            request.resource.data.origemCadastro == 'email'
+            || request.resource.data.origemCadastro == 'google'
+          );
+      }
+
+      function isValidInitialTrial() {
+        return request.resource.data.premium == true
+          && request.resource.data.trialAtivado == true
+          && request.resource.data.premiumOrigem == 'trial'
+          && request.resource.data.premiumExpira is timestamp
+          && request.resource.data.premiumExpira > request.time
+          && request.resource.data.premiumExpira <= request.time + duration.value(8, 'd')
+          && (
+            !hasField('premiumAtivadoEm')
+            || request.resource.data.premiumAtivadoEm is timestamp
+          )
+          && isValidTermsAcceptance();
+      }
+
+      function isValidFreeCreate() {
+        return (!hasField('premium') || request.resource.data.premium == false)
+          && (!hasField('trialAtivado') || request.resource.data.trialAtivado == false)
+          && (!hasField('premiumOrigem') || request.resource.data.premiumOrigem == null || request.resource.data.premiumOrigem == '')
+          && (!hasField('premiumExpira') || request.resource.data.premiumExpira == null)
+          && (!hasField('premiumAtivadoEm') || request.resource.data.premiumAtivadoEm == null)
+          && isValidTermsAcceptance();
+      }
+
+      function isValidTrialActivationUpdate() {
+        return isOwner()
+          && resource.data.termosAceitos == true
+          && (!oldHasField('trialAtivado') || resource.data.trialAtivado == false)
+          && (!oldHasField('premium') || resource.data.premium == false)
+          && (!oldHasField('premiumOrigem') || resource.data.premiumOrigem == null || resource.data.premiumOrigem == '')
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+            'premium',
+            'premiumExpira',
+            'premiumOrigem',
+            'trialAtivado',
+            'premiumAtivadoEm'
+          ])
+          && request.resource.data.premium == true
+          && request.resource.data.trialAtivado == true
+          && request.resource.data.premiumOrigem == 'trial'
+          && request.resource.data.premiumExpira is timestamp
+          && request.resource.data.premiumExpira > request.time
+          && request.resource.data.premiumExpira <= request.time + duration.value(8, 'd')
+          && (
+            !hasField('premiumAtivadoEm')
+            || request.resource.data.premiumAtivadoEm is timestamp
+          );
+      }
+
+      allow read: if isAdmin() || isOwner();
+
+      allow create: if isOwner()
+        && request.resource.data.keys().hasOnly(allowedUserCreateFields())
+        && (isValidFreeCreate() || isValidInitialTrial());
+
+      allow update: if isAdmin() || (
+        isOwner()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(allowedUserUpdateFields())
+        && !request.resource.data.diff(resource.data).affectedKeys().hasAny(protectedUserFields())
+      ) || isValidTrialActivationUpdate();
+    }
+
+    match /analytics_uso_protocolos/{docId} {
+      allow create: if request.auth != null;
+      allow read: if isAdmin();
+    }
+
+    match /user_actions/{docId} {
+      allow create: if request.auth != null;
+      allow read: if isAdmin();
+    }
+
+    match /cancelamentos/{docId} {
+      allow create: if request.auth != null;
+      allow read: if isAdmin();
+    }
+
+    match /conversoes_landing/{docId} {
+      allow create: if request.auth != null;
+      allow read: if isAdmin();
+    }
+
+    match /landing_stats/{docId} {
+      allow create: if true;
+      allow read: if isAdmin();
+    }
+
+    match /CUPONS/{cupomId} {
+      allow read: if request.auth != null;
+      allow write: if isAdmin();
+    }
+
+    match /conversoes_cupom/{docId} {
+      allow read: if isAdmin();
+      allow write: if isAdmin();
+    }
+
+    match /pix_pendentes/{docId} {
+      allow read: if isAdmin();
+    }
+
+    match /repasses/{docId} {
+      allow read, write: if isAdmin();
+    }
+  }
+}

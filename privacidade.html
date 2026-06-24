@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:#F8FAFC;color:#1E293B;line-height:1.7;font-size:16px;}
-.container{max-width:720px;margin:0 auto;padding:40px 20px 80px;}
+.container{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
 .header{text-align:center;margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid #E2E8F0;}
 .logo{font-size:32px;font-weight:800;color:#7C3FA0;letter-spacing:-1px;margin-bottom:8px;}
 h1{font-size:24px;font-weight:700;color:#0F172A;margin-bottom:8px;}
@@ -17,135 +17,282 @@ h3{font-size:15px;font-weight:600;color:#0F172A;margin:24px 0 8px;}
 p{margin-bottom:12px;color:#334155;}
 ul,ol{padding-left:20px;margin-bottom:12px;}
 li{margin-bottom:6px;color:#334155;}
+strong{color:#0F172A;}
 a{color:#7C3FA0;text-decoration:none;}
 a:hover{text-decoration:underline;}
 .back{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:#7C3FA0;margin-bottom:32px;text-decoration:none;}
 .back:hover{text-decoration:underline;}
+.notice{background:#F5EEFB;border:1px solid #E9D5FF;border-left:4px solid #7C3FA0;border-radius:14px;padding:16px;margin:24px 0;}
+.notice p{color:#3D1260;margin-bottom:8px;}
+.notice p:last-child{margin-bottom:0;}
+.warning{background:#FFF7ED;border:1px solid #FED7AA;border-left:4px solid #F97316;border-radius:14px;padding:16px;margin:24px 0;}
+.warning p{color:#7C2D12;margin-bottom:8px;}
+.warning p:last-child{margin-bottom:0;}
 table{width:100%;border-collapse:collapse;margin-bottom:16px;font-size:14px;}
 th{background:#F1F5F9;color:#475569;font-weight:600;padding:10px 12px;text-align:left;border:1px solid #E2E8F0;}
 td{padding:10px 12px;border:1px solid #E2E8F0;color:#334155;vertical-align:top;}
 tr:nth-child(even) td{background:#F8FAFC;}
 .footer{margin-top:48px;padding-top:24px;border-top:1px solid #E2E8F0;text-align:center;font-size:13px;color:#94A3B8;}
+.small{font-size:13px;color:#64748B;}
 </style>
 </head>
+
 <body>
 <div class="container">
   <a class="back" href="/">← Voltar ao app</a>
+
   <div class="header">
     <div class="logo">OdontoDex</div>
     <h1>Política de Privacidade</h1>
     <div class="meta">
-      Versão 1.0 · Vigência: maio de 2025<br>
+      Versão 1.1 · Vigência: junho de 2026<br>
       Controlador: Pedro Igor Simplício de Sousa · Natal, RN, Brasil<br>
-      DPO / Contato: <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a>
+      Contato sobre privacidade: <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a>
     </div>
   </div>
 
+  <div class="notice">
+    <p><strong>Resumo importante:</strong> o OdontoDex utiliza dados pessoais para criar e proteger contas, liberar acesso gratuito ou Premium, processar pagamentos, melhorar a experiência do usuário, prestar suporte, cumprir obrigações legais e manter a segurança da Plataforma.</p>
+    <p>O OdontoDex não vende dados pessoais dos usuários.</p>
+  </div>
+
   <h2>1. Introdução</h2>
-  <p>O OdontoDex trata os dados pessoais dos usuários com responsabilidade e transparência, em conformidade com a Lei Geral de Proteção de Dados Pessoais (LGPD — Lei nº 13.709/2018) e demais normas aplicáveis.</p>
-  <p>Esta Política descreve quais dados coletamos, como os utilizamos, com quem os compartilhamos, por quanto tempo os retemos e quais são seus direitos como titular.</p>
+  <p>Esta Política de Privacidade explica como o OdontoDex coleta, utiliza, armazena, compartilha e protege dados pessoais dos usuários da Plataforma.</p>
+  <p>O tratamento de dados pessoais é realizado em conformidade com a Lei Geral de Proteção de Dados Pessoais — LGPD (Lei nº 13.709/2018), o Marco Civil da Internet, normas de proteção ao consumidor e demais legislações aplicáveis.</p>
+  <p>Ao criar uma conta, acessar ou utilizar o OdontoDex, o usuário declara estar ciente desta Política de Privacidade e dos <a href="/termos">Termos de Uso</a>.</p>
 
-  <h2>2. Controlador dos Dados</h2>
-  <p><strong>Pedro Igor Simplício de Sousa</strong><br>
-  Pessoa física · Natal, Rio Grande do Norte, Brasil<br>
-  E-mail: <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a></p>
+  <h2>2. Controlador dos dados</h2>
+  <p><strong>Controlador:</strong> Pedro Igor Simplício de Sousa</p>
+  <p><strong>Localidade:</strong> Natal, Rio Grande do Norte, Brasil</p>
+  <p><strong>E-mail para contato:</strong> <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a></p>
+  <p>Para solicitações relacionadas a dados pessoais, privacidade, exclusão de conta ou exercício de direitos previstos na LGPD, utilize o e-mail acima.</p>
 
-  <h2>3. Dados Coletados</h2>
-  <h3>3.1 Dados fornecidos no cadastro</h3>
+  <h2>3. Dados pessoais coletados</h2>
+
+  <h3>3.1 Dados fornecidos pelo usuário</h3>
+  <p>Podemos coletar dados fornecidos diretamente pelo usuário durante cadastro, login, suporte, assinatura ou uso da Plataforma, incluindo:</p>
   <ul>
-    <li>Nome completo;</li>
-    <li>Endereço de e-mail;</li>
-    <li>Senha (armazenada de forma criptografada — o OdontoDex não tem acesso à senha em texto simples);</li>
-    <li>Perfil profissional (dentista formado ou estudante);</li>
-    <li>Tratamento preferido (Dr., Dra. ou sem título).</li>
-  </ul>
-  <h3>3.2 Dados gerados pelo uso</h3>
-  <ul>
-    <li>Protocolos e funcionalidades acessados;</li>
-    <li>Buscas realizadas dentro da Plataforma;</li>
-    <li>Favoritos salvos;</li>
-    <li>Frequência e horários de acesso.</li>
-  </ul>
-  <h3>3.3 Dados de pagamento</h3>
-  <p>O processamento de pagamentos é realizado pelo Mercado Pago. O OdontoDex não coleta, armazena ou processa dados de cartão de crédito. Recebemos apenas a confirmação do status do pagamento e o identificador da transação.</p>
-  <h3>3.4 Dados técnicos</h3>
-  <ul>
-    <li>Tipo de dispositivo e sistema operacional;</li>
-    <li>Navegador utilizado;</li>
-    <li>Endereço IP (coletado automaticamente pelo Firebase).</li>
+    <li>nome;</li>
+    <li>endereço de e-mail;</li>
+    <li>senha ou credenciais de autenticação, gerenciadas por serviço seguro de autenticação;</li>
+    <li>perfil informado pelo usuário, como dentista, estudante ou outro perfil disponível;</li>
+    <li>tratamento preferido, como Dr., Dra. ou sem título;</li>
+    <li>mensagens enviadas ao suporte;</li>
+    <li>informações fornecidas em solicitações de cancelamento, reembolso, exclusão de conta ou atendimento.</li>
   </ul>
 
-  <h2>4. Finalidades e Bases Legais</h2>
+  <h3>3.2 Dados de autenticação</h3>
+  <p>O OdontoDex utiliza serviços de autenticação, como Firebase Authentication, para permitir login por e-mail/senha ou outros métodos disponíveis na Plataforma.</p>
+  <p>Senhas não são armazenadas em texto simples pelo OdontoDex. A autenticação é processada por infraestrutura especializada de terceiros.</p>
+
+  <h3>3.3 Dados gerados pelo uso da Plataforma</h3>
+  <p>Durante o uso do OdontoDex, podemos registrar informações necessárias para funcionamento, segurança, melhoria do serviço e personalização da experiência, como:</p>
+  <ul>
+    <li>protocolos, cards, condutas, prescrições ou ferramentas acessadas;</li>
+    <li>buscas realizadas dentro da Plataforma;</li>
+    <li>favoritos, histórico ou preferências salvas;</li>
+    <li>categoria de conteúdo acessado;</li>
+    <li>data, horário e frequência de uso;</li>
+    <li>ações relevantes dentro do app, como abertura de protocolo, uso de ferramenta clínica ou tentativa de acesso a conteúdo Premium.</li>
+  </ul>
+
+  <h3>3.4 Dados de pagamento e assinatura</h3>
+  <p>Quando o usuário contrata o plano Premium pelo site ou PWA fora de lojas de aplicativos, o pagamento pode ser processado por intermediadores externos, como Mercado Pago.</p>
+  <p>O OdontoDex não armazena dados completos de cartão de crédito. Podemos receber e armazenar dados necessários para controle da assinatura e liberação do acesso, incluindo:</p>
+  <ul>
+    <li>identificador da transação;</li>
+    <li>status do pagamento;</li>
+    <li>status da assinatura;</li>
+    <li>data de ativação e expiração do Premium;</li>
+    <li>origem do pagamento, como Pix, cartão, assinatura ou ativação manual;</li>
+    <li>cupom utilizado, quando aplicável;</li>
+    <li>e-mail associado ao pagamento.</li>
+  </ul>
+
+  <h3>3.5 Dados relacionados a cupons, parcerias e repasses</h3>
+  <p>Quando o usuário utiliza cupom de desconto ou código de indicação, podemos registrar informações associadas à conversão, como código utilizado, data, identificador do usuário, e-mail associado e status do repasse, quando aplicável.</p>
+
+  <h3>3.6 Dados técnicos e de dispositivo</h3>
+  <p>Podemos coletar automaticamente dados técnicos necessários para segurança, funcionamento e diagnóstico da Plataforma, incluindo:</p>
+  <ul>
+    <li>endereço IP;</li>
+    <li>tipo de dispositivo;</li>
+    <li>sistema operacional;</li>
+    <li>navegador utilizado;</li>
+    <li>idioma, data, horário e registros técnicos de acesso;</li>
+    <li>erros, falhas, logs técnicos e informações de desempenho.</li>
+  </ul>
+
+  <h3>3.7 Dados armazenados localmente no dispositivo</h3>
+  <p>O OdontoDex pode utilizar armazenamento local do navegador, como localStorage, cache do PWA e service worker, para manter preferências, melhorar desempenho, permitir instalação como aplicativo e preservar configurações do usuário.</p>
+  <p>Esses dados podem permanecer no dispositivo até que o usuário limpe os dados do navegador, desinstale o PWA ou utilize mecanismos de limpeza disponíveis no sistema.</p>
+
+  <h2>4. Dados que não devem ser inseridos na Plataforma</h2>
+  <div class="warning">
+    <p><strong>O OdontoDex não foi criado para armazenar prontuários ou dados identificáveis de pacientes.</strong></p>
+    <p>O usuário não deve inserir nome de pacientes, CPF, telefone, endereço, imagens clínicas identificáveis, dados de saúde individualizados ou informações sensíveis de terceiros em campos de busca, suporte ou qualquer área que não tenha finalidade específica para isso.</p>
+  </div>
+  <p>Caso o usuário envie voluntariamente dados de pacientes ou terceiros, será responsável por possuir base legal adequada, autorização quando aplicável e observância das normas profissionais e de proteção de dados.</p>
+
+  <h2>5. Finalidades do tratamento e bases legais</h2>
   <table>
     <thead>
-      <tr><th>Finalidade</th><th>Dados utilizados</th><th>Base legal (LGPD)</th></tr>
+      <tr>
+        <th>Finalidade</th>
+        <th>Exemplos de dados utilizados</th>
+        <th>Base legal</th>
+      </tr>
     </thead>
     <tbody>
-      <tr><td>Criação e gestão da conta</td><td>Nome, e-mail, senha</td><td>Execução de contrato (art. 7º, V)</td></tr>
-      <tr><td>Personalização da experiência</td><td>Nome, perfil, tratamento</td><td>Execução de contrato (art. 7º, V)</td></tr>
-      <tr><td>Cobrança e gestão da assinatura</td><td>E-mail, status do pagamento</td><td>Execução de contrato (art. 7º, V)</td></tr>
-      <tr><td>Melhoria da Plataforma</td><td>Dados de uso anonimizados</td><td>Legítimo interesse (art. 7º, IX)</td></tr>
-      <tr><td>Comunicações sobre o serviço</td><td>E-mail</td><td>Execução de contrato / Legítimo interesse</td></tr>
-      <tr><td>Cumprimento de obrigações legais</td><td>Dados necessários</td><td>Obrigação legal (art. 7º, II)</td></tr>
-      <tr><td>Marketing e comunicações promocionais</td><td>E-mail</td><td>Consentimento (art. 7º, I)</td></tr>
+      <tr>
+        <td>Criação, autenticação e gestão da conta</td>
+        <td>Nome, e-mail, credenciais, UID de usuário</td>
+        <td>Execução de contrato</td>
+      </tr>
+      <tr>
+        <td>Funcionamento da Plataforma e liberação de recursos</td>
+        <td>Perfil, status Premium, favoritos, histórico, preferências</td>
+        <td>Execução de contrato</td>
+      </tr>
+      <tr>
+        <td>Processamento de pagamento e assinatura</td>
+        <td>E-mail, status do pagamento, identificador de transação, assinatura, cupom</td>
+        <td>Execução de contrato e cumprimento de obrigação legal</td>
+      </tr>
+      <tr>
+        <td>Prevenção a fraudes, segurança e controle de acesso</td>
+        <td>UID, IP, logs técnicos, eventos de autenticação, status de pagamento</td>
+        <td>Legítimo interesse e cumprimento de obrigação legal</td>
+      </tr>
+      <tr>
+        <td>Melhoria do conteúdo, busca e experiência</td>
+        <td>Buscas, protocolos acessados, ferramentas utilizadas, métricas de uso</td>
+        <td>Legítimo interesse</td>
+      </tr>
+      <tr>
+        <td>Atendimento ao usuário e suporte</td>
+        <td>Nome, e-mail, mensagens, registros da conta</td>
+        <td>Execução de contrato e legítimo interesse</td>
+      </tr>
+      <tr>
+        <td>Comunicações operacionais</td>
+        <td>E-mail, status da conta, assinatura, avisos importantes</td>
+        <td>Execução de contrato e legítimo interesse</td>
+      </tr>
+      <tr>
+        <td>Comunicações promocionais, quando aplicável</td>
+        <td>E-mail e preferências de comunicação</td>
+        <td>Consentimento ou legítimo interesse, conforme o caso</td>
+      </tr>
+      <tr>
+        <td>Cumprimento de obrigações legais, fiscais e regulatórias</td>
+        <td>Dados de pagamento, transações, logs, solicitações formais</td>
+        <td>Cumprimento de obrigação legal</td>
+      </tr>
+      <tr>
+        <td>Exercício regular de direitos</td>
+        <td>Registros de conta, pagamento, suporte e logs necessários</td>
+        <td>Exercício regular de direitos</td>
+      </tr>
     </tbody>
   </table>
 
-  <h2>5. Compartilhamento de Dados</h2>
-  <p>O OdontoDex não vende dados pessoais dos usuários a terceiros. Os dados podem ser compartilhados com:</p>
-  <h3>5.1 Google Firebase</h3>
-  <p>Utilizado para autenticação de usuários e armazenamento de dados, em conformidade com a política de privacidade do Google.</p>
-  <h3>5.2 Mercado Pago</h3>
-  <p>Utilizado para processamento de pagamentos. O compartilhamento é restrito ao necessário para a realização da cobrança.</p>
-  <h3>5.3 Autoridades públicas</h3>
-  <p>Quando exigido por lei, decisão judicial ou ordem de autoridade competente.</p>
+  <h2>6. Compartilhamento de dados</h2>
+  <p>O OdontoDex não vende dados pessoais. O compartilhamento ocorre apenas quando necessário para funcionamento da Plataforma, pagamento, segurança, suporte, cumprimento legal ou exercício de direitos.</p>
 
-  <h2>6. Retenção de Dados</h2>
+  <h3>6.1 Firebase / Google</h3>
+  <p>Utilizamos serviços do Google Firebase para autenticação, banco de dados, armazenamento técnico, segurança, infraestrutura e funcionamento da Plataforma.</p>
+
+  <h3>6.2 Mercado Pago</h3>
+  <p>Utilizamos Mercado Pago para processar pagamentos realizados diretamente pelo site ou PWA, quando disponível. O compartilhamento é limitado ao necessário para criação, confirmação, cancelamento, conciliação e segurança das transações.</p>
+
+  <h3>6.3 Lojas de aplicativos</h3>
+  <p>Caso o OdontoDex seja distribuído por lojas de aplicativos, como Google Play ou outras plataformas, dados relacionados a instalação, assinatura, compra, cancelamento, reembolso e verificação de acesso poderão ser tratados pela respectiva loja conforme suas próprias políticas.</p>
+
+  <h3>6.4 Prestadores de serviço e infraestrutura</h3>
+  <p>Podemos utilizar provedores de hospedagem, domínio, e-mail, analytics, monitoramento, suporte, segurança, automação ou comunicação, sempre limitando o compartilhamento ao necessário para a prestação do serviço.</p>
+
+  <h3>6.5 Autoridades e obrigações legais</h3>
+  <p>Dados poderão ser compartilhados com autoridades públicas, órgãos reguladores, Poder Judiciário, autoridades fiscais ou terceiros quando exigido por lei, ordem judicial, obrigação regulatória ou para defesa de direitos.</p>
+
+  <h2>7. Transferência internacional de dados</h2>
+  <p>Alguns fornecedores utilizados pelo OdontoDex, como Google Firebase, Mercado Pago, provedores de hospedagem e serviços de infraestrutura, podem armazenar ou processar dados em servidores localizados fora do Brasil.</p>
+  <p>Nesses casos, o OdontoDex busca utilizar prestadores que adotem padrões de segurança compatíveis com a legislação aplicável e com boas práticas de proteção de dados.</p>
+
+  <h2>8. Retenção e exclusão de dados</h2>
+  <p>Os dados pessoais serão mantidos pelo tempo necessário para cumprir as finalidades descritas nesta Política, respeitando prazos legais, regulatórios, contratuais e necessidades legítimas de segurança e defesa de direitos.</p>
   <ul>
-    <li>Dados de conta: retidos enquanto a conta estiver ativa e por até 5 anos após o encerramento;</li>
-    <li>Dados de pagamento e transações: retidos por 5 anos, conforme exigência fiscal;</li>
-    <li>Dados de uso: retidos por até 2 anos em formato identificável.</li>
+    <li><strong>Dados de conta:</strong> mantidos enquanto a conta estiver ativa e por período necessário após encerramento para segurança, prevenção a fraudes e exercício de direitos.</li>
+    <li><strong>Dados de pagamento e transações:</strong> mantidos pelo prazo necessário ao cumprimento de obrigações fiscais, contábeis, regulatórias e defesa de direitos.</li>
+    <li><strong>Dados de uso:</strong> podem ser mantidos em formato identificável pelo tempo necessário para melhoria, segurança e histórico do usuário, podendo depois ser anonimizados.</li>
+    <li><strong>Logs técnicos e de segurança:</strong> mantidos pelo tempo necessário para auditoria, prevenção a fraudes, investigação de incidentes e estabilidade do serviço.</li>
+    <li><strong>Dados anonimizados:</strong> podem ser mantidos por prazo indeterminado, desde que não permitam identificação do titular.</li>
   </ul>
 
-  <h2>7. Segurança dos Dados</h2>
-  <p>O OdontoDex adota medidas técnicas e organizacionais para proteger os dados, incluindo autenticação com criptografia de senha, comunicação via HTTPS/TLS e armazenamento em infraestrutura segura do Google Firebase.</p>
-  <p>Em caso de incidente de segurança, o OdontoDex notificará a ANPD e os usuários afetados nos prazos previstos pela LGPD.</p>
+  <h2>9. Segurança dos dados</h2>
+  <p>O OdontoDex adota medidas técnicas e organizacionais para proteger os dados pessoais contra acessos não autorizados, perda, alteração, divulgação indevida ou tratamento inadequado.</p>
+  <p>Entre as medidas utilizadas estão autenticação segura, comunicação via HTTPS/TLS, controle de acesso, segregação de permissões administrativas, validação de autenticação em endpoints sensíveis, proteção de variáveis de ambiente e infraestrutura gerenciada por provedores reconhecidos.</p>
+  <p>Nenhum sistema é completamente imune a falhas. Em caso de incidente de segurança relevante envolvendo dados pessoais, o OdontoDex adotará as medidas cabíveis, incluindo avaliação do risco, mitigação, comunicação aos titulares e/ou à Autoridade Nacional de Proteção de Dados quando exigido pela legislação aplicável.</p>
 
-  <h2>8. Cookies e Armazenamento Local</h2>
-  <p>O OdontoDex utiliza o localStorage do navegador para armazenar preferências do usuário exclusivamente no dispositivo do próprio usuário. Esses dados não são transmitidos ao servidor. O Firebase pode utilizar cookies de sessão essenciais para o funcionamento da autenticação.</p>
+  <h2>10. Cookies, cache e armazenamento local</h2>
+  <p>O OdontoDex pode utilizar cookies essenciais, armazenamento local, cache do navegador e service worker para autenticação, instalação como PWA, preservação de preferências, melhoria de desempenho e funcionamento da Plataforma.</p>
+  <p>O usuário pode controlar ou limpar cookies e dados locais pelas configurações do navegador ou dispositivo. A remoção desses dados pode afetar login, preferências, instalação do PWA e funcionamento de alguns recursos.</p>
 
-  <h2>9. Direitos do Titular</h2>
-  <p>Conforme a LGPD, você tem direito a:</p>
+  <h2>11. Comunicações</h2>
+  <p>O OdontoDex poderá enviar comunicações relacionadas ao serviço, como confirmações de conta, avisos de pagamento, assinatura, cancelamento, segurança, suporte, atualizações importantes, alterações de Termos ou Política de Privacidade.</p>
+  <p>Comunicações promocionais, quando realizadas, poderão permitir descadastramento ou solicitação de interrupção pelo e-mail <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a>.</p>
+
+  <h2>12. Direitos do titular</h2>
+  <p>Nos termos da LGPD, o usuário pode solicitar, quando aplicável:</p>
   <ul>
-    <li><strong>Confirmação e acesso</strong> aos seus dados;</li>
-    <li><strong>Correção</strong> de dados incompletos ou inexatos;</li>
-    <li><strong>Eliminação</strong> de dados tratados com base no consentimento;</li>
-    <li><strong>Portabilidade</strong> dos seus dados;</li>
-    <li><strong>Revogação do consentimento</strong> a qualquer momento;</li>
-    <li><strong>Oposição</strong> a tratamentos realizados com base em legítimo interesse;</li>
-    <li><strong>Petição à ANPD</strong> em relação aos seus dados.</li>
+    <li>confirmação da existência de tratamento de dados pessoais;</li>
+    <li>acesso aos dados pessoais tratados;</li>
+    <li>correção de dados incompletos, inexatos ou desatualizados;</li>
+    <li>anonimização, bloqueio ou eliminação de dados desnecessários, excessivos ou tratados em desconformidade com a LGPD;</li>
+    <li>portabilidade dos dados, observada a regulamentação aplicável;</li>
+    <li>informação sobre compartilhamento de dados;</li>
+    <li>revogação do consentimento, quando o tratamento se basear em consentimento;</li>
+    <li>oposição a tratamento realizado com base em legítimo interesse, quando cabível;</li>
+    <li>eliminação de dados tratados com base no consentimento, respeitadas hipóteses legais de retenção;</li>
+    <li>revisão de decisões tomadas unicamente com base em tratamento automatizado, quando aplicável;</li>
+    <li>peticionamento perante a Autoridade Nacional de Proteção de Dados.</li>
   </ul>
-  <p>Para exercer seus direitos, entre em contato: <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a>. Responderemos em até 15 dias úteis.</p>
+  <p>Para exercer seus direitos, envie solicitação para <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a>. Poderemos solicitar informações adicionais para confirmar a identidade do solicitante e proteger a conta contra acessos indevidos.</p>
+  <p>Responderemos às solicitações dentro dos prazos previstos na legislação aplicável.</p>
 
-  <h2>10. Exclusão de Conta</h2>
-  <p>Usuários que criaram uma conta no OdontoDex podem solicitar a exclusão da conta e dos dados pessoais associados pela página <a href="/exclusao-conta">Exclusão de Conta</a> ou pelo e-mail <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a>.</p>
-  <p>Após validação da identidade do solicitante, excluiremos os dados cadastrais e dados de uso vinculados à conta, salvo quando a retenção for necessária para cumprimento de obrigações legais, fiscais, segurança, prevenção a fraude, atendimento de disputas ou exercício regular de direitos.</p>
+  <h2>13. Exclusão de conta e dados</h2>
+  <p>O usuário pode solicitar a exclusão da conta e dos dados pessoais associados pela página <a href="/exclusao-conta">Excluir conta e dados</a> ou pelo e-mail <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a>.</p>
+  <p>Após validação da identidade do solicitante, serão excluídos ou anonimizados os dados pessoais vinculados à conta, salvo quando a retenção for necessária para:</p>
+  <ul>
+    <li>cumprimento de obrigação legal, regulatória, fiscal ou contábil;</li>
+    <li>prevenção a fraude e segurança da Plataforma;</li>
+    <li>comprovação de pagamento, cancelamento, reembolso ou assinatura;</li>
+    <li>defesa de direitos em processos judiciais, administrativos ou arbitrais;</li>
+    <li>cumprimento de ordem judicial ou solicitação de autoridade competente;</li>
+    <li>manutenção de dados anonimizados para estatísticas, melhoria e segurança.</li>
+  </ul>
+  <p>A exclusão da conta pode resultar na perda de acesso ao plano Premium, histórico, favoritos, preferências e demais informações vinculadas à conta.</p>
 
-  <h2>11. Menores de Idade</h2>
-  <p>O OdontoDex destina-se exclusivamente a profissionais e estudantes de Odontologia com idade mínima de 18 anos. Não coletamos intencionalmente dados de menores de 18 anos.</p>
+  <h2>14. Menores de idade</h2>
+  <p>O OdontoDex é destinado a usuários maiores de 18 anos, profissionais da área odontológica e estudantes de Odontologia. Não coletamos intencionalmente dados pessoais de menores de 18 anos.</p>
+  <p>Caso seja identificado cadastro de menor de idade, poderemos excluir a conta e os dados associados, salvo se houver base legal aplicável para retenção temporária.</p>
 
-  <h2>12. Alterações nesta Política</h2>
-  <p>Alterações relevantes serão comunicadas por e-mail ou aviso na Plataforma com antecedência mínima de 15 dias.</p>
+  <h2>15. Dados de pacientes e terceiros</h2>
+  <p>O OdontoDex é uma ferramenta de apoio clínico para profissionais e estudantes, não um sistema de prontuário eletrônico. O usuário não deve inserir dados pessoais ou dados sensíveis de pacientes na Plataforma, salvo se houver recurso específico, finalidade explícita e base legal adequada.</p>
+  <p>O usuário é responsável por garantir que qualquer dado de terceiro eventualmente inserido ou enviado ao OdontoDex tenha base legal válida e observe normas éticas, profissionais e de proteção de dados.</p>
 
-  <h2>13. Contato e DPO</h2>
-  <p><strong>Encarregado de Dados (DPO):</strong><br>
-  Pedro Igor Simplício de Sousa<br>
-  E-mail: <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a><br>
-  Natal, Rio Grande do Norte, Brasil</p>
-  <p>Você também pode registrar reclamações perante a <strong>Autoridade Nacional de Proteção de Dados (ANPD)</strong>: <a href="https://www.gov.br/anpd" target="_blank">www.gov.br/anpd</a></p>
+  <h2>16. Alterações nesta Política</h2>
+  <p>Esta Política de Privacidade poderá ser atualizada para refletir mudanças legais, técnicas, comerciais ou operacionais.</p>
+  <p>Alterações relevantes poderão ser comunicadas por e-mail, aviso na Plataforma ou outro meio razoável. A versão atualizada ficará disponível nesta página.</p>
+
+  <h2>17. Contato</h2>
+  <p>Para dúvidas, solicitações, exercício de direitos, exclusão de conta, privacidade ou proteção de dados, entre em contato:</p>
+  <p><a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a></p>
+  <p>O usuário também pode apresentar reclamação perante a Autoridade Nacional de Proteção de Dados (ANPD): <a href="https://www.gov.br/anpd" target="_blank" rel="noopener noreferrer">www.gov.br/anpd</a>.</p>
 
   <div class="footer">
-    OdontoDex · Natal, RN · <a href="/termos">Termos de Uso</a>
+    OdontoDex · Natal, RN · <a href="/termos">Termos de Uso</a> · <a href="/exclusao-conta">Excluir conta e dados</a>
+    <br><span class="small">Última atualização: junho de 2026</span>
   </div>
 </div>
 </body>

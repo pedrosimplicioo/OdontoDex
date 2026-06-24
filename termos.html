@@ -7,7 +7,7 @@
 <style>
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;background:#F8FAFC;color:#1E293B;line-height:1.7;font-size:16px;}
-.container{max-width:720px;margin:0 auto;padding:40px 20px 80px;}
+.container{max-width:760px;margin:0 auto;padding:40px 20px 80px;}
 .header{text-align:center;margin-bottom:48px;padding-bottom:32px;border-bottom:1px solid #E2E8F0;}
 .logo{font-size:32px;font-weight:800;color:#7C3FA0;letter-spacing:-1px;margin-bottom:8px;}
 h1{font-size:24px;font-weight:700;color:#0F172A;margin-bottom:8px;}
@@ -17,100 +17,211 @@ h3{font-size:15px;font-weight:600;color:#0F172A;margin:24px 0 8px;}
 p{margin-bottom:12px;color:#334155;}
 ul,ol{padding-left:20px;margin-bottom:12px;}
 li{margin-bottom:6px;color:#334155;}
+strong{color:#0F172A;}
 a{color:#7C3FA0;text-decoration:none;}
 a:hover{text-decoration:underline;}
 .back{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:#7C3FA0;margin-bottom:32px;text-decoration:none;}
 .back:hover{text-decoration:underline;}
-.badge{display:inline-block;background:#F5EEFB;color:#7C3FA0;font-size:12px;font-weight:600;padding:4px 12px;border-radius:30px;margin-bottom:16px;}
+.notice{background:#F5EEFB;border:1px solid #E9D5FF;border-left:4px solid #7C3FA0;border-radius:14px;padding:16px;margin:24px 0;}
+.notice p{color:#3D1260;margin-bottom:8px;}
+.notice p:last-child{margin-bottom:0;}
+.warning{background:#FFF7ED;border:1px solid #FED7AA;border-left:4px solid #F97316;border-radius:14px;padding:16px;margin:24px 0;}
+.warning p{color:#7C2D12;margin-bottom:8px;}
+.warning p:last-child{margin-bottom:0;}
 .footer{margin-top:48px;padding-top:24px;border-top:1px solid #E2E8F0;text-align:center;font-size:13px;color:#94A3B8;}
+.small{font-size:13px;color:#64748B;}
 </style>
 </head>
+
 <body>
 <div class="container">
   <a class="back" href="/">← Voltar ao app</a>
+
   <div class="header">
     <div class="logo">OdontoDex</div>
     <h1>Termos de Uso</h1>
     <div class="meta">
-      Versão 1.0 · Vigência: maio de 2025<br>
+      Versão 1.1 · Vigência: junho de 2026<br>
       Responsável: Pedro Igor Simplício de Sousa · Natal, RN, Brasil<br>
       Contato: <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a>
     </div>
   </div>
 
+  <div class="notice">
+    <p><strong>Resumo importante:</strong> o OdontoDex é uma plataforma de apoio clínico e consulta profissional. O conteúdo não substitui o julgamento clínico, a avaliação individual do paciente, a supervisão docente, protocolos institucionais, normas profissionais ou atendimento de urgência/emergência.</p>
+  </div>
+
   <h2>1. Aceitação dos Termos</h2>
-  <p>Ao criar uma conta, acessar ou utilizar o OdontoDex ("Plataforma"), o usuário declara que leu, compreendeu e concorda com estes Termos de Uso em sua integralidade. Caso não concorde com qualquer disposição aqui prevista, o usuário deverá se abster de utilizar a Plataforma.</p>
-  <p>Estes Termos constituem um contrato vinculante entre o usuário e Pedro Igor Simplício de Sousa, pessoa física responsável pelo OdontoDex.</p>
+  <p>Ao criar uma conta, acessar, instalar ou utilizar o OdontoDex (“Plataforma”), o usuário declara que leu, compreendeu e concorda com estes Termos de Uso e com a Política de Privacidade.</p>
+  <p>Caso não concorde com qualquer disposição destes Termos, o usuário não deverá utilizar a Plataforma.</p>
+  <p>Estes Termos constituem acordo entre o usuário e Pedro Igor Simplício de Sousa, responsável pelo OdontoDex.</p>
 
-  <h2>2. Descrição do Serviço</h2>
-  <p>O OdontoDex é um aplicativo web progressivo (PWA) de apoio clínico destinado exclusivamente a cirurgiões-dentistas habilitados e estudantes de Odontologia regularmente matriculados em cursos reconhecidos pelo MEC.</p>
-  <p>A Plataforma disponibiliza:</p>
+  <h2>2. Descrição da Plataforma</h2>
+  <p>O OdontoDex é um aplicativo web progressivo (PWA) de apoio clínico destinado a cirurgiões-dentistas, estudantes de Odontologia e profissionais da área odontológica, conforme as limitações previstas nestes Termos.</p>
+  <p>A Plataforma pode oferecer, entre outros recursos:</p>
   <ul>
-    <li>Protocolos clínicos odontológicos de referência;</li>
-    <li>Ferramentas de apoio à decisão clínica;</li>
-    <li>Prescrições de referência por situação clínica;</li>
-    <li>Calculadoras e guias de procedimentos.</li>
+    <li>cards de conduta rápida para situações clínicas comuns;</li>
+    <li>protocolos clínicos odontológicos de referência;</li>
+    <li>ferramentas de apoio à decisão;</li>
+    <li>guias de prescrição de referência;</li>
+    <li>calculadoras, listas, fluxos e materiais educativos;</li>
+    <li>conteúdos gratuitos e conteúdos disponíveis mediante assinatura Premium.</li>
   </ul>
-  <p><strong>O OdontoDex é uma ferramenta de apoio e consulta. Não é um software de diagnóstico médico ou odontológico, não substitui o julgamento clínico do profissional habilitado e não constitui relação de cuidado ou atendimento ao paciente.</strong></p>
+  <p><strong>O OdontoDex não é um serviço de teleodontologia, não realiza diagnóstico, não prescreve automaticamente, não atende pacientes e não substitui a atuação de um profissional habilitado.</strong></p>
 
-  <h2>3. Requisitos de Acesso</h2>
-  <p>Para utilizar a Plataforma, o usuário deve:</p>
+  <h2>3. Público-alvo e requisitos de uso</h2>
+  <p>O uso da Plataforma é destinado a:</p>
   <ul>
-    <li>Ser cirurgião-dentista regularmente inscrito no Conselho Regional de Odontologia (CRO) de seu estado, ou estudante de Odontologia matriculado em curso reconhecido;</li>
-    <li>Ter idade mínima de 18 anos;</li>
-    <li>Possuir acesso à internet e dispositivo compatível;</li>
-    <li>Manter seus dados cadastrais atualizados e verídicos.</li>
+    <li>cirurgiões-dentistas regularmente habilitados, observadas as normas do Conselho Federal e dos Conselhos Regionais de Odontologia;</li>
+    <li>estudantes de Odontologia regularmente matriculados, exclusivamente para fins de estudo e apoio acadêmico;</li>
+    <li>outros profissionais da área odontológica, quando o uso for compatível com sua formação e limites legais de atuação.</li>
   </ul>
+  <p>O usuário declara ser maior de 18 anos e possuir capacidade legal para aceitar estes Termos.</p>
 
-  <h2>4. Cadastro e Conta</h2>
-  <p>O usuário é responsável por:</p>
+  <h3>3.1 Uso por estudantes</h3>
+  <p>Estudantes de Odontologia podem utilizar a Plataforma como material de apoio ao estudo. No entanto, <strong>nenhum procedimento clínico deve ser executado sem supervisão adequada de professor, preceptor ou profissional habilitado</strong>.</p>
+  <p>Em caso de divergência entre o conteúdo da Plataforma e a orientação da instituição de ensino, professor ou serviço de saúde, deverá prevalecer a orientação do responsável pela supervisão clínica.</p>
+
+  <h2>4. Cadastro e segurança da conta</h2>
+  <p>Para acessar determinados recursos, o usuário poderá precisar criar uma conta. O usuário é responsável por:</p>
   <ul>
-    <li>Fornecer informações verdadeiras, completas e atualizadas no cadastro;</li>
-    <li>Manter a confidencialidade de suas credenciais de acesso;</li>
-    <li>Todas as atividades realizadas com suas credenciais;</li>
-    <li>Notificar imediatamente o OdontoDex em caso de uso não autorizado de sua conta.</li>
+    <li>fornecer informações verdadeiras, completas e atualizadas;</li>
+    <li>manter a confidencialidade de sua senha e credenciais de acesso;</li>
+    <li>não compartilhar sua conta com terceiros;</li>
+    <li>notificar o OdontoDex em caso de suspeita de acesso indevido;</li>
+    <li>responder pelas atividades realizadas em sua conta.</li>
   </ul>
+  <p>O OdontoDex poderá suspender ou limitar o acesso de contas usadas de forma abusiva, fraudulenta, automatizada, compartilhada indevidamente ou em violação destes Termos.</p>
 
-  <h2>5. Natureza do Conteúdo Clínico</h2>
-  <h3>5.1 Finalidade de apoio</h3>
-  <p>Todo o conteúdo clínico disponibilizado na Plataforma — incluindo protocolos, prescrições, guias de procedimentos e ferramentas de apoio à decisão — tem caráter exclusivamente informativo e de referência. Destina-se a auxiliar o profissional habilitado em suas decisões clínicas, não a substituí-las.</p>
-  <h3>5.2 Responsabilidade clínica</h3>
-  <p>A responsabilidade pela conduta clínica, diagnóstico, prescrição e tratamento é exclusiva do cirurgião-dentista ou profissional de saúde habilitado que presta o atendimento. O OdontoDex não assume qualquer responsabilidade por decisões clínicas tomadas com base no conteúdo da Plataforma.</p>
-  <h3>5.3 Atualização do conteúdo</h3>
-  <p>O OdontoDex emprega esforços para manter os conteúdos atualizados e alinhados às evidências clínicas disponíveis, mas não garante que o conteúdo esteja livre de imprecisões, erros ou desatualizações.</p>
+  <h2>5. Natureza do conteúdo clínico</h2>
+
+  <h3>5.1 Finalidade informativa e de apoio</h3>
+  <p>Todo conteúdo clínico disponibilizado na Plataforma possui finalidade informativa, educacional e de apoio à tomada de decisão por profissional habilitado.</p>
+  <p>Os protocolos, prescrições, calculadoras, fluxos e ferramentas devem ser interpretados como referências gerais, não como ordens automáticas de conduta.</p>
+
+  <h3>5.2 Responsabilidade clínica do usuário</h3>
+  <p>A responsabilidade por diagnóstico, planejamento, prescrição, execução de procedimentos, encaminhamento, urgência, emergência e acompanhamento do paciente é exclusiva do profissional responsável pelo atendimento.</p>
+  <p>O usuário deve considerar anamnese, exame clínico, exames complementares, alergias, idade, peso, gestação, lactação, doenças sistêmicas, medicações em uso, limitações técnicas, protocolos locais e normas profissionais aplicáveis.</p>
+
+  <h3>5.3 Prescrições e medicamentos</h3>
+  <p>As informações sobre medicamentos, posologias, contraindicações e condutas farmacológicas são apresentadas como referência geral. A prescrição final deve ser realizada exclusivamente por profissional legalmente habilitado, após avaliação individual do paciente.</p>
+  <p>O OdontoDex não se responsabiliza por uso inadequado de medicamentos, automedicação, prescrição sem avaliação individual, interações medicamentosas não observadas ou desconsideração de condições sistêmicas do paciente.</p>
+
   <h3>5.4 Pacientes com condições especiais</h3>
-  <p>Condutas envolvendo pacientes com condições especiais (gestantes, crianças, idosos, imunossuprimidos, portadores de doenças sistêmicas, entre outros) requerem avaliação individualizada pelo profissional responsável.</p>
+  <p>Pacientes pediátricos, gestantes, lactantes, idosos, imunossuprimidos, cardiopatas, diabéticos, pacientes com doença renal/hepática, usuários de anticoagulantes, pacientes oncológicos, alérgicos ou com outras condições sistêmicas exigem avaliação individualizada.</p>
+  <p>Nesses casos, o conteúdo da Plataforma não substitui a consulta a protocolos específicos, parecer médico, literatura atualizada ou encaminhamento a serviço especializado quando indicado.</p>
 
-  <h2>6. Planos e Pagamentos</h2>
-  <h3>6.1 Plano gratuito</h3>
-  <p>O acesso gratuito à Plataforma oferece um conjunto limitado de protocolos e funcionalidades, conforme indicado na interface.</p>
-  <h3>6.2 Plano Premium</h3>
-  <p>O plano Premium é oferecido em modalidade de assinatura mensal, no valor de R$ 9,90 por mês, sujeito a alterações mediante aviso prévio de 30 dias.</p>
-  <h3>6.3 Pagamento</h3>
-  <p>O processamento de pagamentos é realizado pelo Mercado Pago. O OdontoDex não armazena dados de cartão de crédito ou informações financeiras do usuário.</p>
-  <h3>6.4 Renovação automática</h3>
-  <p>A assinatura é renovada automaticamente a cada período mensal, salvo cancelamento pelo usuário antes da data de renovação.</p>
+  <h3>5.5 Urgência e emergência</h3>
+  <div class="warning">
+    <p><strong>A Plataforma não deve ser usada como único recurso em situações de urgência ou emergência.</strong></p>
+    <p>Sinais como febre, dispneia, disfagia, trismo importante, celulite facial, edema progressivo, comprometimento sistêmico, sangramento não controlado, reação alérgica, trauma grave ou risco de via aérea exigem avaliação imediata e encaminhamento conforme o caso.</p>
+  </div>
 
-  <h2>7. Política de Cancelamento e Reembolso</h2>
-  <h3>7.1 Cancelamento pelo usuário</h3>
-  <p>O usuário pode cancelar sua assinatura a qualquer momento, sem multa ou fidelidade, acessando as configurações da Plataforma ou enviando solicitação para <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a>.</p>
-  <h3>7.2 Direito de arrependimento</h3>
-  <p>Conforme o art. 49 do Código de Defesa do Consumidor, o usuário pode desistir da contratação no prazo de 7 dias corridos a contar da data da assinatura, com direito à devolução integral do valor pago.</p>
-  <h3>7.3 Reembolso fora do prazo</h3>
-  <p>Após o prazo de 7 dias, não há direito a reembolso proporcional por período não utilizado, exceto nas hipóteses previstas em lei.</p>
+  <h3>5.6 Atualização e limitações do conteúdo</h3>
+  <p>O OdontoDex emprega esforços razoáveis para manter seus conteúdos atualizados. No entanto, a Odontologia é uma área em constante evolução, e a Plataforma não garante ausência de erros, omissões, imprecisões, desatualizações ou divergências com protocolos institucionais.</p>
+  <p>O usuário deve sempre exercer julgamento crítico e consultar fontes complementares quando necessário.</p>
 
-  <h2>8. Propriedade Intelectual</h2>
-  <p>Todo o conteúdo da Plataforma é de titularidade de Pedro Igor Simplício de Sousa e está protegido pela legislação de propriedade intelectual aplicável. É vedado reproduzir, copiar, distribuir ou comercializar o conteúdo sem autorização prévia e escrita.</p>
+  <h2>6. Uso permitido e condutas proibidas</h2>
+  <p>O usuário compromete-se a utilizar a Plataforma de forma ética, legal e compatível com sua finalidade.</p>
+  <p>É proibido:</p>
+  <ul>
+    <li>copiar, reproduzir, distribuir, vender ou disponibilizar conteúdo do OdontoDex sem autorização;</li>
+    <li>compartilhar login, senha ou acesso Premium com terceiros;</li>
+    <li>usar a Plataforma para substituir atendimento profissional ou induzir pacientes a condutas sem avaliação clínica;</li>
+    <li>realizar engenharia reversa, raspagem automatizada, extração massiva de dados ou ataques ao sistema;</li>
+    <li>contornar bloqueios de acesso, pagamento, assinatura ou recursos Premium;</li>
+    <li>usar a Plataforma de forma contrária à legislação, ética profissional ou direitos de terceiros.</li>
+  </ul>
 
-  <h2>9. Limitação de Responsabilidade</h2>
-  <p>Na máxima extensão permitida pela legislação aplicável, o OdontoDex não se responsabiliza por danos decorrentes de decisões clínicas baseadas no conteúdo da Plataforma. A responsabilidade total fica limitada ao valor pago pelo usuário nos últimos 3 meses anteriores ao evento.</p>
+  <h2>7. Planos, assinatura e pagamento</h2>
 
-  <h2>10. Disposições Gerais</h2>
-  <p>Estes Termos são regidos pela legislação brasileira. Fica eleito o foro da comarca de Natal, Rio Grande do Norte, para dirimir quaisquer controvérsias.</p>
-  <p>Contato: <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a></p>
+  <h3>7.1 Plano gratuito</h3>
+  <p>A Plataforma pode oferecer acesso gratuito a determinados conteúdos e funcionalidades. O OdontoDex poderá alterar, incluir, limitar ou remover recursos gratuitos a qualquer momento, respeitada a legislação aplicável.</p>
+
+  <h3>7.2 Plano Premium</h3>
+  <p>O plano Premium oferece acesso a conteúdos e funcionalidades adicionais, conforme indicado na interface da Plataforma.</p>
+  <p>O valor, periodicidade, benefícios incluídos e condições comerciais serão apresentados antes da contratação.</p>
+
+  <h3>7.3 Processamento de pagamento</h3>
+  <p>Quando a contratação ocorrer diretamente pelo site ou PWA fora de lojas de aplicativos, o pagamento poderá ser processado por intermediadores externos, como Mercado Pago. O OdontoDex não armazena dados completos de cartão de crédito.</p>
+  <p>O usuário também estará sujeito aos termos, políticas e regras do intermediador de pagamento utilizado.</p>
+
+  <h3>7.4 Contratações por lojas de aplicativos</h3>
+  <p>Caso o OdontoDex seja distribuído por lojas de aplicativos, determinados pagamentos, assinaturas, cancelamentos e reembolsos poderão ser processados pela própria loja, conforme as regras aplicáveis da plataforma correspondente.</p>
+  <p>Nesses casos, as condições da loja de aplicativos poderão prevalecer sobre procedimentos operacionais internos do OdontoDex quando exigido pelas políticas da respectiva loja.</p>
+
+  <h3>7.5 Renovação automática</h3>
+  <p>Quando a assinatura for recorrente, ela poderá ser renovada automaticamente ao fim de cada ciclo, salvo cancelamento pelo usuário antes da data de renovação.</p>
+  <p>O usuário é responsável por acompanhar o status da assinatura, método de pagamento e data de renovação.</p>
+
+  <h3>7.6 Alterações de preço</h3>
+  <p>O OdontoDex poderá alterar preços, planos e benefícios mediante aviso prévio razoável, respeitadas as condições já contratadas e a legislação aplicável.</p>
+
+  <h2>8. Cancelamento e reembolso</h2>
+
+  <h3>8.1 Cancelamento pelo usuário</h3>
+  <p>O usuário pode solicitar o cancelamento da assinatura a qualquer momento pelas configurações da Plataforma, quando disponível, ou pelo e-mail <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a>.</p>
+  <p>O cancelamento interrompe novas cobranças recorrentes. Em regra, o acesso Premium permanece ativo até o fim do período já pago, salvo disposição diversa informada no momento da contratação ou exigência da plataforma de pagamento.</p>
+
+  <h3>8.2 Direito de arrependimento</h3>
+  <p>Nas contratações realizadas fora de estabelecimento comercial, o usuário poderá exercer o direito de arrependimento no prazo de 7 dias corridos, nos termos da legislação brasileira aplicável.</p>
+
+  <h3>8.3 Reembolsos fora do prazo legal</h3>
+  <p>Após o prazo legal de arrependimento, não haverá reembolso proporcional por período não utilizado, exceto quando exigido por lei, política da loja de aplicativos, política do intermediador de pagamento ou decisão expressa do OdontoDex.</p>
+
+  <h3>8.4 Cupons, promoções e parcerias</h3>
+  <p>Cupons, descontos, testes, cortesias e promoções podem ter regras próprias, prazo limitado, disponibilidade restrita e condições específicas. O OdontoDex poderá encerrar ou alterar campanhas promocionais a qualquer momento, respeitados os direitos já adquiridos.</p>
+
+  <h2>9. Exclusão de conta e dados</h2>
+  <p>O usuário pode solicitar a exclusão de sua conta e dos dados pessoais associados por meio da página <a href="/exclusao-conta">Excluir conta e dados</a> ou pelo e-mail <a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a>.</p>
+  <p>A exclusão será realizada conforme a Política de Privacidade, respeitadas hipóteses legais de retenção, como cumprimento de obrigação legal/regulatória, prevenção à fraude, segurança, registros financeiros, defesa de direitos e demais bases previstas na legislação aplicável.</p>
+  <p>A exclusão da conta pode resultar na perda de acesso ao histórico, preferências, benefícios, assinatura e conteúdos vinculados à conta.</p>
+
+  <h2>10. Privacidade e proteção de dados</h2>
+  <p>O tratamento de dados pessoais é regido pela <a href="/privacidade">Política de Privacidade</a> do OdontoDex, que integra estes Termos.</p>
+  <p>A Plataforma pode tratar dados necessários para criação de conta, autenticação, controle de acesso, segurança, pagamento, suporte, melhoria do serviço, prevenção a fraudes, cumprimento de obrigações legais e funcionamento da assinatura.</p>
+  <p>O usuário pode exercer seus direitos relacionados a dados pessoais pelos canais indicados na Política de Privacidade.</p>
+
+  <h2>11. Disponibilidade, manutenção e alterações da Plataforma</h2>
+  <p>O OdontoDex poderá passar por atualizações, manutenções, correções, indisponibilidades temporárias ou alterações de funcionalidades.</p>
+  <p>A Plataforma é fornecida “como está” e “conforme disponível”, sem garantia de funcionamento ininterrupto, livre de falhas ou compatível com todos os dispositivos, navegadores, sistemas operacionais ou versões de software.</p>
+
+  <h2>12. Propriedade intelectual</h2>
+  <p>Textos, protocolos, cards, fluxos, ferramentas, layout, marca, identidade visual, códigos, bancos de dados e demais elementos do OdontoDex são protegidos por direitos autorais, propriedade intelectual e demais normas aplicáveis.</p>
+  <p>É vedado copiar, reproduzir, adaptar, distribuir, vender, disponibilizar, treinar sistemas, criar materiais derivados ou explorar comercialmente qualquer conteúdo da Plataforma sem autorização prévia e escrita.</p>
+  <p>O uso da Plataforma não concede ao usuário qualquer direito de titularidade sobre o conteúdo, marca, software ou materiais do OdontoDex.</p>
+
+  <h2>13. Limitação de responsabilidade</h2>
+  <p>Na máxima extensão permitida pela legislação aplicável, o OdontoDex não se responsabiliza por:</p>
+  <ul>
+    <li>decisões clínicas, prescrições, diagnósticos, procedimentos ou tratamentos realizados pelo usuário;</li>
+    <li>danos decorrentes de uso inadequado, interpretação incorreta ou aplicação isolada do conteúdo;</li>
+    <li>desfechos clínicos, complicações, eventos adversos ou falhas assistenciais;</li>
+    <li>indisponibilidade temporária da Plataforma;</li>
+    <li>falhas de terceiros, provedores de internet, navegadores, sistemas operacionais, Firebase, Mercado Pago, lojas de aplicativos ou serviços externos;</li>
+    <li>perda de dados causada por uso indevido, erro do usuário ou eventos fora do controle razoável do OdontoDex.</li>
+  </ul>
+  <p>Quando aplicável e permitido por lei, a responsabilidade total do OdontoDex ficará limitada ao valor efetivamente pago pelo usuário nos 3 meses anteriores ao evento que deu origem à reclamação.</p>
+
+  <h2>14. Suspensão e encerramento de acesso</h2>
+  <p>O OdontoDex poderá suspender, limitar ou encerrar o acesso de usuário que viole estes Termos, tente burlar mecanismos de pagamento, compartilhe acesso indevidamente, pratique uso abusivo, viole direitos de propriedade intelectual ou comprometa a segurança da Plataforma.</p>
+  <p>A suspensão ou encerramento não impede a cobrança de valores devidos, a adoção de medidas técnicas, administrativas ou legais cabíveis.</p>
+
+  <h2>15. Alterações destes Termos</h2>
+  <p>O OdontoDex poderá atualizar estes Termos para refletir mudanças legais, operacionais, comerciais ou técnicas.</p>
+  <p>Alterações relevantes poderão ser comunicadas por meio da Plataforma, e-mail cadastrado ou outro canal razoável. O uso contínuo da Plataforma após a atualização representa concordância com a nova versão.</p>
+
+  <h2>16. Legislação aplicável e foro</h2>
+  <p>Estes Termos são regidos pela legislação brasileira.</p>
+  <p>Fica eleito o foro da comarca de Natal, Rio Grande do Norte, salvo quando a legislação de proteção ao consumidor estabelecer competência diversa ou foro obrigatório.</p>
+
+  <h2>17. Contato</h2>
+  <p>Para dúvidas, solicitações, cancelamento, privacidade, exclusão de conta ou suporte, entre em contato pelo e-mail:</p>
+  <p><a href="mailto:contato@odontodex.com.br">contato@odontodex.com.br</a></p>
 
   <div class="footer">
-    OdontoDex · Natal, RN · <a href="/privacidade">Política de Privacidade</a>
+    OdontoDex · Natal, RN · <a href="/privacidade">Política de Privacidade</a> · <a href="/exclusao-conta">Excluir conta e dados</a>
+    <br><span class="small">Última atualização: junho de 2026</span>
   </div>
 </div>
 </body>
