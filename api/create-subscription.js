@@ -103,7 +103,22 @@ module.exports = async (req, res) => {
       updates.proximaCobranca = admin.firestore.Timestamp.fromDate(nextExpiry);
     }
 
-    await userRef.update(updates);
+    await userRef.set({
+      email: email || decodedToken.email || "",
+      emailNormalizado: String(email || decodedToken.email || "").trim().toLowerCase(),
+      nome: userData?.nome || decodedToken.name || "",
+      perfil: userData?.perfil || "dentista",
+      tratamento: userData?.tratamento !== undefined ? userData.tratamento : "",
+      criadoEm: userData?.criadoEm || new Date().toISOString(),
+      dataPrimeiroAcesso: userData?.dataPrimeiroAcesso || admin.firestore.FieldValue.serverTimestamp(),
+      acessosPorDia: userData?.acessosPorDia || {},
+      termosAceitos: userData?.termosAceitos === true ? true : true,
+      termosAceitosEm: userData?.termosAceitosEm || admin.firestore.FieldValue.serverTimestamp(),
+      termosVersao: userData?.termosVersao || "1.0",
+      privacidadeVersao: userData?.privacidadeVersao || "1.1",
+      origemCadastro: userData?.origemCadastro || "pagamento",
+      ...updates,
+    }, { merge: true });
 
     if (cupomAplicado) {
       const conversionRef = db.collection("conversoes_cupom").doc(`subscription_${assinatura.id}`);

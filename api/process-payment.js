@@ -42,6 +42,8 @@ module.exports = async (req, res) => {
       const processed = await db.runTransaction(async tx => {
         const eventDoc = await tx.get(eventRef);
         if (eventDoc.exists) return false;
+        const userDoc = await tx.get(userRef);
+        const userData = userDoc.exists ? (userDoc.data() || {}) : {};
 
         tx.set(eventRef, {
           type: "direct_payment",
@@ -51,13 +53,26 @@ module.exports = async (req, res) => {
           processedAt: admin.firestore.FieldValue.serverTimestamp(),
         });
 
-        tx.update(userRef, {
+        tx.set(userRef, {
+          email: userData.email || email || decodedToken.email || "",
+          emailNormalizado: userData.emailNormalizado || String(email || decodedToken.email || "").trim().toLowerCase(),
+          nome: userData.nome || decodedToken.name || "",
+          perfil: userData.perfil || "dentista",
+          tratamento: userData.tratamento !== undefined ? userData.tratamento : "",
+          criadoEm: userData.criadoEm || new Date().toISOString(),
+          dataPrimeiroAcesso: userData.dataPrimeiroAcesso || admin.firestore.FieldValue.serverTimestamp(),
+          acessosPorDia: userData.acessosPorDia || {},
+          termosAceitos: userData.termosAceitos === true ? true : true,
+          termosAceitosEm: userData.termosAceitosEm || admin.firestore.FieldValue.serverTimestamp(),
+          termosVersao: userData.termosVersao || "1.0",
+          privacidadeVersao: userData.privacidadeVersao || "1.1",
+          origemCadastro: userData.origemCadastro || "pagamento",
           premium: true,
           premiumExpira: admin.firestore.Timestamp.fromDate(expira),
           premiumAtivadoEm: admin.firestore.Timestamp.fromDate(agora),
           premiumOrigem: "pagamento",
           ultimoPagamentoId: paymentId,
-        });
+        }, { merge: true });
 
         return true;
       });

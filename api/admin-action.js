@@ -14,7 +14,29 @@ async function setPremium(body) {
 
   const expira = new Date();
   expira.setDate(expira.getDate() + (dias || 30));
+  let authUser = null;
+  try {
+    authUser = await admin.auth().getUser(uid);
+  } catch (e) {
+    console.log("Auth user nao encontrado ao liberar premium manual", { uid, error: e.message });
+  }
+  const docRef = db.collection("users").doc(uid);
+  const doc = await docRef.get();
+  const current = doc.exists ? (doc.data() || {}) : {};
   const updates = {
+    email: current.email || authUser?.email || "",
+    emailNormalizado: current.emailNormalizado || String(authUser?.email || "").trim().toLowerCase(),
+    nome: current.nome || authUser?.displayName || "",
+    perfil: current.perfil || "dentista",
+    tratamento: current.tratamento !== undefined ? current.tratamento : "",
+    criadoEm: current.criadoEm || new Date().toISOString(),
+    dataPrimeiroAcesso: current.dataPrimeiroAcesso || admin.firestore.FieldValue.serverTimestamp(),
+    acessosPorDia: current.acessosPorDia || {},
+    termosAceitos: current.termosAceitos === true ? true : true,
+    termosAceitosEm: current.termosAceitosEm || admin.firestore.FieldValue.serverTimestamp(),
+    termosVersao: current.termosVersao || "1.0",
+    privacidadeVersao: current.privacidadeVersao || "1.1",
+    origemCadastro: current.origemCadastro || "admin_repair",
     premium: true,
     premiumExpira: admin.firestore.Timestamp.fromDate(expira),
     premiumAtivadoEm: admin.firestore.FieldValue.serverTimestamp(),
@@ -25,7 +47,7 @@ async function setPremium(body) {
   } else {
     updates.ultimoPagamentoId = `manual_${Date.now()}`;
   }
-  await db.collection("users").doc(uid).update(updates);
+  await docRef.set(updates, { merge: true });
 }
 
 async function expirePremium(body) {

@@ -428,6 +428,48 @@ function canUseOnlineAuth(elementId){
   return true;
 }
 
+function isGoogleAuthUser(user){
+  return Array.isArray(user?.providerData) && user.providerData.some(provider => provider?.providerId === "google.com");
+}
+
+function showGoogleProfileCompletion(user){
+  currentUser = user || currentUser;
+  const em=document.getElementById("user-email-display");
+  if(em && currentUser?.email) em.textContent=currentUser.email;
+
+  const nomeGoogle = currentUser?.displayName || "";
+  const nomeInput = document.getElementById("gw-nome");
+  if(nomeInput) nomeInput.value = nomeGoogle;
+
+  gwPerfil = "";
+  gwTrat = "";
+  gwTratSelecionado = false;
+
+  const gwTerms = document.getElementById("gw-terms-accepted");
+  if(gwTerms) gwTerms.checked = false;
+
+  const gwError = document.getElementById("gw-error");
+  if(gwError) {
+    gwError.textContent = "";
+    gwError.style.display = "none";
+  }
+
+  const btnDentista = document.getElementById("gw-btn-dentista");
+  const btnEstudante = document.getElementById("gw-btn-estudante");
+  const blocoTrat = document.getElementById("gw-bloco-trat");
+  if(btnDentista) btnDentista.className = "select-btn";
+  if(btnEstudante) btnEstudante.className = "select-btn";
+  if(blocoTrat) blocoTrat.style.display = "none";
+
+  gwValidarBotao();
+
+  const googleWelcomeOverlay = document.getElementById("google-welcome-overlay");
+  if(googleWelcomeOverlay) {
+    googleWelcomeOverlay.style.display = "flex";
+    requestAnimationFrame(() => googleWelcomeOverlay.classList.add("active"));
+  }
+}
+
 async function doLoginGoogle(){
   const err=document.getElementById("login-error");
   if(!navigator.onLine || !window.firebase || !auth?.signInWithPopup) {
@@ -451,24 +493,7 @@ async function doLoginGoogle(){
     showToast("Login realizado!", "success");
     const docGoogle = await db.collection('users').doc(res.user.uid).get();
     if(!docGoogle.exists || !docGoogle.data().perfil) {
-      const nomeGoogle = res.user.displayName || '';
-      document.getElementById('gw-nome').value = nomeGoogle;
-      gwPerfil = '';
-      gwTrat = '';
-      gwTratSelecionado = false;
-      const gwTerms = document.getElementById('gw-terms-accepted');
-      if (gwTerms) gwTerms.checked = false;
-      const gwError = document.getElementById('gw-error');
-      if (gwError) { gwError.textContent = ''; gwError.style.display = 'none'; }
-      document.getElementById('gw-btn-dentista').className = 'select-btn';
-      document.getElementById('gw-btn-estudante').className = 'select-btn';
-      document.getElementById('gw-bloco-trat').style.display = 'none';
-      gwValidarBotao();
-      const googleWelcomeOverlay = document.getElementById('google-welcome-overlay');
-      if (googleWelcomeOverlay) {
-        googleWelcomeOverlay.style.display = 'flex';
-        requestAnimationFrame(() => googleWelcomeOverlay.classList.add('active'));
-      }
+      showGoogleProfileCompletion(res.user);
     } else {
       if(res.user.emailVerified && docGoogle.data().trialAtivado !== true) {
         try { await activateTrialAfterEmailVerified({showSuccess:true}); } catch(e) { console.log(e); }
@@ -606,7 +631,7 @@ async function gwConfirmar() {
       premium: false,
       premiumOrigem: 'free',
       trialAtivado: false,
-      emailVerificado: currentUser.emailVerified === true,
+      emailVerificado: false,
       termosAceitos: true,
       termosAceitosEm: firebase.firestore.FieldValue.serverTimestamp(),
       termosVersao: '1.0',
@@ -624,7 +649,18 @@ async function gwConfirmar() {
       localStorage.removeItem('studentBannerDismissed');
     }
     metaGoogleRegistrationCompleted = true;
-  } catch(e) { console.log(e); }
+  } catch(e) {
+    console.error("Erro ao salvar cadastro Google no Firestore:", e);
+    hideLoading();
+    clearAuthButtonProcessing(gwBtn);
+    gwValidarBotao();
+    if (gwError) {
+      gwError.textContent = "Não foi possível salvar seu cadastro agora. Verifique a conexão e tente novamente.";
+      gwError.style.display = "block";
+    }
+    showToast("Não foi possível salvar seu cadastro. Tente novamente.", "error");
+    return;
+  }
   hideLoading();
   clearAuthButtonProcessing(gwBtn);
   gwValidarBotao();
