@@ -16,7 +16,7 @@ let charts = {};
 let dadosUsuarios = [];
 let usuariosFiltrados = [];
 let currentPage = 1;
-let itemsPerPage = 10;
+let itemsPerPage = 20;
 let currentSort = { field: 'usos', order: 'desc' };
 let searchTerm = '';
 let filtroStatus = '';
@@ -25,6 +25,26 @@ let cachedDados = null;
 let cachedLandingStats = null;
 let cachedMetricasProduto = null;
 let adminDataLoadError = "";
+const ADMIN_CACHE_TTL_MS = 2 * 60 * 1000;
+const ADMIN_LIMITS = Object.freeze({
+  dashboardUsers: 20,
+  dashboardAnalytics: 20,
+  users: 20,
+  productActions: 30,
+  landingEvents: 50,
+  coupons: 20,
+  conversions: 15,
+  transfers: 15,
+  exports: 500,
+});
+const adminCacheUpdatedAt = Object.create(null);
+let lastUsersCursor = null;
+let usersHasMore = true;
+let usersLoadingMore = false;
+let lastCouponsCursor = null;
+let couponsHasMore = true;
+let partnersLoadingMore = false;
+let adminMenuInitialized = false;
 let contentEditorType = "protocol";
 let contentEditorId = "";
 let contentEditorSearch = "";
@@ -32,6 +52,24 @@ let contentEditorProtocolAction = "review";
 let contentEditorDraftPayload = null;
 
 const ADMIN_EMAILS = ["pedrosimplicio.sousa@gmail.com"];
+
+function adminCacheIsFresh(section) {
+  const updatedAt = adminCacheUpdatedAt[section] || 0;
+  return Date.now() - updatedAt < ADMIN_CACHE_TTL_MS;
+}
+
+function adminMarkCacheUpdated(section) {
+  adminCacheUpdatedAt[section] = Date.now();
+}
+
+function adminFormatUpdatedAt(section) {
+  const updatedAt = adminCacheUpdatedAt[section];
+  if (!updatedAt) return 'Ainda não atualizado';
+  const seconds = Math.max(0, Math.round((Date.now() - updatedAt) / 1000));
+  if (seconds < 10) return 'Atualizado agora';
+  if (seconds < 60) return `Atualizado há ${seconds}s`;
+  return `Atualizado há ${Math.floor(seconds / 60)} min`;
+}
 
 // ========== SISTEMA DE IGNORAR USUÁRIOS ==========
 let usuariosIgnorados = [];
@@ -84,7 +122,8 @@ async function toggleIgnorarUsuario(userId) {
   
   try {
     console.log('🔄 Recarregando dados...');
-    await carregarDados();
+    adminCacheUpdatedAt.dashboard = 0;
+    await carregarUsuarios({ force: true });
     renderizarSecaoAtual();
     console.log('✅ Dados recarregados com sucesso');
   } catch (error) {
@@ -119,8 +158,8 @@ async function doAdminLogin() {
     }
     document.getElementById('login-container').style.display = 'none';
     document.getElementById('dashboard-container').style.display = 'flex';
-    await carregarDados();
-    renderizarSecaoAtual();
+    // O primeiro carregamento fica centralizado em onAuthStateChanged.
+    // Isso evita duplicar todas as leituras logo após o login.
   } catch(e) {
     errorDiv.textContent = "Email ou senha incorretos";
   }
@@ -147,22 +186,46 @@ function toggleSidebar() {
   }, 300);
 }
 
-// ========== CARREGAR DADOS DO APP (COM FILTRO DE IGNORADOS) ==========
-async function carregarDados() {
+function adminMapUserDocument(doc) {
+  const userData = doc.data() || {};
+  const userId = doc.id;
+  return {
+    id: userId,
+    email: userData.email || '',
+    nome: userData.nome || userData.displayName || '-',
+    premium: userData.premium === true,
+    criadoEm: userData.criadoEm || userData.criado_em || null,
+    dataPrimeiroAcesso: userData.dataPrimeiroAcesso || null,
+    ultimoAcesso: userData.ultimoAcesso || null,
+    acessosPorDia: userData.acessosPorDia || {},
+    usos: 0,
+    ignorado: isUsuarioIgnorado(userId),
+    premiumExpira: userData.premiumExpira || null,
+    premiumAtivadoEm: userData.premiumAtivadoEm || null,
+    ultimoPagamentoId: userData.ultimoPagamentoId || null,
+    trialAtivado: userData.trialAtivado || false,
+  };
+}
+
+// ========== CARREGAR RESUMO ECONÔMICO DO APP ==========
+async function carregarDados({ force = false } = {}) {
+  if (!force && adminCacheIsFresh('dashboard') && cachedDados) return;
   try {
     adminDataLoadError = "";
     const agora = new Date();
     const mesAtual = agora.toISOString().split('T')[0].substring(0, 7);
-    const usersSnapshot = await db.collection('users').get({source: 'server'});
+    const usersSnapshot = await db.collection('users')
+      .orderBy('dataPrimeiroAcesso', 'desc')
+      .limit(ADMIN_LIMITS.dashboardUsers)
+      .get({source: 'server'});
     const usuarios = [];
     let totalPremium = 0, totalFree = 0;
     
     // Primeiro, coletar todos os usuários
     usersSnapshot.forEach(doc => {
-      const userId = doc.id;
-      const isIgnorado = isUsuarioIgnorado(userId);
-      const userData = doc.data();
-      const isPremium = userData.premium === true;
+      const mappedUser = adminMapUserDocument(doc);
+      const isIgnorado = mappedUser.ignorado;
+      const isPremium = mappedUser.premium;
       
       // Só conta para os totais se NÃO for ignorado
       if (!isIgnorado) {
@@ -170,28 +233,18 @@ async function carregarDados() {
         else totalFree++;
       }
       
-    usuarios.push({
-        id: userId, 
-        email: userData.email || '', 
-        nome: userData.nome || userData.displayName || '-',
-        premium: isPremium, 
-        criadoEm: userData.criadoEm || userData.criado_em || null,
-        dataPrimeiroAcesso: userData.dataPrimeiroAcesso || null,
-        ultimoAcesso: userData.ultimoAcesso || null,
-        acessosPorDia: userData.acessosPorDia || {}, 
-        usos: 0, 
-        ignorado: isIgnorado,
-        premiumExpira: userData.premiumExpira || null,
-        premiumAtivadoEm: userData.premiumAtivadoEm || null,
-        ultimoPagamentoId: userData.ultimoPagamentoId || null,
-        trialAtivado: userData.trialAtivado || false
-      });
+      usuarios.push(mappedUser);
     });
+    lastUsersCursor = usersSnapshot.docs[usersSnapshot.docs.length - 1] || null;
+    usersHasMore = usersSnapshot.size === ADMIN_LIMITS.dashboardUsers;
     
     const noventaDiasAtras = new Date();
     noventaDiasAtras.setDate(noventaDiasAtras.getDate() - 90);
     const analyticsSnapshot = await db.collection('analytics_uso_protocolos')
-      .where('timestamp', '>=', noventaDiasAtras).get();
+      .where('timestamp', '>=', noventaDiasAtras)
+      .orderBy('timestamp', 'desc')
+      .limit(ADMIN_LIMITS.dashboardAnalytics)
+      .get({source: 'server'});
     
     const analytics = {
       protocolos: {}, usuariosCount: {}, porMes: {},
@@ -304,9 +357,14 @@ async function carregarDados() {
       expiramEm7,
       churnMes,
       nuncaUsaram
+      ,isRecentSample: true
+      ,sampleUsers: usersSnapshot.size
+      ,sampleAnalytics: analyticsSnapshot.size
     };
     dadosUsuarios = [...usuarios];
     aplicarFiltroOrdenacao();
+    adminMarkCacheUpdated('dashboard');
+    adminMarkCacheUpdated('usuarios');
   } catch (error) { 
     console.error("Erro ao carregar dados:", error); 
     adminDataLoadError = error?.message || "Erro ao carregar dados do Firestore";
@@ -316,10 +374,69 @@ async function carregarDados() {
   }
 }
 
-// ========== CARREGAR MÉTRICAS DE PRODUTO (COM FILTRO DE IGNORADOS) ==========
-async function carregarMetricasProduto() {
+async function carregarUsuarios({ force = false } = {}) {
+  if (!force && adminCacheIsFresh('usuarios') && dadosUsuarios.length) return;
+  adminDataLoadError = "";
   try {
-    const usersSnapshot = await db.collection('users').get();
+    const snapshot = await db.collection('users')
+      .orderBy('dataPrimeiroAcesso', 'desc')
+      .limit(ADMIN_LIMITS.users)
+      .get({source: 'server'});
+    dadosUsuarios = snapshot.docs.map(adminMapUserDocument);
+    const usosPorUsuario = cachedDados?.analytics?.usuariosCount || {};
+    dadosUsuarios.forEach(user => { user.usos = usosPorUsuario[user.id] || 0; });
+    lastUsersCursor = snapshot.docs[snapshot.docs.length - 1] || null;
+    usersHasMore = snapshot.size === ADMIN_LIMITS.users;
+    currentPage = 1;
+    aplicarFiltroOrdenacao();
+    adminMarkCacheUpdated('usuarios');
+  } catch (error) {
+    console.error('Erro ao carregar usuários:', error);
+    adminDataLoadError = error?.message || 'Erro ao carregar usuários do Firestore';
+    dadosUsuarios = [];
+    usuariosFiltrados = [];
+    usersHasMore = false;
+  }
+}
+
+async function carregarMaisUsuarios() {
+  if (usersLoadingMore || !usersHasMore || !lastUsersCursor) return;
+  usersLoadingMore = true;
+  renderizarSecaoAtual();
+  try {
+    const snapshot = await db.collection('users')
+      .orderBy('dataPrimeiroAcesso', 'desc')
+      .startAfter(lastUsersCursor)
+      .limit(ADMIN_LIMITS.users)
+      .get({source: 'server'});
+    const existingIds = new Set(dadosUsuarios.map(user => user.id));
+    const usosPorUsuario = cachedDados?.analytics?.usuariosCount || {};
+    snapshot.docs.map(adminMapUserDocument).forEach(user => {
+      if (existingIds.has(user.id)) return;
+      user.usos = usosPorUsuario[user.id] || 0;
+      dadosUsuarios.push(user);
+    });
+    lastUsersCursor = snapshot.docs[snapshot.docs.length - 1] || lastUsersCursor;
+    usersHasMore = snapshot.size === ADMIN_LIMITS.users;
+    aplicarFiltroOrdenacao();
+    adminMarkCacheUpdated('usuarios');
+  } catch (error) {
+    console.error('Erro ao carregar mais usuários:', error);
+    alert('Não foi possível carregar mais usuários. Tente novamente.');
+  } finally {
+    usersLoadingMore = false;
+    renderizarSecaoAtual();
+  }
+}
+
+// ========== CARREGAR MÉTRICAS DE PRODUTO (COM FILTRO DE IGNORADOS) ==========
+async function carregarMetricasProduto({ force = false } = {}) {
+  if (!force && adminCacheIsFresh('metricas') && cachedMetricasProduto) return;
+  try {
+    const usersSnapshot = await db.collection('users')
+      .orderBy('dataPrimeiroAcesso', 'desc')
+      .limit(ADMIN_LIMITS.users)
+      .get({source: 'server'});
     const usuarios = [];
     usersSnapshot.forEach(doc => {
       const userData = doc.data();
@@ -334,7 +451,11 @@ async function carregarMetricasProduto() {
     
     const noventaDiasAtras = new Date();
     noventaDiasAtras.setDate(noventaDiasAtras.getDate() - 90);
-    const actionsSnapshot = await db.collection('user_actions').where('timestamp', '>=', noventaDiasAtras).get();
+    const actionsSnapshot = await db.collection('user_actions')
+      .where('timestamp', '>=', noventaDiasAtras)
+      .orderBy('timestamp', 'desc')
+      .limit(ADMIN_LIMITS.productActions)
+      .get({source: 'server'});
     
     const userActions = {};
     actionsSnapshot.forEach(doc => {
@@ -433,7 +554,11 @@ async function carregarMetricasProduto() {
     metricas.ahaCampeao = ahaCampeao;
     metricas.ahaPercentual = ahaMax > 0 ? Math.round((ahaMax / Object.values(metricas.primeiroAcaoRetornantes).reduce((a,b) => a+b, 0)) * 100) : 0;
     
+    metricas.isRecentSample = true;
+    metricas.sampleUsers = usersSnapshot.size;
+    metricas.sampleActions = actionsSnapshot.size;
     cachedMetricasProduto = metricas;
+    adminMarkCacheUpdated('metricas');
   } catch (error) {
     console.error("Erro ao carregar métricas:", error);
     cachedMetricasProduto = {
@@ -446,9 +571,13 @@ async function carregarMetricasProduto() {
 }
 
 // ========== CARREGAR DADOS DA LANDING PAGE ==========
-async function carregarLandingStats() {
+async function carregarLandingStats({ force = false } = {}) {
+  if (!force && adminCacheIsFresh('landing') && cachedLandingStats) return;
   try {
-    const snapshot = await db.collection('landing_stats').orderBy('timestamp', 'desc').limit(10000).get();
+    const snapshot = await db.collection('landing_stats')
+      .orderBy('timestamp', 'desc')
+      .limit(ADMIN_LIMITS.landingEvents)
+      .get({source: 'server'});
     const stats = {
       totalVisitas: 0, visitasUnicas: new Set(), eventos: {}, eventosPorDia: {},
       cliquesPorCta: {}, scrollDepth: { 25:0, 50:0, 75:0, 100:0 },
@@ -494,7 +623,10 @@ async function carregarLandingStats() {
     stats.taxaRejeicao = stats.totalVisitas > 0 ? Math.round((stats.bounces / stats.totalVisitas) * 100) : 0;
     stats.visitasPorDia = Object.entries(eventosPorData).map(([data,valores]) => ({ data, visitas: valores.visitas || 0, cliques: valores.cliques || 0 })).sort((a,b)=>a.data.localeCompare(b.data)).slice(-30);
     stats.usuariosUnicos = stats.visitasUnicas.size;
+    stats.isRecentSample = true;
+    stats.sampleEvents = snapshot.size;
     cachedLandingStats = stats;
+    adminMarkCacheUpdated('landing');
   } catch(error) {
     console.error("Erro ao carregar landing stats:", error);
     cachedLandingStats = { totalVisitas:0, usuariosUnicos:0, eventos:{}, cliquesPorCta:{}, scrollDepth:{25:0,50:0,75:0,100:0}, sources:{}, devices:{}, tempoMedio:0, secoesVistas:{}, timerClicks:{total:0,tempoMedio:0}, taxaConversaoLanding:0, cliquesPorVisita:0, taxaRejeicao:0, bounces:0, visitasPorDia:[] };
@@ -546,15 +678,35 @@ const totalPages = () => Math.ceil(usuariosFiltrados.length / itemsPerPage);
 function mudarPagina(page) { currentPage = Math.max(1, Math.min(page, totalPages())); renderizarSecaoAtual(); }
 function buscarUsuarios(termo) { searchTerm = termo; aplicarFiltroOrdenacao(); currentPage = 1; renderizarSecaoAtual(); }
 
-function renderizarSecaoAtual() {
+async function renderizarSecaoAtual({ force = false } = {}) {
   const area = document.getElementById('content-area');
   if (!area) return;
-  switch(currentSection) {
+  const section = currentSection;
+  const needsLoading = (
+    (section === 'dashboard' && (force || !cachedDados || !adminCacheIsFresh('dashboard'))) ||
+    (section === 'usuarios' && (force || !dadosUsuarios.length || !adminCacheIsFresh('usuarios'))) ||
+    (section === 'metricas' && (force || !cachedMetricasProduto || !adminCacheIsFresh('metricas'))) ||
+    (section === 'landing' && (force || !cachedLandingStats || !adminCacheIsFresh('landing'))) ||
+    (section === 'parceiros' && (force || !cachedParceiros || !adminCacheIsFresh('parceiros'))) ||
+    ((section === 'rankings' || section === 'graficos') && (force || !cachedDados || !adminCacheIsFresh('dashboard')))
+  );
+
+  if (needsLoading) {
+    area.innerHTML = '<div class="section">Carregando dados desta aba...</div>';
+    if (section === 'dashboard' || section === 'rankings' || section === 'graficos') await carregarDados({ force });
+    else if (section === 'usuarios') await carregarUsuarios({ force });
+    else if (section === 'metricas') await carregarMetricasProduto({ force });
+    else if (section === 'landing') await carregarLandingStats({ force });
+    else if (section === 'parceiros') await carregarParceiros({ force });
+  }
+
+  if (currentSection !== section) return;
+  switch(section) {
     case 'dashboard': area.innerHTML = renderDashboard(); break;
     case 'metricas': area.innerHTML = renderMetricasProduto(); break;
     case 'usuarios': area.innerHTML = renderUsuarios(); break;
     case 'conteudo': area.innerHTML = renderConteudoClinico(); setTimeout(() => { adminInitContentEditorInteractions(); adminUpdateInlineEditor(); }, 0); break;
-    case 'parceiros': area.innerHTML = renderParceiros(); renderizarSecaoAtual.parceirosCarregado = false; carregarParceiros(); break;
+    case 'parceiros': area.innerHTML = renderParceiros(); break;
     case 'rankings': area.innerHTML = renderRankings(); break;
     case 'landing': area.innerHTML = renderLandingPage(); setTimeout(() => renderLandingCharts(), 100); break;
     case 'graficos': area.innerHTML = renderGraficos(); setTimeout(() => renderGraficosChart(), 100); break;
@@ -588,9 +740,13 @@ function renderDashboard() {
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
       <div>
         <h1 style="font-size:20px;font-weight:800;color:#0F172A">📊 Dashboard</h1>
-        <p style="font-size:12px;color:#94A3B8;margin-top:2px">Visão geral do OdontoDex</p>
+        <p style="font-size:12px;color:#94A3B8;margin-top:2px">Resumo recente com leitura econômica · ${adminFormatUpdatedAt('dashboard')}</p>
       </div>
       <button onclick="refreshData()" style="background:#F1F5F9;border:none;padding:8px 16px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;color:#475569">⟳ Atualizar</button>
+    </div>
+
+    <div style="background:#EFF6FF;border:1px solid #BFDBFE;border-radius:12px;padding:10px 14px;margin-bottom:16px;font-size:11px;color:#1E40AF;line-height:1.5;">
+      Exibindo uma amostra dos ${d.sampleUsers || 0} usuários e ${d.sampleAnalytics || 0} usos mais recentes. Totais globais ficam pendentes até existirem documentos agregados de baixo custo.
     </div>
 
     <div style="display:flex;gap:4px;background:#E2E8F0;padding:4px;border-radius:12px;width:fit-content;margin-bottom:20px;">
@@ -604,11 +760,11 @@ function renderDashboard() {
       <div class="stats-grid">
         <div class="stat-card card-users" style="display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer" onclick="irParaUsuariosFiltrado('')">
           <div style="width:40px;height:40px;border-radius:10px;background:#EDE9FE;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">👥</div>
-          <div><div style="font-size:22px;font-weight:800;color:#0F172A">${d.totalUsuarios}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Total de usuários</div></div>
+          <div><div style="font-size:22px;font-weight:800;color:#0F172A">${d.totalUsuarios}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Usuários na amostra</div></div>
         </div>
         <div class="stat-card card-premium" style="display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer" onclick="irParaUsuariosFiltrado('premium')">
           <div style="width:40px;height:40px;border-radius:10px;background:#DCFCE7;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">💎</div>
-          <div><div style="font-size:22px;font-weight:800;color:#10B981">${d.totalPremiumPago}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Premium (pagantes)</div></div>
+          <div><div style="font-size:22px;font-weight:800;color:#10B981">${d.totalPremiumPago}</div><div style="font-size:11px;color:#64748B;font-weight:500;margin-top:2px">Premium na amostra</div></div>
         </div>
         <div class="stat-card" style="border-left:3px solid #F59E0B;display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer" onclick="irParaUsuariosFiltrado('trial')">
           <div style="width:40px;height:40px;border-radius:10px;background:#FEF9C3;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0">⏳</div>
@@ -1903,7 +2059,7 @@ function renderMetricasProduto() {
   const interativoPercent = tipoUsoTotal>0 ? Math.round((m.tipoUso.interativo/tipoUsoTotal)*100) : 0;
   const totalRetornantes = Object.values(m.primeiroAcaoRetornantes).reduce((a,b)=>a+b,0);
   return `
-    <div class="content-header"><h1>📈 Métricas de Produto</h1><p>Análise de comportamento e retenção</p></div>
+    <div class="content-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><div><h1>📈 Métricas de Produto</h1><p>Amostra: ${m.sampleUsers || 0} usuários e ${m.sampleActions || 0} ações recentes · ${adminFormatUpdatedAt('metricas')}</p></div><button onclick="refreshData()" style="background:#F1F5F9;border:none;padding:8px 16px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;color:#475569">⟳ Atualizar</button></div>
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-icon">🚀</div><div class="stat-number">${m.taxaAtivacao}%</div><div class="stat-label">Taxa de Ativação</div></div>
       <div class="stat-card"><div class="stat-icon">🔄</div><div class="stat-number">${Object.keys(m.coortes).length} coortes</div><div class="stat-label">Coortes analisadas</div></div>
@@ -1935,13 +2091,21 @@ function renderUsuarios() {
   }
   const paginated = getPaginatedUsers();
   const total = totalPages();
+  const startIndex = usuariosFiltrados.length ? ((currentPage - 1) * itemsPerPage) + 1 : 0;
+  const endIndex = Math.min(currentPage * itemsPerPage, usuariosFiltrados.length);
   return `
-    <div class="content-header"><h1>👥 Usuários</h1><p>Gerencie os usuários do OdontoDex</p></div>
+    <div class="content-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <div><h1>👥 Usuários</h1><p>${adminFormatUpdatedAt('usuarios')} · busca e filtros atuam sobre os ${dadosUsuarios.length} usuários carregados</p></div>
+      <button onclick="refreshData()" style="background:#F1F5F9;border:none;padding:8px 16px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;color:#475569">⟳ Atualizar</button>
+    </div>
     <div class="section"><div class="search-box"><input type="text" class="search-input" id="search-usuario" placeholder="🔍 Buscar por nome ou email..." oninput="buscarUsuarios(this.value)"></div>
     <div class="table-wrapper"><table><thead><tr><th onclick="changeSort('nome')">Nome ${currentSort.field==='nome'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('email')">Email ${currentSort.field==='email'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('premium')">Status ${currentSort.field==='premium'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th onclick="changeSort('usos')">Usos ${currentSort.field==='usos'?(currentSort.order==='desc'?'↓':'↑'):''}</th><th>Cadastro</th><th>Expira em</th><th>Ação</th></tr></thead>
     <tbody>${paginated.map(user => `<tr class="usuario-row" onclick="abrirDrawer('${user.id}')"><td>${user.nome}${user.ignorado?'<span style="background:#FEF3C7;color:#92400E;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">⊘ Ignorado</span>':''}${user.email === 'pedrosimplicio.sousa@gmail.com' ? '<span style="background:#DBEAFE;color:#1E40AF;padding:2px 8px;border-radius:12px;font-size:10px;margin-left:8px;">👑 Admin</span>' : ''}</td><td>${user.email}</td><td>${(()=>{const expira=user.premiumExpira?.toDate?user.premiumExpira.toDate():null;const pagou=!!user.ultimoPagamentoId;const expirado=expira?expira<new Date():true;const isLivrePorPremium=user.premium===false;if(!isLivrePorPremium&&!expirado&&pagou)return'<span class="badge-premium">💎 Premium</span>';if(!isLivrePorPremium&&!expirado&&!pagou)return'<span style="background:#FEF9C3;color:#92400E;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;display:inline-block">⏳ Trial</span>';return'<span class="badge-free">🆓 Free</span>';})()}</td><td><strong>${user.usos}</strong> ${user.usos===0?'⚠️':user.usos>50?'🔥':''}</td><td>${user.criadoEm?new Date(user.criadoEm).toLocaleDateString():'-'}</td><td>${(()=>{const expira=user.premiumExpira?.toDate?user.premiumExpira.toDate():null;if(!expira)return'-';const hoje=new Date();const diff=Math.ceil((expira-hoje)/(1000*60*60*24));if(diff<0)return'<span style="color:#EF4444;font-size:11px;font-weight:600">Expirado</span>';if(diff<=7)return`<span style="color:#F97316;font-weight:600;font-size:11px">⚠️ ${diff}d</span>`;return`<span style="color:#64748B;font-size:11px">${expira.toLocaleDateString()}</span>`;})()}</td><td><button onclick="toggleIgnorarUsuario('${user.id}')" style="background:${user.ignorado?'#10B981':'#EF4444'};color:white;border:none;padding:4px 10px;border-radius:8px;font-size:11px;font-weight:600;cursor:pointer;opacity:0.8;transition:opacity 0.2s;" onmouseover="this.style.opacity='1'" onmouseout="this.style.opacity='0.8'">${user.ignorado?'✓ Incluir':'⊘ Ignorar'}</button></td></tr>`).join('')}${paginated.length===0?'<tr><td colspan="6" style="text-align:center;">Nenhum usuário encontrado</td></tr>':''}</tbody></table></div>
     <div class="pagination"><button class="page-btn" onclick="mudarPagina(1)" ${currentPage===1?'disabled':''}>«</button><button class="page-btn" onclick="mudarPagina(${currentPage-1})" ${currentPage===1?'disabled':''}>‹</button>${(()=>{const totalP=total; let buttons=[]; if(totalP<=5){for(let i=1;i<=totalP;i++)buttons.push(i)}else{if(currentPage<=3){for(let i=1;i<=5;i++)buttons.push(i)}else if(currentPage>=totalP-2){for(let i=totalP-4;i<=totalP;i++)buttons.push(i)}else{for(let i=currentPage-2;i<=currentPage+2;i++)buttons.push(i)}} return buttons.map(p=>`<button class="page-btn ${p===currentPage?'active':''}" onclick="mudarPagina(${p})">${p}</button>`).join('');})()}<button class="page-btn" onclick="mudarPagina(${currentPage+1})" ${currentPage===total||total===0?'disabled':''}>›</button><button class="page-btn" onclick="mudarPagina(${total})" ${currentPage===total||total===0?'disabled':''}>»</button></div>
-    <div style="text-align:center;margin-top:14px;font-size:11px;color:#64748B;">Mostrando ${Math.min(itemsPerPage,usuariosFiltrados.length)} de ${usuariosFiltrados.length} usuários</div></div>
+    <div style="display:flex;justify-content:center;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;">
+      <span style="font-size:11px;color:#64748B;">Mostrando ${startIndex}-${endIndex} de ${usuariosFiltrados.length} carregados</span>
+      ${usersHasMore ? `<button onclick="carregarMaisUsuarios()" ${usersLoadingMore?'disabled':''} style="background:#7C3FA0;color:#fff;border:none;padding:8px 16px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;opacity:${usersLoadingMore?'0.55':'1'}">${usersLoadingMore?'Carregando...':'Carregar mais 20'}</button>` : '<span style="font-size:11px;color:#10B981;font-weight:600;">Todos os usuários disponíveis foram carregados</span>'}
+    </div></div>
   `;
 }
 
@@ -1964,7 +2128,7 @@ function renderLandingPage() {
   const sortedSources = Object.entries(l.sources).sort((a,b)=>b[1]-a[1]);
   const formatTime = (seconds) => { if(!seconds) return '0s'; const mins=Math.floor(seconds/60); const secs=seconds%60; return mins>0?`${mins}m ${secs}s`:`${secs}s`; };
   return `
-    <div class="content-header"><h1>🌐 Landing Page Analytics</h1><p>Métricas de performance da página de vendas</p></div>
+    <div class="content-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><div><h1>🌐 Landing Page Analytics</h1><p>Últimos ${l.sampleEvents || 0} eventos · ${adminFormatUpdatedAt('landing')}</p></div><button onclick="refreshData()" style="background:#F1F5F9;border:none;padding:8px 16px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;color:#475569">⟳ Atualizar</button></div>
     <div class="landing-stats-grid"><div class="stat-card"><div class="stat-icon">👁️</div><div class="stat-number">${l.totalVisitas}</div><div class="stat-label">Total de Visitas</div></div><div class="stat-card"><div class="stat-icon">🆔</div><div class="stat-number">${l.usuariosUnicos}</div><div class="stat-label">Usuários Únicos</div></div><div class="stat-card"><div class="stat-icon">💰</div><div class="stat-number">${l.taxaConversaoLanding}%</div><div class="stat-label">Taxa de Conversão</div></div><div class="stat-card"><div class="stat-icon">🖱️</div><div class="stat-number">${l.cliquesPorVisita}</div><div class="stat-label">Cliques por Visita</div></div><div class="stat-card"><div class="stat-icon">📉</div><div class="stat-number">${l.taxaRejeicao}%</div><div class="stat-label">Taxa de Rejeição</div></div></div>
     <div class="section"><div class="section-title"><span>🖱️</span> CLIQUE NOS CTAs</div>${sortedClicks.length>0?`<div class="click-chart">${sortedClicks.map(([cta,count])=>{const maxCount=sortedClicks[0][1]; const width=maxCount>0?(count/maxCount)*100:0; let ctaLabel=cta.replace('click_','').replace(/_/g,' '); return `<div class="click-bar"><div class="click-bar-label">📌 ${ctaLabel}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${width}%">${count}</div></div></div>`;}).join('')}</div>`:'<p style="color:#64748B;">Nenhum clique registrado ainda.</p>'}</div>
     <div class="graficos-grid"><div class="section"><div class="section-title"><span>📱</span> DISPOSITIVOS</div><div class="click-chart">${Object.entries(l.devices).map(([device,count])=>{const maxCount=Math.max(...Object.values(l.devices),1); const width=(count/maxCount)*100; const icons={desktop:'🖥️',mobile:'📱',tablet:'📟'}; return `<div class="click-bar"><div class="click-bar-label">${icons[device]||'💻'} ${device}</div><div class="click-bar-fill"><div class="click-bar-progress" style="width:${width}%">${count}</div></div></div>`;}).join('')}</div></div>
@@ -2011,11 +2175,11 @@ function renderGraficosChart() {
 }
 
 function renderExportar() {
-  return `<div class="content-header"><h1>📥 Exportar Dados</h1><p>Exporte os dados do OdontoDex</p></div><div class="section"><div class="section-title"><span>📄</span> Exportar Analytics</div><div class="export-buttons"><button class="export-btn" onclick="exportarCSV()">📄 Exportar CSV</button><button class="export-btn json" onclick="exportarJSON()" style="background:#3B82F6;color:white;">📦 Exportar JSON</button><button class="export-btn" onclick="exportarUsuariosCSV()" style="background:#7C3FA0;color:white;">👥 Exportar Usuários</button><button class="export-btn" onclick="exportarLandingCSV()" style="background:#10B981;color:white;">🌐 Exportar Landing Stats</button><button class="export-btn" onclick="exportarMetricasCSV()" style="background:#F59E0B;color:white;">📈 Exportar Métricas</button><button class="export-btn refresh-btn" onclick="refreshData()">⟳ Atualizar Dados</button></div></div><div class="section"><div class="section-title"><span>ℹ️</span> Sobre os dados</div><p style="color:#64748B;font-size:13px;">Os dados incluem todos os protocolos abertos nos últimos 90 dias. As métricas de produto são calculadas em tempo real.</p></div>`;
+  return `<div class="content-header"><h1>📥 Exportar Dados</h1><p>Exporte os dados do OdontoDex</p></div><div class="section"><div class="section-title"><span>📄</span> Exportar Analytics</div><div class="export-buttons"><button class="export-btn" onclick="exportarCSV()">📄 Exportar CSV</button><button class="export-btn json" onclick="exportarJSON()" style="background:#3B82F6;color:white;">📦 Exportar JSON</button><button class="export-btn" onclick="exportarUsuariosCSV()" style="background:#7C3FA0;color:white;">👥 Exportar Usuários</button><button class="export-btn" onclick="exportarLandingCSV()" style="background:#10B981;color:white;">🌐 Exportar Landing Stats</button><button class="export-btn" onclick="exportarMetricasCSV()" style="background:#F59E0B;color:white;">📈 Exportar Métricas</button><button class="export-btn refresh-btn" onclick="refreshData()">⟳ Atualizar Dados</button></div></div><div class="section"><div class="section-title"><span>ℹ️</span> Sobre os dados</div><p style="color:#64748B;font-size:13px;">Para proteger a cota do Firestore, cada exportação direta é limitada aos ${ADMIN_LIMITS.exports} registros mais recentes.</p></div>`;
 }
 
 async function exportarCSV() {
-  const snapshot = await db.collection('analytics_uso_protocolos').orderBy('timestamp','desc').limit(10000).get();
+  const snapshot = await db.collection('analytics_uso_protocolos').orderBy('timestamp','desc').limit(ADMIN_LIMITS.exports).get({source: 'server'});
   const headers = ['Data','Protocolo','Usuário','Hora'];
   const rows = [headers];
   snapshot.forEach(doc=>{const d=doc.data(); rows.push([d.data||'',d.protocoloTitulo||'',d.usuarioEmail||'',d.hora!==undefined?`${d.hora}h`:'']);});
@@ -2025,7 +2189,7 @@ async function exportarCSV() {
   const a=document.createElement('a'); a.href=url; a.download=`odontodex_analytics_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
 }
 async function exportarJSON() {
-  const snapshot=await db.collection('analytics_uso_protocolos').orderBy('timestamp','desc').limit(10000).get();
+  const snapshot=await db.collection('analytics_uso_protocolos').orderBy('timestamp','desc').limit(ADMIN_LIMITS.exports).get({source: 'server'});
   const dados=[]; snapshot.forEach(doc=>dados.push({id:doc.id,...doc.data()}));
   const json=JSON.stringify(dados,null,2);
   const blob=new Blob([json],{type:'application/json'});
@@ -2042,7 +2206,7 @@ async function exportarUsuariosCSV() {
   const a=document.createElement('a'); a.href=url; a.download=`odontodex_usuarios_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
 }
 async function exportarLandingCSV() {
-  const snapshot=await db.collection('landing_stats').orderBy('timestamp','desc').limit(10000).get();
+  const snapshot=await db.collection('landing_stats').orderBy('timestamp','desc').limit(ADMIN_LIMITS.exports).get({source: 'server'});
   const headers=['Data','Evento','SessionId','Dispositivo','Fonte','Detalhes'];
   const rows=[headers];
   snapshot.forEach(doc=>{const d=doc.data(); const dataStr=d.timestamp?.toDate?.()?.toLocaleString()||'-'; let detalhes=''; if(d.event==='click_cta')detalhes=d.elementText||''; if(d.event==='section_view')detalhes=d.section||''; if(d.event==='exit')detalhes=`${d.timeOnPageSeconds}s na página`; if(d.event==='timer_click')detalhes=`${d.timeToClickSeconds}s até clicar`; rows.push([dataStr,d.event||'-',d.sessionId||'-',d.deviceType||'-',d.source||'-',detalhes]);});
@@ -2074,9 +2238,15 @@ async function exportarMetricasCSV() {
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a'); a.href=url; a.download=`odontodex_metricas_${new Date().toISOString().split('T')[0]}.csv`; a.click(); URL.revokeObjectURL(url);
 }
-async function refreshData() { await carregarDados(); renderizarSecaoAtual(); }
+async function refreshData() {
+  await renderizarSecaoAtual({ force: true });
+}
 function logout() { auth.signOut(); document.getElementById('login-container').style.display='flex'; document.getElementById('dashboard-container').style.display='none'; }
-function initMenu() { document.querySelectorAll('.sidebar-item').forEach(item=>{item.addEventListener('click',()=>{document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); currentSection=item.getAttribute('data-section'); renderizarSecaoAtual();});}); }
+function initMenu() {
+  if (adminMenuInitialized) return;
+  adminMenuInitialized = true;
+  document.querySelectorAll('.sidebar-item').forEach(item=>{item.addEventListener('click',()=>{document.querySelectorAll('.sidebar-item').forEach(i=>i.classList.remove('active')); item.classList.add('active'); currentSection=item.getAttribute('data-section'); renderizarSecaoAtual();});});
+}
 
 auth.onAuthStateChanged(async(user)=>{
   if(user && ADMIN_EMAILS.includes(user.email)){
@@ -2085,10 +2255,7 @@ auth.onAuthStateChanged(async(user)=>{
     document.getElementById('login-container').style.display='none';
     document.getElementById('dashboard-container').style.display='flex';
     initMenu();
-    await carregarDados();
-    await carregarLandingStats();
-    await carregarMetricasProduto();
-    renderizarSecaoAtual();
+    await renderizarSecaoAtual();
   } else if(user){
     await auth.signOut();
     document.getElementById('login-container').style.display='flex';
@@ -2100,6 +2267,7 @@ window.doAdminLogin=doAdminLogin;
 window.toggleSidebar=toggleSidebar;
 window.mudarPagina=mudarPagina;
 window.buscarUsuarios=buscarUsuarios;
+window.carregarMaisUsuarios=carregarMaisUsuarios;
 window.changeSort=changeSort;
 window.exportarCSV=exportarCSV;
 window.exportarJSON=exportarJSON;
@@ -2229,9 +2397,8 @@ async function acaoPremium(tipo) {
       feedback.textContent = '✓ Atualizado com sucesso! Recarregando...';
      setTimeout(async () => {
         fecharDrawer();
-        cachedDados = null;
-        dadosUsuarios = [];
-        await carregarDados();
+        adminCacheUpdatedAt.dashboard = 0;
+        await carregarUsuarios({ force: true });
         renderizarSecaoAtual();
       }, 2500);
     } else {
@@ -2246,27 +2413,58 @@ async function acaoPremium(tipo) {
 // ========== PARCEIROS ==========
 let cachedParceiros = null;
 
-async function carregarParceiros() {
+function adminMapCouponDocument(doc, mesAtual, conversoesPorCupomMes, repasses) {
+  const d = doc.data() || {};
+  const codigo = doc.id;
+  const convMes = conversoesPorCupomMes[codigo] || 0;
+  const convTotal = d.conversoes || 0;
+  const valorRepasse = d.valorRepasse || 3.00;
+  const valorMes = convMes * valorRepasse;
+  const repasse = repasses[`${codigo}_${mesAtual}`];
+  return {
+    codigo,
+    nome: d.nome || '-',
+    email: d.email || null,
+    ativo: d.ativo !== false,
+    pixKey: d.pixKey || null,
+    valorRepasse,
+    conversoes: d.conversoes || 0,
+    convMes,
+    convTotal,
+    valorMes,
+    repasseStatus: repasse?.status || 'pendente',
+    criadoem: d.criadoem || '-'
+  };
+}
+
+async function carregarParceiros({ force = false } = {}) {
+  if (!force && adminCacheIsFresh('parceiros') && cachedParceiros) return;
   try {
     const agora = new Date();
     const mesAtual = `${agora.getFullYear()}-${String(agora.getMonth()+1).padStart(2,'0')}`;
+    const inicioMes = new Date(agora.getFullYear(), agora.getMonth(), 1);
 
     const [cuponsSnap, conversoesSnap, repassesSnap] = await Promise.all([
-      db.collection('CUPONS').get(),
-      db.collection('conversoes_cupom').get(),
-      db.collection('repasses').get()
+      db.collection('CUPONS').limit(ADMIN_LIMITS.coupons).get({source: 'server'}),
+      db.collection('conversoes_cupom')
+        .where('timestamp', '>=', inicioMes)
+        .orderBy('timestamp', 'desc')
+        .limit(ADMIN_LIMITS.conversions)
+        .get({source: 'server'}),
+      db.collection('repasses')
+        .where('mes', '==', mesAtual)
+        .limit(ADMIN_LIMITS.transfers)
+        .get({source: 'server'})
     ]);
 
     const repasses = {};
     repassesSnap.forEach(doc => { repasses[doc.id] = doc.data(); });
 
     const conversoesPorCupomMes = {};
-    const conversoesPorCupomTotal = {};
     conversoesSnap.forEach(doc => {
       const d = doc.data();
       const cupom = d.cupom;
       if (!cupom) return;
-      conversoesPorCupomTotal[cupom] = (conversoesPorCupomTotal[cupom] || 0) + 1;
       const ts = d.timestamp?.toDate ? d.timestamp.toDate() : null;
       if (ts) {
         const mes = `${ts.getFullYear()}-${String(ts.getMonth()+1).padStart(2,'0')}`;
@@ -2276,51 +2474,69 @@ async function carregarParceiros() {
       }
     });
 
-    const cupons = [];
-    cuponsSnap.forEach(doc => {
-      const d = doc.data();
-      const codigo = doc.id;
-      const convMes = conversoesPorCupomMes[codigo] || 0;
-      const convTotal = conversoesPorCupomTotal[codigo] || 0;
-      const valorRepasse = d.valorRepasse || 3.00;
-      const valorMes = convMes * valorRepasse;
-      const repasseId = `${codigo}_${mesAtual}`;
-      const repasse = repasses[repasseId];
-      const repasseStatus = repasse?.status || 'pendente';
-
-      cupons.push({
-        codigo,
-        nome: d.nome || '-',
-        email: d.email || null,
-        ativo: d.ativo !== false,
-        pixKey: d.pixKey || null,
-        valorRepasse,
-        conversoes: d.conversoes || 0,
-        convMes,
-        convTotal,
-        valorMes,
-        repasseStatus,
-        criadoem: d.criadoem || '-'
-      });
-    });
+    const cupons = cuponsSnap.docs.map(doc =>
+      adminMapCouponDocument(doc, mesAtual, conversoesPorCupomMes, repasses)
+    );
+    lastCouponsCursor = cuponsSnap.docs[cuponsSnap.docs.length - 1] || null;
+    couponsHasMore = cuponsSnap.size === ADMIN_LIMITS.coupons;
 
     cupons.sort((a, b) => b.convMes - a.convMes);
-    cachedParceiros = { cupons, mesAtual };
-    document.getElementById('content-area').innerHTML = renderParceiros();
+    cachedParceiros = {
+      cupons,
+      mesAtual,
+      isRecentSample: true,
+      sampleConversions: conversoesSnap.size,
+      sampleTransfers: repassesSnap.size,
+      conversoesPorCupomMes,
+      repasses,
+    };
+    adminMarkCacheUpdated('parceiros');
   } catch(e) {
     console.error('Erro ao carregar parceiros:', e);
   }
 }
 
+async function carregarMaisParceiros() {
+  if (partnersLoadingMore || !couponsHasMore || !lastCouponsCursor || !cachedParceiros) return;
+  partnersLoadingMore = true;
+  renderizarSecaoAtual();
+  try {
+    const snapshot = await db.collection('CUPONS')
+      .startAfter(lastCouponsCursor)
+      .limit(ADMIN_LIMITS.coupons)
+      .get({source: 'server'});
+    const existingCodes = new Set(cachedParceiros.cupons.map(cupom => cupom.codigo));
+    snapshot.docs.forEach(doc => {
+      if (existingCodes.has(doc.id)) return;
+      cachedParceiros.cupons.push(adminMapCouponDocument(
+        doc,
+        cachedParceiros.mesAtual,
+        cachedParceiros.conversoesPorCupomMes,
+        cachedParceiros.repasses
+      ));
+    });
+    cachedParceiros.cupons.sort((a, b) => b.convMes - a.convMes);
+    lastCouponsCursor = snapshot.docs[snapshot.docs.length - 1] || lastCouponsCursor;
+    couponsHasMore = snapshot.size === ADMIN_LIMITS.coupons;
+    adminMarkCacheUpdated('parceiros');
+  } catch (error) {
+    console.error('Erro ao carregar mais parceiros:', error);
+    alert('Não foi possível carregar mais cupons. Tente novamente.');
+  } finally {
+    partnersLoadingMore = false;
+    renderizarSecaoAtual();
+  }
+}
+
 function renderParceiros() {
   if (!cachedParceiros) return '<div class="section">Carregando parceiros...</div>';
-  const { cupons, mesAtual } = cachedParceiros;
+  const { cupons, mesAtual, sampleConversions, sampleTransfers } = cachedParceiros;
   const totalConvMes = cupons.reduce((a, c) => a + c.convMes, 0);
   const totalValorMes = cupons.reduce((a, c) => a + c.valorMes, 0);
   const pendentes = cupons.filter(c => c.convMes > 0 && c.repasseStatus === 'pendente');
 
   return `
-    <div class="content-header"><h1>🤝 Parceiros</h1><p>Gestão de cupons e repasses — ${mesAtual}</p></div>
+    <div class="content-header" style="display:flex;align-items:center;justify-content:space-between;gap:12px;"><div><h1>🤝 Parceiros</h1><p>Até ${ADMIN_LIMITS.coupons} cupons, ${sampleConversions || 0} conversões do mês e ${sampleTransfers || 0} repasses · ${adminFormatUpdatedAt('parceiros')}</p></div><button onclick="refreshData()" style="background:#F1F5F9;border:none;padding:8px 16px;border-radius:10px;font-size:12px;font-weight:600;cursor:pointer;color:#475569">⟳ Atualizar</button></div>
 
     <div class="stats-grid">
       <div class="stat-card"><div class="stat-icon">🎟️</div><div class="stat-number" style="color:#7C3FA0">${cupons.length}</div><div class="stat-label">Cupons ativos</div></div>
@@ -2393,6 +2609,10 @@ function renderParceiros() {
           `).join('')}
         </tbody>
       </table></div>
+      <div style="display:flex;justify-content:center;align-items:center;gap:12px;margin-top:14px;">
+        <span style="font-size:11px;color:#64748B;">${cupons.length} cupons carregados</span>
+        ${couponsHasMore ? `<button onclick="carregarMaisParceiros()" ${partnersLoadingMore?'disabled':''} style="background:#7C3FA0;color:#fff;border:none;padding:8px 16px;border-radius:9px;font-size:12px;font-weight:700;cursor:pointer;opacity:${partnersLoadingMore?'0.55':'1'}">${partnersLoadingMore?'Carregando...':`Carregar mais ${ADMIN_LIMITS.coupons}`}</button>` : '<span style="font-size:11px;color:#10B981;font-weight:600;">Todos os cupons disponíveis foram carregados</span>'}
+      </div>
     </div>
 
     <div class="section">
@@ -2419,7 +2639,8 @@ async function marcarRepasse(codigo) {
     });
     const data = await res.json();
     if (data.ok) {
-      await carregarParceiros();
+      await carregarParceiros({ force: true });
+      renderizarSecaoAtual();
     } else {
       alert('Erro: ' + data.error);
     }
@@ -2455,7 +2676,10 @@ async function salvarEdicaoCupom(codigo) {
     if (data.ok) {
       feedback.style.color = '#166534';
       feedback.textContent = '✓ Salvo!';
-      setTimeout(() => carregarParceiros(), 1000);
+      setTimeout(async () => {
+        await carregarParceiros({ force: true });
+        renderizarSecaoAtual();
+      }, 1000);
     } else {
       feedback.style.color = '#991B1B';
       feedback.textContent = '✗ Erro: ' + data.error;
@@ -2474,7 +2698,10 @@ async function toggleCupom(codigo, novoAtivo) {
       body: JSON.stringify({ action: 'update-cupom', codigo, ativo: novoAtivo })
     });
     const data = await res.json();
-    if (data.ok) await carregarParceiros();
+    if (data.ok) {
+      await carregarParceiros({ force: true });
+      renderizarSecaoAtual();
+    }
     else alert('Erro: ' + data.error);
   } catch(e) {
     alert('Erro: ' + e.message);
@@ -2514,7 +2741,10 @@ async function criarCupom() {
       document.getElementById('novo-nome').value = '';
       document.getElementById('novo-pix').value = '';
       document.getElementById('novo-valor').value = '3.00';
-      setTimeout(() => carregarParceiros(), 1000);
+      setTimeout(async () => {
+        await carregarParceiros({ force: true });
+        renderizarSecaoAtual();
+      }, 1000);
     } else {
       feedback.style.color = '#991B1B';
       feedback.textContent = '✗ Erro: ' + data.error;
@@ -2526,6 +2756,7 @@ async function criarCupom() {
 }
 
 window.marcarRepasse = marcarRepasse;
+window.carregarMaisParceiros = carregarMaisParceiros;
 window.editarCupom = editarCupom;
 window.cancelarEdicao = cancelarEdicao;
 window.salvarEdicaoCupom = salvarEdicaoCupom;

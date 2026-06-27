@@ -4,7 +4,8 @@
   "scripts": {
     "test:clinical-search": "node tests/test-clinical-search.js",
     "test:security:payments": "node tests/security/payments-security-check.js",
-    "test:security:pix": "node tests/security/pix-status-regression.js"
+    "test:security:pix": "node tests/security/pix-status-regression.js",
+    "test:admin:reads": "node tests/security/admin-read-optimization-check.js"
   },
   "dependencies": {
     "firebase-admin": "^11.11.0"
