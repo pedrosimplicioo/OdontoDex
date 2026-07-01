@@ -4,7 +4,10 @@
   "scripts": {
     "test:clinical-search": "node tests/test-clinical-search.js",
     "test:security:payments": "node tests/security/payments-security-check.js",
+    "test:security:payment-price": "node tests/security/process-payment-price-regression.js",
     "test:security:pix": "node tests/security/pix-status-regression.js",
+    "test:security:reconcile-subscription": "node tests/security/reconcile-subscription-regression.js",
+    "test:security:find-payment": "node tests/security/find-payment-regression.js",
     "test:admin:reads": "node tests/security/admin-read-optimization-check.js"
   },
   "dependencies": {

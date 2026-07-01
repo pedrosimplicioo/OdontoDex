@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v84-firestore-direct-profile';
+const CACHE_NAME = 'odontodex-v86-auto-payment-restore';
 
 const CORE_FILES = [
   '/',

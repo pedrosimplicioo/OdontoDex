@@ -1,5 +1,7 @@
 const { requireSameUser, sendAuthError } = require("./_auth");
 
+const { getExpectedPremiumPrice } = require("./_payment-access");
+
 const APP_URL = "https://www.odontodex.com.br";
 
 module.exports = async (req, res) => {
@@ -32,7 +34,7 @@ module.exports = async (req, res) => {
             description: "Acesso premium por 30 dias",
             quantity: 1,
             currency_id: "BRL",
-            unit_price: 9.90,
+            unit_price: getExpectedPremiumPrice(),
           },
         ],
         payer: { email: userEmail },

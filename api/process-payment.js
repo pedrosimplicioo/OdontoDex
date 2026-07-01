@@ -1,4 +1,17 @@
 const { admin, db, requireSameUser, sendAuthError } = require("./_auth");
+const { activateApprovedPaymentAccess, getExpectedPremiumPrice } = require("./_payment-access");
+
+function cleanPaymentMethod(value) {
+  const method = String(value || "").trim();
+  return /^[a-z0-9_-]{1,40}$/i.test(method) ? method : "";
+}
+
+function cleanIdentification(value) {
+  const type = String(value?.type || "").trim().toUpperCase();
+  const number = String(value?.number || "").replace(/\D/g, "");
+  if (!/^[A-Z]{2,10}$/.test(type) || !/^\d{5,20}$/.test(number)) return null;
+  return { type, number };
+}
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") return res.status(405).json({ error: "Method not allowed" });
@@ -11,8 +24,31 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const { uid: bodyUid, email, ...formData } = req.body;
     const uid = decodedToken.uid;
+    const userEmail = String(decodedToken.email || "").trim().toLowerCase();
+    const token = String(req.body?.token || req.body?.card_token_id || req.body?.card_token || "").trim();
+    const paymentMethodId = cleanPaymentMethod(req.body?.payment_method_id);
+    const identification = cleanIdentification(req.body?.payer?.identification);
+
+    if (!userEmail) return res.status(400).json({ error: "Email autenticado obrigatorio" });
+    if (!token) return res.status(400).json({ error: "Token do cartao obrigatorio" });
+    if (!paymentMethodId) return res.status(400).json({ error: "Meio de pagamento invalido" });
+
+    const payer = { email: userEmail };
+    if (identification) payer.identification = identification;
+    const paymentPayload = {
+      transaction_amount: getExpectedPremiumPrice(),
+      token,
+      description: "OdontoDex Premium - 30 dias",
+      installments: 1,
+      payment_method_id: paymentMethodId,
+      payer,
+      notification_url: "https://www.odontodex.com.br/api/webhook",
+      external_reference: uid,
+      metadata: { uid, email: userEmail },
+    };
+    const issuerId = String(req.body?.issuer_id || "").trim();
+    if (/^\d{1,20}$/.test(issuerId)) paymentPayload.issuer_id = issuerId;
 
     const mpRes = await fetch("https://api.mercadopago.com/v1/payments", {
       method: "POST",
@@ -21,66 +57,55 @@ module.exports = async (req, res) => {
         Authorization: `Bearer ${process.env.MP_ACCESS_TOKEN}`,
         "X-Idempotency-Key": `${uid}-${Date.now()}`,
       },
-      body: JSON.stringify({
-        ...formData,
-        metadata: { uid, email: email || decodedToken.email || "" },
-      }),
+      body: JSON.stringify(paymentPayload),
     });
 
     const payment = await mpRes.json();
+    if (!mpRes.ok) {
+      console.error("Mercado Pago recusou a criacao do pagamento", {
+        uid,
+        statusCode: mpRes.status,
+        status: payment?.status || null,
+        causeCodes: Array.isArray(payment?.cause) ? payment.cause.map(cause => cause?.code).filter(Boolean) : [],
+      });
+      return res.status(502).json({ error: "Nao foi possivel processar o pagamento" });
+    }
     console.log("Payment status:", { status: payment.status, paymentId: payment.id, uid });
 
     if (payment.status === "approved") {
       if (!payment.id) throw new Error("Pagamento aprovado sem ID retornado pelo Mercado Pago");
-      const agora = new Date();
-      const expira = new Date(agora);
-      expira.setDate(expira.getDate() + 30);
       const paymentId = String(payment.id);
-      const eventRef = db.collection("webhook_events").doc(`direct_payment_${paymentId}`);
-      const userRef = db.collection("users").doc(uid);
 
-      const processed = await db.runTransaction(async tx => {
-        const eventDoc = await tx.get(eventRef);
-        if (eventDoc.exists) return false;
-        const userDoc = await tx.get(userRef);
-        const userData = userDoc.exists ? (userDoc.data() || {}) : {};
-
-        tx.set(eventRef, {
-          type: "direct_payment",
-          paymentId,
+      try {
+        const activation = await activateApprovedPaymentAccess({
           uid,
-          status: payment.status,
-          processedAt: admin.firestore.FieldValue.serverTimestamp(),
+          paymentId,
+          payment,
+          premiumOrigem: "pagamento",
+          eventPrefix: "direct_payment",
+          eventType: "direct_payment",
+          source: "process_payment",
+          emailFallback: userEmail,
         });
 
-        tx.set(userRef, {
-          email: userData.email || email || decodedToken.email || "",
-          emailNormalizado: userData.emailNormalizado || String(email || decodedToken.email || "").trim().toLowerCase(),
-          nome: userData.nome || decodedToken.name || "",
-          perfil: userData.perfil || "dentista",
-          tratamento: userData.tratamento !== undefined ? userData.tratamento : "",
-          criadoEm: userData.criadoEm || new Date().toISOString(),
-          dataPrimeiroAcesso: userData.dataPrimeiroAcesso || admin.firestore.FieldValue.serverTimestamp(),
-          acessosPorDia: userData.acessosPorDia || {},
-          termosAceitos: userData.termosAceitos === true ? true : true,
-          termosAceitosEm: userData.termosAceitosEm || admin.firestore.FieldValue.serverTimestamp(),
-          termosVersao: userData.termosVersao || "1.0",
-          privacidadeVersao: userData.privacidadeVersao || "1.1",
-          origemCadastro: userData.origemCadastro || "pagamento",
-          premium: true,
-          premiumExpira: admin.firestore.Timestamp.fromDate(expira),
-          premiumAtivadoEm: admin.firestore.Timestamp.fromDate(agora),
-          premiumOrigem: "pagamento",
-          ultimoPagamentoId: paymentId,
-        }, { merge: true });
-
-        return true;
-      });
-
-      if (processed) {
-        console.log("Premium ativado por pagamento direto", { uid, paymentId });
-      } else {
-        console.log("Pagamento direto duplicado ignorado", { uid, paymentId });
+        if (activation.processed) {
+          console.log("Premium ativado por pagamento direto", { uid, paymentId });
+        } else {
+          console.log("Pagamento direto duplicado ignorado", { uid, paymentId });
+        }
+      } catch (activationError) {
+        console.error("Pagamento aprovado, mas acesso ficou pendente", {
+          uid,
+          paymentId,
+          message: activationError.message,
+        });
+        return res.status(202).json({
+          status: payment.status,
+          paymentId,
+          accessPending: true,
+          retryable: true,
+          error: "Pagamento aprovado, mas o acesso ainda nao foi gravado. Tente restaurar o acesso em alguns instantes.",
+        });
       }
     }
 
@@ -90,6 +115,6 @@ module.exports = async (req, res) => {
     });
   } catch (e) {
     console.error("Erro process-payment:", e);
-    return res.status(500).json({ error: e.message });
+    return res.status(500).json({ error: "Nao foi possivel processar o pagamento" });
   }
 };

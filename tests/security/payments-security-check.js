@@ -38,6 +38,7 @@ const userPaymentEndpoints = [
   "api/create-subscription.js",
   "api/process-payment.js",
   "api/cancel-subscription.js",
+  "api/find-payment.js",
 ];
 
 for (const file of adminEndpoints) {
@@ -64,8 +65,36 @@ assertContains("api/webhook.js", "runTransaction", "webhook precisa processar de
 assertMatches("api/webhook.js", /payment_\$\{paymentId\}/, "webhook de pagamento precisa ser idempotente por paymentId");
 assertMatches("api/webhook.js", /subscription_\$\{invoiceId\}/, "webhook de assinatura precisa ser idempotente por invoiceId");
 
-assertMatches("api/process-payment.js", /direct_payment_\$\{paymentId\}/, "pagamento direto aprovado precisa ser idempotente por paymentId");
-assertContains("api/process-payment.js", "runTransaction", "pagamento direto precisa atualizar premium dentro de transacao");
+assertContains("api/process-payment.js", "eventPrefix: \"direct_payment\"", "pagamento direto aprovado precisa ser idempotente por paymentId");
+assertContains("api/process-payment.js", "transaction_amount: getExpectedPremiumPrice()", "valor do pagamento direto precisa vir do backend");
+assertContains("api/process-payment.js", "installments: 1", "parcelas do pagamento direto precisam vir do backend");
+assertContains("api/process-payment.js", "external_reference: uid", "referencia do pagamento precisa usar UID autenticado");
+assertNotContains("api/process-payment.js", "...formData", "backend nao pode repassar payload arbitrario do frontend ao Mercado Pago");
+assertContains("api/create-pix.js", "transaction_amount: getExpectedPremiumPrice()", "valor do Pix precisa vir da configuracao do backend");
+assertContains("api/create-subscription.js", "transaction_amount: getExpectedPremiumPrice()", "valor da assinatura precisa vir da configuracao do backend");
+assertContains("api/create-preference.js", "unit_price: getExpectedPremiumPrice()", "valor do Checkout Pro precisa vir da configuracao do backend");
+assertContains("api/_payment-access.js", "runTransaction", "ativacao premium por pagamento precisa atualizar acesso dentro de transacao");
+assertContains("api/_payment-access.js", "isExpectedPremiumPayment(payment)", "ativacao precisa validar valor e moeda do Premium");
+assertContains("api/process-payment.js", "accessPending", "pagamento aprovado precisa informar pendencia se Firestore falhar");
+assertContains("api/reconcile-payment.js", "fetchMercadoPagoPayment(paymentId)", "reconciliacao precisa consultar Mercado Pago pelo paymentId");
+assertContains("api/reconcile-payment.js", "paymentBelongsToUser(payment, uid)", "reconciliacao precisa validar dono do pagamento");
+assertContains("api/reconcile-subscription.js", "preapproval/${encodeURIComponent(assinaturaId)}", "reconciliacao de assinatura precisa consultar Mercado Pago");
+assertContains("api/reconcile-subscription.js", "runTransaction", "reconciliacao de assinatura precisa ser atomica");
+assertContains("api/reconcile-subscription.js", "subscription_reconcile_${assinaturaId}", "reconciliacao de assinatura precisa ser idempotente");
+assertContains("api/reconcile-subscription.js", "sameSubscription", "mesma assinatura nao pode somar novos 30 dias");
+assertContains("api/reconcile-subscription.js", "needsSupport", "assinatura ja aplicada e expirada nao pode liberar novo acesso");
+assertContains("api/reconcile-subscription.js", "getExpectedPremiumPrice()", "assinatura precisa validar o valor do Premium");
+assertContains("api/find-payment.js", "external_reference", "busca automatica precisa usar o UID como referencia externa");
+assertContains("api/find-payment.js", "payer_email", "busca automatica de assinatura precisa usar email autenticado");
+assertContains("api/find-payment.js", "RECOVERY_WINDOW_MS", "busca automatica nao pode reaproveitar pagamentos antigos");
+assertContains("api/find-payment.js", "paymentBelongsToUser", "busca automatica precisa filtrar pagamentos de outro usuario");
+assertContains("api/reconcile-payment.js", "activation.duplicate", "pagamento ja aplicado e inativo nao pode religar acesso local");
+assertContains("src/scripts/payments.js", "solicitarReconciliacaoAcesso", "restauracao no frontend precisa usar reconciliacao autenticada");
+assertContains("src/scripts/payments.js", "Authorization': `Bearer ${idToken}`", "restauracao precisa enviar Firebase ID Token");
+assertContains("src/scripts/payments.js", "não faça outro pagamento", "pendencia precisa prevenir pagamento duplicado");
+assertContains("index.html", "payment-restore-overlay", "app precisa oferecer fluxo visivel de restauracao");
+assertNotContains("index.html", "payment-restore-code", "usuario nao deve precisar descobrir codigo do pagamento");
+assertContains("src/scripts/payments.js", "buscarCandidatosRestauracao", "frontend precisa procurar pagamento automaticamente");
 assertMatches("api/create-subscription.js", /subscription_\$\{assinatura\.id\}/, "conversao de cupom de assinatura precisa ser idempotente");
 assertContains("api/create-subscription.js", "autoRecurring.start_date", "assinatura precisa respeitar acesso futuro ja pago");
 assertContains("api/create-subscription.js", "hasFutureAccess", "assinatura futura nao deve sobrescrever premiumExpira antes da cobranca");
@@ -86,10 +115,10 @@ assertContains("api/process-payment.js", "premiumOrigem: \"pagamento\"", "pagame
 assertContains("api/create-pix.js", "premiumOrigem: \"pix\"", "Pix pendente precisa registrar premiumOrigem");
 assertContains("api/create-pix.js", "notification_url: \"https://www.odontodex.com.br/api/webhook\"", "Pix precisa enviar notification_url oficial para o webhook");
 assertContains("api/create-pix.js", "req.body?.action === \"check-status\"", "create-pix precisa reaproveitar endpoint para checar Pix");
-assertContains("api/create-pix.js", "https://api.mercadopago.com/v1/payments/${encodeURIComponent(paymentId)}", "checagem Pix precisa consultar Mercado Pago pelo paymentId");
+assertContains("api/create-pix.js", "fetchMercadoPagoPayment(paymentId)", "checagem Pix precisa consultar Mercado Pago pelo paymentId");
 assertContains("api/create-pix.js", "paymentBelongsToUser(payment, uid)", "checagem Pix precisa validar dono do pagamento");
 assertContains("api/create-pix.js", "status === \"approved\"", "checagem Pix so pode ativar premium com approved");
-assertContains("api/create-pix.js", "pix_check_events", "checagem Pix precisa ser idempotente");
+assertContains("api/create-pix.js", "eventType: \"pix_status_check\"", "checagem Pix precisa ser idempotente");
 assertContains("api/create-pix.js", "premiumOrigem: \"pix\"", "checagem Pix aprovada precisa marcar origem Pix");
 assertContains("api/webhook.js", "premiumOrigem = pixDoc.exists ? \"pix\" : \"pagamento\"", "webhook precisa diferenciar Pix de pagamento avulso");
 assertContains("api/admin-action.js", "premiumOrigem: \"manual\"", "liberacao manual precisa registrar premiumOrigem");

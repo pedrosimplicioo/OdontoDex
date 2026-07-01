@@ -34,10 +34,6 @@ function loadCheckPixStatus({ payment, tokenUid = "user_a" }) {
   const sets = [];
 
   delete require.cache[endpointPath];
-  global.fetch = async url => {
-    assert(String(url).includes(`/v1/payments/${payment.id}`), "deve consultar o paymentId no Mercado Pago");
-    return { ok: true, json: async () => payment };
-  };
 
   Module._load = function patchedLoad(request, parent, isMain) {
     if (request === "./_auth" && parent?.filename === endpointPath) {
@@ -77,6 +73,29 @@ function loadCheckPixStatus({ payment, tokenUid = "user_a" }) {
         sendAuthError: (res, error) => res.status(error.status || 500).json({ error: error.message }),
       };
     }
+    if (request === "./_payment-access" && parent?.filename === endpointPath) {
+      return {
+        fetchMercadoPagoPayment: async paymentId => {
+          assert(String(paymentId) === String(payment.id), "deve consultar o paymentId no Mercado Pago");
+          return payment;
+        },
+        paymentBelongsToUser: (mpPayment, uid) => (
+          String(mpPayment?.metadata?.uid || "") === uid ||
+          String(mpPayment?.external_reference || "") === uid
+        ),
+        activateApprovedPaymentAccess: async ({ uid, paymentId, premiumOrigem }) => {
+          sets.push({
+            ref: { id: `payment_${paymentId}` },
+            data: { type: "pix_status_check", paymentId, uid },
+          });
+          updates.push({
+            ref: { id: uid },
+            data: { premium: true, premiumOrigem, ultimoPagamentoId: String(paymentId) },
+          });
+          return { processed: true, premiumOrigem };
+        },
+      };
+    }
     return originalLoad(request, parent, isMain);
   };
 
@@ -94,7 +113,7 @@ async function callHandler(handler, body = { action: "check-status", uid: "user_
 (async () => {
   const createPixSource = read("api/create-pix.js");
   const checkStatusIndex = createPixSource.indexOf('req.body?.action === "check-status"');
-  const premiumActivationIndex = createPixSource.indexOf("premium: true");
+  const premiumActivationIndex = createPixSource.indexOf("activateApprovedPaymentAccess");
   const createPaymentIndex = createPixSource.indexOf('fetch("https://api.mercadopago.com/v1/payments"');
   assert(checkStatusIndex > -1, "create-pix precisa ter ramo check-status");
   assert(premiumActivationIndex > -1, "check-status approved precisa ativar Premium");

@@ -1,4 +1,9 @@
 const { admin, db, setCors, requireAdmin, sendAuthError } = require("./_auth");
+const {
+  activateApprovedPaymentAccess,
+  fetchMercadoPagoPayment,
+  paymentBelongsToUser,
+} = require("./_payment-access");
 
 async function setPremium(body) {
   const { uid, premium, dias } = body;
@@ -48,6 +53,33 @@ async function setPremium(body) {
     updates.ultimoPagamentoId = `manual_${Date.now()}`;
   }
   await docRef.set(updates, { merge: true });
+}
+
+async function reconcilePayment(body) {
+  const { uid, paymentId } = body;
+  if (!uid || !paymentId) throw new Error("UID e paymentId obrigatorios");
+
+  const payment = await fetchMercadoPagoPayment(String(paymentId));
+  if (String(payment.status || "") !== "approved") {
+    const error = new Error(`Pagamento ainda nao aprovado: ${payment.status || "sem_status"}`);
+    error.statusCode = 400;
+    throw error;
+  }
+
+  if (!paymentBelongsToUser(payment, String(uid))) {
+    const error = new Error("Pagamento nao pertence ao usuario informado");
+    error.statusCode = 403;
+    throw error;
+  }
+
+  await activateApprovedPaymentAccess({
+    uid: String(uid),
+    paymentId: String(paymentId),
+    payment,
+    eventPrefix: "payment",
+    eventType: "admin_payment_reconcile",
+    source: "admin_action",
+  });
 }
 
 async function expirePremium(body) {
@@ -112,6 +144,7 @@ async function updateCupom(body) {
 
 const actions = {
   "set-premium": setPremium,
+  "reconcile-payment": reconcilePayment,
   "expire-premium": expirePremium,
   "set-test-user": setTestUser,
   "set-repasse": setRepasse,
