@@ -1,5 +1,7 @@
 ﻿const { admin, db, requireSameUser, sendAuthError } = require("./_auth");
 
+const { getExpectedPremiumPrice } = require("./_payment-access");
+
 function normalizarCupom(cupom) {
   return String(cupom || "").trim().toUpperCase();
 }
@@ -51,7 +53,7 @@ module.exports = async (req, res) => {
     const autoRecurring = {
       frequency: 1,
       frequency_type: "months",
-      transaction_amount: 9.90,
+      transaction_amount: getExpectedPremiumPrice(),
       currency_id: "BRL",
     };
 
@@ -103,7 +105,8 @@ module.exports = async (req, res) => {
       updates.proximaCobranca = admin.firestore.Timestamp.fromDate(nextExpiry);
     }
 
-    await userRef.set({
+    try {
+      await userRef.set({
       email: email || decodedToken.email || "",
       emailNormalizado: String(email || decodedToken.email || "").trim().toLowerCase(),
       nome: userData?.nome || decodedToken.name || "",
@@ -118,25 +121,41 @@ module.exports = async (req, res) => {
       privacidadeVersao: userData?.privacidadeVersao || "1.1",
       origemCadastro: userData?.origemCadastro || "pagamento",
       ...updates,
-    }, { merge: true });
+      }, { merge: true });
 
-    if (cupomAplicado) {
-      const conversionRef = db.collection("conversoes_cupom").doc(`subscription_${assinatura.id}`);
-      await db.runTransaction(async tx => {
-        const conversionDoc = await tx.get(conversionRef);
-        if (conversionDoc.exists) return;
+      if (cupomAplicado) {
+        const conversionRef = db.collection("conversoes_cupom").doc(`subscription_${assinatura.id}`);
+        await db.runTransaction(async tx => {
+          const conversionDoc = await tx.get(conversionRef);
+          if (conversionDoc.exists) return;
 
-        tx.set(conversionRef, {
-          cupom: cupomAplicado,
-          userId: uid,
-          userEmail: email || decodedToken.email || "",
-          valor: 3.00,
-          assinaturaId: assinatura.id,
-          timestamp: admin.firestore.FieldValue.serverTimestamp(),
+          tx.set(conversionRef, {
+            cupom: cupomAplicado,
+            userId: uid,
+            userEmail: email || decodedToken.email || "",
+            valor: 3.00,
+            assinaturaId: assinatura.id,
+            timestamp: admin.firestore.FieldValue.serverTimestamp(),
+          });
+          tx.update(db.collection("CUPONS").doc(cupomAplicado), {
+            conversoes: admin.firestore.FieldValue.increment(1),
+          });
         });
-        tx.update(db.collection("CUPONS").doc(cupomAplicado), {
-          conversoes: admin.firestore.FieldValue.increment(1),
-        });
+      }
+    } catch (activationError) {
+      console.error("Assinatura autorizada, mas acesso ficou pendente", {
+        uid,
+        assinaturaId: assinatura.id,
+        message: activationError.message,
+      });
+      return res.status(202).json({
+        status: "authorized",
+        assinaturaId: assinatura.id,
+        startsAt: subscriptionStartsAt.toISOString(),
+        preservesFutureAccess: hasFutureAccess,
+        accessPending: true,
+        retryable: true,
+        error: "Assinatura autorizada, mas o acesso ainda nao foi gravado. Tente restaurar o acesso em alguns instantes.",
       });
     }
 

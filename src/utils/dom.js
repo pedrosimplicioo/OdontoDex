@@ -110,6 +110,7 @@ function setSubscriptionCardState(state) {
   const validity = document.getElementById('cfg-subscription-validity');
   const renewal = document.getElementById('cfg-subscription-renewal');
   const action = document.getElementById('cfg-subscription-action');
+  const restore = document.getElementById('cfg-subscription-restore');
   const note = document.getElementById('cfg-subscription-note');
   if (!title) return;
 
@@ -126,6 +127,7 @@ function setSubscriptionCardState(state) {
     action.disabled = state.action === 'none';
     action.dataset.action = state.action;
   }
+  if (restore) restore.style.display = state.canRestore === true ? 'inline-flex' : 'none';
 }
 
 async function renderSubscriptionSummary() {
@@ -261,6 +263,7 @@ async function renderSubscriptionSummary() {
       renewal: 'Inativa',
       action: 'payment',
       actionText: 'Ver opções de pagamento',
+      canRestore: true,
       note: 'O pagamento só libera Premium depois da confirmação segura.'
     });
   } catch (e) {
@@ -275,6 +278,7 @@ async function renderSubscriptionSummary() {
       renewal: '—',
       action: 'none',
       actionText: 'Indisponível',
+      canRestore: true,
       note: 'Verifique sua conexão e tente novamente.'
     });
   }

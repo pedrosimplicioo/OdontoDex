@@ -100,7 +100,6 @@ async function aplicarCupom() {
     setCupomEstado('invalid', 'Digite um código válido para aplicar.');
     return;
   }
-
   input.value = codigo;
   applyBtn.disabled = true;
   setCupomEstado('pending', 'Validando código de parceiro...');
@@ -157,6 +156,226 @@ let pixCode = '';
 let pixPollingInterval = null;
 let pixPollingTimeout = null;
 let pixPaymentId = '';
+const PENDING_PAYMENT_KEY = 'odontodexPendingPaymentId';
+const PENDING_SUBSCRIPTION_KEY = 'odontodexPendingSubscriptionId';
+
+function salvarPagamentoPendente(paymentId) {
+  if (paymentId) localStorage.setItem(PENDING_PAYMENT_KEY, String(paymentId));
+}
+
+function salvarAssinaturaPendente(assinaturaId) {
+  if (assinaturaId) localStorage.setItem(PENDING_SUBSCRIPTION_KEY, String(assinaturaId));
+}
+
+function limparPendenciasPagamento() {
+  localStorage.removeItem(PENDING_PAYMENT_KEY);
+  localStorage.removeItem(PENDING_SUBSCRIPTION_KEY);
+}
+
+async function solicitarReconciliacaoAcesso(tipo, codigo) {
+  if (!currentUser || !codigo) return { ok: false, error: 'not_authenticated' };
+  const idToken = await currentUser.getIdToken();
+  const isSubscription = tipo === 'subscription';
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  try {
+    const res = await fetch(isSubscription ? '/api/reconcile-subscription' : '/api/reconcile-payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`
+      },
+      body: JSON.stringify(isSubscription
+        ? { uid: currentUser.uid, assinaturaId: codigo }
+        : { uid: currentUser.uid, paymentId: codigo }),
+      signal: controller.signal,
+    });
+    const data = await res.json().catch(() => ({}));
+    return { ...data, requestOk: res.ok, httpStatus: res.status };
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function reconciliarPagamentoAprovado(paymentId) {
+  if (!currentUser || !paymentId) return false;
+  const data = await solicitarReconciliacaoAcesso('payment', String(paymentId));
+  return data.requestOk && data.approved === true;
+}
+
+async function reconciliarAssinaturaAutorizada(assinaturaId) {
+  if (!currentUser || !assinaturaId) return false;
+  const data = await solicitarReconciliacaoAcesso('subscription', String(assinaturaId));
+  return data.requestOk && data.approved === true;
+}
+
+async function tentarRestaurarPendenciasPagamento() {
+  try {
+    const pendingPaymentId = localStorage.getItem(PENDING_PAYMENT_KEY);
+    if (pendingPaymentId && await reconciliarPagamentoAprovado(pendingPaymentId)) {
+      await onPaymentApproved();
+      return true;
+    }
+
+    const pendingSubscriptionId = localStorage.getItem(PENDING_SUBSCRIPTION_KEY);
+    if (pendingSubscriptionId && await reconciliarAssinaturaAutorizada(pendingSubscriptionId)) {
+      await onPaymentApproved();
+      return true;
+    }
+  } catch (error) {
+    console.warn('Não foi possível restaurar a pendência automaticamente', error);
+  }
+
+  return false;
+}
+
+let paymentRestoreInFlight = false;
+
+function setPaymentRestoreStatus(kind, message) {
+  const status = document.getElementById('payment-restore-progress');
+  if (!status) return;
+  status.className = 'payment-restore-progress' + (kind ? ` is-${kind}` : '');
+  status.textContent = message || '';
+}
+
+function setPaymentRestoreBusy(busy) {
+  paymentRestoreInFlight = busy;
+  const button = document.getElementById('payment-restore-confirm');
+  if (button) {
+    button.disabled = busy;
+    button.textContent = busy ? 'Procurando pagamento...' : 'Verificar novamente';
+  }
+}
+
+async function concluirRestauracaoAprovada() {
+  setPaymentRestoreStatus('success', 'Pagamento confirmado. Seu Premium foi restaurado.');
+  hideOverlay('payment-restore-overlay');
+  await onPaymentApproved();
+  if (typeof renderSubscriptionSummary === 'function') renderSubscriptionSummary();
+  return true;
+}
+
+function mensagemResultadoRestauracao(result) {
+  if (result && result.aguardando) {
+    return 'O pagamento ainda está em processamento. Tente novamente em alguns minutos e não faça outro pagamento.';
+  }
+  if (result && (result.httpStatus === 403 || result.httpStatus === 404)) {
+    return 'Não foi possível confirmar esse código para a conta conectada. Confira o comprovante ou fale com o suporte.';
+  }
+  if (result && result.httpStatus === 400) {
+    return 'O código informado não pôde ser consultado. Confira e tente novamente.';
+  }
+  if (result && result.httpStatus === 409) {
+    return 'Esse código já foi aplicado anteriormente e não comprova uma nova cobrança. Fale com o suporte para conferirmos o pagamento.';
+  }
+  if (result && result.httpStatus === 422) {
+    return 'A cobrança encontrada não corresponde ao plano Premium. Fale com o suporte antes de realizar outro pagamento.';
+  }
+  return 'Não foi possível concluir agora. Seu pagamento não será perdido. Tente novamente mais tarde e não pague novamente.';
+}
+
+async function verificarCodigoRestauracao(tipo, codigo) {
+  try {
+    const result = await solicitarReconciliacaoAcesso(tipo, codigo);
+    if (result.requestOk && result.approved === true) return concluirRestauracaoAprovada();
+
+    if (result.aguardando || result.httpStatus >= 500) {
+      if (tipo === 'subscription') salvarAssinaturaPendente(codigo);
+      else salvarPagamentoPendente(codigo);
+    } else if (result.httpStatus === 400 || result.httpStatus === 403 || result.httpStatus === 404 || result.httpStatus === 409 || result.httpStatus === 422) {
+      localStorage.removeItem(tipo === 'subscription' ? PENDING_SUBSCRIPTION_KEY : PENDING_PAYMENT_KEY);
+    }
+    setPaymentRestoreStatus(result.aguardando ? 'pending' : 'error', mensagemResultadoRestauracao(result));
+    return false;
+  } catch (error) {
+    console.warn('Falha ao consultar pagamento para restauração', error);
+    if (tipo === 'subscription') salvarAssinaturaPendente(codigo);
+    else salvarPagamentoPendente(codigo);
+    setPaymentRestoreStatus('error', mensagemResultadoRestauracao(null));
+    return false;
+  }
+}
+
+async function verificarPendenciasSalvas() {
+  const paymentId = localStorage.getItem(PENDING_PAYMENT_KEY);
+  const subscriptionId = localStorage.getItem(PENDING_SUBSCRIPTION_KEY);
+  if (!paymentId && !subscriptionId) return false;
+
+  setPaymentRestoreStatus('loading', 'Consultando o pagamento salvo neste aparelho...');
+  if (paymentId && await verificarCodigoRestauracao('payment', paymentId)) return true;
+  if (subscriptionId && await verificarCodigoRestauracao('subscription', subscriptionId)) return true;
+  return false;
+}
+
+async function abrirRestaurarAcesso() {
+  if (!currentUser) {
+    showToast('Faça login para restaurar seu acesso', 'error');
+    return;
+  }
+  hideOverlay('premium-overlay');
+  setPaymentRestoreStatus('', '');
+  setPaymentRestoreBusy(false);
+  showOverlay('payment-restore-overlay');
+  await restaurarAcessoAutomaticamente();
+}
+
+function fecharRestaurarAcesso() {
+  if (paymentRestoreInFlight) return;
+  hideOverlay('payment-restore-overlay');
+}
+
+async function buscarCandidatosRestauracao() {
+  const idToken = await currentUser.getIdToken();
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  try {
+    const response = await fetch('/api/find-payment', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${idToken}`,
+      },
+      body: JSON.stringify({ uid: currentUser.uid }),
+      signal: controller.signal,
+    });
+    const data = await response.json().catch(() => ({}));
+    if (!response.ok) throw new Error(data.error || 'payment_search_failed');
+    return Array.isArray(data.candidates) ? data.candidates : [];
+  } finally {
+    clearTimeout(timeoutId);
+  }
+}
+
+async function restaurarAcessoAutomaticamente() {
+  if (paymentRestoreInFlight) return;
+  setPaymentRestoreBusy(true);
+  setPaymentRestoreStatus('loading', 'Procurando pagamentos aprovados vinculados à sua conta...');
+  try {
+    if (await verificarPendenciasSalvas()) return;
+
+    const candidates = await buscarCandidatosRestauracao();
+    for (const candidate of candidates) {
+      const type = candidate?.type === 'subscription' ? 'subscription' : 'payment';
+      const id = String(candidate?.id || '');
+      if (!id) continue;
+      if (await verificarCodigoRestauracao(type, id)) return;
+    }
+
+    const hasPending = localStorage.getItem(PENDING_PAYMENT_KEY) || localStorage.getItem(PENDING_SUBSCRIPTION_KEY);
+    if (hasPending) {
+      setPaymentRestoreStatus('pending', 'Ainda não há confirmação do pagamento. Tente novamente em alguns minutos e não faça outro pagamento.');
+    } else if (candidates.length > 0) {
+      setPaymentRestoreStatus('error', 'Encontramos uma cobrança, mas ela precisa ser conferida pelo suporte. Não faça outro pagamento.');
+    } else {
+      setPaymentRestoreStatus('error', 'Não encontramos pagamento aprovado nos últimos 14 dias. Se a cobrança já aparece no extrato, envie o comprovante ao suporte.');
+    }
+  } catch (error) {
+    console.warn('Falha na busca automática de pagamento', error);
+    setPaymentRestoreStatus('error', 'Não foi possível consultar o Mercado Pago agora. Tente novamente mais tarde e não faça outro pagamento.');
+  } finally {
+    setPaymentRestoreBusy(false);
+  }
+}
 
 async function abrirPixModal() {
   if (!currentUser) {
@@ -196,6 +415,7 @@ async function abrirPixModal() {
 
     pixCode = data.qrCode;
     pixPaymentId = data.paymentId ? String(data.paymentId) : '';
+    salvarPagamentoPendente(pixPaymentId);
 
     document.getElementById('pix-qrcode-img').src = 'data:image/png;base64,' + data.qrCodeBase64;
     document.getElementById('pix-code-display').textContent = data.qrCode;
@@ -328,6 +548,7 @@ async function abrirTelaPayment() {
     showToast("Faça login primeiro", "error");
     return;
   }
+  if (await tentarRestaurarPendenciasPagamento()) return;
   // Fecha o modal premium se estiver aberto
   hideOverlay("premium-overlay");
   // Navega para a tela de pagamento
@@ -418,6 +639,15 @@ if (isCartao) {
                 payData = await payRes.json();
                 hideLoading();
                 if (payData.status === "authorized") {
+                  salvarAssinaturaPendente(payData.assinaturaId);
+                  if (payData.accessPending) {
+                    const restaurado = await reconciliarAssinaturaAutorizada(payData.assinaturaId);
+                    if (!restaurado) {
+                      showToast("Assinatura autorizada. O acesso sera restaurado automaticamente em instantes.", "success");
+                      goBackToLastScreen();
+                      return;
+                    }
+                  }
                   await onPaymentApproved();
                 } else {
                   showToast("Assinatura não autorizada. Tente outro cartão.", "error");
@@ -439,6 +669,15 @@ if (isCartao) {
                 payData = await payRes.json();
                 hideLoading();
                 if (payData.status === "approved") {
+                  salvarPagamentoPendente(payData.paymentId);
+                  if (payData.accessPending) {
+                    const restaurado = await reconciliarPagamentoAprovado(payData.paymentId);
+                    if (!restaurado) {
+                      showToast("Pagamento aprovado. O acesso sera restaurado automaticamente em instantes.", "success");
+                      goBackToLastScreen();
+                      return;
+                    }
+                  }
                   await onPaymentApproved();
                 } else if (payData.status === "in_process" || payData.status === "pending") {
                   showToast("Pagamento em processamento.", "success");
@@ -468,6 +707,7 @@ if (isCartao) {
   }
 }
 async function onPaymentApproved() {
+  limparPendenciasPagamento();
   window.userIsPremium = true;
   localStorage.setItem('userIsPremium', 'true');
   if (typeof updatePremiumUI === 'function') updatePremiumUI();

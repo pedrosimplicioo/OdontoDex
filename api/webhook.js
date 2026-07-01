@@ -1,5 +1,10 @@
 const crypto = require("crypto");
 const { admin, db } = require("./_auth");
+const {
+  activateApprovedPaymentAccess,
+  fetchMercadoPagoPayment,
+  getPaymentUid,
+} = require("./_payment-access");
 
 function getRequestDataId(req) {
   const url = new URL(req.url || "", "https://www.odontodex.com.br");
@@ -77,11 +82,28 @@ async function fetchMercadoPago(path) {
 }
 
 async function processApprovedPayment(paymentId, payment) {
-  const uid = payment.metadata?.uid || payment.external_reference;
+  const uid = getPaymentUid(payment);
   if (!uid) {
     console.log("UID não encontrado em payment aprovado", { paymentId });
     return { ok: true, msg: "UID not found" };
   }
+
+  const activation = await activateApprovedPaymentAccess({
+    uid,
+    paymentId,
+    payment,
+    eventPrefix: "payment",
+    eventType: "payment",
+    source: "webhook",
+  });
+
+  if (!activation.processed) {
+    console.log("Webhook payment duplicado ignorado", { paymentId });
+    return { ok: true, duplicate: true, alreadyActive: activation.alreadyActive === true };
+  }
+
+  console.log("Webhook payment processado", { paymentId, uid });
+  return { ok: true, uid, expiresAt: activation.expiresAt };
 
   const pixRef = db.collection("pix_pendentes").doc(String(paymentId));
   const eventRef = db.collection("webhook_events").doc(`payment_${paymentId}`);
@@ -225,7 +247,7 @@ module.exports = async (req, res) => {
       const paymentId = data?.id;
       if (!paymentId) return res.status(400).json({ error: "Payment ID missing" });
 
-      const payment = await fetchMercadoPago(`v1/payments/${paymentId}`);
+      const payment = await fetchMercadoPagoPayment(paymentId);
       if (payment.status !== "approved") {
         return res.status(200).json({ ok: true, status: payment.status });
       }

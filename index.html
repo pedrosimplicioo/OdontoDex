@@ -15,7 +15,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <link rel="stylesheet" href="src/styles/app.css?v=20260623-dark-header-depth">
+  <link rel="stylesheet" href="src/styles/app.css?v=20260630-auto-payment-restore">
 </head>
 <body>
 <!-- AVISO IN-APP BROWSER -->
@@ -436,6 +436,9 @@
           </div>
         </div>
         <button class="cfg-subscription-action" id="cfg-subscription-action" type="button" onclick="handleSubscriptionAction()">Gerenciar</button>
+        <button class="payment-restore-link cfg-subscription-restore" id="cfg-subscription-restore" type="button" onclick="abrirRestaurarAcesso('settings')" style="display:none;">
+          <i class="ti ti-refresh"></i> Já paguei — restaurar acesso
+        </button>
         <p class="cfg-subscription-note" id="cfg-subscription-note">O pagamento usa o fluxo seguro do OdontoDex.</p>
       </div>
     </div>
@@ -664,6 +667,7 @@
          <span class="prem-cta-arrow">→</span>
        </button>
       <div class="prem-cta-fine">Pagamento seguro. Assinatura mensal recorrente no cartão; Pix disponível como acesso avulso.</div>
+      <button class="prem-restore-link" type="button" onclick="abrirRestaurarAcesso('premium')">Já paguei — restaurar meu acesso</button>
       <button class="prem-skip-btn" onclick="hideOverlay('premium-overlay')">Continuar com versão gratuita</button>
     </div>
 
@@ -822,6 +826,29 @@
       <i class="ti ti-circle-check"></i>
       <span>Após a confirmação, o Premium é liberado automaticamente.</span>
     </div>
+    <div class="payment-restore-card">
+      <div class="payment-restore-copy">
+        <strong>Já pagou e o Premium não apareceu?</strong>
+        <span>Confira o pagamento com segurança antes de tentar pagar novamente.</span>
+      </div>
+      <button class="payment-restore-button" type="button" onclick="abrirRestaurarAcesso('payment')">
+        <i class="ti ti-refresh"></i>
+        <span>Restaurar acesso pago</span>
+      </button>
+    </div>
+  </div>
+</div>
+<!-- RESTAURAR ACESSO PAGO -->
+<div class="overlay" id="payment-restore-overlay" onclick="fecharRestaurarAcesso()">
+  <div class="modal payment-restore-modal" onclick="event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="payment-restore-title">
+    <div class="modal-icon payment-restore-icon"><i class="ti ti-shield-check"></i></div>
+    <h2 class="modal-title" id="payment-restore-title">Restaurar acesso pago</h2>
+    <p class="modal-sub">Vamos procurar automaticamente no Mercado Pago os pagamentos vinculados à sua conta.</p>
+    <div class="payment-restore-warning"><i class="ti ti-alert-circle"></i><span>Se você já pagou, não faça outro pagamento.</span></div>
+    <div class="payment-restore-progress" id="payment-restore-progress" aria-live="polite"></div>
+    <div class="payment-restore-auto-note"><i class="ti ti-user-check"></i><span>Nenhum código ou comprovante é necessário.</span></div>
+    <button class="payment-restore-confirm" id="payment-restore-confirm" type="button" onclick="restaurarAcessoAutomaticamente()">Verificar novamente</button>
+    <button class="btn-ghost" type="button" onclick="fecharRestaurarAcesso()">Fechar</button>
   </div>
 </div>
   <!-- MODAL PIX -->
@@ -864,7 +891,7 @@
 <script src="src/scripts/meta-pixel.js" defer></script>
 <script src="src/scripts/analytics.js" defer></script>
 <script src="src/utils/storage.js" defer></script>
-<script src="src/utils/dom.js?v=20260620-premium-journey" defer></script>
+<script src="src/utils/dom.js?v=20260630-payment-restore" defer></script>
 <script src="src/scripts/navigation.js?v=20260620-guided-empty-copy" defer></script>
 <script src="src/components/widgets.js?v=20260620-widget-collapse-match" defer></script>
 <script src="src/components/render.js?v=20260621-next-step-question-focus" defer></script>
@@ -880,7 +907,7 @@
 <script src="src/scripts/app-init.js?v=20260624-google-profile-required" defer></script>
 <script src="src/scripts/premium.js" defer></script>
 <script src="src/components/student-banner.js" defer></script>
-<script src="src/scripts/payments.js?v=20260621-hide-installments-label" defer></script>
+<script src="src/scripts/payments.js?v=20260630-auto-payment-restore" defer></script>
 <script src="src/components/prescriptions.js" defer></script>
 </body>
 </html>
