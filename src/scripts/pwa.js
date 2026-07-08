@@ -56,13 +56,16 @@ window.addEventListener('appinstalled', () => {
 document.addEventListener('DOMContentLoaded', () => {
   // Register service worker
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('sw.js').then(reg => {
-      reg.update?.();
-    }).catch(()=>{});
+    navigator.serviceWorker.register('/sw.js', { updateViaCache: 'none' }).catch(()=>{});
   }
 
   updateOfflineStatus();
-  window.addEventListener('online', updateOfflineStatus);
+  window.addEventListener('online', () => {
+    updateOfflineStatus();
+    if(typeof retryPendingTrialActivation === 'function') {
+      retryPendingTrialActivation({silent:true});
+    }
+  });
   window.addEventListener('offline', updateOfflineStatus);
 
   // iOS Safari: show install instructions only in Safari, when not standalone and not dismissed.

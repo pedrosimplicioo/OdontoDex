@@ -3,6 +3,61 @@ let resendVerificationAvailableAt = 0;
 let resendVerificationTimer = null;
 let emailVerificationAutoCheckTimer = null;
 let emailVerificationAutoCheckBusy = false;
+const TRIAL_ACTIVATION_PENDING_KEY = "odontodex_trial_activation_pending_uid";
+let trialActivationRetryBusy = false;
+
+function isTrialActivationPending(){
+  const pendingUid = localStorage.getItem(TRIAL_ACTIVATION_PENDING_KEY);
+  return !!pendingUid && (!currentUser?.uid || pendingUid === currentUser.uid);
+}
+
+function syncTrialActivationPendingUI(){
+  const pending = isTrialActivationPending();
+  document.body?.classList.toggle("trial-activation-pending", pending);
+  document.getElementById("trial-activation-pending-banner")?.classList.toggle("show", pending);
+}
+
+function setTrialActivationPending(pending){
+  if(pending && currentUser?.uid) localStorage.setItem(TRIAL_ACTIVATION_PENDING_KEY, currentUser.uid);
+  else if(!pending) localStorage.removeItem(TRIAL_ACTIVATION_PENDING_KEY);
+  syncTrialActivationPendingUI();
+}
+
+async function retryPendingTrialActivation(options = {}){
+  if(trialActivationRetryBusy || !isTrialActivationPending() || !currentUser) return;
+  if(!navigator.onLine) {
+    if(options.silent !== true) showToast("Conecte-se à internet para finalizar seu Premium.", "error");
+    return;
+  }
+
+  trialActivationRetryBusy = true;
+  const button = document.getElementById("trial-activation-retry-btn");
+  if(button) {
+    button.disabled = true;
+    button.textContent = "Verificando…";
+  }
+
+  try {
+    const result = await activateTrialAfterEmailVerified({showSuccess:false});
+    if(!result?.ok) throw new Error("Ativação ainda pendente");
+    setTrialActivationPending(false);
+    updatePremiumUI();
+    if(typeof renderHome === "function") renderHome();
+    if(result.status === "activated" || result.status === "trial_active" || result.status === "paid_active") {
+      showToast("Premium liberado com sucesso!", "success");
+    }
+  } catch(e) {
+    console.error("Erro ao tentar finalizar Premium pendente:", e);
+    if(options.silent !== true) showToast("Ainda não foi possível finalizar. Tentaremos novamente.", "error");
+  } finally {
+    trialActivationRetryBusy = false;
+    if(button) {
+      button.disabled = false;
+      button.textContent = "Tentar novamente";
+    }
+    syncTrialActivationPendingUI();
+  }
+}
 
 function showLoginScreen(){
   document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
@@ -308,19 +363,22 @@ async function activateTrialAfterEmailVerified(options){
   if(response.ok && data.status === "activated"){
     window.userIsPremium=true;
     localStorage.setItem("userIsPremium","true");
+    setTrialActivationPending(false);
     window._trialRecemAtivado=true;
     localStorage.setItem("showTrialWelcomeOnce","1");
     if(showSuccess) showToast("Email verificado. Seus 7 dias de Premium foram liberados.","success");
     return {ok:true, status:data.status};
   }
-  if(response.ok && data.status === "paid_active"){
+  if(response.ok && (data.status === "paid_active" || data.status === "trial_active")){
     window.userIsPremium=true;
     localStorage.setItem("userIsPremium","true");
+    setTrialActivationPending(false);
     return {ok:true, status:data.status};
   }
   if(response.ok && (data.status === "user_trial_used" || data.status === "email_trial_used")){
     window.userIsPremium=false;
     localStorage.setItem("userIsPremium","false");
+    setTrialActivationPending(false);
     window._trialJaUtilizado=true;
     localStorage.setItem("showTrialUsedModalOnce","1");
     return {ok:true, status:data.status};
@@ -382,6 +440,7 @@ async function logoutForAnotherEmail(){
   await auth.signOut();
   currentUser=null;
   localStorage.removeItem("userIsPremium");
+  setTrialActivationPending(false);
   showLoginScreen();
 }
 
@@ -462,11 +521,102 @@ function showGoogleProfileCompletion(user){
   if(blocoTrat) blocoTrat.style.display = "none";
 
   gwValidarBotao();
+  setGoogleWelcomeStage("form");
 
   const googleWelcomeOverlay = document.getElementById("google-welcome-overlay");
   if(googleWelcomeOverlay) {
     googleWelcomeOverlay.style.display = "flex";
     requestAnimationFrame(() => googleWelcomeOverlay.classList.add("active"));
+  }
+}
+
+let googleWelcomeAccessBusy = false;
+
+function setGoogleWelcomeStage(stage, message){
+  const form = document.getElementById("google-welcome-form-content");
+  const progress = document.getElementById("google-welcome-progress");
+  const title = document.getElementById("gw-progress-title");
+  const messageEl = document.getElementById("gw-progress-message");
+  const isForm = stage === "form";
+
+  if(form) form.style.display = isForm ? "block" : "none";
+  if(progress) {
+    progress.style.display = isForm ? "none" : "flex";
+  }
+  if(title) title.textContent = "Cadastro concluído!";
+  if(messageEl) messageEl.textContent = message || "Preparando seu acesso ao OdontoDex…";
+}
+
+function closeGoogleWelcomeOverlay(){
+  const overlay = document.getElementById("google-welcome-overlay");
+  if(!overlay) return;
+  overlay.classList.remove("active");
+  setTimeout(() => {
+    overlay.style.display = "none";
+    setGoogleWelcomeStage("form");
+  }, 260);
+}
+
+async function finishGoogleWelcomeAccess(options = {}){
+  if(googleWelcomeAccessBusy || !currentUser) return;
+  googleWelcomeAccessBusy = true;
+  setGoogleWelcomeStage("preparing");
+
+  let activationPending = options.skipTrial === true;
+  try {
+    if(options.skipTrial !== true && currentUser.emailVerified) {
+      const activationAttempt = activateTrialAfterEmailVerified({showSuccess:false});
+      const activationOutcome = await Promise.race([
+        activationAttempt.then(result => ({result})).catch(error => ({error})),
+        new Promise(resolve => setTimeout(() => resolve({timedOut:true}), 4500))
+      ]);
+
+      if(activationOutcome.timedOut) {
+        activationPending = true;
+        setTrialActivationPending(true);
+        activationAttempt.then(result => {
+          if(!result?.ok) return;
+          setTrialActivationPending(false);
+          updatePremiumUI();
+          if(typeof renderHome === "function") renderHome();
+          if(result.status === "activated" || result.status === "trial_active" || result.status === "paid_active") {
+            showToast("Premium liberado com sucesso!", "success");
+          }
+        }).catch(error => {
+          console.error("Trial continuou pendente apos o cadastro:", error);
+        });
+      } else if(activationOutcome.error) {
+        activationPending = true;
+        console.error("Trial sera finalizado em segundo plano:", activationOutcome.error);
+      } else {
+        activationPending = !activationOutcome.result?.ok;
+      }
+    }
+    if(!isTrialActivationPending() || !activationPending) {
+      setTrialActivationPending(activationPending);
+    }
+
+    let appRevealed = false;
+    const revealApp = () => {
+      if(appRevealed) return;
+      appRevealed = true;
+      closeGoogleWelcomeOverlay();
+    };
+
+    await loadAuthenticatedUserAndShowApp(currentUser, {
+      skipTrialActivation:true,
+      skipUserReload:true,
+      onAppShown:revealApp
+    });
+    revealApp();
+  } catch(e) {
+    console.error("Erro ao abrir app apos cadastro Google:", e);
+    setTrialActivationPending(true);
+    showAppScreen();
+    closeGoogleWelcomeOverlay();
+  } finally {
+    googleWelcomeAccessBusy = false;
+    syncTrialActivationPendingUI();
   }
 }
 
@@ -651,10 +801,6 @@ async function gwConfirmar() {
         origemCadastro: 'google'
       });
     }
-    const savedProfile = await userRef.get();
-    if(!savedProfile.exists || !savedProfile.data()?.perfil) {
-      throw new Error("Perfil Google nao confirmado no Firestore");
-    }
     window.userIsPremium = false;
     localStorage.setItem('userIsPremium', 'false');
     localStorage.setItem('guiaNome', primeiroNome);
@@ -681,22 +827,12 @@ async function gwConfirmar() {
   hideLoading();
   clearAuthButtonProcessing(gwBtn);
   gwValidarBotao();
-  const googleWelcomeOverlay = document.getElementById('google-welcome-overlay');
-  if (googleWelcomeOverlay) {
-    googleWelcomeOverlay.classList.remove('active');
-    setTimeout(() => { googleWelcomeOverlay.style.display = 'none'; }, 260);
-  }
+  setGoogleWelcomeStage("preparing");
   // Evento Meta Pixel: CompleteRegistration após finalizar cadastro Google.
   if (metaGoogleRegistrationCompleted && typeof trackMetaCompleteRegistrationOnce === "function") {
     trackMetaCompleteRegistrationOnce(currentUser?.uid, "google");
   }
-  try {
-    if (currentUser?.emailVerified) await activateTrialAfterEmailVerified({showSuccess:true});
-  } catch(e) {
-    console.error("Erro ao liberar trial apos cadastro Google:", e);
-    showToast("Não foi possível liberar o trial agora. Tente novamente mais tarde.", "error");
-  }
-  await loadAuthenticatedUserAndShowApp(currentUser);
+  await finishGoogleWelcomeAccess();
 }
 function selectTratamento(t){
   selectedTratamento=t;
@@ -873,6 +1009,8 @@ async function logout(){
   showLoading();
   await auth.signOut();
   currentUser=null;
+  localStorage.removeItem("userIsPremium");
+  setTrialActivationPending(false);
   hideLoading();
   showToast("Logout realizado","success");
   showLoginScreen();

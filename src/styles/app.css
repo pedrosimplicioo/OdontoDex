@@ -1,5 +1,35 @@
 body.dark #google-welcome-overlay > div { --bg-modal: #1e293b; --bd-modal: #334155; }
 body:not(.dark) #google-welcome-overlay > div { --bg-modal: #ffffff; --bd-modal: #e2e8f0; }
+.google-welcome-progress{min-height:310px;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:18px 6px 8px;}
+.gw-progress-icon{width:64px;height:64px;border-radius:22px;background:rgba(124,63,160,.10);color:#7C3FA0;display:flex;align-items:center;justify-content:center;margin-bottom:18px;}
+.gw-progress-spinner{width:26px;height:26px;border:3px solid rgba(124,63,160,.22);border-top-color:#7C3FA0;border-radius:50%;animation:spin 760ms linear infinite;}
+.gw-progress-icon .ti{display:none;font-size:31px;line-height:1;}
+.gw-progress-title{font-size:20px;font-weight:800;color:var(--color-text-primary,#0F172A);margin:0 0 7px;}
+.gw-progress-message{max-width:265px;font-size:14px;line-height:1.55;color:var(--color-text-secondary,#64748B);margin:0;}
+body.dark .gw-progress-icon{background:rgba(176,127,212,.16);color:#D8B4FE;}
+body.dark .gw-progress-spinner{border-color:rgba(216,180,254,.22);border-top-color:#D8B4FE;}
+.trial-activation-pending-banner{display:none;align-items:center;gap:12px;background:linear-gradient(135deg,#F5EEFB,#FBF8FE);border:1px solid rgba(124,63,160,.18);border-radius:18px;padding:13px 14px;box-shadow:0 8px 22px rgba(69,35,91,.08);}
+.trial-activation-pending-banner.show{display:flex;}
+.trial-pending-spinner{width:22px;height:22px;flex:0 0 auto;border:2.5px solid rgba(124,63,160,.22);border-top-color:#7C3FA0;border-radius:50%;animation:spin 760ms linear infinite;}
+.trial-pending-copy{min-width:0;flex:1;display:flex;flex-direction:column;gap:2px;}
+.trial-pending-copy strong{font-size:13px;color:#5B2C78;line-height:1.25;}
+.trial-pending-copy span{font-size:11.5px;color:#6B7280;line-height:1.35;}
+.trial-activation-pending-banner button{flex:0 0 auto;color:#7C3FA0;background:#fff;border:1px solid rgba(124,63,160,.22);border-radius:12px;padding:8px 9px;font-size:11px;font-weight:800;}
+.trial-activation-pending-banner button:disabled{opacity:.62;cursor:wait;}
+body.dark .trial-activation-pending-banner{background:linear-gradient(135deg,#251A31,#21192B);border-color:rgba(216,180,254,.18);box-shadow:0 10px 24px rgba(0,0,0,.20);}
+body.dark .trial-pending-copy strong{color:#E9D5FF;}
+body.dark .trial-pending-copy span{color:#AAB4C3;}
+body.dark .trial-activation-pending-banner button{background:#31223E;color:#D8B4FE;border-color:rgba(216,180,254,.22);}
+body.trial-activation-pending .prem-tag{font-size:0;}
+body.trial-activation-pending .prem-tag::after{content:'Liberando…';font-size:10px;}
+body.trial-activation-pending .cat-crown .ti,
+body.trial-activation-pending .sos-crown .ti,
+body.trial-activation-pending .home-tool-lock .ti,
+body.trial-activation-pending .patient-special-lock .ti{display:none;}
+body.trial-activation-pending .cat-crown::after,
+body.trial-activation-pending .sos-crown::after,
+body.trial-activation-pending .home-tool-lock::after,
+body.trial-activation-pending .patient-special-lock::after{content:'…';color:#7C3FA0;font-weight:900;}
 :root{--safe-top:env(safe-area-inset-top,0px);--safe-right:env(safe-area-inset-right,0px);--safe-bottom:env(safe-area-inset-bottom,0px);--safe-left:env(safe-area-inset-left,0px);--app-height:100vh;--app-height:100dvh;--card-bg:#fff;--card-subtle:#F8FAFC;--card-border:#E2E8F0;--card-radius:18px;--module-radius:20px;--control-radius:16px;--card-shadow:0 2px 8px rgba(15,23,42,0.04);--motion-ease-out:cubic-bezier(.22,1,.36,1);--motion-ease-press:cubic-bezier(.2,.8,.2,1);--motion-fast:140ms;--motion-med:260ms;--motion-screen:320ms;}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 html{min-height:100%;background:#F1F5F9;}

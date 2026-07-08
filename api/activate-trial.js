@@ -60,6 +60,11 @@ module.exports = async (req, res) => {
       const userData = userDoc.data() || {};
       const alreadyTrial = userData.trialAtivado === true || userData.premiumOrigem === "trial";
       const paidActive = hasActivePaidPremium(userData);
+      const trialExpiresAt = toDate(userData.premiumExpira);
+      const trialActive = userData.premium === true
+        && userData.premiumOrigem === "trial"
+        && trialExpiresAt
+        && trialExpiresAt > new Date();
 
       if (paidActive) {
         transaction.update(userRef, {
@@ -68,6 +73,18 @@ module.exports = async (req, res) => {
           emailVerificadoEm: admin.firestore.FieldValue.serverTimestamp(),
         });
         return { status: "paid_active" };
+      }
+
+      // Se a resposta da primeira ativacao se perdeu, repetir a chamada nao pode
+      // transformar um trial ainda ativo em "trial ja utilizado" no cliente.
+      if (trialActive) {
+        transaction.update(userRef, {
+          trialAtivado: true,
+          emailNormalizado: email,
+          emailVerificado: true,
+          emailVerificadoEm: admin.firestore.FieldValue.serverTimestamp(),
+        });
+        return { status: "trial_active", premiumExpira: trialExpiresAt.toISOString() };
       }
 
       if (alreadyTrial) {

@@ -40,10 +40,30 @@ async function loadAuthenticatedUserAndShowApp(user, options = {}) {
   }
 
   currentUser = user;
+  let appShownCallbackCalled = false;
+  const notifyAppShown = () => {
+    if(appShownCallbackCalled) return;
+    appShownCallbackCalled = true;
+    if(typeof options.onAppShown === "function") options.onAppShown();
+  };
   const em = document.getElementById("user-email-display");
   if(em) em.textContent = user.email;
 
-  try { await user.reload(); } catch(e) { console.log(e); }
+  // Em retornos ao app, mostra imediatamente a interface e sincroniza a conta depois.
+  // O perfil local so existe depois de um primeiro acesso autenticado completo.
+  let appAlreadyShown = false;
+  const hasCachedProfile = Boolean(localStorage.getItem('guiaPerfil'));
+  if(user.emailVerified && hasCachedProfile && !isEmailVerificationReturnPath()) {
+    window.userIsPremium = localStorage.getItem('userIsPremium') === 'true';
+    updatePremiumUI();
+    showAppScreen();
+    notifyAppShown();
+    appAlreadyShown = true;
+  }
+
+  if(options.skipUserReload !== true) {
+    try { await user.reload(); } catch(e) { console.log(e); }
+  }
 
   if(!auth.currentUser?.emailVerified) {
     window.userIsPremium = false;
@@ -52,8 +72,11 @@ async function loadAuthenticatedUserAndShowApp(user, options = {}) {
     return;
   }
 
-  try { await registrarAcessoUsuario(user.uid); } catch(e) { console.log(e); }
-  try { await vincularSessionIdUsuario(user.uid); } catch(e) { console.log(e); }
+  // Telemetria nao deve segurar a abertura da tela principal.
+  Promise.allSettled([
+    registrarAcessoUsuario(user.uid),
+    vincularSessionIdUsuario(user.uid)
+  ]).catch(()=>{});
 
   try {
     let doc = await db.collection("users").doc(user.uid).get();
@@ -81,6 +104,9 @@ async function loadAuthenticatedUserAndShowApp(user, options = {}) {
       }
     }
 
+    if((userData.trialAtivado === true || userData.premium === true) && typeof setTrialActivationPending === "function") {
+      setTrialActivationPending(false);
+    }
     applyPremiumStateFromUserData(userData);
 
     if(doc.exists && doc.data().mensagemPendente === 'trial_manual') {
@@ -99,7 +125,15 @@ async function loadAuthenticatedUserAndShowApp(user, options = {}) {
   }
 
   updatePremiumUI();
-  showAppScreen();
+  if(!appAlreadyShown) {
+    showAppScreen();
+    notifyAppShown();
+  } else if(window._premiumExpirou) {
+    // Na abertura rapida, a Home ja foi exibida antes da resposta do servidor.
+    // Preserva o fluxo existente: explica a mudanca em vez de apenas bloquear a UI.
+    window._premiumExpirou = false;
+    setTimeout(() => mostrarModalExpirado(), 800);
+  }
 }
 
 document.addEventListener("DOMContentLoaded", () => {
