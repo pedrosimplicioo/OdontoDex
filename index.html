@@ -12,10 +12,11 @@
 <link rel="apple-touch-icon" href="logo192.png">
 <title>OdontoDex</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css">
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
-  <link rel="stylesheet" href="src/styles/app.css?v=20260630-auto-payment-restore">
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js" defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js" defer></script>
+  <link rel="stylesheet" href="src/styles/app.css?v=20260702-google-onboarding">
 </head>
 <body>
 <!-- AVISO IN-APP BROWSER -->
@@ -43,8 +44,9 @@
 <div class="loading-overlay" id="loading-overlay"><div class="spinner"></div></div>
 
 <!-- LOADING INICIAL -->
-<div id="initial-loading" style="position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:9999;min-height:100vh;">
-  <div class="spinner" style="border-color:#7C3FA0;border-top-color:transparent;"></div>
+<div id="initial-loading" style="position:fixed;inset:0;background:#0F0A1A;display:flex;flex-direction:column;gap:18px;align-items:center;justify-content:center;z-index:9999;min-height:100vh;">
+  <img src="logo192.png" alt="OdontoDex" width="88" height="88" style="border-radius:22px;box-shadow:0 14px 38px rgba(0,0,0,.28);">
+  <div class="spinner" style="width:24px;height:24px;border-color:rgba(255,255,255,.22);border-top-color:#B07FD4;"></div>
 </div>
   
 <!-- LOGIN -->
@@ -143,7 +145,8 @@
 </div>
 <!-- MODAL BOAS-VINDAS GOOGLE -->
 <div id="google-welcome-overlay" class="overlay" style="display:none;z-index:9999;">
-  <div style="border-radius:16px;padding:24px 20px 20px;width:calc(100% - 48px);max-width:340px;background:var(--bg-modal, #ffffff);border:0.5px solid var(--bd-modal, #e2e8f0);">
+  <div id="google-welcome-card" style="border-radius:16px;padding:24px 20px 20px;width:calc(100% - 48px);max-width:340px;background:var(--bg-modal, #ffffff);border:0.5px solid var(--bd-modal, #e2e8f0);">
+    <div id="google-welcome-form-content">
     <div class="modal-icon-purple"><i class="ti ti-dental"></i></div>
     <p style="font-size:17px;font-weight:500;text-align:center;margin:0 0 4px;color:var(--color-text-primary);">Bem-vindo ao OdontoDex!</p>
     <p style="font-size:13px;text-align:center;margin:0 0 20px;color:var(--color-text-secondary);">Confirme suas informações para personalizar o app</p>
@@ -168,6 +171,15 @@
     </label>
     <div id="gw-error" class="error-message" style="margin-bottom:10px;"></div>
     <button id="gw-btn-confirmar" onclick="gwConfirmar()" disabled style="width:100%;padding:13px;background:#cbd5e1;color:#fff;border:none;border-radius:8px;font-size:15px;font-weight:500;cursor:not-allowed;">Começar a usar o OdontoDex</button>
+    </div>
+    <div id="google-welcome-progress" class="google-welcome-progress" style="display:none;" role="status" aria-live="polite">
+      <div id="gw-progress-icon" class="gw-progress-icon">
+        <span class="gw-progress-spinner" aria-hidden="true"></span>
+        <i class="ti ti-alert-circle" aria-hidden="true"></i>
+      </div>
+      <p id="gw-progress-title" class="gw-progress-title">Cadastro concluído!</p>
+      <p id="gw-progress-message" class="gw-progress-message">Preparando seu acesso ao OdontoDex…</p>
+    </div>
   </div>
 </div>
 <!-- PWA INSTALL BANNER (Android/Chrome) -->
@@ -256,6 +268,14 @@
     </div>
   </div>
   <div class="body" id="home-body">
+    <div id="trial-activation-pending-banner" class="trial-activation-pending-banner" role="status" aria-live="polite">
+      <div class="trial-pending-spinner" aria-hidden="true"></div>
+      <div class="trial-pending-copy">
+        <strong>Finalizando seu Premium</strong>
+        <span>Seu cadastro está pronto. Estamos liberando seus 7 dias de acesso.</span>
+      </div>
+      <button id="trial-activation-retry-btn" type="button" onclick="retryPendingTrialActivation()">Tentar novamente</button>
+    </div>
     <div class="quick-card">
       <div class="quick-title"><span class="home-title-icon home-icon-red"><i class="ti ti-first-aid-kit"></i></span><span>S.O.S. CLÍNICO</span></div>
       <div class="quick-buttons-wrap">
@@ -894,7 +914,7 @@
 <script src="src/utils/dom.js?v=20260630-payment-restore" defer></script>
 <script src="src/scripts/navigation.js?v=20260620-guided-empty-copy" defer></script>
 <script src="src/components/widgets.js?v=20260620-widget-collapse-match" defer></script>
-<script src="src/components/render.js?v=20260621-next-step-question-focus" defer></script>
+<script src="src/components/render.js?v=20260702-trial-pending" defer></script>
 <script src="src/scripts/usage-analytics.js" defer></script>
 <script src="src/components/protocols.js?v=20260620-home-hierarchy" defer></script>
 <script src="src/data/search-intents.js?v=20260621-clinical-search-mode" defer></script>
@@ -902,9 +922,9 @@
 <script src="src/scripts/search.js?v=20260623-search-close-slower" defer></script>
 <script src="src/components/pulpite.js?v=20260619-clinical-expand" defer></script>
 <script src="src/components/crisis.js" defer></script>
-<script src="src/scripts/auth.js?v=20260624-firestore-direct-profile" defer></script>
-<script src="src/scripts/pwa.js?v=20260620-modal-close-motion" defer></script>
-<script src="src/scripts/app-init.js?v=20260624-google-profile-required" defer></script>
+<script src="src/scripts/auth.js?v=20260702-google-onboarding" defer></script>
+<script src="src/scripts/pwa.js?v=20260702-trial-pending" defer></script>
+<script src="src/scripts/app-init.js?v=20260702-google-onboarding" defer></script>
 <script src="src/scripts/premium.js" defer></script>
 <script src="src/components/student-banner.js" defer></script>
 <script src="src/scripts/payments.js?v=20260630-auto-payment-restore" defer></script>

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'odontodex-v86-auto-payment-restore';
+const CACHE_NAME = 'odontodex-v87-instant-launch';
 
 const CORE_FILES = [
   '/',
@@ -33,19 +33,14 @@ const CORE_FILES = [
   '/src/utils/storage.js'
 ];
 
-const OPTIONAL_EXTERNAL_FILES = [
-  'https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js',
-  'https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js',
-  'https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js',
-  'https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@3.31.0/dist/tabler-icons.min.css'
-];
-
 // Cacheia a casca principal e os arquivos locais necessários para consulta offline.
 self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then(cache => {
-      return cache.addAll(CORE_FILES).then(() =>
-        Promise.allSettled(OPTIONAL_EXTERNAL_FILES.map(url => cache.add(url)))
+    caches.open(CACHE_NAME).then(async cache => {
+      // A tela inicial precisa existir para o app poder abrir instantaneamente.
+      await cache.add('/index.html');
+      await Promise.allSettled(
+        CORE_FILES.filter(url => url !== '/index.html').map(url => cache.add(url))
       );
     })
   );
@@ -77,34 +72,45 @@ function shouldStoreResponse(response) {
   return response && response.ok && (response.type === 'basic' || response.type === 'cors');
 }
 
-// Rede primeiro; cache apenas para assets/navegacao seguros.
+async function updateCache(request, cacheKey = request) {
+  const response = await fetch(request);
+  if (shouldStoreResponse(response)) {
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(cacheKey, response.clone());
+  }
+  return response;
+}
+
+async function cachedFirst(request, fallbackKey) {
+  const cached = await caches.match(request) ||
+    await caches.match(request, { ignoreSearch: true }) ||
+    (fallbackKey ? await caches.match(fallbackKey) : null);
+  return cached || updateCache(request, fallbackKey || request);
+}
+
+function isStaticAsset(request) {
+  return ['style', 'script', 'image', 'font', 'manifest'].includes(request.destination);
+}
+
+// Abertura local primeiro; a versao mais nova e buscada silenciosamente depois.
 self.addEventListener('fetch', event => {
   if (shouldBypassCache(event.request)) return;
 
   if (event.request.mode === 'navigate') {
+    const refresh = updateCache(event.request, '/index.html').catch(() => null);
+    event.waitUntil(refresh);
     event.respondWith(
-      fetch(event.request)
-        .then(response => {
-          if (shouldStoreResponse(response)) {
-            const clone = response.clone();
-            caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-          }
-          return response;
-        })
-        .catch(() => caches.match('/index.html'))
+      cachedFirst('/index.html')
     );
     return;
   }
 
-  event.respondWith(
-    fetch(event.request)
-      .then(response => {
-        if (shouldStoreResponse(response)) {
-          const clone = response.clone();
-          caches.open(CACHE_NAME).then(cache => cache.put(event.request, clone));
-        }
-        return response;
-      })
-      .catch(() => caches.match(event.request, { ignoreSearch: true }))
-  );
+  if (isStaticAsset(event.request)) {
+    const refresh = updateCache(event.request).catch(() => null);
+    event.waitUntil(refresh);
+    event.respondWith(cachedFirst(event.request));
+    return;
+  }
+
+  event.respondWith(updateCache(event.request).catch(() => caches.match(event.request, { ignoreSearch: true })));
 });

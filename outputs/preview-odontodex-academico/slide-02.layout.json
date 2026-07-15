@@ -1,0 +1,700 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/6d96dh",
+    "id": "6d96dh",
+    "slide": 2,
+    "layoutId": "db566f9d-3a67-4728-9994-f2fe20c86090",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "3d452f29-77c3-4dfb-b1d4-c5be05c0fc4a",
+    "masterLayoutName": "Master",
+    "backgroundColor": "#F3F7FB",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "ChatGPT",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#E97132",
+      "accent3": "#196B24",
+      "accent4": "#0F9ED5",
+      "accent5": "#A02B93",
+      "accent6": "#4EA72E",
+      "bg1": "#FFFFFF",
+      "bg2": "#000000",
+      "tx1": "#1F1F1F",
+      "tx2": "#FFFFFF",
+      "dk1": "#000000",
+      "lt1": "#FFFFFF",
+      "dk2": "#0E2841",
+      "lt2": "#E8E8E8",
+      "hlink": "#467886",
+      "folHlink": "#96607D"
+    },
+    "typefaces": [
+      "+mn-lt"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "db566f9d-3a67-4728-9994-f2fe20c86090",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "3d452f29-77c3-4dfb-b1d4-c5be05c0fc4a",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "3d452f29-77c3-4dfb-b1d4-c5be05c0fc4a",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/tcj6tova",
+      "id": "1",
+      "bbox": [
+        84,
+        50,
+        540,
+        24
+      ],
+      "geometry": "rect",
+      "text": "O PROBLEMA",
+      "textPreview": "O PROBLEMA",
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "#7C3FA0",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "O PROBLEMA"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "O PROBLEMA",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "#7C3FA0",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "O PROBLEMA",
+              "fontSize": 12,
+              "color": "#7C3FA0",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/il0rqd4v",
+      "id": "2",
+      "bbox": [
+        84,
+        82,
+        900,
+        100
+      ],
+      "geometry": "rect",
+      "text": "A teoria nem sempre vira decisão clínica com facilidade",
+      "textPreview": "A teoria nem sempre vira decisão clínica com facilidade",
+      "resolvedFontSize": 38,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 38,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "A teoria nem sempre vira decisão clínica com facilidade"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "A teoria nem sempre vira decisão clínica com facilidade",
+          "resolvedTextStyle": {
+            "fontSize": 38,
+            "color": "#0F172A",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "A teoria nem sempre vira decisão clínica com facilidade",
+              "fontSize": 38,
+              "color": "#0F172A",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 3,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/m94fu18j",
+      "id": "3",
+      "bbox": [
+        1164,
+        42,
+        32,
+        32
+      ],
+      "alt": "Logo OdontoDex",
+      "contentType": "image/png",
+      "imageFit": "contain",
+      "asset": {
+        "assetId": "53dcf154-7cda-410e-a827-ed24b6e2bdba",
+        "contentType": "image/png",
+        "byteLength": 23811
+      }
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/0je9cvix",
+      "id": "4",
+      "bbox": [
+        88,
+        204,
+        650,
+        128
+      ],
+      "geometry": "rect",
+      "text": "Na clínica-escola, o aluno conhece conceitos importantes, mas pode travar quando precisa transformar teoria em uma conduta inicial segura.",
+      "textPreview": "Na clínica-escola, o aluno conhece conceitos importantes, mas pode travar quando precisa transformar teoria em uma conduta inicial segura.",
+      "resolvedFontSize": 27,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 27,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Na clínica-escola, o aluno conhece conceitos"
+          },
+          {
+            "index": 2,
+            "text": "importantes, mas pode travar quando precisa"
+          },
+          {
+            "index": 3,
+            "text": "transformar teoria em uma conduta inicial segura."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Na clínica-escola, o aluno conhece conceitos importantes, mas pode travar quando precisa transformar teoria em uma conduta inicial segura.",
+          "resolvedTextStyle": {
+            "fontSize": 27,
+            "color": "#0F172A",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Na clínica-escola, o aluno conhece conceitos importantes, mas pode travar quando precisa transformar teoria em uma conduta inicial segura.",
+              "fontSize": 27,
+              "color": "#0F172A",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/t47y1kre",
+      "id": "5",
+      "bbox": [
+        812,
+        174,
+        310,
+        292
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#FFFFFF",
+      "lineColor": "#E2E8F0",
+      "lineWidth": 1
+    },
+    {
+      "order": 6,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/fil0rqd4",
+      "id": "6",
+      "bbox": [
+        932,
+        214,
+        44,
+        44
+      ],
+      "alt": "Brain icon",
+      "contentType": "image/svg+xml",
+      "imageFit": "contain",
+      "asset": {
+        "assetId": "65843c38-47e6-4d74-bcf1-c420d902d0b0",
+        "contentType": "image/svg+xml",
+        "byteLength": 545
+      }
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/byhgn29g",
+      "id": "7",
+      "bbox": [
+        854,
+        286,
+        226,
+        32
+      ],
+      "geometry": "rect",
+      "text": "Momento crítico",
+      "textPreview": "Momento crítico",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 24,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "bold": true,
+        "alignment": "center",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Momento crítico"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Momento crítico",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#0F172A",
+            "bold": true,
+            "alignment": "center"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Momento crítico",
+              "fontSize": 24,
+              "color": "#0F172A",
+              "bold": true,
+              "alignment": "center"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 8,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/0fepkzup",
+      "id": "8",
+      "bbox": [
+        852,
+        336,
+        230,
+        88
+      ],
+      "geometry": "rect",
+      "text": "A dúvida aparece entre o paciente, a ficha clínica e a necessidade de discutir bem com o professor.",
+      "textPreview": "A dúvida aparece entre o paciente, a ficha clínica e a necessidade de discutir bem com o professor.",
+      "resolvedFontSize": 18,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 18,
+        "typeface": "+mn-lt",
+        "color": "#64748B",
+        "alignment": "center",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 4,
+        "lines": [
+          {
+            "index": 1,
+            "text": "A dúvida aparece entre o"
+          },
+          {
+            "index": 2,
+            "text": "paciente, a ficha clínica e a"
+          },
+          {
+            "index": 3,
+            "text": "necessidade de discutir bem"
+          },
+          {
+            "index": 4,
+            "text": "com o professor."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "A dúvida aparece entre o paciente, a ficha clínica e a necessidade de discutir bem com o professor.",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "#64748B",
+            "alignment": "center"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "A dúvida aparece entre o paciente, a ficha clínica e a necessidade de discutir bem com o professor.",
+              "fontSize": 18,
+              "color": "#64748B",
+              "alignment": "center"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 9,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/p0bi9s36",
+      "id": "9",
+      "bbox": [
+        92,
+        396,
+        8,
+        8
+      ],
+      "geometry": "ellipse",
+      "fillColor": "#7C3FA0",
+      "lineColor": "rgba(0, 0, 0, 0)",
+      "lineWidth": 0
+    },
+    {
+      "order": 10,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/x0nuxc3y",
+      "id": "10",
+      "bbox": [
+        116,
+        386,
+        590,
+        54
+      ],
+      "geometry": "rect",
+      "text": "O problema não é falta de estudo.",
+      "textPreview": "O problema não é falta de estudo.",
+      "resolvedFontSize": 22,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 22,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "O problema não é falta de estudo."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "O problema não é falta de estudo.",
+          "resolvedTextStyle": {
+            "fontSize": 22,
+            "color": "#0F172A",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "O problema não é falta de estudo.",
+              "fontSize": 22,
+              "color": "#0F172A",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 11,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/4fu18jqh",
+      "id": "11",
+      "bbox": [
+        92,
+        458,
+        8,
+        8
+      ],
+      "geometry": "ellipse",
+      "fillColor": "#7C3FA0",
+      "lineColor": "rgba(0, 0, 0, 0)",
+      "lineWidth": 0
+    },
+    {
+      "order": 12,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/fu18jqh0",
+      "id": "12",
+      "bbox": [
+        116,
+        448,
+        650,
+        54
+      ],
+      "geometry": "rect",
+      "text": "É a dificuldade de acessar a conduta certa no momento certo.",
+      "textPreview": "É a dificuldade de acessar a conduta certa no momento certo.",
+      "resolvedFontSize": 22,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 22,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "É a dificuldade de acessar a conduta certa no momento certo."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "É a dificuldade de acessar a conduta certa no momento certo.",
+          "resolvedTextStyle": {
+            "fontSize": 22,
+            "color": "#0F172A",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "É a dificuldade de acessar a conduta certa no momento certo.",
+              "fontSize": 22,
+              "color": "#0F172A",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 13,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/m94fu18j",
+      "id": "13",
+      "bbox": [
+        84,
+        660,
+        70,
+        3
+      ],
+      "geometry": "rect",
+      "fillColor": "#7C3FA0",
+      "lineColor": "rgba(0, 0, 0, 0)",
+      "lineWidth": 0
+    },
+    {
+      "order": 14,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/xobm58z2",
+      "id": "14",
+      "bbox": [
+        170,
+        650,
+        680,
+        28
+      ],
+      "geometry": "rect",
+      "text": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal",
+      "textPreview": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal",
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "#64748B",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "#64748B",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal",
+              "fontSize": 12,
+              "color": "#64748B",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    }
+  ],
+  "composeRuns": []
+}

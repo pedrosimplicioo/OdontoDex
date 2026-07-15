@@ -361,6 +361,7 @@ function renderQuickConduct(id){
 function renderHome(){
   clearHomeSearch({preserveValue:true});
   if(!DATA) return;
+  if(typeof syncTrialActivationPendingUI === "function") syncTrialActivationPendingUI();
   
   // NOVO: Registrar que o usuário está ativo (para métricas de retenção)
   if(currentUser && !sessionStorage.getItem('home_rendered')) {
@@ -594,6 +595,11 @@ function renderSOSButtons(){
 }
 
 function showUpgradeModal(catId){
+  if(typeof isTrialActivationPending === "function" && isTrialActivationPending()) {
+    if(typeof syncTrialActivationPendingUI === "function") syncTrialActivationPendingUI();
+    showToast("Estamos finalizando seus 7 dias de Premium.", "success");
+    return;
+  }
   const titleEl = document.getElementById('premium-modal-title');
   const subEl = document.getElementById('premium-modal-sub');
   const sitsEl = document.getElementById('premium-modal-sits');
