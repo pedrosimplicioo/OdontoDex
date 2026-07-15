@@ -1,0 +1,1077 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#0F0A1A">
+  <meta name="description" content="OdontoDex Acadêmico: camada digital de apoio clínico para piloto supervisionado em clínica-escola.">
+  <title>OdontoDex Acadêmico | Apoio para Clínica-Escola</title>
+  <link rel="icon" href="./logo192.png" sizes="192x192">
+  <style>
+    :root {
+      --night: #0F0A1A;
+      --night-2: #171021;
+      --panel: #21152C;
+      --purple: #7C3FA0;
+      --purple-2: #9B4DC8;
+      --purple-soft: #F5EEFB;
+      --gold: #FBBF24;
+      --red: #DC2626;
+      --green: #16A34A;
+      --bg: #F3F7FB;
+      --surface: #FFFFFF;
+      --ink: #0F172A;
+      --muted: #64748B;
+      --line: #DDE6F1;
+      --shadow: 0 22px 60px rgba(15, 23, 42, .12);
+      --font: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      color: var(--ink);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+      overflow-x: hidden;
+    }
+    body::before {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 760px;
+      z-index: -1;
+      background:
+        radial-gradient(circle at 70% 12%, rgba(124, 63, 160, .25), transparent 34%),
+        linear-gradient(180deg, #12091d 0%, #241031 58%, var(--bg) 100%);
+    }
+    a { color: inherit; text-decoration: none; }
+    img, video { max-width: 100%; display: block; }
+    .container { width: min(1120px, calc(100% - 40px)); margin: 0 auto; }
+
+    .site-header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(15, 10, 26, .82);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid rgba(255, 255, 255, .08);
+    }
+    .header-inner {
+      min-height: 72px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      color: #fff;
+      font-weight: 850;
+      letter-spacing: -.03em;
+    }
+    .brand img {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      background: rgba(255, 255, 255, .08);
+    }
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 22px;
+      color: rgba(255, 255, 255, .68);
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .nav-links a:hover { color: #fff; }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      min-height: 48px;
+      padding: 0 20px;
+      border-radius: 14px;
+      border: 1px solid transparent;
+      font-size: 14px;
+      font-weight: 850;
+      transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+      white-space: nowrap;
+    }
+    .button:hover { transform: translateY(-2px); }
+    .button-primary {
+      color: #fff;
+      background: linear-gradient(135deg, var(--purple), var(--purple-2));
+      box-shadow: 0 16px 38px rgba(124, 63, 160, .32);
+    }
+    .button-light {
+      color: #fff;
+      border-color: rgba(255, 255, 255, .16);
+      background: rgba(255, 255, 255, .08);
+    }
+    .button-ghost {
+      color: var(--purple);
+      background: #fff;
+      border-color: var(--line);
+    }
+
+    .hero {
+      padding: 86px 0 82px;
+      color: #fff;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(320px, .95fr);
+      gap: 54px;
+      align-items: center;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .12);
+      color: #D8B4FE;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 4px rgba(22, 163, 74, .18);
+    }
+    h1 {
+      margin: 24px 0 0;
+      font-size: clamp(42px, 6.3vw, 72px);
+      line-height: 1.02;
+      letter-spacing: -.07em;
+      max-width: 760px;
+    }
+    .hero-copy {
+      margin: 24px 0 0;
+      max-width: 650px;
+      color: rgba(255, 255, 255, .72);
+      font-size: 19px;
+      line-height: 1.7;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 32px;
+    }
+    .trust-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 30px;
+    }
+    .trust-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border-radius: 999px;
+      color: rgba(255, 255, 255, .78);
+      background: rgba(255, 255, 255, .07);
+      border: 1px solid rgba(255, 255, 255, .09);
+      font-size: 12px;
+      font-weight: 750;
+    }
+    .trust-pill span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+    }
+
+    .phone-stage {
+      position: relative;
+      min-height: 600px;
+      display: grid;
+      place-items: center;
+    }
+    .phone-glow {
+      position: absolute;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: rgba(124, 63, 160, .34);
+      filter: blur(76px);
+    }
+    .phone-frame {
+      position: relative;
+      z-index: 1;
+      width: min(340px, 78vw);
+      padding: 10px;
+      border-radius: 42px;
+      background: linear-gradient(145deg, #5b5661, #0d0b11 30%, #2a2630);
+      box-shadow: 0 42px 90px rgba(0, 0, 0, .34), inset 0 0 0 1px rgba(255, 255, 255, .2);
+      transform: rotate(2deg);
+    }
+    .phone-screen {
+      overflow: hidden;
+      border-radius: 34px;
+      background: #fff;
+      border: 1px solid rgba(255, 255, 255, .18);
+      aspect-ratio: 440 / 606;
+    }
+    .phone-screen img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      object-position: top center;
+      background: #fff;
+    }
+    .floating-card {
+      position: absolute;
+      z-index: 2;
+      right: 10px;
+      bottom: 82px;
+      width: 230px;
+      padding: 18px;
+      border-radius: 18px;
+      background: rgba(255, 255, 255, .92);
+      box-shadow: var(--shadow);
+      color: var(--ink);
+    }
+    .floating-card strong { display: block; color: var(--purple); font-size: 14px; }
+    .floating-card p { margin: 6px 0 0; color: var(--muted); font-size: 12px; line-height: 1.45; }
+
+    section { padding: 112px 0; }
+    .section-kicker {
+      margin: 0 0 14px;
+      color: var(--purple);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .section-title {
+      margin: 0;
+      color: #080D1A;
+      font-size: clamp(32px, 4.8vw, 54px);
+      line-height: 1.1;
+      letter-spacing: -.055em;
+      text-wrap: balance;
+    }
+    .section-copy {
+      margin: 18px 0 0;
+      max-width: 690px;
+      color: var(--muted);
+      font-size: 17px;
+      line-height: 1.75;
+    }
+    .white-band { background: #fff; border-block: 1px solid rgba(15, 23, 42, .06); }
+
+    .pain-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+      margin-top: 42px;
+    }
+    .card {
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 34px rgba(15, 23, 42, .06);
+      padding: 26px;
+    }
+    .icon-box {
+      width: 46px;
+      height: 46px;
+      border-radius: 14px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 18px;
+      background: var(--purple-soft);
+      color: var(--purple);
+      font-weight: 950;
+      font-size: 21px;
+    }
+    .card h3 { margin: 0; font-size: 20px; letter-spacing: -.03em; }
+    .card p { margin: 10px 0 0; color: var(--muted); line-height: 1.65; font-size: 14px; }
+
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 10px;
+      margin-top: 44px;
+      align-items: stretch;
+    }
+    .flow-step {
+      position: relative;
+      padding: 22px 16px;
+      min-height: 138px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      text-align: center;
+      box-shadow: 0 12px 34px rgba(15, 23, 42, .05);
+    }
+    .flow-step:not(:last-child)::after {
+      content: ">";
+      position: absolute;
+      right: -13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--purple);
+      font-size: 22px;
+      font-weight: 950;
+      z-index: 2;
+    }
+    .flow-icon {
+      display: grid;
+      place-items: center;
+      width: 42px;
+      height: 42px;
+      margin: 0 auto 14px;
+      border-radius: 14px;
+      background: var(--purple-soft);
+      color: var(--purple);
+      font-weight: 950;
+    }
+    .flow-step strong {
+      display: block;
+      font-size: 14px;
+      line-height: 1.35;
+    }
+    .flow-note {
+      margin: 30px auto 0;
+      width: fit-content;
+      padding: 12px 16px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--night);
+      font-size: 13px;
+      font-weight: 800;
+    }
+
+    .split {
+      display: grid;
+      grid-template-columns: .95fr 1.05fr;
+      gap: 54px;
+      align-items: center;
+    }
+    .feature-list {
+      display: grid;
+      gap: 14px;
+      margin-top: 30px;
+    }
+    .feature-item {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 14px;
+      padding: 18px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+    .feature-item b { display: block; margin-bottom: 4px; }
+    .feature-item p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; }
+
+    .app-panel {
+      position: relative;
+      border-radius: 18px;
+      padding: 24px;
+      background: var(--night);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+    .app-panel::before {
+      content: "";
+      position: absolute;
+      inset: -70px -90px auto auto;
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      background: rgba(124, 63, 160, .35);
+      filter: blur(44px);
+    }
+    .video-shell {
+      position: relative;
+      overflow: hidden;
+      width: min(330px, 100%);
+      margin: 0 auto;
+      border-radius: 46px;
+      background: linear-gradient(145deg, #5b5661, #0d0b11 30%, #2a2630);
+      border: 1px solid rgba(255, 255, 255, .22);
+      box-shadow: 0 34px 80px rgba(0, 0, 0, .34), inset 0 0 0 1px rgba(255, 255, 255, .12);
+      display: grid;
+      place-items: center;
+      padding: 12px;
+    }
+    .video-shell::before {
+      content: "";
+      position: absolute;
+      z-index: 2;
+      top: 18px;
+      left: 50%;
+      width: 96px;
+      height: 26px;
+      border-radius: 999px;
+      background: #0a0710;
+      transform: translateX(-50%);
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .08);
+    }
+    .video-shell video,
+    .video-shell img {
+      width: 100%;
+      height: auto;
+      aspect-ratio: 440 / 606;
+      object-fit: contain;
+      object-position: top center;
+      background: #fff;
+      border-radius: 36px;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, .12);
+    }
+
+    .comparison-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 42px;
+    }
+    .compare-panel {
+      padding: 30px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 34px rgba(15, 23, 42, .05);
+    }
+    .compare-panel.highlight {
+      color: #fff;
+      background: linear-gradient(145deg, var(--night), #35184B);
+      border-color: transparent;
+    }
+    .compare-panel h3 {
+      margin: 0 0 20px;
+      font-size: 22px;
+      letter-spacing: -.03em;
+    }
+    .compare-list {
+      list-style: none;
+      display: grid;
+      gap: 14px;
+      margin: 0;
+      padding: 0;
+      color: var(--muted);
+      line-height: 1.55;
+    }
+    .compare-panel.highlight .compare-list { color: rgba(255, 255, 255, .76); }
+    .compare-list li {
+      display: grid;
+      grid-template-columns: 22px 1fr;
+      gap: 10px;
+    }
+    .compare-list span {
+      color: var(--purple);
+      font-weight: 950;
+    }
+    .compare-panel.highlight .compare-list span { color: var(--gold); }
+
+    .benefit-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 18px;
+      margin-top: 42px;
+    }
+    .benefit-card {
+      padding: 24px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      min-height: 190px;
+    }
+    .benefit-card.accent {
+      color: #fff;
+      border-color: transparent;
+      background: linear-gradient(145deg, var(--night), #321744);
+    }
+    .benefit-card.accent p { color: rgba(255, 255, 255, .7); }
+
+    .protocol-box {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      gap: 28px;
+      align-items: center;
+      margin-top: 46px;
+    }
+    .protocol-side {
+      min-height: 220px;
+      padding: 32px;
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+    .protocol-side.highlight {
+      color: #fff;
+      background: linear-gradient(145deg, var(--purple), var(--night));
+      border-color: transparent;
+    }
+    .protocol-arrow {
+      width: 52px;
+      height: 52px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      background: var(--purple);
+      font-size: 28px;
+      font-weight: 950;
+    }
+
+    .safety-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-top: 42px;
+    }
+    .safety-list {
+      border-radius: 18px;
+      background: #fff;
+      border: 1px solid var(--line);
+      padding: 28px;
+    }
+    .safety-list h3 { margin: 0 0 18px; }
+    .safety-list ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 12px;
+      color: var(--muted);
+    }
+    .safety-list li {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      line-height: 1.5;
+    }
+    .bad { color: var(--red); font-weight: 950; }
+    .good { color: var(--green); font-weight: 950; }
+
+    .pilot-card {
+      padding: 46px;
+      border-radius: 18px;
+      color: #fff;
+      background:
+        radial-gradient(circle at 18% 0%, rgba(251, 191, 36, .15), transparent 34%),
+        linear-gradient(135deg, var(--night), #3b1557 72%, var(--purple));
+      box-shadow: 0 28px 76px rgba(60, 29, 78, .24);
+    }
+    .pilot-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+      margin-top: 32px;
+    }
+    .pilot-stat {
+      padding: 22px 16px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, .08);
+      border: 1px solid rgba(255, 255, 255, .12);
+      text-align: center;
+    }
+    .pilot-stat strong {
+      display: block;
+      color: var(--gold);
+      font-size: 28px;
+      line-height: 1;
+    }
+    .pilot-stat span {
+      display: block;
+      margin-top: 8px;
+      color: rgba(255, 255, 255, .72);
+      font-size: 12px;
+    }
+
+    .evaluation-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 38px;
+    }
+    .evaluation-card {
+      min-height: 120px;
+      padding: 22px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 34px rgba(15, 23, 42, .05);
+    }
+    .evaluation-card .icon-box {
+      width: 38px;
+      height: 38px;
+      margin-bottom: 14px;
+      font-size: 15px;
+    }
+    .evaluation-card h3 {
+      margin: 0;
+      font-size: 17px;
+      letter-spacing: -.02em;
+    }
+    .evaluation-note {
+      margin: 26px 0 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.65;
+      max-width: 760px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-top: 38px;
+    }
+    .step {
+      position: relative;
+      min-height: 150px;
+      padding: 24px;
+      border-radius: 16px;
+      background: #fff;
+      border: 1px solid var(--line);
+    }
+    .step-number {
+      display: grid;
+      place-items: center;
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      color: #fff;
+      background: var(--purple);
+      font-weight: 950;
+      margin-bottom: 18px;
+    }
+
+    .final-cta {
+      text-align: center;
+      color: #fff;
+      background: var(--night);
+      padding: 92px 0;
+    }
+    .final-cta .section-title {
+      color: #fff;
+      max-width: 850px;
+      margin: 0 auto;
+    }
+    .final-cta p {
+      max-width: 650px;
+      margin: 20px auto 0;
+      color: rgba(255, 255, 255, .68);
+      line-height: 1.7;
+    }
+    .final-cta .button { margin-top: 30px; }
+
+    .footer {
+      padding: 30px 0;
+      color: rgba(255, 255, 255, .56);
+      background: #090610;
+      font-size: 12px;
+    }
+    .footer-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+    }
+    .footer-brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+      color: #fff;
+      font-weight: 850;
+    }
+    .footer-brand img { width: 28px; height: 28px; }
+
+    @media (max-width: 900px) {
+      .nav-links { display: none; }
+      .hero { padding-top: 54px; }
+      .hero-grid, .split, .protocol-box { grid-template-columns: 1fr; }
+      .phone-stage { min-height: auto; padding-top: 24px; }
+      .floating-card { right: 0; bottom: 20px; }
+      .pain-grid, .benefit-grid, .pilot-grid, .steps, .safety-grid, .comparison-grid, .evaluation-grid { grid-template-columns: 1fr; }
+      .flow { grid-template-columns: 1fr; }
+      .flow-step:not(:last-child)::after {
+        content: "v";
+        right: auto;
+        left: 50%;
+        top: auto;
+        bottom: -24px;
+        transform: translateX(-50%);
+      }
+      .protocol-arrow { margin: 0 auto; transform: rotate(90deg); }
+    }
+
+    @media (max-width: 520px) {
+      .container { width: min(100% - 28px, 1120px); }
+      .header-inner { min-height: 64px; }
+      .button { width: 100%; }
+      .hero-actions { flex-direction: column; }
+      h1 { font-size: 42px; }
+      .hero-copy { font-size: 16px; }
+      section { padding: 76px 0; }
+      .phone-frame { width: min(320px, 86vw); }
+      .video-shell { width: min(320px, 100%); padding: 10px; }
+      .video-shell video,
+      .video-shell img { width: 100%; }
+      .pilot-card { padding: 30px 20px; }
+      .footer-inner { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+<body>
+  <header class="site-header">
+    <div class="container header-inner">
+      <a class="brand" href="#topo" aria-label="OdontoDex Acadêmico">
+        <img src="./logolanding.png" alt="">
+        <span>OdontoDex Acadêmico</span>
+      </a>
+      <nav class="nav-links" aria-label="Navegação principal">
+        <a href="#problema">Problema</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#piloto">Piloto</a>
+      </nav>
+      <a class="button button-primary" href="#piloto">Ver proposta de piloto</a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero" id="topo">
+      <div class="container hero-grid">
+        <div>
+          <span class="eyebrow">Material de apoio para apresentação</span>
+          <h1>Da teoria para a decisão clínica supervisionada.</h1>
+          <p class="hero-copy">
+            Uma camada digital de apoio clínico para ajudar alunos a chegarem mais preparados à discussão, professores a ganharem tempo na orientação e a instituição a padronizar condutas na clínica-escola.
+          </p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="#como-funciona">Entender o fluxo</a>
+            <a class="button button-light" href="#piloto">Ver piloto sugerido</a>
+          </div>
+          <div class="trust-row" aria-label="Resumo da proposta">
+            <span class="trust-pill"><span></span>Piloto acompanhado</span>
+            <span class="trust-pill"><span></span>Uso supervisionado</span>
+            <span class="trust-pill"><span></span>Feedback estruturado</span>
+          </div>
+        </div>
+
+        <div class="phone-stage" aria-label="Print real do app OdontoDex">
+          <div class="phone-glow" aria-hidden="true"></div>
+          <div class="phone-frame">
+            <div class="phone-screen">
+              <img src="./landing-home-print.png" alt="Tela inicial real do aplicativo OdontoDex">
+            </div>
+          </div>
+          <aside class="floating-card">
+            <strong>Print real do app</strong>
+            <p>Interface que o aluno usaria como apoio antes de discutir a conduta com o professor.</p>
+          </aside>
+        </div>
+      </div>
+    </section>
+
+    <section class="white-band" id="problema">
+      <div class="container">
+        <p class="section-kicker">A dor da clínica-escola</p>
+        <h2 class="section-title">Alunos sabem teoria, mas travam diante da conduta prática.</h2>
+        <p class="section-copy">
+          Na bancada, a dúvida não aparece como capítulo de livro. Ela aparece como caso real, com paciente esperando, professor ocupado e necessidade de decidir o próximo passo com segurança.
+        </p>
+
+        <div class="pain-grid">
+          <article class="card">
+            <div class="icon-box">1</div>
+            <h3>Dúvidas repetidas</h3>
+            <p>O professor responde as mesmas perguntas básicas em diferentes boxes e turmas.</p>
+          </article>
+          <article class="card">
+            <div class="icon-box">2</div>
+            <h3>Condutas variadas</h3>
+            <p>Sem uma referência prática, cada aluno chega à discussão por um caminho diferente.</p>
+          </article>
+          <article class="card">
+            <div class="icon-box">3</div>
+            <h3>Fluxo travado</h3>
+            <p>A fila de dúvidas pode atrasar atendimento, supervisão e aprendizado clínico.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <p class="section-kicker">Valor para a coordenação</p>
+        <h2 class="section-title">O que a coordenação ganha com isso?</h2>
+        <p class="section-copy">
+          Além de apoiar alunos e professores, o piloto ajuda a instituição a observar padrões de dúvida, reforçar protocolos e testar inovação acadêmica com baixo risco.
+        </p>
+
+        <div class="benefit-grid">
+          <article class="benefit-card">
+            <div class="icon-box">1</div>
+            <h3>Padronização entre turmas</h3>
+            <p>Apoia uma linguagem clínica comum entre alunos, professores e disciplinas.</p>
+          </article>
+          <article class="benefit-card">
+            <div class="icon-box">2</div>
+            <h3>Visibilidade das dúvidas</h3>
+            <p>Ajuda a entender quais temas aparecem com mais frequência na rotina da clínica.</p>
+          </article>
+          <article class="benefit-card">
+            <div class="icon-box">3</div>
+            <h3>Apoio ao professor</h3>
+            <p>O aluno chega mais preparado, e a discussão pode começar em um nível mais produtivo.</p>
+          </article>
+          <article class="benefit-card accent">
+            <div class="icon-box">4</div>
+            <h3>Inovação acadêmica</h3>
+            <p>Uma camada digital de apoio clínico sem abrir mão da supervisão docente.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container split">
+        <div>
+          <p class="section-kicker">A solução</p>
+          <h2 class="section-title">OdontoDex como camada de apoio antes da conversa com o professor.</h2>
+          <p class="section-copy">
+            O aluno consulta a dúvida como ela aparece, organiza o raciocínio inicial e chega melhor preparado para discutir com o supervisor.
+          </p>
+          <div class="feature-list">
+            <div class="feature-item">
+              <div class="icon-box">1</div>
+              <div><b>Digite a dúvida</b><p>Exemplos: “coroa caiu”, “dente sensível”, “paciente desmaiou”.</p></div>
+            </div>
+            <div class="feature-item">
+              <div class="icon-box">2</div>
+              <div><b>Encontre a referência</b><p>Condutas rápidas, protocolos, prescrições, pacientes especiais e S.O.S. clínico.</p></div>
+            </div>
+            <div class="feature-item">
+              <div class="icon-box">3</div>
+              <div><b>Discuta com mais clareza</b><p>A decisão final continua supervisionada pelo professor e pelos protocolos da instituição.</p></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="app-panel">
+          <div class="video-shell">
+            <video autoplay muted loop playsinline poster="./landing-home-print.png" aria-label="Demonstração real do OdontoDex">
+              <source src="./landing-ads/assets/demonstracao-odontodex.mp4" type="video/mp4">
+              <img src="./landing-home-print.png" alt="Tela do aplicativo OdontoDex">
+            </video>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="white-band" id="como-funciona">
+      <div class="container">
+        <p class="section-kicker">Novo fluxo acadêmico</p>
+        <h2 class="section-title">O app não decide. O app prepara.</h2>
+        <div class="flow">
+          <div class="flow-step"><div class="flow-icon">1</div><strong>Aluno encontra uma dúvida clínica</strong></div>
+          <div class="flow-step"><div class="flow-icon">2</div><strong>Consulta o OdontoDex</strong></div>
+          <div class="flow-step"><div class="flow-icon">3</div><strong>Organiza o raciocínio</strong></div>
+          <div class="flow-step"><div class="flow-icon">4</div><strong>Discute com o professor</strong></div>
+          <div class="flow-step"><div class="flow-icon">5</div><strong>Professor valida</strong></div>
+        </div>
+        <div class="flow-note">A decisão clínica continua supervisionada.</div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <p class="section-kicker">Transformação da rotina</p>
+        <h2 class="section-title">Antes: dúvida solta. Depois: discussão melhor preparada.</h2>
+        <div class="comparison-grid">
+          <article class="compare-panel">
+            <h3>Sem apoio digital</h3>
+            <ul class="compare-list">
+              <li><span>-</span>Aluno chega com dúvida genérica</li>
+              <li><span>-</span>Professor reorganiza o raciocínio desde o início</li>
+              <li><span>-</span>Condutas variam muito entre alunos</li>
+              <li><span>-</span>Protocolos ficam distantes da bancada</li>
+            </ul>
+          </article>
+          <article class="compare-panel highlight">
+            <h3>Com OdontoDex Acadêmico</h3>
+            <ul class="compare-list">
+              <li><span>+</span>Aluno consulta pela situação clínica</li>
+              <li><span>+</span>Chega com uma hipótese melhor formulada</li>
+              <li><span>+</span>Professor valida e aprofunda</li>
+              <li><span>+</span>A instituição reforça uma linguagem comum</li>
+            </ul>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <p class="section-kicker">Ganhos acadêmicos esperados</p>
+        <h2 class="section-title">Menos repetição do básico, mais tempo para discussão clínica.</h2>
+        <div class="benefit-grid">
+          <article class="benefit-card">
+            <div class="icon-box">A</div>
+            <h3>Aluno mais preparado</h3>
+            <p>Ajuda a transformar dúvida em pergunta clínica melhor formulada.</p>
+          </article>
+          <article class="benefit-card">
+            <div class="icon-box">P</div>
+            <h3>Professor menos sobrecarregado</h3>
+            <p>Reduz dúvidas repetitivas e preserva tempo para raciocínio supervisionado.</p>
+          </article>
+          <article class="benefit-card">
+            <div class="icon-box">I</div>
+            <h3>Instituição mais padronizada</h3>
+            <p>Apoia uma linguagem comum entre alunos, professores e disciplinas.</p>
+          </article>
+          <article class="benefit-card accent">
+            <div class="icon-box">D</div>
+            <h3>Inovação acadêmica</h3>
+            <p>Apresenta uma camada digital de apoio sem abrir mão da governança clínica.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="white-band">
+      <div class="container">
+        <p class="section-kicker">Protocolos e POPs</p>
+        <h2 class="section-title">POPs e protocolos precisam estar acessíveis no momento da dúvida.</h2>
+        <p class="section-copy">
+          POPs e protocolos são essenciais. O desafio é fazer essa informação chegar ao aluno durante a rotina da clínica-escola, de forma prática, organizada e alinhada à orientação docente.
+        </p>
+        <div class="protocol-box">
+          <div class="protocol-side">
+            <div class="icon-box">PDF</div>
+            <h3>Documento institucional</h3>
+            <p>Essencial para padronização e consulta formal, mas nem sempre acessado durante o atendimento.</p>
+          </div>
+          <div class="protocol-arrow">></div>
+          <div class="protocol-side highlight">
+            <div class="icon-box">APP</div>
+            <h3>Camada prática de consulta</h3>
+            <p>O aluno parte da situação clínica e encontra rapidamente o caminho relacionado, sempre com validação do professor.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <p class="section-kicker">Segurança institucional</p>
+        <h2 class="section-title">Limites claros desde o primeiro dia de piloto.</h2>
+        <div class="safety-grid">
+          <div class="safety-list">
+            <h3>O que o OdontoDex não é</h3>
+            <ul>
+              <li><span class="bad">x</span> Não substitui professor ou supervisor.</li>
+              <li><span class="bad">x</span> Não substitui julgamento clínico.</li>
+              <li><span class="bad">x</span> Não é prontuário.</li>
+              <li><span class="bad">x</span> Não coleta dados de pacientes.</li>
+              <li><span class="bad">x</span> Não substitui protocolos da instituição.</li>
+              <li><span class="bad">x</span> Não promete diagnóstico automático.</li>
+            </ul>
+          </div>
+          <div class="safety-list">
+            <h3>Como deve ser usado</h3>
+            <ul>
+              <li><span class="good">✓</span> Como apoio à organização do raciocínio clínico.</li>
+              <li><span class="good">✓</span> Como preparação para discussão professor-aluno.</li>
+              <li><span class="good">✓</span> Com uso supervisionado na clínica-escola.</li>
+              <li><span class="good">✓</span> Com protocolo institucional sempre prevalecendo.</li>
+              <li><span class="good">✓</span> Sem inserção de dados identificáveis de pacientes.</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="white-band" id="piloto">
+      <div class="container">
+        <div class="pilot-card">
+          <p class="section-kicker" style="color:#D8B4FE">Piloto acadêmico</p>
+          <h2 class="section-title" style="color:#fff">Um piloto pequeno para medir valor acadêmico real.</h2>
+          <p class="section-copy" style="color:rgba(255,255,255,.7)">
+            A proposta é começar com um grupo controlado, acompanhar o uso, ouvir alunos e professores e decidir com base em feedback real se a ferramenta faz sentido para a rotina da clínica-escola.
+          </p>
+          <div class="pilot-grid">
+            <div class="pilot-stat"><strong>30</strong><span>dias</span></div>
+            <div class="pilot-stat"><strong>20-50</strong><span>alunos</span></div>
+            <div class="pilot-stat"><strong>2-5</strong><span>professores</span></div>
+            <div class="pilot-stat"><strong>Premium</strong><span>liberado</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <p class="section-kicker">Avaliação do piloto</p>
+        <h2 class="section-title">Como saber se o piloto funcionou?</h2>
+        <div class="evaluation-grid">
+          <article class="evaluation-card"><div class="icon-box">1</div><h3>Uso do app</h3></article>
+          <article class="evaluation-card"><div class="icon-box">2</div><h3>Dúvidas mais pesquisadas</h3></article>
+          <article class="evaluation-card"><div class="icon-box">3</div><h3>Feedback dos alunos</h3></article>
+          <article class="evaluation-card"><div class="icon-box">4</div><h3>Feedback dos professores</h3></article>
+          <article class="evaluation-card"><div class="icon-box">5</div><h3>Percepção de preparo para discussão</h3></article>
+          <article class="evaluation-card"><div class="icon-box">6</div><h3>Sugestões de adaptação institucional</h3></article>
+        </div>
+        <p class="evaluation-note">
+          A instituição recebe uma síntese simples do que funcionou, do que não funcionou e do que poderia ser adaptado.
+        </p>
+      </div>
+    </section>
+
+    <section>
+      <div class="container">
+        <p class="section-kicker">Próximos passos</p>
+        <h2 class="section-title">Um caminho simples para começar.</h2>
+        <div class="steps">
+          <div class="step"><div class="step-number">1</div><h3>Reunião</h3><p>Alinhamento com coordenação e professores.</p></div>
+          <div class="step"><div class="step-number">2</div><h3>Grupo piloto</h3><p>Escolha da turma, disciplina ou clínica.</p></div>
+          <div class="step"><div class="step-number">3</div><h3>Acessos</h3><p>Liberação para alunos e docentes participantes.</p></div>
+          <div class="step"><div class="step-number">4</div><h3>Relatório final</h3><p>Síntese dos feedbacks e aprendizados para a coordenação.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="final-cta" id="contato">
+      <div class="container">
+        <h2 class="section-title">Teste com uma turma. Meça o impacto. Decida com segurança.</h2>
+        <p>Um piloto simples para avaliar, com alunos e professores, se o OdontoDex pode se tornar uma camada prática de apoio clínico, padronização e inovação na clínica-escola.</p>
+        <a class="button button-primary" href="#piloto">Rever proposta do piloto</a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <div class="footer-brand">
+        <img src="./logolanding.png" alt="">
+        <span>OdontoDex</span>
+      </div>
+      <span>© 2026 OdontoDex Acadêmico</span>
+      <span>App de apoio clínico. Não substitui supervisão, julgamento clínico ou protocolos institucionais.</span>
+    </div>
+  </footer>
+</body>
+</html>

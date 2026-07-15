@@ -1,0 +1,333 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/ikwy87",
+    "id": "ikwy87",
+    "slide": 1,
+    "layoutId": "db566f9d-3a67-4728-9994-f2fe20c86090",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "3d452f29-77c3-4dfb-b1d4-c5be05c0fc4a",
+    "masterLayoutName": "Master",
+    "backgroundColor": "#0F0A1A",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "ChatGPT",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#E97132",
+      "accent3": "#196B24",
+      "accent4": "#0F9ED5",
+      "accent5": "#A02B93",
+      "accent6": "#4EA72E",
+      "bg1": "#FFFFFF",
+      "bg2": "#000000",
+      "tx1": "#1F1F1F",
+      "tx2": "#FFFFFF",
+      "dk1": "#000000",
+      "lt1": "#FFFFFF",
+      "dk2": "#0E2841",
+      "lt2": "#E8E8E8",
+      "hlink": "#467886",
+      "folHlink": "#96607D"
+    },
+    "typefaces": [
+      "+mn-lt"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "db566f9d-3a67-4728-9994-f2fe20c86090",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "3d452f29-77c3-4dfb-b1d4-c5be05c0fc4a",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "3d452f29-77c3-4dfb-b1d4-c5be05c0fc4a",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/1032lszq",
+      "id": "1",
+      "bbox": [
+        0,
+        0,
+        1280,
+        720
+      ],
+      "geometry": "rect",
+      "fillColor": "#0F0A1A",
+      "lineColor": "rgba(0, 0, 0, 0)",
+      "lineWidth": 0
+    },
+    {
+      "order": 2,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/jm1cfa9w",
+      "id": "2",
+      "bbox": [
+        84,
+        74,
+        86,
+        86
+      ],
+      "alt": "Logo OdontoDex",
+      "contentType": "image/png",
+      "imageFit": "contain",
+      "asset": {
+        "assetId": "b1a557e5-4e33-4e42-905b-ab6aea083134",
+        "contentType": "image/png",
+        "byteLength": 23811
+      }
+    },
+    {
+      "order": 3,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/judg7ads",
+      "id": "3",
+      "bbox": [
+        84,
+        220,
+        690,
+        90
+      ],
+      "geometry": "rect",
+      "text": "OdontoDex Acadêmico",
+      "textPreview": "OdontoDex Acadêmico",
+      "resolvedFontSize": 56,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 56,
+        "typeface": "+mn-lt",
+        "color": "#FFFFFF",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "OdontoDex Acadêmico"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "OdontoDex Acadêmico",
+          "resolvedTextStyle": {
+            "fontSize": 56,
+            "color": "#FFFFFF",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "OdontoDex Acadêmico",
+              "fontSize": 56,
+              "color": "#FFFFFF",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/c7u54zid",
+      "id": "4",
+      "bbox": [
+        86,
+        326,
+        670,
+        92
+      ],
+      "geometry": "rect",
+      "text": "Apoio clínico para alunos e professores na rotina da clínica-escola",
+      "textPreview": "Apoio clínico para alunos e professores na rotina da clínica-escola",
+      "resolvedFontSize": 25,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 25,
+        "typeface": "+mn-lt",
+        "color": "#E9D8F3",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Apoio clínico para alunos e professores na rotina da"
+          },
+          {
+            "index": 2,
+            "text": "clínica-escola"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Apoio clínico para alunos e professores na rotina da clínica-escola",
+          "resolvedTextStyle": {
+            "fontSize": 25,
+            "color": "#E9D8F3",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Apoio clínico para alunos e professores na rotina da clínica-escola",
+              "fontSize": 25,
+              "color": "#E9D8F3",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 5,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/1orytsvu",
+      "id": "5",
+      "bbox": [
+        88,
+        524,
+        580,
+        44
+      ],
+      "geometry": "rect",
+      "text": "Proposta de piloto acadêmico para faculdades de Odontologia em Natal",
+      "textPreview": "Proposta de piloto acadêmico para faculdades de Odontologia em Natal",
+      "resolvedFontSize": 18,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 18,
+        "typeface": "+mn-lt",
+        "color": "#BFA8D0",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Proposta de piloto acadêmico para faculdades de Odontologia em Natal"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Proposta de piloto acadêmico para faculdades de Odontologia em Natal",
+          "resolvedTextStyle": {
+            "fontSize": 18,
+            "color": "#BFA8D0",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Proposta de piloto acadêmico para faculdades de Odontologia em Natal",
+              "fontSize": 18,
+              "color": "#BFA8D0",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 6,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/judg7ads",
+      "id": "6",
+      "bbox": [
+        814,
+        74,
+        330,
+        518
+      ],
+      "alt": "Print do aplicativo OdontoDex",
+      "contentType": "image/png",
+      "imageFit": "cover",
+      "asset": {
+        "assetId": "08822d36-e79a-418d-91ed-711cbc02a987",
+        "contentType": "image/png",
+        "byteLength": 81889
+      }
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/jm1cfa9w",
+      "id": "7",
+      "bbox": [
+        792,
+        52,
+        374,
+        562
+      ],
+      "geometry": "roundRect",
+      "lineColor": "rgba(255, 255, 255, 0.24)",
+      "lineWidth": 1.2
+    }
+  ],
+  "composeRuns": []
+}

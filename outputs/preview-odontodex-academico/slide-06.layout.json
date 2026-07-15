@@ -1,0 +1,777 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/y7irrk",
+    "id": "y7irrk",
+    "slide": 6,
+    "layoutId": "db566f9d-3a67-4728-9994-f2fe20c86090",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "3d452f29-77c3-4dfb-b1d4-c5be05c0fc4a",
+    "masterLayoutName": "Master",
+    "backgroundColor": "#FFFFFF",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "ChatGPT",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#E97132",
+      "accent3": "#196B24",
+      "accent4": "#0F9ED5",
+      "accent5": "#A02B93",
+      "accent6": "#4EA72E",
+      "bg1": "#FFFFFF",
+      "bg2": "#000000",
+      "tx1": "#1F1F1F",
+      "tx2": "#FFFFFF",
+      "dk1": "#000000",
+      "lt1": "#FFFFFF",
+      "dk2": "#0E2841",
+      "lt2": "#E8E8E8",
+      "hlink": "#467886",
+      "folHlink": "#96607D"
+    },
+    "typefaces": [
+      "+mn-lt"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "db566f9d-3a67-4728-9994-f2fe20c86090",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "3d452f29-77c3-4dfb-b1d4-c5be05c0fc4a",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "3d452f29-77c3-4dfb-b1d4-c5be05c0fc4a",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/mtwra5gb",
+      "id": "1",
+      "bbox": [
+        84,
+        50,
+        540,
+        24
+      ],
+      "geometry": "rect",
+      "text": "EXEMPLOS REAIS",
+      "textPreview": "EXEMPLOS REAIS",
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "#7C3FA0",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "EXEMPLOS REAIS"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "EXEMPLOS REAIS",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "#7C3FA0",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "EXEMPLOS REAIS",
+              "fontSize": 12,
+              "color": "#7C3FA0",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/xkf6dcbu",
+      "id": "2",
+      "bbox": [
+        84,
+        82,
+        900,
+        100
+      ],
+      "geometry": "rect",
+      "text": "As perguntas do app nascem da linguagem da clínica",
+      "textPreview": "As perguntas do app nascem da linguagem da clínica",
+      "resolvedFontSize": 38,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 38,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "As perguntas do app nascem da linguagem da clínica"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "As perguntas do app nascem da linguagem da clínica",
+          "resolvedTextStyle": {
+            "fontSize": 38,
+            "color": "#0F172A",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "As perguntas do app nascem da linguagem da clínica",
+              "fontSize": 38,
+              "color": "#0F172A",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 3,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/hgn29gr2",
+      "id": "3",
+      "bbox": [
+        1164,
+        42,
+        32,
+        32
+      ],
+      "alt": "Logo OdontoDex",
+      "contentType": "image/png",
+      "imageFit": "contain",
+      "asset": {
+        "assetId": "704a09f8-32b3-4208-a2fd-d70916183276",
+        "contentType": "image/png",
+        "byteLength": 23811
+      }
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/f6dcbulw",
+      "id": "4",
+      "bbox": [
+        122,
+        232,
+        470,
+        92
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#FAFBFE",
+      "lineColor": "#E2E8F0",
+      "lineWidth": 1
+    },
+    {
+      "order": 5,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/zidonyd0",
+      "id": "5",
+      "bbox": [
+        150,
+        260,
+        28,
+        28
+      ],
+      "alt": "Search icon",
+      "contentType": "image/svg+xml",
+      "imageFit": "contain",
+      "asset": {
+        "assetId": "cffbe806-09f5-4197-bd8d-83faabc25149",
+        "contentType": "image/svg+xml",
+        "byteLength": 243
+      }
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/xc3ylc7u",
+      "id": "6",
+      "bbox": [
+        198,
+        262,
+        350,
+        34
+      ],
+      "geometry": "rect",
+      "text": "coroa caiu",
+      "textPreview": "coroa caiu",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 24,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "coroa caiu"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "coroa caiu",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#0F172A",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "coroa caiu",
+              "fontSize": 24,
+              "color": "#0F172A",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/4r65wjud",
+      "id": "7",
+      "bbox": [
+        658,
+        232,
+        470,
+        92
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#FAFBFE",
+      "lineColor": "#E2E8F0",
+      "lineWidth": 1
+    },
+    {
+      "order": 8,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/a5gbq1or",
+      "id": "8",
+      "bbox": [
+        686,
+        260,
+        28,
+        28
+      ],
+      "alt": "Search icon",
+      "contentType": "image/svg+xml",
+      "imageFit": "contain",
+      "asset": {
+        "assetId": "b03df381-bcb7-4a48-8fdf-afd41959a4c0",
+        "contentType": "image/svg+xml",
+        "byteLength": 243
+      }
+    },
+    {
+      "order": 9,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/m94fu18j",
+      "id": "9",
+      "bbox": [
+        734,
+        262,
+        350,
+        34
+      ],
+      "geometry": "rect",
+      "text": "dente sensível",
+      "textPreview": "dente sensível",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 24,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "dente sensível"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "dente sensível",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#0F172A",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "dente sensível",
+              "fontSize": 24,
+              "color": "#0F172A",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 10,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/sji5snel",
+      "id": "10",
+      "bbox": [
+        122,
+        386,
+        470,
+        92
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#FFFBEB",
+      "lineColor": "#E2E8F0",
+      "lineWidth": 1
+    },
+    {
+      "order": 11,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/a1gvy90j",
+      "id": "11",
+      "bbox": [
+        150,
+        414,
+        28,
+        28
+      ],
+      "alt": "Search icon",
+      "contentType": "image/svg+xml",
+      "imageFit": "contain",
+      "asset": {
+        "assetId": "a3b2aacc-8431-4ef8-878f-d487c9366705",
+        "contentType": "image/svg+xml",
+        "byteLength": 243
+      }
+    },
+    {
+      "order": 12,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/adsji5sn",
+      "id": "12",
+      "bbox": [
+        198,
+        416,
+        350,
+        34
+      ],
+      "geometry": "rect",
+      "text": "gestante pode tomar nimesulida?",
+      "textPreview": "gestante pode tomar nimesulida?",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 24,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "gestante pode tomar"
+          },
+          {
+            "index": 2,
+            "text": "nimesulida?"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "gestante pode tomar nimesulida?",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#0F172A",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "gestante pode tomar nimesulida?",
+              "fontSize": 24,
+              "color": "#0F172A",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 13,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/3ylc7u54",
+      "id": "13",
+      "bbox": [
+        658,
+        386,
+        470,
+        92
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#FAFBFE",
+      "lineColor": "#E2E8F0",
+      "lineWidth": 1
+    },
+    {
+      "order": 14,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/za1gvy90",
+      "id": "14",
+      "bbox": [
+        686,
+        414,
+        28,
+        28
+      ],
+      "alt": "Siren icon",
+      "contentType": "image/svg+xml",
+      "imageFit": "contain",
+      "asset": {
+        "assetId": "aa0b0165-6d00-4346-95a5-f0110e6ac573",
+        "contentType": "image/svg+xml",
+        "byteLength": 439
+      }
+    },
+    {
+      "order": 15,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/lszqtcj6",
+      "id": "15",
+      "bbox": [
+        734,
+        416,
+        350,
+        34
+      ],
+      "geometry": "rect",
+      "text": "paciente desmaiou",
+      "textPreview": "paciente desmaiou",
+      "resolvedFontSize": 24,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 24,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "paciente desmaiou"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "paciente desmaiou",
+          "resolvedTextStyle": {
+            "fontSize": 24,
+            "color": "#0F172A",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "paciente desmaiou",
+              "fontSize": 24,
+              "color": "#0F172A",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 16,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/a5gbq1or",
+      "id": "16",
+      "bbox": [
+        154,
+        542,
+        970,
+        54
+      ],
+      "geometry": "rect",
+      "text": "O valor está em traduzir a dúvida comum em uma referência clínica organizada, sem prometer diagnóstico automático.",
+      "textPreview": "O valor está em traduzir a dúvida comum em uma referência clínica organizada, sem prometer diagnóstico automático.",
+      "resolvedFontSize": 22,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 22,
+        "typeface": "+mn-lt",
+        "color": "#64748B",
+        "alignment": "center",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "O valor está em traduzir a dúvida comum em uma referência clínica organizada, sem prometer diagnóstico"
+          },
+          {
+            "index": 2,
+            "text": "automático."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "O valor está em traduzir a dúvida comum em uma referência clínica organizada, sem prometer diagnóstico automático.",
+          "resolvedTextStyle": {
+            "fontSize": 22,
+            "color": "#64748B",
+            "alignment": "center"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "O valor está em traduzir a dúvida comum em uma referência clínica organizada, sem prometer diagnóstico automático.",
+              "fontSize": 22,
+              "color": "#64748B",
+              "alignment": "center"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 17,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/3m94fu18",
+      "id": "17",
+      "bbox": [
+        84,
+        660,
+        70,
+        3
+      ],
+      "geometry": "rect",
+      "fillColor": "#7C3FA0",
+      "lineColor": "rgba(0, 0, 0, 0)",
+      "lineWidth": 0
+    },
+    {
+      "order": 18,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/s36hcrmh",
+      "id": "18",
+      "bbox": [
+        170,
+        650,
+        680,
+        28
+      ],
+      "geometry": "rect",
+      "text": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal",
+      "textPreview": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal",
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "#64748B",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "#64748B",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal",
+              "fontSize": 12,
+              "color": "#64748B",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    }
+  ],
+  "composeRuns": []
+}

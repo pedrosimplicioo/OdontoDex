@@ -1,0 +1,1003 @@
+{
+  "schema": "openai.presentation.layout/v4",
+  "unit": "px",
+  "slide": {
+    "aid": "sl/nyxqe7",
+    "id": "nyxqe7",
+    "slide": 3,
+    "layoutId": "db566f9d-3a67-4728-9994-f2fe20c86090",
+    "layoutName": "Title Slide",
+    "layoutType": "title",
+    "masterLayoutId": "3d452f29-77c3-4dfb-b1d4-c5be05c0fc4a",
+    "masterLayoutName": "Master",
+    "backgroundColor": "#FFFFFF",
+    "frame": {
+      "left": 0,
+      "top": 0,
+      "width": 1280,
+      "height": 720
+    }
+  },
+  "theme": {
+    "colorSchemeName": "ChatGPT",
+    "colors": {
+      "accent1": "#156082",
+      "accent2": "#E97132",
+      "accent3": "#196B24",
+      "accent4": "#0F9ED5",
+      "accent5": "#A02B93",
+      "accent6": "#4EA72E",
+      "bg1": "#FFFFFF",
+      "bg2": "#000000",
+      "tx1": "#1F1F1F",
+      "tx2": "#FFFFFF",
+      "dk1": "#000000",
+      "lt1": "#FFFFFF",
+      "dk2": "#0E2841",
+      "lt2": "#E8E8E8",
+      "hlink": "#467886",
+      "folHlink": "#96607D"
+    },
+    "typefaces": [
+      "+mn-lt"
+    ]
+  },
+  "inheritedLayers": [
+    {
+      "scope": "layout",
+      "id": "db566f9d-3a67-4728-9994-f2fe20c86090",
+      "name": "Title Slide",
+      "type": "title",
+      "parentLayoutId": "3d452f29-77c3-4dfb-b1d4-c5be05c0fc4a",
+      "elements": []
+    },
+    {
+      "scope": "master",
+      "id": "3d452f29-77c3-4dfb-b1d4-c5be05c0fc4a",
+      "name": "Master",
+      "type": "master",
+      "elements": []
+    }
+  ],
+  "elements": [
+    {
+      "order": 1,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/knih4byh",
+      "id": "1",
+      "bbox": [
+        84,
+        50,
+        540,
+        24
+      ],
+      "geometry": "rect",
+      "text": "A DOR DA CLÍNICA-ESCOLA",
+      "textPreview": "A DOR DA CLÍNICA-ESCOLA",
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "#7C3FA0",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "A DOR DA CLÍNICA-ESCOLA"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "A DOR DA CLÍNICA-ESCOLA",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "#7C3FA0",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "A DOR DA CLÍNICA-ESCOLA",
+              "fontSize": 12,
+              "color": "#7C3FA0",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 2,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/v6psfil0",
+      "id": "2",
+      "bbox": [
+        84,
+        82,
+        900,
+        100
+      ],
+      "geometry": "rect",
+      "text": "As mesmas dúvidas consomem tempo de alunos e professores",
+      "textPreview": "As mesmas dúvidas consomem tempo de alunos e professores",
+      "resolvedFontSize": 38,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 38,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "As mesmas dúvidas consomem tempo de alunos e"
+          },
+          {
+            "index": 2,
+            "text": "professores"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "As mesmas dúvidas consomem tempo de alunos e professores",
+          "resolvedTextStyle": {
+            "fontSize": 38,
+            "color": "#0F172A",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "As mesmas dúvidas consomem tempo de alunos e professores",
+              "fontSize": 38,
+              "color": "#0F172A",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 3,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/3ex0nuxc",
+      "id": "3",
+      "bbox": [
+        1164,
+        42,
+        32,
+        32
+      ],
+      "alt": "Logo OdontoDex",
+      "contentType": "image/png",
+      "imageFit": "contain",
+      "asset": {
+        "assetId": "21906d04-94f2-4fc5-977e-69c483bf0ebe",
+        "contentType": "image/png",
+        "byteLength": 23811
+      }
+    },
+    {
+      "order": 4,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/d0z61032",
+      "id": "4",
+      "bbox": [
+        86,
+        214,
+        246,
+        264
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#F5EEFB",
+      "lineColor": "#E2E8F0",
+      "lineWidth": 1
+    },
+    {
+      "order": 5,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/l87ed8ba",
+      "id": "5",
+      "bbox": [
+        110,
+        244,
+        34,
+        34
+      ],
+      "alt": "MessagesSquare icon",
+      "contentType": "image/svg+xml",
+      "imageFit": "contain",
+      "asset": {
+        "assetId": "0c4db7b7-572d-42fe-9a2e-89c943b00663",
+        "contentType": "image/svg+xml",
+        "byteLength": 425
+      }
+    },
+    {
+      "order": 6,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/vu9knih4",
+      "id": "6",
+      "bbox": [
+        110,
+        306,
+        190,
+        34
+      ],
+      "geometry": "rect",
+      "text": "Dúvidas repetidas",
+      "textPreview": "Dúvidas repetidas",
+      "resolvedFontSize": 23,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 23,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Dúvidas"
+          },
+          {
+            "index": 2,
+            "text": "repetidas"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Dúvidas repetidas",
+          "resolvedTextStyle": {
+            "fontSize": 23,
+            "color": "#0F172A",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Dúvidas repetidas",
+              "fontSize": 23,
+              "color": "#0F172A",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 7,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/29gr2p8n",
+      "id": "7",
+      "bbox": [
+        110,
+        356,
+        190,
+        90
+      ],
+      "geometry": "rect",
+      "text": "Perguntas semelhantes surgem em várias bancadas.",
+      "textPreview": "Perguntas semelhantes surgem em várias bancadas.",
+      "resolvedFontSize": 17,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 17,
+        "typeface": "+mn-lt",
+        "color": "#64748B",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Perguntas semelhantes"
+          },
+          {
+            "index": 2,
+            "text": "surgem em várias"
+          },
+          {
+            "index": 3,
+            "text": "bancadas."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Perguntas semelhantes surgem em várias bancadas.",
+          "resolvedTextStyle": {
+            "fontSize": 17,
+            "color": "#64748B",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Perguntas semelhantes surgem em várias bancadas.",
+              "fontSize": 17,
+              "color": "#64748B",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 8,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/donyd0z6",
+      "id": "8",
+      "bbox": [
+        372,
+        214,
+        246,
+        264
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#FAFBFE",
+      "lineColor": "#E2E8F0",
+      "lineWidth": 1
+    },
+    {
+      "order": 9,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/lwval87e",
+      "id": "9",
+      "bbox": [
+        396,
+        244,
+        34,
+        34
+      ],
+      "alt": "ListChecks icon",
+      "contentType": "image/svg+xml",
+      "imageFit": "contain",
+      "asset": {
+        "assetId": "dab9c7d9-5d18-446d-b10a-dda448e228f0",
+        "contentType": "image/svg+xml",
+        "byteLength": 292
+      }
+    },
+    {
+      "order": 10,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/at47y1kr",
+      "id": "10",
+      "bbox": [
+        396,
+        306,
+        190,
+        34
+      ],
+      "geometry": "rect",
+      "text": "Condutas variadas",
+      "textPreview": "Condutas variadas",
+      "resolvedFontSize": 23,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 23,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Condutas"
+          },
+          {
+            "index": 2,
+            "text": "variadas"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Condutas variadas",
+          "resolvedTextStyle": {
+            "fontSize": 23,
+            "color": "#0F172A",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Condutas variadas",
+              "fontSize": 23,
+              "color": "#0F172A",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 11,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/3ex0nuxc",
+      "id": "11",
+      "bbox": [
+        396,
+        356,
+        190,
+        90
+      ],
+      "geometry": "rect",
+      "text": "Sem referência rápida, cada aluno chega por um caminho.",
+      "textPreview": "Sem referência rápida, cada aluno chega por um caminho.",
+      "resolvedFontSize": 17,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 17,
+        "typeface": "+mn-lt",
+        "color": "#64748B",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Sem referência rápida,"
+          },
+          {
+            "index": 2,
+            "text": "cada aluno chega por"
+          },
+          {
+            "index": 3,
+            "text": "um caminho."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Sem referência rápida, cada aluno chega por um caminho.",
+          "resolvedTextStyle": {
+            "fontSize": 17,
+            "color": "#64748B",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Sem referência rápida, cada aluno chega por um caminho.",
+              "fontSize": 17,
+              "color": "#64748B",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 12,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/szqtcj6t",
+      "id": "12",
+      "bbox": [
+        658,
+        214,
+        246,
+        264
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#F5EEFB",
+      "lineColor": "#E2E8F0",
+      "lineWidth": 1
+    },
+    {
+      "order": 13,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/a1gvy90j",
+      "id": "13",
+      "bbox": [
+        682,
+        244,
+        34,
+        34
+      ],
+      "alt": "UserRoundCheck icon",
+      "contentType": "image/svg+xml",
+      "imageFit": "contain",
+      "asset": {
+        "assetId": "d6c50b50-315f-459e-a3bc-6235cefeca95",
+        "contentType": "image/svg+xml",
+        "byteLength": 276
+      }
+    },
+    {
+      "order": 14,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/ahoza1gv",
+      "id": "14",
+      "bbox": [
+        682,
+        306,
+        190,
+        34
+      ],
+      "geometry": "rect",
+      "text": "Professor sobrecarregado",
+      "textPreview": "Professor sobrecarregado",
+      "resolvedFontSize": 23,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 23,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 2,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Professor"
+          },
+          {
+            "index": 2,
+            "text": "sobrecarregado"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Professor sobrecarregado",
+          "resolvedTextStyle": {
+            "fontSize": 23,
+            "color": "#0F172A",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Professor sobrecarregado",
+              "fontSize": 23,
+              "color": "#0F172A",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 15,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/32lszqtc",
+      "id": "15",
+      "bbox": [
+        682,
+        356,
+        190,
+        90
+      ],
+      "geometry": "rect",
+      "text": "O professor precisa corrigir o básico antes da discussão clínica.",
+      "textPreview": "O professor precisa corrigir o básico antes da discussão clínica.",
+      "resolvedFontSize": 17,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 17,
+        "typeface": "+mn-lt",
+        "color": "#64748B",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "O professor precisa"
+          },
+          {
+            "index": 2,
+            "text": "corrigir o básico antes"
+          },
+          {
+            "index": 3,
+            "text": "da discussão clínica."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "O professor precisa corrigir o básico antes da discussão clínica.",
+          "resolvedTextStyle": {
+            "fontSize": 17,
+            "color": "#64748B",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "O professor precisa corrigir o básico antes da discussão clínica.",
+              "fontSize": 17,
+              "color": "#64748B",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 16,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/sneloj2t",
+      "id": "16",
+      "bbox": [
+        944,
+        214,
+        246,
+        264
+      ],
+      "geometry": "roundRect",
+      "fillColor": "#FAFBFE",
+      "lineColor": "#E2E8F0",
+      "lineWidth": 1
+    },
+    {
+      "order": 17,
+      "kind": "image",
+      "scope": "slide",
+      "aid": "im/ap4r65wj",
+      "id": "17",
+      "bbox": [
+        968,
+        244,
+        34,
+        34
+      ],
+      "alt": "ClipboardCheck icon",
+      "contentType": "image/svg+xml",
+      "imageFit": "contain",
+      "asset": {
+        "assetId": "6965a688-27e4-41c1-8b4d-8b0ec332cd4c",
+        "contentType": "image/svg+xml",
+        "byteLength": 347
+      }
+    },
+    {
+      "order": 18,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/e9cvixcz",
+      "id": "18",
+      "bbox": [
+        968,
+        306,
+        190,
+        34
+      ],
+      "geometry": "rect",
+      "text": "Protocolos claros",
+      "textPreview": "Protocolos claros",
+      "resolvedFontSize": 23,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 23,
+        "typeface": "+mn-lt",
+        "color": "#0F172A",
+        "bold": true,
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Protocolos claros"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Protocolos claros",
+          "resolvedTextStyle": {
+            "fontSize": 23,
+            "color": "#0F172A",
+            "bold": true,
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Protocolos claros",
+              "fontSize": 23,
+              "color": "#0F172A",
+              "bold": true,
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 19,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/3q5o7qpg",
+      "id": "19",
+      "bbox": [
+        968,
+        356,
+        190,
+        90
+      ],
+      "geometry": "rect",
+      "text": "A instituição precisa reforçar uma linguagem comum.",
+      "textPreview": "A instituição precisa reforçar uma linguagem comum.",
+      "resolvedFontSize": 17,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 17,
+        "typeface": "+mn-lt",
+        "color": "#64748B",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 3,
+        "lines": [
+          {
+            "index": 1,
+            "text": "A instituição precisa"
+          },
+          {
+            "index": 2,
+            "text": "reforçar uma linguagem"
+          },
+          {
+            "index": 3,
+            "text": "comum."
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "A instituição precisa reforçar uma linguagem comum.",
+          "resolvedTextStyle": {
+            "fontSize": 17,
+            "color": "#64748B",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "A instituição precisa reforçar uma linguagem comum.",
+              "fontSize": 17,
+              "color": "#64748B",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    },
+    {
+      "order": 20,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/vmtwra5g",
+      "id": "20",
+      "bbox": [
+        84,
+        660,
+        70,
+        3
+      ],
+      "geometry": "rect",
+      "fillColor": "#7C3FA0",
+      "lineColor": "rgba(0, 0, 0, 0)",
+      "lineWidth": 0
+    },
+    {
+      "order": 21,
+      "kind": "shape",
+      "scope": "slide",
+      "aid": "sh/61032lsz",
+      "id": "21",
+      "bbox": [
+        170,
+        650,
+        680,
+        28
+      ],
+      "geometry": "rect",
+      "text": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal",
+      "textPreview": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal",
+      "resolvedFontSize": 12,
+      "resolvedTextStyle": {
+        "anchor": 1,
+        "fontSize": 12,
+        "typeface": "+mn-lt",
+        "color": "#64748B",
+        "alignment": "left",
+        "verticalAlignment": "top",
+        "insets": {
+          "top": 4.8,
+          "right": 9.6,
+          "bottom": 4.8,
+          "left": 9.6
+        }
+      },
+      "textLayout": {
+        "lineCount": 1,
+        "lines": [
+          {
+            "index": 1,
+            "text": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal"
+          }
+        ]
+      },
+      "paragraphs": [
+        {
+          "index": 1,
+          "text": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal",
+          "resolvedTextStyle": {
+            "fontSize": 12,
+            "color": "#64748B",
+            "alignment": "left"
+          },
+          "runs": [
+            {
+              "index": 1,
+              "text": "Proposta de piloto acadêmico | Faculdades de Odontologia em Natal",
+              "fontSize": 12,
+              "color": "#64748B",
+              "alignment": "left"
+            }
+          ],
+          "marginLeft": 0
+        }
+      ],
+      "lineWidth": 0
+    }
+  ],
+  "composeRuns": []
+}
